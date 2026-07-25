@@ -37,6 +37,13 @@ export default async function Page() {
   ]);
   const items = classes.map((item) => toClassCardItem(item, user?.memberId));
 
+  // `GET /classes` is role-scoped: students receive the discoverable list, so the
+  // header count comes from the student overview instead (keeping it consistent
+  // with the "Available classes" card rather than showing a misleading 0).
+  const classCount = isStudent
+    ? studentOverview?.counts.availableClasses ?? 0
+    : classes.length;
+
   return (
     <section className="flex flex-col gap-6 py-6">
       <SchoolProfileHeader
@@ -47,7 +54,7 @@ export default async function Page() {
         logoUrl={school.logoUrl}
         location={location}
         isActive={school.isActive}
-        classCount={classes.length}
+        classCount={classCount}
         studentCount={schoolMembers?.counts.students ?? 0}
         teacherCount={schoolMembers?.counts.teachers ?? 0}
         isAdmin={isAdmin}

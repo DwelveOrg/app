@@ -21,6 +21,10 @@ translation: {
             createClass: "Create class",
             createSchool: "Create school",
           },
+          join: {
+            title: "Join your school",
+            description: "Enter the student join code from your school or teacher to see your classes and tests.",
+          },
         },
         dashboard: {
           empty: {
@@ -31,8 +35,111 @@ translation: {
               createSchool: "Create school",
               createSchoolHint: "Set up your school",
               redeemInvite: "Redeem invite",
+              redeemInviteHint: "Paste your invite link",
               joinStudent: "Join as student",
+              joinStudentHint: "Enter your school join code",
               comingSoon: "Coming soon",
+            },
+          },
+          student: {
+            eyebrow: "You're in {{school}}",
+            welcomeTitle: "Welcome, {{name}}",
+            welcomeTitleGeneric: "Welcome",
+            subtitle: "Here's where things stand at {{school}}.",
+            onboarding: {
+              eyebrow: "Next step",
+              title: "Find your classes",
+              description: "You've joined the school, but you're not enrolled in any classes yet. Browse the classes on offer and request to join the ones you need.",
+              steps: {
+                joined: "Joined your school",
+                find: "Find and request your classes",
+                learn: "Take tests and track your progress",
+              },
+              browse: "Browse classes",
+              reviewRequests: "Review pending requests ({{count}})",
+            },
+            myClasses: {
+              title: "Your classes",
+              viewAll: "View all",
+            },
+          },
+          setup: {
+            eyebrow: "Set up your school",
+            title: "Let's get {{school}} ready",
+            titleGeneric: "Let's finish setting up",
+            subtitle: "Add classes, invite teachers, and share your join code to bring students in.",
+            checklistTitle: "Finish setting up your school",
+            progress: "{{done}} of {{total}} done",
+            doneLabel: "Done",
+            stats: {
+              students: { label: "Students", hint: "Share your code to bring students in" },
+              teachers: { label: "Teachers", hint: "Invite the people who run your classes" },
+              classes: { label: "Classes", hint: "Group students by subject or grade" },
+            },
+            steps: {
+              createSchool: { title: "Create your school", desc: "Your school is ready" },
+              addClass: {
+                title: "Add your first class",
+                desc: "Group students by subject or grade",
+                action: "Add class",
+              },
+              inviteTeachers: {
+                title: "Invite teachers",
+                desc: "They can create exams and see answer keys",
+                action: "Invite",
+              },
+              shareCode: {
+                title: "Share the student join code",
+                desc: "Students join your school with this code",
+                action: "Copy code",
+              },
+            },
+          },
+          modules: {
+            kpi: {
+              admin: {
+                students: "Students",
+                classes: "Classes",
+                exams: "Exams",
+                avgScore: "Avg. score",
+              },
+              teacher: {
+                students: "My students",
+                classes: "My classes",
+                exams: "Exams",
+                avgScore: "Class average",
+              },
+              cue: {
+                invite: "Share code to invite",
+                addClass: "Add your first class",
+                noResults: "No results yet",
+              },
+            },
+            trend: {
+              emptyTitle: "No results yet",
+              emptyDesc:
+                "Graded exams will draw the performance trend here once the first results come in.",
+            },
+            distribution: {
+              title: "Grade distribution",
+              center: "results",
+            },
+            members: {
+              title: "Members by role",
+              center: "members",
+              students: "Students",
+              teachers: "Teachers",
+              admins: "Admins",
+            },
+            quickActions: {
+              title: "Quick actions",
+              addClass: "Add class",
+              inviteTeacher: "Invite teacher",
+              viewClasses: "View classes",
+            },
+            teacherNoClasses: {
+              title: "No classes assigned yet",
+              desc: "Your admin hasn't added you to a class. Once they do, your classes, results and upcoming exams appear here.",
             },
           },
           schoolForm: {
@@ -150,11 +257,21 @@ translation: {
             },
           },
         },
+        redeemInvite: {
+          title: "Redeem a teacher invite",
+          description: "Paste the invite link or token your school admin sent you.",
+          inputLabel: "Invite link or token",
+          inputPlaceholder: "https://… or paste your token",
+          cancel: "Cancel",
+          submit: "Redeem invite",
+          success: "Invite accepted — welcome to the team",
+          error: "This invite link is invalid or has expired.",
+        },
         joinSchool: {
           title: "Join a school",
           description: "Enter the student join code provided by your school or teacher.",
           codeLabel: "Join code",
-          codePlaceholder: "e.g. ABC123",
+          codePlaceholder: "e.g. DWL-AB12CD34",
           cancel: "Cancel",
           submit: "Join school",
           success: "Joined school successfully",
