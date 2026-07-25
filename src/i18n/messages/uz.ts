@@ -21,6 +21,10 @@ translation: {
             createClass: "Sinf yaratish",
             createSchool: "Maktab yaratish",
           },
+          join: {
+            title: "Maktabingizga qo'shiling",
+            description: "Sinflaringiz va testlaringizni ko'rish uchun maktab yoki o'qituvchingiz bergan o'quvchi kodini kiriting.",
+          },
         },
         dashboard: {
           empty: {
@@ -31,8 +35,111 @@ translation: {
               createSchool: "Maktab yaratish",
               createSchoolHint: "Maktabni sozlash",
               redeemInvite: "Taklifni qabul qilish",
+              redeemInviteHint: "Taklif havolasini joylashtiring",
               joinStudent: "O'quvchi bo'lib qo'shilish",
+              joinStudentHint: "O'quvchi kodini kiriting",
               comingSoon: "Tez orada",
+            },
+          },
+          student: {
+            eyebrow: "Siz «{{school}}» dasiz",
+            welcomeTitle: "Xush kelibsiz, {{name}}",
+            welcomeTitleGeneric: "Xush kelibsiz",
+            subtitle: "«{{school}}» dagi holat.",
+            onboarding: {
+              eyebrow: "Keyingi qadam",
+              title: "Sinflaringizni toping",
+              description: "Siz maktabga qo'shildingiz, lekin hali birorta sinfda emassiz. Mavjud sinflarni ko'rib chiqing va kerakli sinflarga qo'shilish uchun so'rov yuboring.",
+              steps: {
+                joined: "Maktabga qo'shildingiz",
+                find: "Sinflarni toping va so'rov yuboring",
+                learn: "Testlar topshiring va natijalarni kuzating",
+              },
+              browse: "Sinflarni ko'rish",
+              reviewRequests: "Kutilayotgan so'rovlar ({{count}})",
+            },
+            myClasses: {
+              title: "Sizning sinflaringiz",
+              viewAll: "Barchasini ko'rish",
+            },
+          },
+          setup: {
+            eyebrow: "Maktabni sozlash",
+            title: "«{{school}}» ni tayyorlaymiz",
+            titleGeneric: "Sozlashni yakunlang",
+            subtitle: "Sinflar qo'shing, o'qituvchilarni taklif qiling va o'quvchilarni jalb qilish uchun kodni ulashing.",
+            checklistTitle: "Maktab sozlamasini yakunlang",
+            progress: "{{total}} tadan {{done}} ta bajarildi",
+            doneLabel: "Bajarildi",
+            stats: {
+              students: { label: "O'quvchilar", hint: "O'quvchilarni jalb qilish uchun kodni ulashing" },
+              teachers: { label: "O'qituvchilar", hint: "Sinflarni olib boradiganlarni taklif qiling" },
+              classes: { label: "Sinflar", hint: "O'quvchilarni fan yoki sinf bo'yicha guruhlang" },
+            },
+            steps: {
+              createSchool: { title: "Maktab yarating", desc: "Maktabingiz tayyor" },
+              addClass: {
+                title: "Birinchi sinfni qo'shing",
+                desc: "O'quvchilarni fan yoki sinf bo'yicha guruhlang",
+                action: "Sinf qo'shish",
+              },
+              inviteTeachers: {
+                title: "O'qituvchilarni taklif qiling",
+                desc: "Ular imtihon yaratadi va javoblarni ko'radi",
+                action: "Taklif qilish",
+              },
+              shareCode: {
+                title: "O'quvchi qo'shilish kodini ulashing",
+                desc: "O'quvchilar shu kod bilan maktabga qo'shiladi",
+                action: "Kodni nusxalash",
+              },
+            },
+          },
+          modules: {
+            kpi: {
+              admin: {
+                students: "O'quvchilar",
+                classes: "Sinflar",
+                exams: "Imtihonlar",
+                avgScore: "O'rtacha ball",
+              },
+              teacher: {
+                students: "Mening o'quvchilarim",
+                classes: "Mening sinflarim",
+                exams: "Imtihonlar",
+                avgScore: "O'rtacha ball",
+              },
+              cue: {
+                invite: "Jalb qilish uchun kodni ulashing",
+                addClass: "Birinchi sinfni qo'shing",
+                noResults: "Hali natijalar yo'q",
+              },
+            },
+            trend: {
+              emptyTitle: "Hali natijalar yo'q",
+              emptyDesc:
+                "Baholangan imtihonlar birinchi natijalar kelishi bilan bu yerda o'zlashtirish grafigini chizadi.",
+            },
+            distribution: {
+              title: "Baholar taqsimoti",
+              center: "natija",
+            },
+            members: {
+              title: "Rollar bo'yicha a'zolar",
+              center: "a'zo",
+              students: "O'quvchilar",
+              teachers: "O'qituvchilar",
+              admins: "Adminlar",
+            },
+            quickActions: {
+              title: "Tezkor amallar",
+              addClass: "Sinf qo'shish",
+              inviteTeacher: "O'qituvchi taklif qilish",
+              viewClasses: "Sinflarni ko'rish",
+            },
+            teacherNoClasses: {
+              title: "Hali sinflar tayinlanmagan",
+              desc: "Administrator sizni hali sinfga qo'shmagan. Qo'shilgach, sinflaringiz, natijalaringiz va yaqinlashayotgan imtihonlar shu yerda ko'rinadi.",
             },
           },
           schoolForm: {
@@ -150,11 +257,21 @@ translation: {
             },
           },
         },
+        redeemInvite: {
+          title: "O'qituvchi taklifini qabul qilish",
+          description: "Administrator yuborgan taklif havolasi yoki tokenini joylashtiring.",
+          inputLabel: "Taklif havolasi yoki tokeni",
+          inputPlaceholder: "https://… yoki tokenni joylashtiring",
+          cancel: "Bekor qilish",
+          submit: "Taklifni qabul qilish",
+          success: "Taklif qabul qilindi — jamoaga xush kelibsiz",
+          error: "Taklif havolasi yaroqsiz yoki muddati o'tgan.",
+        },
         joinSchool: {
           title: "Maktabga qo'shilish",
           description: "Maktab yoki o'qituvchi bergan qo'shilish kodini kiriting.",
           codeLabel: "Qo'shilish kodi",
-          codePlaceholder: "masalan, ABC123",
+          codePlaceholder: "masalan, DWL-AB12CD34",
           cancel: "Bekor qilish",
           submit: "Qo'shilish",
           success: "Maktabga muvaffaqiyatli qo'shildingiz",
