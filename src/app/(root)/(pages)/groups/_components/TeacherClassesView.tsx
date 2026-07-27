@@ -34,12 +34,18 @@ export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps
   const classes = useMemo(() => {
     const all = query.data?.classes ?? [];
     const q = search.toLowerCase();
-    if (!q) return all;
-    return all.filter(
-      (item) =>
-        item.name.toLowerCase().includes(q) ||
-        (item.teachers[0]?.fullName ?? "").toLowerCase().includes(q),
-    );
+    const filtered = q
+      ? all.filter(
+          (item) =>
+            item.name.toLowerCase().includes(q) ||
+            (item.teachers[0]?.fullName ?? "").toLowerCase().includes(q),
+        )
+      : all;
+    // Surface the teacher's own classes first, then pending requests, then the
+    // rest. Copy before sorting so the React Query cache array is never mutated.
+    const rank = (item: (typeof all)[number]) =>
+      item.canEnter ? 0 : item.teacherRequestStatus === "PENDING" ? 1 : 2;
+    return [...filtered].sort((a, b) => rank(a) - rank(b));
   }, [query.data?.classes, search]);
 
   return (
