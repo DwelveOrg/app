@@ -1,0 +1,123 @@
+/* ------------------------------------------------------------------ *
+ * Dwelve toast skin — overrides react-toastify's default stylesheet.
+ *
+ * Every rule is scoped under the always-present `.Toastify` root wrapper
+ * so it wins on specificity (0,2,0+) regardless of stylesheet load order
+ * — the library's own CSS can be injected after ours in the bundle, so
+ * plain `.Toastify__toast` rules would otherwise lose the cascade.
+ *
+ * All colours come from the design-system tokens in globals.css, so the
+ * toast follows light/dark automatically (next-themes flips `.dark` on
+ * <html>, the tokens re-resolve, and the toast repaints — no per-theme
+ * toast config needed). The API is unchanged: call sites keep using
+ * toast.success / toast.error / toast.info.
+ * ------------------------------------------------------------------ */
+
+.Toastify .Toastify__toast-container {
+  width: auto;
+  max-width: min(380px, calc(100vw - 2rem));
+  padding: 0;
+}
+
+/* Per-status accent — the icon chip and progress rail inherit it. */
+.Toastify .Toastify__toast {
+  --toast-accent: var(--primary);
+}
+.Toastify .Toastify__toast--success {
+  --toast-accent: var(--success);
+}
+.Toastify .Toastify__toast--error {
+  --toast-accent: var(--destructive);
+}
+.Toastify .Toastify__toast--warning {
+  --toast-accent: var(--warning);
+}
+.Toastify .Toastify__toast--info {
+  --toast-accent: var(--info);
+}
+
+.Toastify .Toastify__toast {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 0;
+  margin-bottom: 0.75rem;
+  padding: 0.8125rem 0.875rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  box-shadow:
+    0 12px 32px -14px color-mix(in srgb, var(--brand-ink) 45%, transparent),
+    0 2px 6px -3px color-mix(in srgb, var(--brand-ink) 22%, transparent);
+}
+
+.Toastify .Toastify__toast-body {
+  align-items: center;
+  gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--foreground);
+}
+
+/* Tinted circular chip around the status glyph. */
+.Toastify .Toastify__toast-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  flex: 0 0 auto;
+  margin-inline-end: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--toast-accent) 15%, transparent);
+}
+
+.Toastify .Toastify__toast-icon svg {
+  width: 1rem;
+  height: 1rem;
+  fill: var(--toast-accent) !important;
+}
+
+.Toastify .Toastify__close-button {
+  align-self: center;
+  padding: 0.125rem;
+  color: var(--muted-foreground);
+  opacity: 0.55;
+  transition: opacity 150ms ease;
+}
+.Toastify .Toastify__close-button:hover,
+.Toastify .Toastify__close-button:focus-visible {
+  opacity: 1;
+}
+.Toastify .Toastify__close-button > svg {
+  width: 15px;
+  height: 15px;
+}
+
+/* Thin accent progress rail (inherits --toast-accent from the toast). */
+.Toastify .Toastify__toast .Toastify__progress-bar,
+.Toastify .Toastify__toast .Toastify__progress-bar--wrp {
+  height: 3px;
+}
+.Toastify .Toastify__toast .Toastify__progress-bar {
+  border-radius: 999px;
+  opacity: 1;
+  background: var(--toast-accent);
+}
+
+/* Phones: keep a comfortable right-aligned inset. react-toastify flushes
+   top-positioned toasts to the very top edge under 480px and forces
+   `left: 0` (its full-width mobile mode); we restore a 1rem inset and
+   clear `left` so the toast stays a right-aligned card near the notch/
+   status-bar area rather than stretching across the screen. */
+@media (max-width: 640px) {
+  .Toastify .Toastify__toast-container--top-right {
+    top: 1rem;
+    right: 1rem;
+    left: auto;
+  }
+}

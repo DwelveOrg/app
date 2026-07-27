@@ -36,5 +36,14 @@ export const queryKeys = {
       [...queryKeys.enrollment.all, "class-requests", classId] as const,
     classRequests: (classId: string, filters: { search: string; limit: number }) =>
       [...queryKeys.enrollment.classRequestsAll(classId), filters] as const,
+    /** The teacher-visible class list for a school (`GET /classes`, TEACHER). */
+    teacherClassesAll: (schoolId: string) =>
+      [...queryKeys.enrollment.all, "teacher-classes", schoolId] as const,
+    teacherClasses: (schoolId: string) => queryKeys.enrollment.teacherClassesAll(schoolId),
+    /** All teacher-request variants for a class (used for broad invalidation). */
+    teacherRequestsAll: (classId: string) =>
+      [...queryKeys.enrollment.all, "teacher-requests", classId] as const,
+    teacherRequests: (classId: string, filters: { search: string; limit: number }) =>
+      [...queryKeys.enrollment.teacherRequestsAll(classId), filters] as const,
   },
 };

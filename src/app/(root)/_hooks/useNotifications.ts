@@ -48,7 +48,12 @@ export function useNotificationsList({
   });
 }
 
-/** Invalidates every notification surface (status + all list variants) at once. */
+/**
+ * Invalidates every notification surface (status + all list variants), plus the
+ * class/enrollment caches: acting on a class or teacher-request notification can
+ * change what those lists show (e.g. an approved teacher request), so they
+ * refresh together (see `docs/features/teacher-class-requests.md`).
+ */
 function useInvalidateNotifications() {
   const queryClient = useQueryClient();
 
@@ -56,6 +61,8 @@ function useInvalidateNotifications() {
     Promise.all([
       queryClient.invalidateQueries({ queryKey: queryKeys.notifications.status() }),
       queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all }),
     ]);
 }
 

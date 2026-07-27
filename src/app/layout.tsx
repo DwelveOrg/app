@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
+import "@/components/ui/toast.css";
 import Providers from "./providers";
 import Toaster from "@/components/ui/toaster";
 import { cn } from "@/lib/utils";

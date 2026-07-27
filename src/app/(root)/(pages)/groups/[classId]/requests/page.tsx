@@ -6,6 +6,7 @@ import ClassRequestsView from "../_components/ClassRequestsView";
 
 type PageProps = {
   params: Promise<{ classId: string }>;
+  searchParams: Promise<{ tab?: string }>;
 };
 
 /**
@@ -13,8 +14,9 @@ type PageProps = {
  * their own requests from `/groups/requests`. The backend is the real security
  * boundary; this gate just hides the surface from students.
  */
-export default async function Page({ params }: PageProps) {
+export default async function Page({ params, searchParams }: PageProps) {
   const { classId } = await params;
+  const { tab } = await searchParams;
   const user = await getUser();
 
   if (user?.schoolRole !== "ADMIN" && user?.schoolRole !== "TEACHER") {
@@ -26,5 +28,12 @@ export default async function Page({ params }: PageProps) {
     notFound();
   }
 
-  return <ClassRequestsView classId={classId} className={classItem.name} />;
+  return (
+    <ClassRequestsView
+      classId={classId}
+      className={classItem.name}
+      isAdmin={user.schoolRole === "ADMIN"}
+      initialTab={tab === "teachers" ? "teachers" : "students"}
+    />
+  );
 }

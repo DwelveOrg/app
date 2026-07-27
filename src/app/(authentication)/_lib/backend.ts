@@ -4,9 +4,21 @@ import { decodeJwt } from "jose";
 import { z } from "zod";
 
 import type { BackendRequestInit } from "@/lib/api/backend";
-import { backendJson, BackendApiError, refreshTokensRequest } from "./api";
+import {
+  backendJson,
+  BackendApiError,
+  refreshTokensRequest,
+  type AuthTokens,
+} from "./api";
 import { createSession, getSession } from "./session";
 import type { SchoolRole, SessionPayload } from "../_types/auth";
+
+/**
+ * A single access-token expiry can cause several server requests to receive a
+ * 401 at once. Refresh tokens are single-use, so those requests must share one
+ * refresh operation instead of each attempting to rotate the same token.
+ */
+const pendingRefreshes = new Map<string, Promise<AuthTokens>>();
 
 /** Thrown when an authenticated request has no usable session / access token. */
 export class SessionExpiredError extends Error {
@@ -26,7 +38,7 @@ async function refreshAccessToken(current: SessionPayload) {
     throw new SessionExpiredError();
   }
 
-  const tokens = await refreshTokensRequest(current.refreshToken);
+  const tokens = await refreshTokensOnce(current.refreshToken);
   const schoolContext = getSchoolContextFromAccessToken(tokens.accessToken);
 
   await createSession({
@@ -42,6 +54,32 @@ async function refreshAccessToken(current: SessionPayload) {
   });
 
   return tokens.accessToken;
+}
+
+function refreshTokensOnce(refreshToken: string): Promise<AuthTokens> {
+  const pendingRefresh = pendingRefreshes.get(refreshToken);
+
+  if (pendingRefresh) {
+    return pendingRefresh;
+  }
+
+  const refresh = refreshTokensRequest(refreshToken);
+  pendingRefreshes.set(refreshToken, refresh);
+
+  void refresh.then(
+    () => {
+      if (pendingRefreshes.get(refreshToken) === refresh) {
+        pendingRefreshes.delete(refreshToken);
+      }
+    },
+    () => {
+      if (pendingRefreshes.get(refreshToken) === refresh) {
+        pendingRefreshes.delete(refreshToken);
+      }
+    },
+  );
+
+  return refresh;
 }
 
 function getSchoolContextFromAccessToken(
