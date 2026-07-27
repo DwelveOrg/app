@@ -1,19 +1,21 @@
 "use client";
 
-import { ToastContainer } from "react-toastify";
+import { ToastContainer, Slide } from "react-toastify";
 
 export default function Toaster() {
     return (
         <ToastContainer
-            // style={{ zIndex: 99999 }}
             position="top-right"
-            autoClose={3000}
-            theme="colored"
+            autoClose={4000}
+            limit={3}
+            newestOnTop
+            transition={Slide}
+            theme="light"
             hideProgressBar={false}
-            closeOnClick={true}
-            rtl={false}
-            draggable={true}
-            pauseOnHover={false}
+            closeOnClick
+            pauseOnHover
+            pauseOnFocusLoss
+            draggable
         />
     );
 }
