@@ -10,8 +10,10 @@ import { queryKeys } from "@/lib/query/keys";
 /**
  * Redeems a teacher invite token for the signed-in user. The server action
  * grants a TEACHER membership and rewrites the session with the new school
- * context, so on success we invalidate the auth/dashboard/schools caches the
- * same way {@link useJoinSchoolMutation} does.
+ * context (this works even for an account that previously left the school as a
+ * student — the invite reactivates it as a new selected-school session). On
+ * success we refresh the profile/school caches plus the class/enrollment caches
+ * so the new school's classes load under the teacher role.
  */
 export function useAcceptTeacherInviteMutation() {
   const queryClient = useQueryClient();
@@ -29,6 +31,8 @@ export function useAcceptTeacherInviteMutation() {
         queryClient.invalidateQueries({ queryKey: queryKeys.auth.all }),
         queryClient.invalidateQueries({ queryKey: queryKeys.dashboard.all }),
         queryClient.invalidateQueries({ queryKey: queryKeys.schools.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all }),
       ]);
     },
   });

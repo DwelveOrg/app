@@ -4,6 +4,7 @@ import { getClasses } from "../../_utils/getClasses";
 import { getMyClasses } from "../../_utils/getMyClasses";
 import ClassesView from "./_components/ClassesView";
 import StudentClassesView from "./_components/StudentClassesView";
+import TeacherClassesView from "./_components/TeacherClassesView";
 import { toClassCardItem } from "./_lib/mapClass";
 
 export default async function Page() {
@@ -27,8 +28,14 @@ export default async function Page() {
     return <StudentClassesView items={items} schoolId={user.schoolId} />;
   }
 
-  // Admin/teacher: `GET /classes` is role-scoped by the backend — the whole
-  // school directory for admins, led classes for teachers.
+  // Teachers now see every active class in the school (`GET /classes` returns
+  // request/enter flags), so they browse and request to teach from a client
+  // surface that refreshes on request/cancel and notification actions.
+  if (user.schoolRole === "TEACHER") {
+    return <TeacherClassesView schoolId={user.schoolId} />;
+  }
+
+  // Admin: `GET /classes` is the whole school directory.
   const classes = await getClasses();
   const items = classes.map((item) => toClassCardItem(item, user.memberId));
 

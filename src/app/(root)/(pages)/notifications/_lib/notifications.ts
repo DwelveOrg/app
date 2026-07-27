@@ -44,6 +44,17 @@ export function resolveNotificationHref(item: NotificationItem): string | null {
   }
   if (type.startsWith("CLASS_JOIN_REQUEST_")) return "/groups/requests";
 
+  // A new teacher request routes the admin to that class's teacher-review tab.
+  if (type === "TEACHER_CLASS_JOIN_REQUEST_CREATED" && classId) {
+    return `/groups/${classId}/requests?tab=teachers`;
+  }
+  // An approved teacher can now enter the class; a rejected one cannot, so send
+  // them back to the browse list where they can request again.
+  if (type === "TEACHER_CLASS_JOIN_REQUEST_APPROVED" && classId) {
+    return `/groups/${classId}`;
+  }
+  if (type.startsWith("TEACHER_CLASS_JOIN_REQUEST_")) return "/groups";
+
   if (classId) return `/groups/${classId}`;
 
   if (type.startsWith("SCHOOL_") || type.endsWith("_SCHOOL")) return "/school";
@@ -61,7 +72,13 @@ export const CATEGORY_TINT: Record<NotificationCategory, string> = {
 /** True when a notification is an unresolved invitation (renders Accept / Decline). */
 export function isPendingInvitation(item: NotificationItem): boolean {
   if (categoryForItem(item) !== "invitations") return false;
-  const status = (item.data as NotificationInvitationData | null | undefined)?.status;
+  const data = item.data as NotificationInvitationData | null | undefined;
+  // Only true invitations carry an `invitationId` the backend can resolve. Class
+  // join-request notifications share the "invitations" category (their type
+  // matches the fallback regex) but are informational — they must not offer
+  // Accept / Decline, which would post to the invitation endpoint and fail.
+  if (typeof data?.invitationId !== "string") return false;
+  const status = data.status;
   return status !== "accepted" && status !== "declined";
 }
 

@@ -16,19 +16,36 @@ import {
 } from "@/app/(root)/_hooks/useEnrollment";
 import Empty from "../../../_components/ui/Empty";
 import RejectRequestDialog from "./RejectRequestDialog";
+import ClassTeacherRequestsList from "./ClassTeacherRequestsList";
+
+type RequestsTab = "students" | "teachers";
 
 type ClassRequestsViewProps = {
   classId: string;
   className: string;
+  /** Admins also review teacher requests to teach; teachers see students only. */
+  isAdmin: boolean;
+  /** Which queue to open first — teacher-request notifications deep-link here. */
+  initialTab?: RequestsTab;
 };
 
 /**
- * Teacher/admin view of pending join requests for one class. Approve activates
- * the enrollment; reject records an optional reason. The backend enforces that
- * teachers may only manage classes assigned to them.
+ * Teacher/admin view of pending requests for one class. The Students tab lists
+ * join requests (approve activates the enrollment). Admins get a second Teachers
+ * tab listing requests to teach the class (approve assigns the teacher). The
+ * backend enforces that teachers may only manage classes assigned to them and
+ * that teacher requests are admin-only.
  */
-export default function ClassRequestsView({ classId, className }: ClassRequestsViewProps) {
+export default function ClassRequestsView({
+  classId,
+  className,
+  isAdmin,
+  initialTab = "students",
+}: ClassRequestsViewProps) {
   const { t } = useTranslation();
+  const [tab, setTab] = useState<RequestsTab>(
+    isAdmin && initialTab === "teachers" ? "teachers" : "students",
+  );
   const [rejecting, setRejecting] = useState<ClassEnrollmentItem | null>(null);
 
   const query = useClassJoinRequests({ classId, search: "" });
@@ -86,7 +103,43 @@ export default function ClassRequestsView({ classId, className }: ClassRequestsV
         </p>
       </header>
 
-      {query.isLoading ? (
+      {/* Admins triage two request queues; teachers only see student requests. */}
+      {isAdmin ? (
+        <div
+          role="tablist"
+          aria-label={t("root.enrollment.teacherRequests.tabsLabel")}
+          className="flex flex-wrap items-center gap-1 border-b border-[var(--border)]"
+        >
+          {(["students", "teachers"] as const).map((value) => {
+            const isActive = tab === value;
+            return (
+              <button
+                key={value}
+                type="button"
+                role="tab"
+                aria-selected={isActive}
+                onClick={() => setTab(value)}
+                className={`relative inline-flex h-9 cursor-pointer items-center px-3 text-sm font-medium transition-colors ${
+                  isActive
+                    ? "text-[var(--primary)]"
+                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                {value === "students"
+                  ? t("root.enrollment.teacherRequests.tabStudents")
+                  : t("root.enrollment.teacherRequests.tabTeachers")}
+                {isActive ? (
+                  <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--primary)]" />
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+
+      {isAdmin && tab === "teachers" ? (
+        <ClassTeacherRequestsList classId={classId} />
+      ) : query.isLoading ? (
         <div aria-busy="true" className="space-y-3">
           {Array.from({ length: 3 }).map((_, index) => (
             <div
