@@ -15,6 +15,15 @@ interface ModalProps {
     isSubmit?: boolean;
     closeLabel?: string;
     submitLabel?: string;
+    /** Controlled open state. Omit both to let the modal manage its own state. */
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    /**
+     * Runs when the footer button is pressed. With a handler the button performs
+     * the action and leaves closing to the caller; without one it only closes.
+     */
+    onSubmit?: () => void;
+    submitDisabled?: boolean;
 }
 
 /**
@@ -34,11 +43,22 @@ export function Modal({
     isSubmit = false,
     closeLabel = "Close modal",
     submitLabel = "Submit",
+    open,
+    onOpenChange,
+    onSubmit,
+    submitDisabled = false,
 }: Readonly<ModalProps>) {
-    const [open, setOpen] = useState(false);
+    const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+    const isControlled = open !== undefined;
+    const isOpen = isControlled ? open : uncontrolledOpen;
+
+    const handleOpenChange = (next: boolean) => {
+        if (!isControlled) setUncontrolledOpen(next);
+        onOpenChange?.(next);
+    };
 
     return (
-        <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
+        <DialogPrimitive.Root open={isOpen} onOpenChange={handleOpenChange}>
             <DialogPrimitive.Trigger asChild>
                 <button type="button" className={className}>
                     {trigger}
@@ -68,11 +88,21 @@ export function Modal({
 
                     {isSubmit && (
                         <div className="mt-2 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-                            <DialogPrimitive.Close asChild>
-                                <Button className="h-12 w-full cursor-pointer text-base font-semibold transition active:scale-[0.99] active:opacity-90">
+                            {onSubmit ? (
+                                <Button
+                                    onClick={onSubmit}
+                                    disabled={submitDisabled}
+                                    className="h-12 w-full cursor-pointer text-base font-semibold transition active:scale-[0.99] active:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                                >
                                     {submitLabel}
                                 </Button>
-                            </DialogPrimitive.Close>
+                            ) : (
+                                <DialogPrimitive.Close asChild>
+                                    <Button className="h-12 w-full cursor-pointer text-base font-semibold transition active:scale-[0.99] active:opacity-90">
+                                        {submitLabel}
+                                    </Button>
+                                </DialogPrimitive.Close>
+                            )}
                         </div>
                     )}
                 </DialogPrimitive.Content>

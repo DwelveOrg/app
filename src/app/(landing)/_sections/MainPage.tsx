@@ -85,7 +85,8 @@ function MainPage() {
           </div>
         </motion.div>
 
-        {/* Right: 3D hero scene (exam sheet → auto-graded → performance rises) */}
+        {/* Right: 3D hero scene (material → book drafts test → teacher approves →
+            devices take it timed → instant grading → class analytics) */}
         <motion.div className="relative" {...fade(0.15)}>
           <div className="relative mx-auto aspect-square w-full max-w-[600px] overflow-hidden sm:aspect-[5/4] lg:aspect-square">
             {/* Brand glow / WebGL fallback backdrop — two layers for depth: a soft
@@ -105,6 +106,8 @@ function MainPage() {
               className="absolute inset-0 h-full w-full"
               labels={{
                 quiz: t("landing.main.scene.quiz"),
+                review: t("landing.teacherControl.stepReview"),
+                approved: t("landing.teacherControl.stepApprove"),
                 graded: t("landing.main.scene.graded"),
                 average: t("landing.main.scene.average"),
               }}

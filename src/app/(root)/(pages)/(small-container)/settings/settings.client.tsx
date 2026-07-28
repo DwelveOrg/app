@@ -3,15 +3,25 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import PageHeader from "@/app/(root)/_components/PageHeader";
-import type { SessionUser } from "@/app/(root)/_utils/getUser";
 import { AccountCard } from "./_components/AccountCard";
 import { PreferencesSection } from "./_components/PreferencesSection";
 import { SecuritySection } from "./_components/SecuritySection";
 import { SupportSection } from "./_components/SupportSection";
+import type { SettingsAccountContext, SettingsClientProps } from "./_types";
 
-export default function SettingsClient({ user }: { user: SessionUser | null }) {
+export default function SettingsClient({ user, profile }: Readonly<SettingsClientProps>) {
   const reduce = useReducedMotion();
   const { t } = useTranslation();
+
+  // Profile is the richer source (avatar, school, role); the session cookie
+  // keeps the page usable when the bootstrap request fails.
+  const account: SettingsAccountContext = {
+    name: profile?.account.fullName ?? user?.fullName ?? null,
+    email: profile?.account.email ?? user?.email ?? null,
+    avatarUrl: profile?.account.avatarUrl ?? null,
+    schoolName: profile?.selectedSchool?.school.name ?? null,
+    role: profile?.selectedSchool?.member.role ?? user?.schoolRole ?? null,
+  };
 
   return (
     <motion.div
@@ -24,10 +34,10 @@ export default function SettingsClient({ user }: { user: SessionUser | null }) {
         title={t("root.pages.settings")}
         subtitle={t("root.settings.subtitle")}
       />
-      <AccountCard user={user} />
+      <AccountCard account={account} />
       <PreferencesSection />
-      <SecuritySection />
-      <SupportSection />
+      <SecuritySection account={account} />
+      <SupportSection account={account} />
     </motion.div>
   );
 }

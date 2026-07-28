@@ -363,11 +363,7 @@ translation: {
             },
             activeSessions: {
               title: "Faol sessiyalar",
-              description: "Hozir qaysi qurilmalarda kirilganini ko'ring.",
-            },
-            loginHistory: {
-              title: "Kirish tarixi",
-              description: "So'nggi kirish urinishlari va shubhali faollikni tekshiring.",
+              description: "Qaysi qurilmalarda kirilganini ko'ring va tanimaganlaringizni yoping.",
             },
             logoutAllDevices: {
               title: "Barcha qurilmalardan chiqish",
@@ -389,7 +385,14 @@ translation: {
             deleteAccount: {
               title: "Hisobni o'chirish",
               description: "Hisob va unga bog'liq barcha ma'lumotlarni butunlay o'chiring.",
-              unavailable: "Hisobni o'chirib bo'lmadi.",
+              confirmTitle: "Hisobni o'chirishni so'raysizmi?",
+              confirmDescription:
+                "O'chirish qaytarib bo'lmaydi — a'zoliklar, topshiriqlar va natijalarni tiklab bo'lmaydi. Davom etsangiz, pochta ilovangizda o'chirish so'rovi ochiladi.",
+              confirm: "O'chirishni so'rash",
+              cancel: "Bekor qilish",
+              requestBody:
+                "Dwelve hisobim va unga bog'liq barcha ma'lumotlar butunlay o'chirilishini so'rayman.",
+              requested: "O'chirish so'rovi pochta ilovangizda ochildi.",
             },
           },
           support: {
@@ -416,7 +419,10 @@ translation: {
             feedbackModal: {
               description: "Tezda javob berishimiz uchun tafsilotlarni quyida yozing.",
               messageLabel: "Xabar",
-              attachmentLabel: "Ilova",
+              attachmentHint:
+                "Hisob ma'lumotlaringiz avtomatik biriktiriladi. Skrinshotlarni yuborishdan oldin pochta ilovasida qo'shing.",
+              tooShort: "Kamida {{count}} ta belgi yozing, shunda yordam bera olamiz.",
+              opened: "Xat qoralamasi pochta ilovangizda ochildi — bizga yuboring.",
               placeholder: "Muammo yoki g'oyani tasvirlab bering...",
               close: "Oynani yopish",
               submit: "Yuborish",
@@ -431,41 +437,6 @@ translation: {
                 "Boshqaruv paneli sinflar, uy vazifalari va imtihonlarni aniq statuslar, muddatlar va tezkor amallar bilan tartiblaydi. O‘quvchilar testlarga tez kiradi, topshiriqlarni onlayn topshiradi va baholar e’lon qilingach darhol fikr-mulohaza oladi.",
                 "Asosiy imkoniyatlar: vaqt bilan boshqariladigan imtihonlar, tezkor baholash, qayta ishlatiladigan savollar banki, natijalar tahlili va muhim xabarlarni ajratib ko‘rsatadigan bildirishnomalar markazi.",
                 "Dwelve tezlik, aniqlik va qulaylik uchun yaratilgan. Yorug‘ va qorong‘i mavzular, moslashuvchan dizayn va aniq ish jarayonlari qo‘lda tekshirish ishini kamaytiradi va o‘qituvchi hamda o‘quvchini bir yo‘nalishda ushlab turadi.",
-              ],
-            },
-          },
-          loginHistory: {
-            page: {
-              title: "Kirish tarixi",
-              description: "Hisobingiz bo'yicha so'nggi kirishlar.",
-              status: {
-                blocked: "Bloklangan",
-              },
-              items: [
-                {
-                  device: "MacBook Pro 14” • Chrome",
-                  location: "Toshkent, UZ",
-                  time: "Bugun, 09:42",
-                  status: "Muvaffaqiyatli",
-                },
-                {
-                  device: "iPhone 13 • Safari",
-                  location: "Toshkent, UZ",
-                  time: "Kecha, 21:18",
-                  status: "Muvaffaqiyatli",
-                },
-                {
-                  device: "Windows 11 • Edge",
-                  location: "Samarqand, UZ",
-                  time: "15-mart, 18:03",
-                  status: "Muvaffaqiyatli",
-                },
-                {
-                  device: "Noma'lum qurilma",
-                  location: "Buxoro, UZ",
-                  time: "12-mart, 07:25",
-                  status: "Bloklangan",
-                },
               ],
             },
           },
@@ -951,6 +922,10 @@ translation: {
             empty: "Faol seanslar yo‘q.",
             unknownDevice: "Noma’lum qurilma",
           },
+          security: {
+            title: "Parol va xavfsizlik",
+            description: "Parol, faol seanslar va hisob xavfsizligini Sozlamalarda boshqaring.",
+          },
         },
         notifications: {
           title: "Bildirishnomalar",
@@ -1198,7 +1173,7 @@ translation: {
             progress: "Rivojlanish kuzatuvi",
           },
           scene: {
-            alt: "Imtihon varagʻi avtomatik baholanmoqda va undan sinf koʻrsatkichlari grafigi oʻsib chiqmoqda",
+            alt: "Oʻquv materiali porlayotgan ochiq kitobga tushadi, u test qoralamasini yaratadi; oʻqituvchi uni tasdiqlaydi, oʻquvchilar testni oʻz qurilmalarida topshiradi va sinf koʻrsatkichlari grafigi oʻsadi",
             quiz: "Haftalik test",
             graded: "Baholandi",
             average: "Sinf oʻrtachasi",

@@ -1,34 +1,16 @@
 "use client";
 
-import type { ReactNode } from "react";
 import { BookOpenText, Bug, Mail, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { SubmitModal } from "../../../_components/ui/SubmitModal";
 import { SettingsGroup } from "./SettingsGroup";
 import { SettingsRow } from "./SettingsRow";
-import { feedbackModalTitleKeys, rowActionClassName, supportEmail } from "../_constants";
-import type { FeedbackModalKind } from "../_types";
+import { FeedbackModal } from "./FeedbackModal";
+import { rowActionClassName, supportEmail } from "../_constants";
+import type { SettingsAccountContext } from "../_types";
 
-function FeedbackModalAction({ kind, children }: Readonly<{ kind: FeedbackModalKind; children: ReactNode }>) {
-  const { t } = useTranslation();
-
-  return (
-    <SubmitModal
-      className={rowActionClassName}
-      title={t(feedbackModalTitleKeys[kind])}
-      description={t("root.settings.support.feedbackModal.description")}
-      messageLabel={t("root.settings.support.feedbackModal.messageLabel")}
-      attachmentLabel={t("root.settings.support.feedbackModal.attachmentLabel")}
-      placeholder={t("root.settings.support.feedbackModal.placeholder")}
-      closeLabel={t("root.settings.support.feedbackModal.close")}
-      submitLabel={t("root.settings.support.feedbackModal.submit")}
-    >
-      {children}
-    </SubmitModal>
-  );
-}
-
-export function SupportSection() {
+export function SupportSection({
+  account,
+}: Readonly<{ account: SettingsAccountContext }>) {
   const { t } = useTranslation();
 
   return (
@@ -37,13 +19,33 @@ export function SupportSection() {
         icon={Bug}
         title={t("root.settings.support.reportBug.title")}
         description={t("root.settings.support.reportBug.description")}
-        action={<FeedbackModalAction kind="bug">{t("root.settings.actions.send")}</FeedbackModalAction>}
+        action={
+          <FeedbackModal
+            kind="bug"
+            accountName={account.name}
+            accountEmail={account.email}
+            schoolName={account.schoolName}
+            role={account.role}
+          >
+            {t("root.settings.actions.send")}
+          </FeedbackModal>
+        }
       />
       <SettingsRow
         icon={Sparkles}
         title={t("root.settings.support.requestFeature.title")}
         description={t("root.settings.support.requestFeature.description")}
-        action={<FeedbackModalAction kind="feature">{t("root.settings.actions.share")}</FeedbackModalAction>}
+        action={
+          <FeedbackModal
+            kind="feature"
+            accountName={account.name}
+            accountEmail={account.email}
+            schoolName={account.schoolName}
+            role={account.role}
+          >
+            {t("root.settings.actions.share")}
+          </FeedbackModal>
+        }
       />
       <SettingsRow
         icon={Mail}
