@@ -1,8 +1,9 @@
-import { notFound, redirect } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { getUser } from "../../../../_utils/getUser";
 import { getClass } from "../../../../_utils/getClass";
 import ClassRequestsView from "../_components/ClassRequestsView";
+import ClassStateView from "../_components/ClassStateView";
 
 type PageProps = {
   params: Promise<{ classId: string }>;
@@ -23,15 +24,15 @@ export default async function Page({ params, searchParams }: PageProps) {
     redirect("/groups");
   }
 
-  const classItem = await getClass(classId);
-  if (!classItem) {
-    notFound();
+  const result = await getClass(classId);
+  if (!result.ok) {
+    return <ClassStateView reason={result.reason} />;
   }
 
   return (
     <ClassRequestsView
       classId={classId}
-      className={classItem.name}
+      className={result.class.name}
       isAdmin={user.schoolRole === "ADMIN"}
       initialTab={tab === "teachers" ? "teachers" : "students"}
     />

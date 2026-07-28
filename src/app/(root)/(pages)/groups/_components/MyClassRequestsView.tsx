@@ -116,7 +116,7 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-[var(--foreground)]">{className}</p>
         <p className="truncate text-xs text-[var(--muted-foreground)]">
-          {teacher ?? t("root.enrollment.discover.noTeacher")}
+          {teacher ?? t("root.enrollment.directory.noTeacher")}
           {request.requestedAt ? (
             <>
               {" · "}

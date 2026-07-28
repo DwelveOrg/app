@@ -7,6 +7,18 @@ import { z } from "zod";
  * fields from failing validation.
  */
 
+/**
+ * How a class admits students. Lives here because `sanitizeClass` returns it on
+ * every class payload; `enrollment.schemas.ts` re-exports it for the enrollment
+ * surfaces (keeping the import one-directional).
+ */
+export const enrollmentModeSchema = z.enum([
+  "REQUEST_APPROVAL",
+  "DIRECT_ASSIGNMENT",
+  "OPEN",
+]);
+export type EnrollmentMode = z.infer<typeof enrollmentModeSchema>;
+
 /** A teacher or student attached to a class, as returned by the backend. */
 export const classPersonSchema = z
   .object({
@@ -28,6 +40,10 @@ export const classItemSchema = z
     description: z.string().nullable().optional(),
     pictureUrl: z.string().nullable().optional(),
     isActive: z.boolean(),
+    // How the class admits students and its optional seat limit. Both are
+    // backend-owned and drive the class identity/overview copy.
+    enrollmentMode: enrollmentModeSchema.optional(),
+    capacity: z.number().nullable().optional(),
     teachers: z.array(classPersonSchema).default([]),
     students: z.array(classPersonSchema).default([]),
     counts: z

@@ -16,17 +16,18 @@ import { classAccent } from "../_constants";
 import { enrollmentModeLabelKeys } from "../_lib/enrollmentLabels";
 import RequestJoinDialog from "./RequestJoinDialog";
 
-type DiscoverClassCardProps = {
+type StudentClassCardProps = {
   item: DiscoverableClass;
   schoolId: string | undefined;
 };
 
 /**
- * A single discoverable class. The call to action is driven entirely by the
- * backend-provided `canRequest`, `studentEnrollmentStatus`, `enrollmentMode`,
- * and capacity fields — the UI never reconstructs authorization rules.
+ * One class in the student directory. Every call to action is driven by the
+ * backend-provided `canEnter`, `canRequest`, `studentEnrollmentStatus`,
+ * `enrollmentMode`, `capacity`, and `activeStudentCount` fields — the UI never
+ * reconstructs authorization rules.
  */
-export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardProps) {
+export default function StudentClassCard({ item, schoolId }: StudentClassCardProps) {
   const { t } = useTranslation();
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -36,8 +37,8 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
   const initial = item.name.charAt(0).toUpperCase();
   const accent = classAccent(item.id);
   const isPending = item.studentEnrollmentStatus === "PENDING";
-  const isFull =
-    item.capacity != null && item.activeStudentCount >= item.capacity;
+  const isEnrolled = item.studentEnrollmentStatus === "ACTIVE";
+  const isFull = item.capacity != null && item.activeStudentCount >= item.capacity;
 
   const handleRequest = (message: string) => {
     requestJoin.mutate(
@@ -47,8 +48,8 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
           setDialogOpen(false);
           toast.success(
             result.status === "ACTIVE"
-              ? t("root.enrollment.discover.joinedToast", { name: item.name })
-              : t("root.enrollment.discover.requestedToast", { name: item.name }),
+              ? t("root.enrollment.directory.joinedToast", { name: item.name })
+              : t("root.enrollment.directory.requestedToast", { name: item.name }),
           );
         },
         onError: (error) => {
@@ -62,7 +63,7 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
     cancelRequest.mutate(
       { classId: item.id },
       {
-        onSuccess: () => toast.success(t("root.enrollment.discover.cancelledToast")),
+        onSuccess: () => toast.success(t("root.enrollment.directory.cancelledToast")),
         onError: (error) =>
           toast.error(error instanceof Error ? error.message : t("root.enrollment.errorGeneric")),
       },
@@ -88,11 +89,18 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
           </span>
         )}
         <div className="min-w-0 flex-1">
-          <h3 className="truncate text-[15px] font-semibold text-[var(--foreground)]">
-            {item.name}
-          </h3>
+          <div className="flex items-start justify-between gap-2">
+            <h3 className="truncate text-[15px] font-semibold text-[var(--foreground)]">
+              {item.name}
+            </h3>
+            {isEnrolled ? (
+              <span className="shrink-0 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
+                {t("root.classes.card.enrolled")}
+              </span>
+            ) : null}
+          </div>
           <p className="mt-0.5 truncate text-xs text-[var(--muted-foreground)]">
-            {item.teacher?.name ?? t("root.enrollment.discover.noTeacher")}
+            {item.teacher?.name ?? t("root.enrollment.directory.noTeacher")}
           </p>
         </div>
       </div>
@@ -107,11 +115,11 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
         <span className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--muted)] px-2.5 py-1 font-medium text-[var(--muted-foreground)]">
           <Users className="h-3.5 w-3.5" />
           {item.capacity != null
-            ? t("root.enrollment.discover.seats", {
+            ? t("root.enrollment.directory.seats", {
                 count: item.activeStudentCount,
                 capacity: item.capacity,
               })
-            : t("root.enrollment.discover.enrolledCount", {
+            : t("root.enrollment.directory.enrolledCount", {
                 count: item.activeStudentCount,
               })}
         </span>
@@ -135,10 +143,23 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
   );
 
   function renderAction() {
+    // `canEnter` is the backend's authority for entry, so enrolled classes lead
+    // straight into the class instead of offering a request.
+    if (item.canEnter) {
+      return (
+        <Button asChild variant={isEnrolled ? "default" : "outline"} className="w-full">
+          <Link href={`/groups/${item.id}`}>
+            {t("root.enrollment.directory.open")}
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      );
+    }
+
     if (item.canRequest) {
       return (
         <Button className="w-full" onClick={() => setDialogOpen(true)}>
-          {t("root.enrollment.discover.requestToJoin")}
+          {t("root.enrollment.directory.requestToJoin")}
         </Button>
       );
     }
@@ -148,7 +169,7 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
         <div className="flex flex-col gap-2">
           <span className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-2 text-sm font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
             <Clock className="h-4 w-4" />
-            {t("root.enrollment.discover.requestPending")}
+            {t("root.enrollment.directory.requestPending")}
           </span>
           <Button
             variant="outline"
@@ -158,31 +179,18 @@ export default function DiscoverClassCard({ item, schoolId }: DiscoverClassCardP
             onClick={handleCancel}
           >
             {cancelRequest.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-            {t("root.enrollment.discover.cancelRequest")}
+            {t("root.enrollment.directory.cancelRequest")}
           </Button>
         </div>
       );
     }
 
-    // Already has active access: let the student open the class instead of
-    // seeing a dead end. `canEnter` is the backend's authority for entry.
-    if (item.canEnter) {
-      return (
-        <Button asChild variant="outline" className="w-full">
-          <Link href={`/groups/${item.id}`}>
-            {t("root.enrollment.discover.open")}
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </Button>
-      );
-    }
-
     // Not requestable: explain why, so a disabled state is never a dead end.
     const reasonKey = isFull
-      ? "root.enrollment.discover.classFull"
+      ? "root.enrollment.directory.classFull"
       : item.enrollmentMode === "DIRECT_ASSIGNMENT"
-        ? "root.enrollment.discover.assignmentRequired"
-        : "root.enrollment.discover.unavailable";
+        ? "root.enrollment.directory.assignmentRequired"
+        : "root.enrollment.directory.unavailable";
 
     return (
       <span className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-[var(--border)] px-2.5 py-2 text-sm font-medium text-[var(--muted-foreground)]">

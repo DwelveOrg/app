@@ -10,6 +10,7 @@ import { MembershipsPanel } from "./_components/MembershipsPanel";
 import { ProfileSummaryCard } from "./_components/ProfileSummaryCard";
 import { SchoolProfileForm } from "./_components/SchoolProfileForm";
 import { SecurityLinkCard } from "./_components/SecurityLinkCard";
+import { SelectedSchoolCard } from "./_components/SelectedSchoolCard";
 import type { ProfileClientProps } from "./_types";
 
 export default function ProfileClient({ user, profile }: Readonly<ProfileClientProps>) {
@@ -40,7 +41,9 @@ export default function ProfileClient({ user, profile }: Readonly<ProfileClientP
         subtitle={t("root.profile.subtitle")}
       />
 
-      <ProfileSummaryCard account={account} selectedSchool={selectedSchool} />
+      <ProfileSummaryCard account={account} />
+
+      <SelectedSchoolCard selectedSchool={selectedSchool} />
 
       <AccountDetailsForm account={account} />
 

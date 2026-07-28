@@ -179,6 +179,7 @@ export type HealthResponse = z.infer<typeof healthResponseSchema>;
 export type AuthResponse = z.infer<typeof authResponseSchema>;
 export type CreateSchoolResponse = z.infer<typeof createSchoolResponseSchema>;
 export type SchoolDetailResponse = z.infer<typeof schoolDetailResponseSchema>;
+export type SchoolRosterMember = z.infer<typeof schoolRosterMemberSchema>;
 export type SchoolMembersResponse = z.infer<typeof schoolMembersResponseSchema>;
 export type JoinSchoolResponse = z.infer<typeof joinSchoolResponseSchema>;
 export type AcceptTeacherInviteResponse = z.infer<typeof acceptTeacherInviteResponseSchema>;

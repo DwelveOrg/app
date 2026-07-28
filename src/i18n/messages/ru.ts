@@ -462,9 +462,28 @@ translation: {
           },
           tabs: {
             classes: "Классы",
+            teachers: "Учителя",
             students: "Ученики",
             courses: "Курсы",
             groups: "Группы",
+          },
+          teachers: {
+            columns: {
+              teacher: "Учитель",
+              email: "Email",
+              status: "Статус",
+              joined: "Присоединился",
+            },
+            status: {
+              ready: "Готов",
+              pending: "Профиль не заполнен",
+            },
+            emptyTitle: "Учителей пока нет",
+            emptyDescription:
+              "Пригласите учителя ссылкой, привязанной к его email. Он присоединится, приняв её — аккаунт вы не создаёте.",
+            errorTitle: "Не удалось загрузить учителей",
+            errorDescription: "Список участников школы не загрузился. Попробуйте ещё раз.",
+            retry: "Попробовать ещё раз",
           },
           actions: {
             edit: "Изменить",
@@ -626,8 +645,7 @@ translation: {
           loadMore: "Показать ещё",
           nav: {
             label: "Разделы классов",
-            myClasses: "Мои классы",
-            discover: "Найти",
+            classes: "Классы",
             requests: "Заявки",
           },
           status: {
@@ -648,19 +666,21 @@ translation: {
             active: "Мои классы",
             pending: "Заявки в ожидании",
           },
-          myClasses: {
-            title: "Мои классы",
-            subtitle: "Вы зачислены в {{count}} активных классов.",
-            subtitleEmpty: "Здесь появятся классы, в которые вы зачислены.",
-            emptyTitle: "Вы пока не зачислены ни в один класс.",
-            emptyDescription:
-              "Просмотрите доступные классы или дождитесь, пока преподаватель добавит вас.",
-            browse: "Смотреть классы",
-          },
-          discover: {
-            title: "Найти классы",
-            subtitle: "Найдите классы вашей школы и отправьте заявку.",
+          directory: {
+            title: "Классы",
+            subtitle_one: "Вы зачислены в {{count}} класс.",
+            subtitle_few: "Вы зачислены в {{count}} класса.",
+            subtitle_many: "Вы зачислены в {{count}} классов.",
+            subtitle_other: "Вы зачислены в {{count}} классов.",
+            subtitleEmpty: "Все классы вашей школы — вступите в нужные.",
             searchPlaceholder: "Поиск классов",
+            retry: "Попробовать ещё раз",
+            filters: {
+              label: "Фильтр классов",
+              all: "Все",
+              enrolled: "Зачислен",
+              available: "Доступные",
+            },
             requestToJoin: "Подать заявку",
             open: "Открыть класс",
             requestPending: "Заявка отправлена",
@@ -670,16 +690,27 @@ translation: {
             unavailable: "Недоступно для вступления",
             noTeacher: "Преподаватель не назначен",
             seats: "{{count}}/{{capacity}} зачислено",
-            enrolledCount: "{{count}} зачислено",
+            enrolledCount_one: "{{count}} зачислен",
+            enrolledCount_few: "{{count}} зачислено",
+            enrolledCount_many: "{{count}} зачислено",
+            enrolledCount_other: "{{count}} зачислено",
             requestedToast: "Заявка отправлена в «{{name}}».",
             joinedToast: "Вы вступили в «{{name}}».",
             cancelledToast: "Заявка отменена.",
             errorTitle: "Не удалось загрузить классы",
             errorDescription: "Попробуйте ещё раз чуть позже.",
-            emptyTitle: "Нет классов для поиска",
-            emptyDescription: "Сейчас нет классов, доступных для вступления.",
             noResultsTitle: "Классы не найдены",
             noResultsDescription: "Попробуйте другой запрос.",
+            empty: {
+              allTitle: "Классов пока нет",
+              allDescription: "В вашей школе пока нет классов.",
+              enrolledTitle: "Вы пока не зачислены ни в один класс",
+              enrolledDescription:
+                "Подайте заявку в класс или дождитесь, пока преподаватель добавит вас.",
+              availableTitle: "Больше нечего добавить",
+              availableDescription: "Вы уже состоите во всех доступных вам классах.",
+              showAll: "Показать все классы",
+            },
           },
           requestDialog: {
             title: "Заявка на вступление в «{{name}}»",
@@ -785,6 +816,7 @@ translation: {
         },
         classDetail: {
           back: "Назад к классам",
+          noDescription: "Описания пока нет.",
           actions: {
             open: "Открыть класс",
             edit: "Изменить",
@@ -793,6 +825,52 @@ translation: {
             addTest: "Добавить тест",
             addExam: "Добавить экзамен",
             comingSoon: "{{action}} — скоро",
+          },
+          overview: {
+            title: "О классе",
+            teacher: "Преподаватель",
+            moreTeachers_one: "+{{count}} преподаватель",
+            moreTeachers_few: "+{{count}} преподавателя",
+            moreTeachers_many: "+{{count}} преподавателей",
+            moreTeachers_other: "+{{count}} преподавателей",
+            participants: "Участники",
+            enrollment: "Зачисление",
+            created: "Создан",
+          },
+          people: {
+            title: "Участники класса",
+          },
+          requests: {
+            title: "Заявки на вступление",
+            viewAll: "Смотреть все",
+            more_one: "Ещё {{count}} заявка",
+            more_few: "Ещё {{count}} заявки",
+            more_many: "Ещё {{count}} заявок",
+            more_other: "Ещё {{count}} заявок",
+          },
+          removeStudent: {
+            title: "Удалить {{name}} из класса?",
+            description:
+              "Ученик потеряет доступ к классу и его тестам. Позже вы сможете добавить его снова.",
+            confirm: "Удалить ученика",
+            cancel: "Отмена",
+          },
+          states: {
+            retry: "Попробовать ещё раз",
+            backToClasses: "Назад к классам",
+            forbidden: {
+              title: "У вас пока нет доступа к этому классу",
+              description:
+                "Доступ выдаёт преподаватель или администратор. Если вы отправили заявку, доступ появится после её одобрения.",
+            },
+            notFound: {
+              title: "Класс не найден",
+              description: "Возможно, класс удалён или ссылка больше не действует.",
+            },
+            error: {
+              title: "Не удалось загрузить класс",
+              description: "Что-то пошло не так на нашей стороне. Попробуйте ещё раз.",
+            },
           },
           teachers: {
             title: "Учителя · {{count}}",
@@ -875,12 +953,15 @@ translation: {
               title: "Классы ({{count}})",
             },
           },
+          school: {
+            title: "Активная школа",
+            noneTitle: "Вы пока не в школе",
+            noneDescription:
+              "Создайте свою школу, вступите как ученик или активируйте приглашение преподавателя.",
+          },
           memberships: {
             title: "Школы",
-            description_one: "Вы состоите в {{count}} школе.",
-            description_few: "Вы состоите в {{count}} школах.",
-            description_many: "Вы состоите в {{count}} школах.",
-            description: "Вы состоите в {{count}} школах.",
+            description: "Школы, в которых вы состоите. Переключитесь, чтобы сменить активную.",
             active: "Активна",
           },
           password: {

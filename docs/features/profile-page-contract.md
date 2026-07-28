@@ -291,6 +291,8 @@ If `revokedCurrent` is `true`, clear local tokens and route to login.
   tokens.
 - Email editing is not supported in v1. Show email as read-only.
 - Use initials as fallback when `avatarUrl` is `null`.
+- Show `selectedSchool.school` when it exists, but do not display a numeric
+  count of schools or memberships on the profile page.
 - Use `memberships` for school switcher context; use the existing auth
   `POST /auth/select-school` route to switch active school.
 - Hide teacher/student role-profile edit controls when `roleProfile.type` is

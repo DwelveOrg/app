@@ -69,6 +69,17 @@ including `email`, `teacherProfileId`, and `studentProfileId`, are admin-only.
 - Add test/add exam controls must stay coming-soon until exam frontend
   mutations are wired.
 
+## Discover Classes Replacement
+
+The Discover Classes UI is retired. Remove its tabs, links, mock data, and any
+calls to `GET /schools/:schoolId/classes/discover`.
+
+Use `GET /classes` as the class directory. For students, render entry/request
+actions only from backend-provided `canEnter`, `canRequest`,
+`studentEnrollmentStatus`, `enrollmentMode`, `capacity`, and
+`activeStudentCount` fields. See `school-profile-and-groups-ux.md` for the
+School-page Teachers tab and `/groups/[classId]` UX requirements.
+
 ## Related Docs
 
 ```txt

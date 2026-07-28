@@ -12,17 +12,15 @@ type ClassesNavProps = {
 };
 
 const TABS = [
-  { href: "/groups", labelKey: "root.enrollment.nav.myClasses" },
-  { href: "/groups/discover", labelKey: "root.enrollment.nav.discover" },
+  { href: "/groups", labelKey: "root.enrollment.nav.classes" },
   { href: "/groups/requests", labelKey: "root.enrollment.nav.requests" },
 ] as const;
 
 /**
- * Segmented navigation for the student class experience. Separates school
- * membership from class enrollment: My Classes (active roster), Discover
- * (joinable classes), and Requests (pending approvals). The Requests tab shows
- * a live pending count sourced from the student overview so it stays in sync
- * with request/cancel mutations.
+ * Navigation for the student class experience: one Classes directory (enrolled
+ * and joinable classes together, from `GET /classes`) plus Requests (pending
+ * approvals). The Requests tab shows a live pending count sourced from the
+ * student overview so it stays in sync with request/cancel mutations.
  */
 export default function ClassesNav({ schoolId }: ClassesNavProps) {
   const { t } = useTranslation();

@@ -6,31 +6,39 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import type { SchoolRosterMember } from "@/app/(authentication)/_lib/api.schemas";
 import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
 import Empty from "../../_components/ui/Empty";
 import ClassGrid from "../../groups/_components/ClassGrid";
 import type { ClassItem } from "../../groups/_types";
 import CreateClassDialog from "./CreateClassDialog";
 import SchoolStudentsTab from "./SchoolStudentsTab";
+import SchoolTeachersTab from "./SchoolTeachersTab";
 
-type TabKey = "classes" | "students";
+type TabKey = "classes" | "teachers" | "students";
 
 type SchoolTabsSectionProps = {
   classItems: ClassItem[];
   students: StudentItem[];
+  /** School members with `role === "TEACHER"`; admin-only, empty otherwise. */
+  teachers: SchoolRosterMember[];
+  /** True when the members request failed, so the roster shows a retry state. */
+  teachersError: boolean;
   isAdmin: boolean;
 };
 
 /**
- * Tab row for the School page. "Classes" and (for admins) "Students" are real
- * tabs; "Courses" and "Groups" stay as disabled "soon" placeholders. The
- * Students tab surfaces `GET /students` per
- * `docs/features/students-page-contract.md` — admin-only, so teachers and
- * students never see the tab and the endpoint isn't called for them.
+ * Tab row for the School page. "Classes" and (for admins) "Teachers" and
+ * "Students" are real tabs; "Courses" and "Groups" stay as disabled "soon"
+ * placeholders. The Teachers tab reads `GET /schools/:schoolId/members` and the
+ * Students tab `GET /students` — both admin-only, so teachers and students
+ * never see the tabs and no roster row is rendered for them.
  */
 export default function SchoolTabsSection({
   classItems,
   students,
+  teachers,
+  teachersError,
   isAdmin,
 }: SchoolTabsSectionProps) {
   const { t } = useTranslation();
@@ -52,12 +60,20 @@ export default function SchoolTabsSection({
             label={t("root.schoolPage.tabs.classes")}
           />
           {isAdmin ? (
-            <TabButton
-              active={activeTab === "students"}
-              onClick={() => setActiveTab("students")}
-              label={t("root.schoolPage.tabs.students")}
-              badge={students.length}
-            />
+            <>
+              <TabButton
+                active={activeTab === "teachers"}
+                onClick={() => setActiveTab("teachers")}
+                label={t("root.schoolPage.tabs.teachers")}
+                badge={teachersError ? undefined : teachers.length}
+              />
+              <TabButton
+                active={activeTab === "students"}
+                onClick={() => setActiveTab("students")}
+                label={t("root.schoolPage.tabs.students")}
+                badge={students.length}
+              />
+            </>
           ) : null}
           {softTabs.map((tab) => (
             <span
@@ -94,6 +110,8 @@ export default function SchoolTabsSection({
             }
           />
         )
+      ) : activeTab === "teachers" ? (
+        <SchoolTeachersTab teachers={teachers} hasError={teachersError} />
       ) : (
         <SchoolStudentsTab students={students} />
       )}

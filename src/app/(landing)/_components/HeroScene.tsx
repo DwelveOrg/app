@@ -4,31 +4,30 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 
 /**
- * Hero centerpiece: "From material to mastery" — the whole product in one loop.
+ * Hero centerpiece: the Dwelve pipeline tower.
  *
- * The brand's open book (from the Dwelve mark) sits at the center as a glowing
- * engine. Each cycle tells the full story the landing page tells in sections:
+ * Five floating slabs stack into an exploded diagram of the product, bottom to
+ * top: the teacher's lesson material → the AI drafting deck → the reviewed test
+ * ("In review" flips to "Approved") → the class grid (each seat lights green as
+ * it is graded) → the analytics deck (bars surge, a "92%" token pops). A single
+ * energy bead rides the glowing spine through all five stages on a short
+ * (~4.4s) heartbeat loop, so the whole story reads in one glance and repeats
+ * quickly instead of unfolding as a long film.
  *
- *   1. A lesson sheet (the teacher's own material) dives into the book's seam —
- *      "draft tests from your own materials".
- *   2. Luminous particles rise out of the book and assemble a test card: header
- *      pill, question rows with AI sparks, then an "In review" tag — AI drafting.
- *   3. The tag is stamped over by a green "Approved" — teacher control:
- *      AI helps, teachers decide.
- *   4. Mini test sheets arc from the approved card to a phone and tablet; their
- *      screens fill and a small timer sweeps — share to any device, timed exams.
- *   5. Green checks pop on each device, a "Graded" pill lands, and light threads
- *      feed a rising bar chart with a "92%" grade token + "Class average"
- *      caption — instant grading flowing straight into analytics.
- *
- * The loop then softly resets and the next sheet enters. Under reduced motion
- * (or while paused) the scene paints one settled "story complete" frame.
+ * Interaction is deliberately fenced:
+ *   - While the pointer is inside the hero box, the tower leans toward it
+ *     (hard-clamped tilt), the deck fans open, and the layer nearest the cursor
+ *     lifts and glows. A click/tap fires an immediate extra pulse up the spine.
+ *   - The hero's edge is the border: crossing it (e.g. moving the mouse down
+ *     the page) fades all influence to zero across a small feather band and the
+ *     tower eases back to neutral. Scrolled mostly off-screen, the loop pauses.
+ *   - Under reduced motion the scene paints one settled "story complete" frame.
  *
  * Built in raw three.js (no R3F) so it stays a single lazy chunk; mounted via
- * `next/dynamic({ ssr: false })` from the hero so it never blocks first paint.
- * Text lives *on* the surfaces (canvas textures) so labels tilt with the model.
- * The canvas is transparent; the CSS glow behind it (in MainPage) supplies depth
- * and is the graceful fallback when WebGL is unavailable.
+ * `next/dynamic({ ssr: false })` so it never blocks first paint. Labels are
+ * canvas textures on plaques attached to the slabs, so text tilts with the
+ * model. The canvas is transparent; the CSS glow behind it (in MainPage) gives
+ * depth and is the graceful fallback when WebGL is unavailable.
  */
 
 // Brand palette — strictly the design-system violet/ink/success tokens.
@@ -36,22 +35,22 @@ const VIOLET = 0x6a4ff0; // --primary
 const VIOLET_LIGHT = 0x8e78ff; // --brand-violet-300
 const VIOLET_BRIGHT = 0x9b80ff; // violet-400, for glow lines
 const VIOLET_DEEP = 0x5739d6; // --primary-hover
-const VIOLET_COVER = 0x4b36c9; // violet-800 — the book's cover boards
 const SUCCESS = 0x16b981;
 const LINE = 0xd7dcf2;
+const SHEET_SURFACE = 0xffffff;
 const CARD_SURFACE = 0xf7f8ff;
-const PAGE_SURFACE = 0xffffff;
+const CLASS_SURFACE = 0xeef0fb;
+const TILE_IDLE = 0xdfe3f4;
 
-// CSS colours for the canvas-texture text and gradients drawn onto surfaces.
+// CSS colours for the canvas-texture pills.
 const WHITE_CSS = "#FFFFFF";
-const INK_CSS = "#0F1430";
 const VIOLET_CSS = "#6A4FF0";
 const VIOLET_DEEP_CSS = "#4B36C9";
-const VIOLET_LIGHT_CSS = "#8E78FF";
 const SUCCESS_CSS = "#0A8F61";
 
 // --- Easing -----------------------------------------------------------------
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - clamp01(t), 3);
 const easeInOutCubic = (t: number) => {
   const x = clamp01(t);
@@ -69,33 +68,8 @@ const bell = (p: number, c: number, w: number) => {
   return d >= 1 ? 0 : 1 - d * d * (3 - 2 * d);
 };
 
-/** Draws crisp text onto a card/page face. Provided by the component (it needs
- *  the renderer's anisotropy + the page font), passed into the builders. */
-type AddLabel = (
-  parent: THREE.Object3D,
-  text: string,
-  opts: {
-    x: number;
-    y: number;
-    z: number;
-    /** World height of the text line box. */
-    height: number;
-    /** Hard cap on world width; longer translations shrink to fit the surface. */
-    maxWidth: number;
-    color?: string;
-    weight?: number;
-    anchor?: "left" | "center";
-    background?: string;
-    borderColor?: string;
-    paddingX?: number;
-    paddingY?: number;
-    radius?: number;
-    textStrokeColor?: string;
-    textStrokeWidth?: number;
-  },
-) => void;
+// --- Geometry helpers ---------------------------------------------------------
 
-/** Rounded-rectangle profile used by every panel and bar in the scene. */
 function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
   const shape = new THREE.Shape();
   const x = -w / 2;
@@ -113,18 +87,82 @@ function roundedRectShape(w: number, h: number, r: number): THREE.Shape {
   return shape;
 }
 
-function roundedPanelGeometry(w: number, h: number, r: number, depth: number): THREE.ExtrudeGeometry {
-  const geo = new THREE.ExtrudeGeometry(roundedRectShape(w, h, r), {
-    depth,
+/** Rounded slab lying in the XZ plane with its thickness along Y. */
+function slabGeometry(w: number, d: number, r: number, thick: number): THREE.ExtrudeGeometry {
+  const geo = new THREE.ExtrudeGeometry(roundedRectShape(w, d, r), {
+    depth: thick,
     bevelEnabled: true,
-    bevelThickness: 0.02,
-    bevelSize: 0.02,
+    bevelThickness: 0.014,
+    bevelSize: 0.014,
     bevelSegments: 2,
     steps: 1,
-    curveSegments: 14,
+    curveSegments: 12,
   });
+  geo.rotateX(-Math.PI / 2);
   geo.center();
   return geo;
+}
+
+function surfaceMaterial(color: number): THREE.MeshStandardMaterial {
+  return new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.55,
+    metalness: 0.05,
+    emissive: new THREE.Color(VIOLET_LIGHT),
+    emissiveIntensity: 0,
+  });
+}
+
+function additiveMaterial(color: number, opacity = 0): THREE.MeshBasicMaterial {
+  return new THREE.MeshBasicMaterial({
+    color,
+    transparent: true,
+    opacity,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    toneMapped: false,
+  });
+}
+
+/** Flat content bar lying on a slab's top face. */
+function addFlatBar(
+  parent: THREE.Object3D,
+  w: number,
+  d: number,
+  color: number,
+  x: number,
+  y: number,
+  z: number,
+  emissive = false,
+): THREE.Mesh {
+  const mat = new THREE.MeshStandardMaterial({
+    color,
+    roughness: 0.5,
+    metalness: 0,
+    emissive: new THREE.Color(emissive ? color : 0x000000),
+    emissiveIntensity: emissive ? 0.5 : 0,
+  });
+  const mesh = new THREE.Mesh(slabGeometry(w, d, Math.min(w, d) / 2, 0.03), mat);
+  mesh.position.set(x, y, z);
+  parent.add(mesh);
+  return mesh;
+}
+
+/** The brand gradient (violet-300 → primary) for the AI deck's top face. */
+function makeGradientTexture(): THREE.CanvasTexture | null {
+  const canvas = document.createElement("canvas");
+  canvas.width = 128;
+  canvas.height = 128;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  const grad = ctx.createLinearGradient(0, 0, 128, 128);
+  grad.addColorStop(0, "#8E78FF");
+  grad.addColorStop(1, VIOLET_CSS);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, 128, 128);
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
 }
 
 function drawRoundedCanvasRect(
@@ -149,604 +187,56 @@ function drawRoundedCanvasRect(
   ctx.closePath();
 }
 
-function surfaceMaterial(color: number): THREE.MeshStandardMaterial {
-  return new THREE.MeshStandardMaterial({ color, roughness: 0.55, metalness: 0.05 });
-}
-
-function additiveMaterial(color: number, opacity = 0): THREE.MeshBasicMaterial {
-  return new THREE.MeshBasicMaterial({
-    color,
-    transparent: true,
-    opacity,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    toneMapped: false,
-  });
-}
-
-/** The brand gradient (violet-300 → primary), for the book's right page. */
-function makeGradientTexture(): THREE.CanvasTexture | null {
-  const canvas = document.createElement("canvas");
-  canvas.width = 128;
-  canvas.height = 128;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const grad = ctx.createLinearGradient(0, 0, 128, 128);
-  grad.addColorStop(0, VIOLET_LIGHT_CSS);
-  grad.addColorStop(1, VIOLET_CSS);
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, 128, 128);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
-
-/** Soft radial glow used for the halo behind the book. */
-function makeRadialTexture(): THREE.CanvasTexture | null {
-  const size = 256;
-  const canvas = document.createElement("canvas");
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return null;
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, "rgba(142,120,255,0.85)");
-  grad.addColorStop(0.45, "rgba(122,90,255,0.30)");
-  grad.addColorStop(1, "rgba(122,90,255,0)");
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
-  return tex;
-}
-
-/** A small content bar (text line, accent pill) sitting on a face. */
-function addBar(
-  parent: THREE.Object3D,
-  w: number,
-  h: number,
-  color: number,
-  x: number,
-  y: number,
-  z: number,
-  emissive = false,
-): THREE.Mesh {
-  const mat = new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.5,
-    metalness: 0,
-    emissive: new THREE.Color(emissive ? color : 0x000000),
-    emissiveIntensity: emissive ? 0.5 : 0,
-  });
-  const mesh = new THREE.Mesh(roundedPanelGeometry(w, h, Math.min(w, h) / 2, 0.015), mat);
-  mesh.position.set(x, y, z);
-  parent.add(mesh);
-  return mesh;
-}
-
-/** White rounded badge carrying a green ✓, drawn from two bars. Returned as a
- *  group so callers can pop it in by scaling from 0. */
-function makeCheckBadge(size: number): THREE.Group {
-  const g = new THREE.Group();
-  const badge = new THREE.Mesh(roundedPanelGeometry(size, size, size * 0.32, 0.05), surfaceMaterial(PAGE_SURFACE));
-  g.add(badge);
-  const s = size;
-  addBar(badge, s * 0.42, s * 0.15, SUCCESS, -s * 0.05, -s * 0.07, 0.05, true).rotation.z = Math.PI * 0.32;
-  addBar(badge, s * 0.24, s * 0.15, SUCCESS, s * 0.16, s * 0.02, 0.05, true).rotation.z = -Math.PI * 0.28;
-  return g;
-}
-
-/** A rounded token carrying centred text (grade "92%", captions, status pills). */
-function makeToken(
-  addLabel: AddLabel,
-  text: string,
-  opts: { height: number; textColor: string; background?: string; weight?: number },
-): THREE.Group {
-  const g = new THREE.Group();
-  addLabel(g, text, {
-    x: 0,
-    y: 0,
-    z: 0.02,
-    height: opts.height,
-    maxWidth: 4,
-    color: opts.textColor,
-    weight: opts.weight ?? 800,
-    anchor: "center",
-    background: opts.background,
-    borderColor: opts.background ? "rgba(255,255,255,0.5)" : undefined,
-    paddingX: 34,
-    paddingY: 14,
-    textStrokeColor: opts.background ? "rgba(15,20,48,0.18)" : undefined,
-    textStrokeWidth: opts.background ? 3 : 0,
-  });
-  g.scale.setScalar(0);
-  return g;
-}
-
-// --- The book engine ---------------------------------------------------------
-
-type BookRefs = {
-  group: THREE.Group;
-  seamMat: THREE.MeshBasicMaterial;
-  haloMat: THREE.MeshBasicMaterial;
-  ringMat: THREE.MeshBasicMaterial;
-  ringMat2: THREE.MeshBasicMaterial;
-  ring: THREE.Mesh;
-  ring2: THREE.Mesh;
-  /** Root-space point where absorbed sheets vanish / particles are born. */
-  mouthY: number;
+type PillOpts = {
+  /** World height of the pill. */
+  height: number;
+  /** Hard cap on world width; longer translations shrink to fit. */
+  maxWidth: number;
+  color: string;
+  background: string;
+  weight?: number;
 };
 
-/** The Dwelve open book, standing half-open toward the camera: two fanned pages
- *  (right one carrying the logo's violet gradient), cover boards behind them, a
- *  glowing gutter seam, and a halo + orbit rings that flare when it "ingests". */
-function makeBook(): BookRefs {
-  const group = new THREE.Group();
-  const pageW = 1.06;
-  const pageH = 1.46;
-  const fan = 0.52; // radians each page swings back from the seam
-
-  const gradientTex = makeGradientTexture();
-
-  for (const side of [-1, 1] as const) {
-    const holder = new THREE.Group();
-    holder.rotation.y = side * -fan;
-    group.add(holder);
-
-    // Cover board — deep violet, a touch larger, sitting behind the page.
-    const cover = new THREE.Mesh(
-      roundedPanelGeometry(pageW + 0.07, pageH + 0.09, 0.09, 0.05),
-      new THREE.MeshStandardMaterial({
-        color: VIOLET_COVER,
-        roughness: 0.45,
-        metalness: 0.1,
-        emissive: new THREE.Color(VIOLET_COVER),
-        emissiveIntensity: 0.22,
-      }),
-    );
-    cover.position.set(side * (pageW / 2 + 0.005), -0.012, -0.055);
-    holder.add(cover);
-
-    // Page. The right page carries the brand gradient (the logo's book page);
-    // the left page is paper with printed lines — the material being read.
-    let pageMat: THREE.MeshStandardMaterial;
-    if (side === 1 && gradientTex) {
-      // ExtrudeGeometry UVs are the shape's XY coords; remap them into 0..1.
-      const tex = gradientTex;
-      tex.repeat.set(1 / pageW, 1 / pageH);
-      tex.offset.set(0.5, 0.5);
-      pageMat = new THREE.MeshStandardMaterial({
-        map: tex,
-        roughness: 0.4,
-        metalness: 0.08,
-        emissive: new THREE.Color(0xffffff),
-        emissiveMap: tex,
-        emissiveIntensity: 0.34,
-      });
-    } else {
-      pageMat = surfaceMaterial(PAGE_SURFACE);
-    }
-    const page = new THREE.Mesh(roundedPanelGeometry(pageW, pageH, 0.06, 0.04), pageMat);
-    page.position.set(side * pageW / 2, 0, 0);
-    holder.add(page);
-
-    // Printed lines on the left page (the lesson being read by the engine).
-    if (side === -1) {
-      const inner = pageW - 0.3;
-      for (let i = 0; i < 4; i++) {
-        const w = inner * (i === 3 ? 0.55 : 0.85 - (i % 2) * 0.12);
-        addBar(holder, w, 0.055, LINE, -0.16 - w / 2, pageH / 2 - 0.34 - i * 0.24, 0.045);
-      }
-      addBar(holder, 0.34, 0.1, VIOLET_LIGHT, -0.34, -pageH / 2 + 0.28, 0.045, true);
-    }
-  }
-
-  // Gutter seam — the glowing slot the material dives into.
-  const seamMat = additiveMaterial(VIOLET_BRIGHT, 0.3);
-  const seam = new THREE.Mesh(new THREE.PlaneGeometry(0.1, pageH * 0.94), seamMat);
-  seam.position.set(0, 0, 0.07);
-  group.add(seam);
-
-  // Halo + two counter-rotating orbit rings — the engine's ambient energy.
-  const haloTex = makeRadialTexture();
-  const haloMat = new THREE.MeshBasicMaterial({
-    map: haloTex ?? undefined,
-    color: 0xffffff,
-    transparent: true,
-    opacity: 0.4,
-    blending: THREE.AdditiveBlending,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const halo = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 2.5), haloMat);
-  halo.position.set(0, 0, -0.5);
-  group.add(halo);
-
-  const ringMat = new THREE.MeshBasicMaterial({
-    color: VIOLET_LIGHT,
-    transparent: true,
-    opacity: 0.32,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const ring = new THREE.Mesh(new THREE.RingGeometry(1.0, 1.05, 72), ringMat);
-  ring.position.set(0, 0, -0.38);
-  group.add(ring);
-
-  const ringMat2 = new THREE.MeshBasicMaterial({
-    color: VIOLET_BRIGHT,
-    transparent: true,
-    opacity: 0.24,
-    depthWrite: false,
-    toneMapped: false,
-  });
-  const ring2 = new THREE.Mesh(new THREE.RingGeometry(0.76, 0.8, 64), ringMat2);
-  ring2.position.set(0, 0, -0.32);
-  group.add(ring2);
-
-  return { group, seamMat, haloMat, ringMat, ringMat2, ring, ring2, mouthY: pageH * 0.18 };
-}
-
-// --- The lesson material sheet (transient) -----------------------------------
-
-/** The teacher's own material: a small white sheet with text lines and a violet
- *  file tab. It flies from the upper-left into the book's seam each cycle. */
-function makeLessonSheet(): THREE.Group {
-  const g = new THREE.Group();
-  const W = 0.8;
-  const H = 1.02;
-  const body = new THREE.Mesh(roundedPanelGeometry(W, H, 0.09, 0.05), surfaceMaterial(PAGE_SURFACE));
-  g.add(body);
-  addBar(g, 0.3, 0.11, VIOLET, W / 2 - 0.24, H / 2 - 0.16, 0.045, true); // file tab
-  const inner = W - 0.24;
-  for (let i = 0; i < 4; i++) {
-    const w = inner * (i === 0 ? 0.62 : 0.9 - (i % 2) * 0.16);
-    addBar(g, w, 0.05, LINE, -W / 2 + 0.12 + w / 2, H / 2 - 0.38 - i * 0.17, 0.045);
-  }
-  return g;
-}
-
-// --- The drafted test card ---------------------------------------------------
-
-type CardLabels = { quiz: string; review: string; approved: string };
-
-type CardRefs = {
-  group: THREE.Group;
-  rows: THREE.Group[];
-  sparks: THREE.Mesh[];
-  reviewPill: THREE.Group;
-  approvedPill: THREE.Group;
-};
-
-/** The test the book drafts: header pill, question rows (AI spark + text line),
- *  and a status pill that flips "In review" → "Approved" (teacher control). */
-function makeTestCard(addLabel: AddLabel, labels: CardLabels): CardRefs {
-  const group = new THREE.Group();
-  const W = 1.66;
-  const H = 2.0;
-  const depth = 0.12;
-
-  const body = new THREE.Mesh(roundedPanelGeometry(W, H, 0.16, depth), surfaceMaterial(CARD_SURFACE));
-  group.add(body);
-
-  // Violet spine — the brand edge, echoing the book at a smaller scale.
-  const edge = new THREE.Mesh(
-    roundedPanelGeometry(0.11, H - 0.2, 0.05, depth * 0.9),
-    new THREE.MeshStandardMaterial({
-      color: VIOLET,
-      roughness: 0.4,
-      metalness: 0.1,
-      emissive: new THREE.Color(VIOLET),
-      emissiveIntensity: 0.25,
-    }),
-  );
-  edge.position.set(-W / 2 + 0.12, 0, 0.01);
-  group.add(edge);
-
-  const faceZ = depth / 2 + 0.03;
-  const padX = 0.32;
-
-  // Header pill — the test's name ("Weekly quiz").
-  addLabel(group, labels.quiz, {
-    x: -W / 2 + padX,
-    y: H / 2 - 0.32,
-    z: faceZ + 0.008,
-    height: 0.26,
-    maxWidth: W - padX - 0.22,
-    color: WHITE_CSS,
-    weight: 800,
-    background: VIOLET_CSS,
-    borderColor: "rgba(255,255,255,0.6)",
-    paddingX: 30,
-    paddingY: 11,
-    textStrokeColor: "rgba(15,20,48,0.2)",
-    textStrokeWidth: 3,
-  });
-
-  // Question rows: an AI spark + a drafted text line, popped in one by one.
-  const rows: THREE.Group[] = [];
-  const sparks: THREE.Mesh[] = [];
-  const rowTop = H / 2 - 0.74;
-  const rowGap = 0.315;
-  const widths = [0.94, 0.76, 0.88, 0.64];
-  for (let i = 0; i < 4; i++) {
-    const row = new THREE.Group();
-    row.position.set(0, rowTop - i * rowGap, faceZ);
-    const spark = new THREE.Mesh(
-      new THREE.OctahedronGeometry(0.055),
-      new THREE.MeshStandardMaterial({
-        color: VIOLET_LIGHT,
-        roughness: 0.3,
-        metalness: 0.1,
-        emissive: new THREE.Color(VIOLET_LIGHT),
-        emissiveIntensity: 0.8,
-      }),
-    );
-    spark.position.set(-W / 2 + padX + 0.03, 0, 0.02);
-    row.add(spark);
-    sparks.push(spark);
-    const w = widths[i];
-    addBar(row, w, 0.07, LINE, -W / 2 + padX + 0.22 + w / 2, 0, 0);
-    row.scale.setScalar(0);
-    group.add(row);
-    rows.push(row);
-  }
-
-  // Status pills, same anchor: violet "In review" flips to green "Approved".
-  const pillPos = new THREE.Vector3(-W / 2 + padX, -H / 2 + 0.34, faceZ + 0.02);
-  const reviewPill = new THREE.Group();
-  reviewPill.position.copy(pillPos);
-  addLabel(reviewPill, labels.review, {
-    x: 0,
-    y: 0,
-    z: 0.01,
-    height: 0.23,
-    maxWidth: W - padX - 0.2,
-    color: WHITE_CSS,
-    weight: 800,
-    background: VIOLET_DEEP_CSS,
-    borderColor: "rgba(255,255,255,0.55)",
-    paddingX: 28,
-    paddingY: 10,
-  });
-  reviewPill.scale.setScalar(0);
-  group.add(reviewPill);
-
-  const approvedPill = new THREE.Group();
-  approvedPill.position.copy(pillPos);
-  approvedPill.position.z += 0.01;
-  addLabel(approvedPill, labels.approved, {
-    x: 0,
-    y: 0,
-    z: 0.01,
-    height: 0.23,
-    maxWidth: W - padX - 0.2,
-    color: WHITE_CSS,
-    weight: 800,
-    background: SUCCESS_CSS,
-    borderColor: "rgba(255,255,255,0.55)",
-    paddingX: 28,
-    paddingY: 10,
-  });
-  approvedPill.scale.setScalar(0);
-  group.add(approvedPill);
-
-  return { group, rows, sparks, reviewPill, approvedPill };
-}
-
-// --- Student devices ---------------------------------------------------------
-
-type DeviceRefs = {
-  group: THREE.Group;
-  screenMat: THREE.MeshStandardMaterial;
-  rows: THREE.Mesh[];
-  timerMat: THREE.MeshBasicMaterial;
-  hand: THREE.Group;
-  handMat: THREE.MeshStandardMaterial;
-  check: THREE.Group;
-  idle: THREE.Mesh;
-};
-
-/** A student device (phone or tablet): body, screen, tiny question rows, a
- *  sweeping timer up top, and a green check when the submission is graded. */
-function makeDevice(kind: "phone" | "tablet"): DeviceRefs {
-  const group = new THREE.Group();
-  const W = kind === "phone" ? 0.52 : 0.88;
-  const H = kind === "phone" ? 1.0 : 0.62;
-
-  const body = new THREE.Mesh(
-    roundedPanelGeometry(W, H, 0.11, 0.07),
-    new THREE.MeshStandardMaterial({ color: 0xe9ebf8, roughness: 0.45, metalness: 0.1 }),
-  );
-  group.add(body);
-
-  const screenMat = new THREE.MeshStandardMaterial({
-    color: PAGE_SURFACE,
-    roughness: 0.35,
-    metalness: 0,
-    emissive: new THREE.Color(VIOLET_LIGHT),
-    emissiveIntensity: 0.03,
-  });
-  const screen = new THREE.Mesh(roundedPanelGeometry(W - 0.09, H - 0.09, 0.08, 0.03), screenMat);
-  screen.position.z = 0.045;
-  group.add(screen);
-
-  const faceZ = 0.09;
-
-  // Idle mark — a soft violet dot that waits on the empty screen until the
-  // test arrives, so the device never reads as a blank slab.
-  const idle = new THREE.Mesh(
-    new THREE.CircleGeometry(0.055, 24),
-    new THREE.MeshStandardMaterial({
-      color: VIOLET_LIGHT,
-      roughness: 0.4,
-      metalness: 0,
-      emissive: new THREE.Color(VIOLET_LIGHT),
-      emissiveIntensity: 0.55,
-    }),
-  );
-  idle.position.set(0, 0, 0.09);
-  group.add(idle);
-
-  // Timer — thin ring + a sweeping hand at the top of the screen.
-  const timerY = H / 2 - 0.17;
-  const timerMat = additiveMaterial(VIOLET_BRIGHT, 0);
-  const timerRing = new THREE.Mesh(new THREE.RingGeometry(0.075, 0.095, 40), timerMat);
-  timerRing.position.set(0, timerY, faceZ);
-  group.add(timerRing);
-  const hand = new THREE.Group();
-  hand.position.set(0, timerY, faceZ + 0.01);
-  const handMat = new THREE.MeshStandardMaterial({
-    color: VIOLET,
-    roughness: 0.4,
-    metalness: 0,
-    emissive: new THREE.Color(VIOLET),
-    emissiveIntensity: 0.7,
-    transparent: true,
-    opacity: 0,
-  });
-  const handMesh = new THREE.Mesh(roundedPanelGeometry(0.06, 0.022, 0.011, 0.012), handMat);
-  handMesh.position.x = 0.032;
-  hand.add(handMesh);
-  group.add(hand);
-
-  // Tiny question rows filling the screen when the test arrives.
-  const rows: THREE.Mesh[] = [];
-  const innerW = W - 0.24;
-  const rowCount = kind === "phone" ? 3 : 2;
-  for (let i = 0; i < rowCount; i++) {
-    const w = innerW * (0.95 - (i % 2) * 0.22);
-    const bar = addBar(group, w, 0.045, LINE, -W / 2 + 0.13 + w / 2, timerY - 0.24 - i * 0.15, faceZ);
-    bar.scale.setScalar(0);
-    rows.push(bar);
-  }
-
-  // Graded check — pops over the screen once the submission is scored.
-  const check = makeCheckBadge(kind === "phone" ? 0.24 : 0.22);
-  check.position.set(0, -H / 2 + (kind === "phone" ? 0.26 : 0.2), faceZ + 0.04);
-  check.scale.setScalar(0);
-  group.add(check);
-
-  return { group, screenMat, rows, timerMat, hand, handMat, check, idle };
-}
-
-// --- Mini sheets flying card → devices ---------------------------------------
-
-function makeMiniSheet(): THREE.Group {
-  const g = new THREE.Group();
-  const W = 0.3;
-  const H = 0.38;
-  const body = new THREE.Mesh(roundedPanelGeometry(W, H, 0.06, 0.03), surfaceMaterial(PAGE_SURFACE));
-  g.add(body);
-  addBar(g, 0.16, 0.045, VIOLET_LIGHT, -0.02, 0.09, 0.03, true);
-  addBar(g, 0.18, 0.04, LINE, 0, -0.03, 0.03);
-  addBar(g, 0.12, 0.04, LINE, -0.03, -0.12, 0.03);
-  return g;
-}
-
-// --- Performance chart -------------------------------------------------------
-
-type Bar = { group: THREE.Group; fullH: number; mat: THREE.MeshStandardMaterial; baseEmissive: number };
-
-type ChartRefs = {
-  group: THREE.Group;
-  bars: Bar[];
-  ribbonMat: THREE.MeshBasicMaterial;
-  apex: THREE.Group;
-};
-
-/** The class-performance chart the graded submissions feed: bars, a glowing
- *  trend ribbon, and a green upward apex chevron. */
-function makePerfChart(): ChartRefs {
-  const group = new THREE.Group();
-  const bars: Bar[] = [];
-  const heights = [0.52, 0.8, 0.68, 1.08];
-  const colors = [VIOLET_LIGHT, VIOLET, VIOLET_LIGHT, VIOLET_DEEP];
-  const emissives = [0.24, 0.32, 0.26, 0.5];
-  const barW = 0.24;
-  const gap = 0.12;
-
-  const tops: THREE.Vector3[] = [];
-  for (let i = 0; i < heights.length; i++) {
-    const fullH = heights[i];
-    const x = i * (barW + gap);
-    const holder = new THREE.Group();
-    holder.position.set(x, 0, 0);
-    const mat = new THREE.MeshStandardMaterial({
-      color: colors[i],
-      roughness: 0.42,
-      metalness: 0.12,
-      emissive: new THREE.Color(colors[i]),
-      emissiveIntensity: emissives[i],
-    });
-    const mesh = new THREE.Mesh(roundedPanelGeometry(barW, fullH, 0.05, 0.14), mat);
-    mesh.position.y = fullH / 2;
-    holder.add(mesh);
-    holder.scale.y = 0.05;
-    group.add(holder);
-    bars.push({ group: holder, fullH, mat, baseEmissive: emissives[i] });
-    tops.push(new THREE.Vector3(x, fullH + 0.05, 0.1));
-  }
-
-  // Trend ribbon: rides the bar tops then lifts to the apex.
-  const lastX = (heights.length - 1) * (barW + gap);
-  const apexPos = new THREE.Vector3(lastX + 0.38, heights[heights.length - 1] + 0.44, 0.12);
-  const curvePts = [new THREE.Vector3(-0.24, 0.26, 0.1), ...tops, apexPos];
-  const curve = new THREE.CatmullRomCurve3(curvePts, false, "catmullrom", 0.4);
-  const ribbonMat = additiveMaterial(VIOLET_BRIGHT, 0);
-  const ribbon = new THREE.Mesh(new THREE.TubeGeometry(curve, 48, 0.027, 7, false), ribbonMat);
-  group.add(ribbon);
-
-  // Apex chevron — a small green "up" arrow marking the positive trend.
-  const apex = new THREE.Group();
-  apex.position.copy(apexPos);
-  const chevron = new THREE.Shape();
-  chevron.moveTo(0, 0.15);
-  chevron.lineTo(0.15, -0.09);
-  chevron.lineTo(0.055, -0.09);
-  chevron.lineTo(0, 0.018);
-  chevron.lineTo(-0.055, -0.09);
-  chevron.lineTo(-0.15, -0.09);
-  chevron.closePath();
-  const chevronGeo = new THREE.ExtrudeGeometry(chevron, {
-    depth: 0.05,
-    bevelEnabled: true,
-    bevelThickness: 0.014,
-    bevelSize: 0.014,
-    bevelSegments: 1,
-    steps: 1,
-  });
-  chevronGeo.center();
-  apex.add(
-    new THREE.Mesh(
-      chevronGeo,
-      new THREE.MeshStandardMaterial({
-        color: SUCCESS,
-        roughness: 0.35,
-        metalness: 0.1,
-        emissive: new THREE.Color(SUCCESS),
-        emissiveIntensity: 0.6,
-      }),
-    ),
-  );
-  apex.scale.setScalar(0);
-  group.add(apex);
-
-  return { group, bars, ribbonMat, apex };
-}
+type Pill = { group: THREE.Group; mat: THREE.MeshBasicMaterial };
 
 // -----------------------------------------------------------------------------
 
 type HeroLabels = { quiz: string; review: string; approved: string; graded: string; average: string };
 
-const quadBezier = (out: THREE.Vector3, a: THREE.Vector3, b: THREE.Vector3, c: THREE.Vector3, t: number) => {
-  const u = 1 - t;
-  out.set(
-    u * u * a.x + 2 * u * t * b.x + t * t * c.x,
-    u * u * a.y + 2 * u * t * b.y + t * t * c.y,
-    u * u * a.z + 2 * u * t * b.z + t * t * c.z,
-  );
+const LAYERS = 5;
+const GAP = 0.78; // rest distance between slab centers (pitched decks need the air)
+const SPLAY_EXTRA = 0.17; // additional per-step gap when the deck fans open
+const BASE_Y = (i: number) => (i - (LAYERS - 1) / 2) * GAP;
+
+// Decks are never fully horizontal: they rest tipped toward the camera, and the
+// deck the bead is visiting pivots further up — a horizontal→vertical
+// "presentation" transition that rolls up the tower once per cycle. Hover focus
+// pitches a deck the same way, so pointing at a stage turns it to face you.
+const BASE_PITCH = 0.24;
+const PRESENT_PITCH = 0.62;
+const FOCUS_PITCH = 0.4;
+const MAX_PITCH = 1.05; // ≈60° — approaching vertical, never past it
+const PRESENT_PUSH = 0.3; // neighbors accordion apart so a presenting deck never clips them
+
+/** How strongly deck `i` is presenting at loop phase `p` (with the click pulse
+ *  at `burstQ` adding its own smaller wave). Pure in its inputs. */
+const presentEnvAt = (p: number, burstQ: number, i: number) => {
+  const a = ARRIVAL(i);
+  const rise = easeOutCubic(clamp01((p - (a - 0.015)) / 0.055));
+  const fall = 1 - easeInOutCubic(clamp01((p - (a + 0.09)) / 0.1));
+  let env = rise * fall;
+  if (burstQ >= 0 && burstQ <= 1) env += 0.6 * bell(easeInOutCubic(burstQ), i / (LAYERS - 1), 0.12);
+  return clamp01(env);
 };
+
+// Heartbeat: one bead ride bottom → top, then a soft exhale before the next.
+const CYCLE = 4.4; // seconds — deliberately short
+const BEAD_START = 0.03;
+const BEAD_END = 0.78;
+const ARRIVAL = (i: number) => BEAD_START + (BEAD_END - BEAD_START) * (i / (LAYERS - 1));
+const RESET_AT = 0.93;
+const SETTLED_P = 0.88; // the "story complete" frame used when paused / reduced
+const BURST_SECONDS = 0.95; // click-triggered pulse duration
 
 export default function HeroScene({ className, labels }: { className?: string; labels?: HeroLabels }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -763,6 +253,16 @@ export default function HeroScene({ className, labels }: { className?: string; l
     const container = containerRef.current;
     if (!container) return;
 
+    // Local copy: the react-hooks immutability lint forbids passing effect
+    // dependencies straight into helper closures.
+    const text = {
+      quiz: quizLabel,
+      review: reviewLabel,
+      approved: approvedLabel,
+      graded: gradedLabel,
+      average: averageLabel,
+    };
+
     const prefersReduced =
       typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -770,7 +270,7 @@ export default function HeroScene({ className, labels }: { className?: string; l
     try {
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: "high-performance" });
     } catch {
-      return; // No WebGL — CSS glow fallback behind the canvas stays visible.
+      return; // No WebGL — the CSS glow fallback behind the canvas stays visible.
     }
 
     const width = container.clientWidth || 1;
@@ -787,320 +287,599 @@ export default function HeroScene({ className, labels }: { className?: string; l
     renderer.domElement.style.display = "block";
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 100);
-    camera.position.set(0, 0, 7.6);
+    const camera = new THREE.PerspectiveCamera(35, width / height, 0.1, 100);
+    camera.position.set(0, 1.35, 7.4);
+    camera.lookAt(0, 0, 0);
 
-    // Lighting: soft ambient fill + a key light for form + a violet rim for brand glow.
     scene.add(new THREE.AmbientLight(0xffffff, 0.85));
-    const key = new THREE.DirectionalLight(0xffffff, 1.7);
-    key.position.set(3, 4, 6);
+    const key = new THREE.DirectionalLight(0xffffff, 1.6);
+    key.position.set(3, 5, 5);
     scene.add(key);
-    const rim = new THREE.PointLight(VIOLET_LIGHT, 17, 30);
-    rim.position.set(-4, -1.5, 3);
+    const rim = new THREE.PointLight(VIOLET_LIGHT, 16, 30);
+    rim.position.set(-4, -1, 3);
     scene.add(rim);
-    const topViolet = new THREE.DirectionalLight(VIOLET_LIGHT, 0.5);
-    topViolet.position.set(-2, 5, 2);
-    scene.add(topViolet);
+    const fill = new THREE.DirectionalLight(VIOLET_LIGHT, 0.4);
+    fill.position.set(-2, 3, 4);
+    scene.add(fill);
 
-    // --- Text-on-surface helper -------------------------------------------------
+    // --- Text pill helper -------------------------------------------------------
     const maxAnisotropy = renderer.capabilities.getMaxAnisotropy();
     const fontFamily =
       (typeof document !== "undefined" && getComputedStyle(document.body).fontFamily) ||
       "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
 
-    const addLabel: AddLabel = (parent, text, opts) => {
-      if (!text) return;
-      const {
-        x,
-        y,
-        z,
-        height: lineWorldH,
-        maxWidth,
-        color = INK_CSS,
-        weight = 700,
-        anchor = "left",
-        background,
-        borderColor,
-        paddingX = background ? 26 : 0,
-        paddingY = background ? 10 : 0,
-        radius,
-        textStrokeColor,
-        textStrokeWidth = 0,
-      } = opts;
+    const makePill = (text: string, opts: PillOpts): Pill => {
+      const group = new THREE.Group();
+      const mat = new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, toneMapped: false });
+      if (!text) return { group, mat };
+      const { height: worldH, maxWidth, color, background, weight = 800 } = opts;
 
       const fontPx = 64;
       const font = `${weight} ${fontPx}px ${fontFamily}`;
-      const lineH = Math.round(fontPx * 1.28);
-
-      const measureCtx = document.createElement("canvas").getContext("2d");
-      if (!measureCtx) return;
-      measureCtx.font = font;
-      const textW = Math.max(1, Math.ceil(measureCtx.measureText(text).width));
-      const logicalW = textW + paddingX * 2;
-      const logicalH = lineH + paddingY * 2;
+      const padX = 34;
+      const padY = 14;
+      const measure = document.createElement("canvas").getContext("2d");
+      if (!measure) return { group, mat };
+      measure.font = font;
+      const textW = Math.max(1, Math.ceil(measure.measureText(text).width));
+      const logicalW = textW + padX * 2;
+      const logicalH = Math.round(fontPx * 1.28) + padY * 2;
 
       const dpr = 2; // supersample for crispness at small on-screen sizes
       const canvas = document.createElement("canvas");
       canvas.width = logicalW * dpr;
       canvas.height = logicalH * dpr;
       const ctx = canvas.getContext("2d");
-      if (!ctx) return;
+      if (!ctx) return { group, mat };
       ctx.scale(dpr, dpr);
 
-      if (background) {
-        drawRoundedCanvasRect(ctx, 0, 0, logicalW, logicalH, radius ?? logicalH / 2);
-        ctx.fillStyle = background;
-        ctx.fill();
-        if (borderColor) {
-          ctx.strokeStyle = borderColor;
-          ctx.lineWidth = 3;
-          ctx.stroke();
-        }
-      }
+      drawRoundedCanvasRect(ctx, 0, 0, logicalW, logicalH, logicalH / 2);
+      ctx.fillStyle = background;
+      ctx.fill();
+      ctx.strokeStyle = "rgba(255,255,255,0.55)";
+      ctx.lineWidth = 3;
+      ctx.stroke();
 
       ctx.font = font;
-      ctx.fillStyle = color;
       ctx.textBaseline = "middle";
-      ctx.textAlign = "left";
-      if (textStrokeColor && textStrokeWidth > 0) {
-        ctx.lineJoin = "round";
-        ctx.strokeStyle = textStrokeColor;
-        ctx.lineWidth = textStrokeWidth;
-        ctx.strokeText(text, paddingX, logicalH / 2);
-      }
-      ctx.fillText(text, paddingX, logicalH / 2);
+      ctx.textAlign = "center";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "rgba(15,20,48,0.18)";
+      ctx.lineWidth = 3;
+      ctx.strokeText(text, logicalW / 2, logicalH / 2);
+      ctx.fillStyle = color;
+      ctx.fillText(text, logicalW / 2, logicalH / 2);
 
       const texture = new THREE.CanvasTexture(canvas);
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = maxAnisotropy;
-      texture.needsUpdate = true;
 
       const aspect = logicalW / logicalH;
-      let worldW = lineWorldH * aspect;
-      let worldH = lineWorldH;
-      if (worldW > maxWidth) {
-        worldW = maxWidth;
-        worldH = maxWidth / aspect;
+      let w = worldH * aspect;
+      let h = worldH;
+      if (w > maxWidth) {
+        w = maxWidth;
+        h = maxWidth / aspect;
       }
-
-      const mat = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-        depthWrite: false,
-        toneMapped: false,
-      });
-      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(worldW, worldH), mat);
-      mesh.position.set(anchor === "left" ? x + worldW / 2 : x, y, z);
-      parent.add(mesh);
+      mat.map = texture;
+      const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), mat);
+      // Slight backward tilt so plaques face the raised camera.
+      mesh.rotation.x = -0.2;
+      group.add(mesh);
+      return { group, mat };
     };
     // ---------------------------------------------------------------------------
 
     const root = new THREE.Group();
     scene.add(root);
+    const baseRotY = -0.1;
+    root.rotation.y = baseRotY;
 
-    // --- Composition -----------------------------------------------------------
-    // The book anchors the center-bottom. The lesson sheet enters top-left and
-    // dives into it; the drafted card floats above-left; the devices sit right;
-    // the chart + grade token rise top-right. Everything faces the camera so the
-    // labels read; the rig sways rather than spins, so text never turns away.
-    const book = makeBook();
-    const BOOK_POS = new THREE.Vector3(0.12, -0.92, 0);
-    book.group.position.copy(BOOK_POS);
-    book.group.rotation.set(-0.1, 0, 0);
-    root.add(book.group);
+    // --- The five decks ---------------------------------------------------------
+    const gradientTex = makeGradientTexture();
 
-    const lesson = makeLessonSheet();
-    lesson.position.set(0.1, -0.5, 0.12); // parked at the seam; applyCycle animates it
-    lesson.scale.setScalar(0.2);
-    lesson.visible = false;
-    root.add(lesson);
+    type Deck = {
+      holder: THREE.Group;
+      slabMat: THREE.MeshStandardMaterial;
+      baseEmissive: number;
+      ringMat: THREE.MeshBasicMaterial;
+      ring: THREE.Mesh;
+    };
+    const decks: Deck[] = [];
+    // Plaques counter-rotate against their deck's pitch so text always faces
+    // the camera while the deck underneath transitions horizontal → vertical.
+    const counterPlaques: Array<{ group: THREE.Group; deck: number }> = [];
 
-    const card = makeTestCard(addLabel, { quiz: quizLabel, review: reviewLabel, approved: approvedLabel });
-    const CARD_POS = new THREE.Vector3(-0.74, 1.14, 0.18);
-    card.group.position.copy(CARD_POS);
-    card.group.rotation.set(-0.04, 0.14, 0.02);
-    card.group.scale.setScalar(0);
-    root.add(card.group);
+    const DECK_DIMS: Array<{ w: number; d: number; thick: number }> = [
+      { w: 2.95, d: 1.5, thick: 0.11 }, // 0 lesson material
+      { w: 3.15, d: 1.62, thick: 0.13 }, // 1 AI drafting engine
+      { w: 2.95, d: 1.52, thick: 0.12 }, // 2 reviewed test
+      { w: 3.2, d: 1.66, thick: 0.12 }, // 3 class grid
+      { w: 2.75, d: 1.42, thick: 0.12 }, // 4 analytics
+    ];
 
-    const phone = makeDevice("phone");
-    const PHONE_POS = new THREE.Vector3(2.02, -0.38, 0.35);
-    phone.group.position.copy(PHONE_POS);
-    phone.group.rotation.set(-0.04, -0.3, 0.05);
-    root.add(phone.group);
+    for (let i = 0; i < LAYERS; i++) {
+      const holder = new THREE.Group();
+      holder.position.y = BASE_Y(i);
+      root.add(holder);
 
-    const tablet = makeDevice("tablet");
-    const TABLET_POS = new THREE.Vector3(1.66, -1.42, 0.2);
-    tablet.group.position.copy(TABLET_POS);
-    tablet.group.rotation.set(-0.06, -0.2, -0.05);
-    root.add(tablet.group);
-    const devices = [phone, tablet];
+      const dims = DECK_DIMS[i];
+      let slabMat: THREE.MeshStandardMaterial;
+      let baseEmissive = 0;
+      if (i === 1 && gradientTex) {
+        // ExtrudeGeometry UVs are the shape's XY coords; remap them into 0..1.
+        gradientTex.repeat.set(1 / dims.w, 1 / dims.d);
+        gradientTex.offset.set(0.5, 0.5);
+        baseEmissive = 0.3;
+        slabMat = new THREE.MeshStandardMaterial({
+          map: gradientTex,
+          roughness: 0.4,
+          metalness: 0.08,
+          emissive: new THREE.Color(0xffffff),
+          emissiveMap: gradientTex,
+          emissiveIntensity: baseEmissive,
+        });
+      } else {
+        slabMat = surfaceMaterial(i === 0 ? SHEET_SURFACE : i === 3 ? CLASS_SURFACE : CARD_SURFACE);
+      }
+      const slab = new THREE.Mesh(slabGeometry(dims.w, dims.d, 0.14, dims.thick), slabMat);
+      holder.add(slab);
 
-    // Mini test sheets that arc from the approved card to each device.
-    const miniPaths = devices.map((d, j) => ({
-      a: new THREE.Vector3(0.08, 0.52 - j * 0.14, 0.3),
-      b: new THREE.Vector3(1.2, 0.75 - j * 0.45, 0.55),
-      c: d.group.position.clone().add(new THREE.Vector3(0, 0.12, 0.12)),
-    }));
-    const minis = devices.map(() => {
-      const m = makeMiniSheet();
-      m.visible = false;
-      m.scale.setScalar(0.1);
-      m.position.set(1.2, 0.4, 0.4); // parked mid-path; applyCycle animates it
-      root.add(m);
-      return m;
+      // Arrival ring — flares outward when the bead reaches this deck.
+      const ringMat = additiveMaterial(VIOLET_BRIGHT, 0);
+      const ringGeo = new THREE.TorusGeometry(0.6, 0.016, 8, 48);
+      ringGeo.rotateX(Math.PI / 2);
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.position.y = 0.03;
+      holder.add(ring);
+
+      decks.push({ holder, slabMat, baseEmissive, ringMat, ring });
+    }
+
+    const topOf = (i: number) => DECK_DIMS[i].thick / 2 + 0.02;
+
+    // Deck 0 — the teacher's material: printed lines + a violet file tab, and a
+    // shimmer bar that sweeps across as the bead reads it.
+    const d0 = decks[0];
+    addFlatBar(d0.holder, 0.5, 0.14, VIOLET, -1.05, topOf(0), -0.52, true);
+    for (let i = 0; i < 4; i++) {
+      const w = 2.3 * (i === 3 ? 0.55 : 0.92 - (i % 2) * 0.14);
+      addFlatBar(d0.holder, w, 0.07, LINE, -1.32 + w / 2, topOf(0), -0.2 + i * 0.24);
+    }
+    const shimmerMat = additiveMaterial(VIOLET_BRIGHT, 0);
+    const shimmer = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 1.1), shimmerMat);
+    shimmer.rotation.x = -Math.PI / 2;
+    shimmer.position.set(0, topOf(0) + 0.03, 0.05);
+    d0.holder.add(shimmer);
+
+    // Deck 1 — AI drafting: a spinning spark above the gradient deck and three
+    // question rows that type themselves in as the bead passes.
+    const d1 = decks[1];
+    const sparkMat = new THREE.MeshStandardMaterial({
+      color: VIOLET_LIGHT,
+      roughness: 0.25,
+      metalness: 0.1,
+      emissive: new THREE.Color(VIOLET_BRIGHT),
+      emissiveIntensity: 0.9,
     });
+    const spark = new THREE.Mesh(new THREE.OctahedronGeometry(0.11), sparkMat);
+    spark.position.set(-1.15, 0.34, -0.3);
+    d1.holder.add(spark);
+    const draftRows: THREE.Group[] = [];
+    const draftWidths = [2.1, 1.6, 1.85];
+    for (let r = 0; r < 3; r++) {
+      const rowHolder = new THREE.Group();
+      rowHolder.position.set(-0.85, topOf(1), -0.32 + r * 0.34);
+      const w = draftWidths[r];
+      addFlatBar(rowHolder, w, 0.09, 0xffffff, w / 2, 0, 0, true);
+      rowHolder.scale.x = 0;
+      d1.holder.add(rowHolder);
+      draftRows.push(rowHolder);
+    }
 
-    const chart = makePerfChart();
-    const CHART_POS = new THREE.Vector3(1.26, 0.32, 0.12);
-    chart.group.position.copy(CHART_POS);
-    chart.group.rotation.set(-0.05, -0.12, 0);
-    root.add(chart.group);
-
-    // Grade token ("92%") + "Class average" caption near the chart's apex, and
-    // a green "Graded" pill by the devices — the instant-grading confirmation.
-    const gradeToken = makeToken(addLabel, "92%", {
-      height: 0.42,
-      textColor: WHITE_CSS,
+    // Deck 2 — the reviewed test: question lines + answer chips on the face,
+    // "quiz" pill and the review→approved status plaques standing at the front.
+    const d2 = decks[2];
+    for (let i = 0; i < 3; i++) {
+      const w = 1.6 - (i % 2) * 0.25;
+      addFlatBar(d2.holder, w, 0.07, LINE, -1.28 + w / 2, topOf(2), -0.2 + i * 0.3);
+    }
+    const chips: Array<{ mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial }> = [];
+    const CHIP_IDLE = 0xbfc7e6; // darker than the tiles so options read on the card
+    const chipIdleColor = new THREE.Color(CHIP_IDLE);
+    for (let c = 0; c < 4; c++) {
+      const mat = new THREE.MeshStandardMaterial({
+        color: CHIP_IDLE,
+        roughness: 0.45,
+        metalness: 0,
+        emissive: new THREE.Color(SUCCESS),
+        emissiveIntensity: 0,
+      });
+      const chip = new THREE.Mesh(slabGeometry(0.24, 0.24, 0.07, 0.06), mat);
+      chip.position.set(0.4 + c * 0.3, topOf(2) + 0.01, -0.46);
+      d2.holder.add(chip);
+      chips.push({ mesh: chip, mat });
+    }
+    const quizPill = makePill(text.quiz, {
+      height: 0.21,
+      maxWidth: 1.25,
+      color: WHITE_CSS,
       background: VIOLET_CSS,
-      weight: 800,
     });
-    gradeToken.position.set(2.34, 1.96, 0.4);
-    root.add(gradeToken);
+    quizPill.group.position.set(-0.78, 0.2, DECK_DIMS[2].d / 2 + 0.05);
+    d2.holder.add(quizPill.group);
+    counterPlaques.push({ group: quizPill.group, deck: 2 });
+    const reviewPill = makePill(text.review, {
+      height: 0.19,
+      maxWidth: 1.15,
+      color: WHITE_CSS,
+      background: VIOLET_DEEP_CSS,
+    });
+    reviewPill.group.position.set(0.82, 0.19, DECK_DIMS[2].d / 2 + 0.05);
+    d2.holder.add(reviewPill.group);
+    counterPlaques.push({ group: reviewPill.group, deck: 2 });
+    const approvedPill = makePill(text.approved, {
+      height: 0.19,
+      maxWidth: 1.15,
+      color: WHITE_CSS,
+      background: SUCCESS_CSS,
+    });
+    approvedPill.group.position.set(0.82, 0.19, DECK_DIMS[2].d / 2 + 0.06);
+    d2.holder.add(approvedPill.group);
+    counterPlaques.push({ group: approvedPill.group, deck: 2 });
 
-    const caption = makeToken(addLabel, averageLabel, {
-      height: 0.22,
-      textColor: VIOLET_DEEP_CSS,
+    // Deck 3 — the class: a grid of student seats that light green as the bead
+    // grades them, plus a "Graded" plaque.
+    const d3 = decks[3];
+    const tiles: Array<{ mat: THREE.MeshStandardMaterial; mesh: THREE.Mesh; order: number }> = [];
+    const idleTileColor = new THREE.Color(TILE_IDLE);
+    const successColor = new THREE.Color(SUCCESS);
+    const TILE_COLS = 4;
+    const TILE_ROWS = 3;
+    for (let r = 0; r < TILE_ROWS; r++) {
+      for (let c = 0; c < TILE_COLS; c++) {
+        const mat = new THREE.MeshStandardMaterial({
+          color: TILE_IDLE,
+          roughness: 0.45,
+          metalness: 0,
+          emissive: new THREE.Color(SUCCESS),
+          emissiveIntensity: 0,
+        });
+        const mesh = new THREE.Mesh(slabGeometry(0.4, 0.22, 0.07, 0.05), mat);
+        mesh.position.set(-0.99 + c * 0.66, topOf(3), -0.44 + r * 0.44);
+        d3.holder.add(mesh);
+        const idx = r * TILE_COLS + c;
+        tiles.push({ mat, mesh, order: ((idx * 7) % (TILE_COLS * TILE_ROWS)) / (TILE_COLS * TILE_ROWS) });
+      }
+    }
+    const gradedPill = makePill(text.graded, {
+      height: 0.19,
+      maxWidth: 0.95,
+      color: WHITE_CSS,
+      background: SUCCESS_CSS,
+    });
+    gradedPill.group.position.set(1.05, 0.2, DECK_DIMS[3].d / 2 + 0.05);
+    d3.holder.add(gradedPill.group);
+    counterPlaques.push({ group: gradedPill.group, deck: 3 });
+
+    // Deck 4 — analytics: bars that surge when the bead lands, plus the floating
+    // "92%" token and "Class average" caption above the tower.
+    const d4 = decks[4];
+    type Bar = { holder: THREE.Group; mat: THREE.MeshStandardMaterial; baseEmissive: number };
+    const bars: Bar[] = [];
+    const barHeights = [0.38, 0.55, 0.46, 0.72];
+    const barColors = [VIOLET_LIGHT, VIOLET, VIOLET_LIGHT, VIOLET_DEEP];
+    const barEmissives = [0.25, 0.32, 0.25, 0.5];
+    for (let i = 0; i < barHeights.length; i++) {
+      const holder = new THREE.Group();
+      holder.position.set(-0.9 + i * 0.46, topOf(4) - 0.02, 0.12);
+      const mat = new THREE.MeshStandardMaterial({
+        color: barColors[i],
+        roughness: 0.42,
+        metalness: 0.12,
+        emissive: new THREE.Color(barColors[i]),
+        emissiveIntensity: barEmissives[i],
+      });
+      const mesh = new THREE.Mesh(
+        new THREE.BoxGeometry(0.26, barHeights[i], 0.26),
+        mat,
+      );
+      mesh.position.y = barHeights[i] / 2;
+      holder.add(mesh);
+      holder.scale.y = 0.5;
+      d4.holder.add(holder);
+      bars.push({ holder, mat, baseEmissive: barEmissives[i] });
+    }
+    // Token + caption live on the root (not the deck) so they hold their spot
+    // above the tower while the analytics deck pitches; layoutDecks tracks them
+    // to the deck's position each frame.
+    const token = makePill("92%", { height: 0.4, maxWidth: 1.3, color: WHITE_CSS, background: VIOLET_CSS });
+    token.group.scale.setScalar(0);
+    root.add(token.group);
+    const caption = makePill(text.average, {
+      height: 0.18,
+      maxWidth: 1.5,
+      color: VIOLET_DEEP_CSS,
       background: WHITE_CSS,
       weight: 700,
     });
-    caption.position.set(1.8, 1.54, 0.38);
-    root.add(caption);
+    caption.group.scale.setScalar(0);
+    root.add(caption.group);
+    const TOKEN_OFFSET = new THREE.Vector3(0.95, 1.0, 0.42);
+    const CAPTION_OFFSET = new THREE.Vector3(1.02, 0.55, 0.42);
 
-    const gradedPill = makeToken(addLabel, gradedLabel, {
-      height: 0.22,
-      textColor: WHITE_CSS,
-      background: SUCCESS_CSS,
-      weight: 800,
-    });
-    gradedPill.position.set(2.36, -1.14, 0.42);
-    root.add(gradedPill);
+    // --- The spine and its travelers ---------------------------------------------
+    const spineGroup = new THREE.Group();
+    root.add(spineGroup);
+    const SPINE_H = 3.4;
+    const spineOuterMat = additiveMaterial(VIOLET_LIGHT, 0.16);
+    const spineOuter = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, SPINE_H, 12, 1, true), spineOuterMat);
+    spineGroup.add(spineOuter);
+    const spineCoreMat = additiveMaterial(VIOLET_BRIGHT, 0.4);
+    const spineCore = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, SPINE_H, 8, 1, true), spineCoreMat);
+    spineGroup.add(spineCore);
 
-    // Draft particles — the book's "thinking": points streaming seam → card.
-    const PARTICLES = 56;
-    const particleSeeds = new Float32Array(PARTICLES * 2);
-    for (let i = 0; i < PARTICLES; i++) {
-      particleSeeds[i * 2] = Math.random();
-      particleSeeds[i * 2 + 1] = Math.random() * Math.PI * 2;
+    const makeBead = () => {
+      const g = new THREE.Group();
+      const coreMat = additiveMaterial(0xffffff, 0.9);
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 16), coreMat));
+      const glowMat = additiveMaterial(VIOLET_BRIGHT, 0.4);
+      g.add(new THREE.Mesh(new THREE.SphereGeometry(0.17, 16, 16), glowMat));
+      g.visible = false;
+      root.add(g);
+      return { group: g, coreMat, glowMat };
+    };
+    const bead = makeBead(); // the heartbeat
+    const burstBead = makeBead(); // the click-triggered pulse
+
+    // Helix particles slowly rising around the spine — continuous ambient energy.
+    const HELIX = 18;
+    const helixSeeds = new Float32Array(HELIX * 2);
+    for (let i = 0; i < HELIX; i++) {
+      helixSeeds[i * 2] = i / HELIX;
+      helixSeeds[i * 2 + 1] = (i * 2.399963) % (Math.PI * 2); // golden-angle spread
     }
-    const particleGeo = new THREE.BufferGeometry();
-    const particlePos = new THREE.BufferAttribute(new Float32Array(PARTICLES * 3), 3);
-    particlePos.setUsage(THREE.DynamicDrawUsage);
-    particleGeo.setAttribute("position", particlePos);
-    const particleMat = new THREE.PointsMaterial({
+    const helixGeo = new THREE.BufferGeometry();
+    const helixPos = new THREE.BufferAttribute(new Float32Array(HELIX * 3), 3);
+    helixPos.setUsage(THREE.DynamicDrawUsage);
+    helixGeo.setAttribute("position", helixPos);
+    const helixMat = new THREE.PointsMaterial({
       color: VIOLET_BRIGHT,
-      size: 0.105,
+      size: 0.07,
       transparent: true,
-      opacity: 0,
+      opacity: 0.35,
       blending: THREE.AdditiveBlending,
       depthWrite: false,
       sizeAttenuation: true,
     });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    particles.visible = false;
-    root.add(particles);
-    const PARTICLE_FROM = new THREE.Vector3(0.1, -0.62, 0.2);
+    root.add(new THREE.Points(helixGeo, helixMat));
 
-    // Ambient data nodes — a soft violet constellation for depth.
-    type Node = { mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial; phase: number };
-    const nodes: Node[] = [];
-    const nodeDefs = [
-      { x: -2.2, y: 1.3, z: 0.25, r: 0.11, c: VIOLET_LIGHT },
-      { x: -1.95, y: -1.42, z: 0.3, r: 0.1, c: VIOLET_LIGHT },
-      { x: 2.45, y: -0.22, z: 0.25, r: 0.1, c: VIOLET },
-      { x: -0.68, y: 2.08, z: 0.3, r: 0.12, c: VIOLET },
+    // A few distant motes for depth.
+    type Mote = { mesh: THREE.Mesh; mat: THREE.MeshStandardMaterial; phase: number };
+    const motes: Mote[] = [];
+    const moteDefs = [
+      { x: -1.78, y: 0.6, z: -0.4, r: 0.09 },
+      { x: 1.82, y: -0.85, z: -0.3, r: 0.08 },
+      { x: 1.68, y: 1.42, z: -0.5, r: 0.07 },
     ];
-    for (const d of nodeDefs) {
+    for (const m of moteDefs) {
       const mat = new THREE.MeshStandardMaterial({
-        color: d.c,
+        color: VIOLET_LIGHT,
         roughness: 0.35,
         metalness: 0.1,
-        emissive: new THREE.Color(d.c),
+        emissive: new THREE.Color(VIOLET_LIGHT),
         emissiveIntensity: 0.7,
       });
-      const mesh = new THREE.Mesh(new THREE.SphereGeometry(d.r, 20, 20), mat);
-      mesh.position.set(d.x, d.y, d.z);
+      const mesh = new THREE.Mesh(new THREE.SphereGeometry(m.r, 16, 16), mat);
+      mesh.position.set(m.x, m.y, m.z);
       root.add(mesh);
-      nodes.push({ mesh, mat, phase: d.x * 1.7 + d.y });
+      motes.push({ mesh, mat, phase: m.x * 2.1 + m.y });
     }
 
-    // Light threads tying the story together: book → card while drafting, and
-    // each device → chart once grading feeds analytics. Endpoints are rewritten
-    // every frame so the lines track the bobbing groups (cheap).
-    type Thread = {
-      posAttr: THREE.BufferAttribute;
-      mat: THREE.LineBasicMaterial;
-      from: THREE.Object3D;
-      fromOffset: THREE.Vector3;
-      to: THREE.Object3D;
-      toOffset: THREE.Vector3;
-    };
-    const threads: Thread[] = [];
-    const makeThread = (
-      from: THREE.Object3D,
-      fromOffset: THREE.Vector3,
-      to: THREE.Object3D,
-      toOffset: THREE.Vector3,
-    ): Thread => {
-      const geo = new THREE.BufferGeometry();
-      const posAttr = new THREE.BufferAttribute(new Float32Array(6), 3);
-      geo.setAttribute("position", posAttr);
-      const mat = new THREE.LineBasicMaterial({ color: VIOLET_LIGHT, transparent: true, opacity: 0 });
-      root.add(new THREE.Line(geo, mat));
-      const th = { posAttr, mat, from, fromOffset, to, toOffset };
-      threads.push(th);
-      return th;
-    };
-    const bookCardThread = makeThread(
-      book.group,
-      new THREE.Vector3(0, 0.6, 0.1),
-      card.group,
-      new THREE.Vector3(0.2, -0.95, -0.05),
-    );
-    const deviceThreads = [
-      makeThread(phone.group, new THREE.Vector3(0.1, 0.4, 0), chart.group, new THREE.Vector3(0.72, 0.55, 0)),
-      makeThread(tablet.group, new THREE.Vector3(0.2, 0.25, 0), chart.group, new THREE.Vector3(0.36, 0.4, 0)),
-    ];
+    // --- Layout: rest ↔ fanned-open deck, presentation pitch, focus, idle bob ----
+    // Each deck's pitch = rest tilt + presentation wave (the bead's beat, from
+    // `p`/`burstQ`) + hover focus; presenting decks push their neighbors apart.
+    // `fitAll` poses every deck at full presentation for worst-case auto-fit.
+    const focus = new Float32Array(LAYERS); // smoothed per-deck pointer highlight
+    const layoutDecks = (splay: number, t: number, p: number, burstQ: number, fitAll = false) => {
+      for (let i = 0; i < LAYERS; i++) {
+        const holder = decks[i].holder;
+        // Fit pose = realistic worst case, not "all five presenting at once"
+        // (which never happens and would over-shrink the model): one mid deck
+        // fully presenting + hover focus, everything fanned open.
+        const present = fitAll ? (i === 2 ? 1 : 0) : presentEnvAt(p, burstQ, i);
+        const focusAmt = fitAll ? 1 : focus[i];
+        // The analytics deck pitches less — its 3D bars shouldn't aim at the camera.
+        const depthFactor = i === LAYERS - 1 ? 0.72 : 1;
+        const pitch = Math.min(
+          MAX_PITCH,
+          BASE_PITCH + (PRESENT_PITCH * present + FOCUS_PITCH * focusAmt) * depthFactor,
+        );
+        holder.rotation.x = pitch;
+        holder.rotation.y = (i % 2 ? -1 : 1) * 0.045 * splay;
 
-    const tmpFrom = new THREE.Vector3();
-    const tmpTo = new THREE.Vector3();
-    const updateThreads = () => {
-      for (const th of threads) {
-        const arr = th.posAttr.array as Float32Array;
-        tmpFrom.copy(th.fromOffset).applyMatrix4(th.from.matrix);
-        tmpTo.copy(th.toOffset).applyMatrix4(th.to.matrix);
-        arr[0] = tmpFrom.x;
-        arr[1] = tmpFrom.y;
-        arr[2] = tmpFrom.z;
-        arr[3] = tmpTo.x;
-        arr[4] = tmpTo.y;
-        arr[5] = tmpTo.z;
-        th.posAttr.needsUpdate = true;
+        let push = 0;
+        for (let j = 0; j < LAYERS; j++) {
+          if (j === i) continue;
+          const pj = fitAll ? (j === 2 ? 1 : 0) : presentEnvAt(p, burstQ, j);
+          push += Math.sign(i - j) * PRESENT_PUSH * pj;
+        }
+        const bob = Math.sin(t * 0.7 + i * 1.35) * 0.025;
+        holder.position.y =
+          BASE_Y(i) + (i - (LAYERS - 1) / 2) * SPLAY_EXTRA * splay + push + bob + focus[i] * 0.07;
+        holder.position.x = (i % 2 ? 1 : -1) * 0.05 * splay;
+      }
+      for (const plaque of counterPlaques) {
+        plaque.group.rotation.x = -decks[plaque.deck].holder.rotation.x;
+      }
+      const topHolder = decks[LAYERS - 1].holder;
+      token.group.position.copy(topHolder.position).add(TOKEN_OFFSET);
+      caption.group.position.copy(topHolder.position).add(CAPTION_OFFSET);
+      const yBot = decks[0].holder.position.y;
+      const yTop = topHolder.position.y;
+      spineGroup.position.y = (yBot + yTop) / 2;
+      spineGroup.scale.y = (yTop - yBot + 0.7) / SPINE_H;
+    };
+
+    // --- The heartbeat ------------------------------------------------------------
+    // `applyFrame(p, burstQ, t)` is a pure function of the loop phase p∈[0,1),
+    // the click-pulse phase burstQ (or -1 when inactive) and time t, so the
+    // settled/reduced-motion frame is just applyFrame(SETTLED_P, -1, ...).
+    const beadTravelY = (q: number) => {
+      const yBot = decks[0].holder.position.y - 0.3;
+      const yTop = decks[LAYERS - 1].holder.position.y + 0.2;
+      return lerp(yBot, yTop, q);
+    };
+
+    const applyFrame = (p: number, burstQ: number, t: number) => {
+      const settle = p >= RESET_AT ? 1 - easeInOutCubic((p - RESET_AT) / (1 - RESET_AT)) : 1;
+      const burstActive = burstQ >= 0 && burstQ <= 1;
+
+      // Beads ride the spine.
+      const beadQ = (p - BEAD_START) / (BEAD_END - BEAD_START);
+      bead.group.visible = beadQ > 0 && beadQ < 1;
+      if (bead.group.visible) {
+        bead.group.position.y = beadTravelY(beadQ);
+        const throb = 1 + 0.14 * Math.sin(t * 9);
+        bead.group.scale.setScalar(throb);
+        bead.glowMat.opacity = 0.35 + 0.2 * Math.sin(t * 7);
+      }
+      burstBead.group.visible = burstActive;
+      if (burstActive) {
+        burstBead.group.position.y = beadTravelY(easeInOutCubic(burstQ));
+        burstBead.group.scale.setScalar(1.1);
+        burstBead.glowMat.opacity = 0.5 * (1 - burstQ * 0.5);
+      }
+
+      // Spine glow follows the traffic.
+      const beadActive = bead.group.visible ? 1 : 0;
+      spineOuterMat.opacity = 0.13 + 0.06 * Math.sin(t * 1.9) + 0.08 * beadActive + (burstActive ? 0.1 : 0);
+      spineCoreMat.opacity = 0.3 + 0.1 * Math.sin(t * 2.3) + 0.15 * beadActive + (burstActive ? 0.2 : 0);
+
+      // Per-deck arrival flash + expanding ring (main pulse and click pulse).
+      for (let i = 0; i < LAYERS; i++) {
+        const deck = decks[i];
+        const flashMain = bell(p, ARRIVAL(i), 0.05);
+        const flashBurst = burstActive ? bell(easeInOutCubic(burstQ), i / (LAYERS - 1), 0.1) : 0;
+        const flash = Math.min(1, flashMain + flashBurst);
+        deck.slabMat.emissiveIntensity = deck.baseEmissive + 0.3 * flash + 0.14 * focus[i];
+
+        const ringMain = clamp01((p - (ARRIVAL(i) - 0.01)) / 0.1);
+        const ringBurst = burstActive ? clamp01((easeInOutCubic(burstQ) - i / (LAYERS - 1)) / 0.14) : 0;
+        // Whichever wave is currently brighter drives the ring.
+        const rT =
+          ringMain > 0 && ringMain < 1 && (1 - ringMain) * 1 >= (ringBurst > 0 && ringBurst < 1 ? 1 - ringBurst : 0)
+            ? ringMain
+            : ringBurst;
+        if (rT > 0 && rT < 1) {
+          deck.ring.visible = true;
+          deck.ring.scale.setScalar(0.5 + 1.1 * easeOutCubic(rT));
+          deck.ringMat.opacity = 0.75 * (1 - rT);
+        } else {
+          deck.ring.visible = false;
+          deck.ringMat.opacity = 0;
+        }
+      }
+
+      // Deck 0 — shimmer sweeps across the material as it is read.
+      const readT = clamp01((p - 0.0) / 0.16);
+      shimmer.position.x = lerp(-0.85, 0.85, readT);
+      shimmerMat.opacity = 0.7 * bell(p, ARRIVAL(0) + 0.05, 0.09);
+
+      // Deck 1 — the spark spins up and the draft rows type in.
+      const draftEnergy = bell(p, ARRIVAL(1), 0.12) + (burstActive ? bell(easeInOutCubic(burstQ), 0.25, 0.12) : 0);
+      spark.rotation.y = t * (1.2 + draftEnergy * 5);
+      spark.rotation.z = t * 0.8;
+      spark.position.y = 0.34 + Math.sin(t * 1.7) * 0.045;
+      sparkMat.emissiveIntensity = 0.7 + draftEnergy * 0.9;
+      for (let r = 0; r < draftRows.length; r++) {
+        const w = easeOutCubic(clamp01((p - (ARRIVAL(1) + 0.012 + r * 0.045)) / 0.07)) * settle;
+        draftRows[r].scale.x = Math.max(0.0001, w);
+        draftRows[r].visible = w > 0.002;
+      }
+
+      // Deck 2 — "In review" is stamped into "Approved"; one answer chip turns green.
+      const approveT = clamp01((p - (ARRIVAL(2) + 0.012)) / 0.05);
+      const approvedS = easeOutBack(approveT) * settle;
+      approvedPill.group.scale.setScalar(Math.max(0.0001, approvedS));
+      approvedPill.group.visible = approvedS > 0.002;
+      const reviewS = Math.max(1 - easeInOutCubic(clamp01((p - ARRIVAL(2)) / 0.04)), 1 - settle);
+      reviewPill.group.scale.setScalar(Math.max(0.0001, reviewS));
+      reviewPill.group.visible = reviewS > 0.002;
+      const punch = 1 + 0.03 * bell(p, ARRIVAL(2) + 0.02, 0.035);
+      decks[2].holder.scale.setScalar(punch);
+      for (let c = 0; c < chips.length; c++) {
+        const isKey = c === 1;
+        const flip = isKey ? clamp01((p - (ARRIVAL(2) + 0.035)) / 0.05) * settle : 0;
+        chips[c].mat.color.lerpColors(chipIdleColor, successColor, flip);
+        chips[c].mat.emissiveIntensity = 0.5 * flip;
+        chips[c].mesh.scale.setScalar(1 + 0.25 * (isKey ? bell(p, ARRIVAL(2) + 0.055, 0.04) : 0));
+      }
+
+      // Deck 3 — seats light green in a scatter as submissions are graded.
+      for (const tile of tiles) {
+        const on = easeOutCubic(clamp01((p - (ARRIVAL(3) + tile.order * 0.09)) / 0.035)) * settle;
+        tile.mat.color.lerpColors(idleTileColor, successColor, on);
+        tile.mat.emissiveIntensity = 0.45 * on;
+        tile.mesh.position.y = topOf(3) + 0.03 * on;
+      }
+      const gradedS = easeOutBack(clamp01((p - (ARRIVAL(3) + 0.09)) / 0.05)) * settle;
+      gradedPill.group.scale.setScalar(Math.max(0.0001, gradedS));
+      gradedPill.group.visible = gradedS > 0.002;
+
+      // Deck 4 — the analytics surge: bars overshoot to full, token + caption pop.
+      for (let i = 0; i < bars.length; i++) {
+        const surge = easeOutBack(clamp01((p - (ARRIVAL(4) + i * 0.018)) / 0.06));
+        const breathe = 0.015 * Math.sin(t * 1.6 + i);
+        bars[i].holder.scale.y = 0.5 + 0.5 * surge * settle + breathe;
+        bars[i].mat.emissiveIntensity = bars[i].baseEmissive * (0.7 + 0.6 * surge * settle);
+      }
+      const tokenS = easeOutBack(clamp01((p - (ARRIVAL(4) + 0.045)) / 0.055)) * settle;
+      token.group.scale.setScalar(Math.max(0.0001, tokenS));
+      token.group.visible = tokenS > 0.002;
+      const captionS = easeOutBack(clamp01((p - (ARRIVAL(4) + 0.028)) / 0.055)) * settle;
+      caption.group.scale.setScalar(Math.max(0.0001, captionS));
+      caption.group.visible = captionS > 0.002;
+
+      // Helix particles rise continuously; brighter while a bead is in flight.
+      const yBot = decks[0].holder.position.y - 0.2;
+      const yTop = decks[LAYERS - 1].holder.position.y + 0.25;
+      const arr = helixPos.array as Float32Array;
+      for (let i = 0; i < HELIX; i++) {
+        const q = (helixSeeds[i * 2] + t * 0.055) % 1;
+        const ang = helixSeeds[i * 2 + 1] + t * 0.55 + q * 4.2;
+        const radius = 0.5 + 0.06 * Math.sin(q * Math.PI);
+        arr[i * 3] = Math.cos(ang) * radius;
+        arr[i * 3 + 1] = lerp(yBot, yTop, q);
+        arr[i * 3 + 2] = Math.sin(ang) * radius;
+      }
+      helixPos.needsUpdate = true;
+      helixMat.opacity = 0.24 + 0.14 * beadActive + (burstActive ? 0.15 : 0);
+
+      // Ambient motes pulse slowly.
+      for (const m of motes) {
+        const pulse = 0.5 + 0.5 * Math.sin(t * 1.5 + m.phase);
+        m.mesh.scale.setScalar(0.85 + 0.35 * pulse);
+        m.mat.emissiveIntensity = 0.45 + 0.65 * pulse;
       }
     };
 
-    const baseRotY = -0.08;
-    const baseRotX = 0.04;
-    root.rotation.set(baseRotX, baseRotY, 0);
-
-    // Auto-fit: scale the whole model so its projected bounding box sits inside the
-    // frame with margin, evaluated at the square aspect (the tightest breakpoint).
-    // Guarantees nothing is clipped at any width, with headroom for the float motion.
+    // Auto-fit: recenter the model (the "92%" token makes its bounds top-heavy)
+    // and scale it so its projected bounds sit inside the frame at the square
+    // aspect (the tightest breakpoint), evaluated with the deck fully fanned
+    // open so interaction can never push content past the edges.
     const fitToFrame = (margin: number) => {
       const prevAspect = camera.aspect;
       camera.aspect = 1;
       camera.updateProjectionMatrix();
       camera.updateMatrixWorld(true);
+      focus.fill(0);
+      layoutDecks(1, 0, 0, -1, true);
       root.scale.setScalar(1);
+      root.position.y = 0;
+      root.updateMatrixWorld(true);
+      const centerBox = new THREE.Box3().setFromObject(root);
+      root.position.y = -(centerBox.max.y + centerBox.min.y) / 2;
       root.updateMatrixWorld(true);
       const box = new THREE.Box3().setFromObject(root);
       const corner = new THREE.Vector3();
@@ -1110,262 +889,104 @@ export default function HeroScene({ className, labels }: { className?: string; l
         corner.project(camera);
         maxNdc = Math.max(maxNdc, Math.abs(corner.x), Math.abs(corner.y));
       }
-      if (maxNdc > 0) root.scale.setScalar(margin / maxNdc);
+      if (maxNdc > 0) {
+        const s = margin / maxNdc;
+        root.scale.setScalar(s);
+        root.position.y *= s; // the recenter shift scales with the model
+      }
+      layoutDecks(0, 0, SETTLED_P, -1);
       camera.aspect = prevAspect;
       camera.updateProjectionMatrix();
     };
 
-    // --- The story cycle -------------------------------------------------------
-    // One loop: material dives into the book → particles draft the card → teacher
-    // approves → minis fly to devices → timers sweep → checks + "Graded" → chart,
-    // token and caption rise → hold → reset. `applyCycle(p)` is a pure function of
-    // the loop phase p∈[0,1) so it is safe to evaluate at any fixed p for the
-    // static/reduced-motion frame.
-    const CYCLE = 12.5; // seconds
-    const SETTLED_P = 0.9; // the "story complete" frame used when paused / reduced
+    // 1.04 against the deliberately over-estimated fit pose ≈ full frame at rest
+    // with no clipping in any real pose.
+    fitToFrame(1.04);
+    layoutDecks(0, SETTLED_P * CYCLE, SETTLED_P, -1);
+    applyFrame(SETTLED_P, -1, SETTLED_P * CYCLE);
 
-    // Flight path of the lesson sheet: upper-left → the book's seam.
-    const LESSON_A = new THREE.Vector3(-2.35, 2.2, 0.4);
-    const LESSON_B = new THREE.Vector3(-1.75, 0.5, 0.3);
-    const LESSON_C = new THREE.Vector3(0.1, -0.52, 0.14);
-
-    const applyCycle = (p: number, t: number) => {
-      const inReset = p >= 0.93;
-      const resetT = inReset ? easeInOutCubic((p - 0.93) / 0.07) : 0;
-      const settle = 1 - resetT;
-
-      // 1) Lesson sheet flies into the seam.
-      const flyT = clamp01(p / 0.155);
-      const flying = p < 0.16 && !inReset;
-      lesson.visible = flying;
-      if (flying) {
-        const e = easeInOutCubic(flyT);
-        quadBezier(lesson.position, LESSON_A, LESSON_B, LESSON_C, e);
-        lesson.rotation.z = -0.16 + 0.22 * e;
-        lesson.rotation.y = 0.25 - 0.25 * e;
-        // Shrinks as the seam swallows it.
-        lesson.scale.setScalar(0.92 * (1 - 0.85 * clamp01((e - 0.78) / 0.22)));
-      }
-
-      // Seam, halo and rings flare as the sheet is absorbed.
-      const flare = bell(p, 0.155, 0.06);
-      book.seamMat.opacity = 0.38 + 0.62 * flare + 0.07 * Math.sin(t * 7);
-      book.haloMat.opacity = 0.5 + 0.4 * flare + 0.05 * Math.sin(t * 1.8);
-      book.ringMat.opacity = 0.3 + 0.4 * flare;
-      book.ringMat2.opacity = 0.22 + 0.35 * flare;
-
-      // 2) Draft particles stream seam → card while the book "thinks".
-      const pEnv = clamp01((p - 0.15) / 0.04) * (1 - clamp01((p - 0.3) / 0.05));
-      particles.visible = pEnv > 0.01;
-      particleMat.opacity = 0.95 * pEnv;
-      if (particles.visible) {
-        const arr = particlePos.array as Float32Array;
-        const flow = (p - 0.15) / 0.2;
-        for (let i = 0; i < PARTICLES; i++) {
-          const seed = particleSeeds[i * 2];
-          const phase = particleSeeds[i * 2 + 1];
-          const q = (seed + flow * (1.1 + seed * 0.7)) % 1;
-          const spread = (1 - q) * 0.4;
-          arr[i * 3] = PARTICLE_FROM.x + (CARD_POS.x - PARTICLE_FROM.x) * q + Math.sin(q * 9 + phase) * 0.14 * spread * 3;
-          arr[i * 3 + 1] = PARTICLE_FROM.y + (CARD_POS.y - PARTICLE_FROM.y) * q;
-          arr[i * 3 + 2] = PARTICLE_FROM.z + Math.cos(q * 7 + phase) * 0.1;
-        }
-        particlePos.needsUpdate = true;
-      }
-
-      // Card assembles: body scales in, rows pop one by one, review pill lands.
-      const approvePunch = 1 + 0.05 * bell(p, 0.41, 0.025);
-      const cardShow = easeOutBack(clamp01((p - 0.165) / 0.05)) * settle;
-      card.group.scale.setScalar(Math.max(0, cardShow * approvePunch));
-      card.group.visible = cardShow > 0.002;
-      for (let i = 0; i < card.rows.length; i++) {
-        const s = easeOutBack(clamp01((p - (0.2 + i * 0.03)) / 0.045));
-        card.rows[i].scale.setScalar(s);
-        card.rows[i].visible = s > 0.002;
-      }
-
-      // 3) Teacher control: "In review" flips to "Approved".
-      const reviewIn = easeOutBack(clamp01((p - 0.31) / 0.05));
-      const reviewOut = 1 - easeInOutCubic(clamp01((p - 0.385) / 0.03));
-      const reviewS = reviewIn * reviewOut;
-      card.reviewPill.scale.setScalar(Math.max(0, reviewS));
-      card.reviewPill.visible = reviewS > 0.002;
-      const approvedS = easeOutBack(clamp01((p - 0.4) / 0.05));
-      card.approvedPill.scale.setScalar(Math.max(0, approvedS));
-      card.approvedPill.visible = approvedS > 0.002;
-
-      // Book → card thread glows while drafting and reviewing.
-      bookCardThread.mat.opacity = 0.3 * clamp01((p - 0.18) / 0.05) * settle;
-
-      // 4) Mini sheets arc to the devices; screens light up; timers sweep.
-      for (let j = 0; j < devices.length; j++) {
-        const d = devices[j];
-        const start = 0.455 + j * 0.028;
-        const mT = clamp01((p - start) / 0.085);
-        const inFlight = mT > 0 && mT < 1 && !inReset;
-        minis[j].visible = inFlight;
-        if (inFlight) {
-          const e = easeInOutCubic(mT);
-          quadBezier(minis[j].position, miniPaths[j].a, miniPaths[j].b, miniPaths[j].c, e);
-          minis[j].rotation.z = 0.3 - 0.5 * e;
-          const grow = clamp01(mT / 0.2);
-          const absorb = 1 - 0.7 * clamp01((mT - 0.82) / 0.18);
-          minis[j].scale.setScalar(0.9 * grow * absorb);
-        }
-
-        // Screen pulses violet on arrival, then rows appear (idle dot bows out).
-        const arrival = start + 0.085;
-        d.screenMat.emissiveIntensity = 0.03 + 0.3 * bell(p, arrival, 0.03);
-        const contentIn = clamp01((p - arrival) / 0.03);
-        const idleS = 1 - contentIn * settle;
-        d.idle.scale.setScalar(Math.max(0.001, idleS));
-        d.idle.visible = idleS > 0.01;
-        for (let r = 0; r < d.rows.length; r++) {
-          const s = easeOutBack(clamp01((p - (arrival + 0.012 + r * 0.014)) / 0.03)) * settle;
-          d.rows[r].scale.setScalar(Math.max(0, s));
-          d.rows[r].visible = s > 0.002;
-        }
-
-        // Timed exam: the little timer sweeps, then fades before the check.
-        const tw = clamp01((p - (0.56 + j * 0.015)) / 0.075);
-        const timerAlive = clamp01((p - (0.55 + j * 0.015)) / 0.02) * (1 - clamp01((p - (0.645 + j * 0.02)) / 0.025));
-        d.timerMat.opacity = 0.75 * timerAlive * settle;
-        d.handMat.opacity = timerAlive * settle;
-        d.hand.rotation.z = -easeInOutCubic(tw) * Math.PI * 2.5;
-
-        // 5) Graded the moment they submit: the check pops.
-        const checkS = easeOutBack(clamp01((p - (0.655 + j * 0.03)) / 0.05)) * settle;
-        d.check.scale.setScalar(Math.max(0, checkS));
-        d.check.visible = checkS > 0.002;
-      }
-
-      // "Graded" pill by the devices.
-      const gradedS = easeOutBack(clamp01((p - 0.71) / 0.05)) * settle;
-      gradedPill.scale.setScalar(Math.max(0, gradedS));
-      gradedPill.visible = gradedS > 0.002;
-
-      // Device → chart threads carry the submissions into analytics.
-      for (const th of deviceThreads) th.mat.opacity = 0.32 * clamp01((p - 0.7) / 0.05) * settle;
-
-      // Chart bars grow (slight stagger + gentle breathing), ribbon + apex follow.
-      // Hidden until they start growing so no collapsed slivers float in the sky.
-      const barBase = clamp01((p - 0.71) / 0.15);
-      for (let i = 0; i < chart.bars.length; i++) {
-        const b = chart.bars[i];
-        const grow = easeOutCubic(clamp01(barBase * 1.2 - i * 0.07));
-        const breathe = 0.02 * Math.sin(t * 1.5 + i) * grow;
-        b.group.scale.y = Math.max(0.05, (0.05 + 0.95 * grow + breathe) * (1 - resetT * 0.95));
-        b.group.visible = grow * settle > 0.01;
-        b.mat.emissiveIntensity = b.baseEmissive * (0.6 + 0.4 * grow);
-      }
-      chart.ribbonMat.opacity = 0.9 * easeOutCubic(clamp01((p - 0.75) / 0.12)) * settle;
-      const apexShow = easeOutBack(clamp01((p - 0.85) / 0.05)) * settle;
-      chart.apex.scale.setScalar(Math.max(0, apexShow));
-      chart.apex.visible = apexShow > 0.002;
-
-      // Grade token + caption settle last — the story's closing beat.
-      const tokenShow = easeOutBack(clamp01((p - 0.82) / 0.06)) * settle;
-      gradeToken.scale.setScalar(Math.max(0, tokenShow));
-      gradeToken.visible = tokenShow > 0.002;
-      const capShow = easeOutBack(clamp01((p - 0.79) / 0.06)) * settle;
-      caption.scale.setScalar(Math.max(0, capShow));
-      caption.visible = capShow > 0.002;
-    };
-
-    // Fit after content exists, then paint the settled frame so the hero is correct
-    // before any motion (and is the single frame under reduced motion / no WebGL).
-    // 0.9 fills the frame while leaving headroom for sway + bob so nothing clips.
-    fitToFrame(0.9);
-    book.group.updateMatrix();
-    card.group.updateMatrix();
-    phone.group.updateMatrix();
-    tablet.group.updateMatrix();
-    chart.group.updateMatrix();
-    applyCycle(SETTLED_P, SETTLED_P * CYCLE);
-    updateThreads();
-
-    // True only while the hero is meaningfully on-screen (maintained by the
-    // observer below). The pointer handler reads it so the model never tracks the
-    // cursor while the scene is scrolled out of view.
+    // --- Interaction: fenced to the hero box -------------------------------------
+    // The hero rect is the border. Inside it the pointer steers tilt/splay/focus;
+    // beyond a small feather band outside it, all influence decays to zero, so
+    // once the cursor travels down the page the tower simply settles home.
+    const FEATHER = 0.12;
     let onScreen = false;
+    const pointer = { x: 0, y: 0, influence: 0 }; // smoothed values used by the frame loop
+    const target = { x: 0, y: 0, influence: 0 };
 
-    const pointer = { x: 0, y: 0 };
-    const REACH = 1.6;
     const onPointerMove = (e: PointerEvent) => {
-      if (!onScreen) return; // scrolled away — don't chase the cursor
+      if (!onScreen) return; // scrolled away — the border is closed
       const rect = container.getBoundingClientRect();
       const nx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
       const ny = (e.clientY - (rect.top + rect.height / 2)) / (rect.height / 2);
-      const dist = Math.hypot(nx, ny);
-
-      if (dist > REACH) {
-        pointer.x = 0;
-        pointer.y = 0;
+      const excess = Math.max(Math.abs(nx), Math.abs(ny)) - 1;
+      if (excess >= FEATHER) {
+        target.influence = 0; // outside the border — hands off
         return;
       }
-      const linear = dist <= 1 ? 1 : (REACH - dist) / (REACH - 1);
-      const falloff = linear * linear;
-      pointer.x = THREE.MathUtils.clamp(nx, -1, 1) * falloff;
-      pointer.y = THREE.MathUtils.clamp(ny, -1, 1) * falloff;
+      target.influence = excess <= 0 ? 1 : 1 - excess / FEATHER;
+      target.x = THREE.MathUtils.clamp(nx, -1, 1);
+      target.y = THREE.MathUtils.clamp(ny, -1, 1);
     };
-    if (!prefersReduced) window.addEventListener("pointermove", onPointerMove, { passive: true });
+    const onPointerLeaveWindow = () => {
+      target.influence = 0;
+    };
+
+    // A tap/click inside the hero fires an immediate extra pulse up the spine.
+    let burstAt = -Infinity;
+    let elapsed = SETTLED_P * CYCLE;
+    const onPointerDown = () => {
+      if (elapsed - burstAt > BURST_SECONDS * 0.6) burstAt = elapsed;
+    };
+
+    if (!prefersReduced) {
+      window.addEventListener("pointermove", onPointerMove, { passive: true });
+      window.addEventListener("pointerout", onPointerLeaveWindow, { passive: true });
+      container.addEventListener("pointerdown", onPointerDown, { passive: true });
+    }
 
     const clock = new THREE.Clock();
-    // Start the accumulator at the settled phase so the first animated frame flows
-    // out of the static frame (settled → reset → new cycle) with no jump on load.
-    let elapsed = SETTLED_P * CYCLE;
+    let splay = 0;
     let frame = 0;
     let running = false;
+    const baseRotX = 0;
+    const MAX_TILT_Y = 0.26;
+    const MAX_TILT_X = 0.15;
 
-    const renderFrame = () => {
-      elapsed += clock.getDelta();
+    const stepFrame = (dt: number) => {
+      elapsed += dt;
       const t = elapsed;
       const p = (elapsed % CYCLE) / CYCLE;
+      const burstQ = elapsed - burstAt <= BURST_SECONDS ? (elapsed - burstAt) / BURST_SECONDS : -1;
 
-      const targetRotY = baseRotY + pointer.x * 0.16 + Math.sin(t * 0.25) * 0.04;
-      const targetRotX = baseRotX + pointer.y * 0.11;
-      root.rotation.y += (targetRotY - root.rotation.y) * 0.06;
-      root.rotation.x += (targetRotX - root.rotation.x) * 0.06;
+      // Smooth the pointer toward its target; influence 0 = fully home.
+      pointer.influence += (target.influence - pointer.influence) * 0.08;
+      pointer.x += (target.x * target.influence - pointer.x) * 0.07;
+      pointer.y += (target.y * target.influence - pointer.y) * 0.07;
+      splay += (pointer.influence - splay) * 0.06;
 
-      // The book breathes and sways; its orbit rings slowly counter-rotate.
-      book.group.position.y = BOOK_POS.y + Math.sin(t * 0.6) * 0.05;
-      book.group.rotation.y = Math.sin(t * 0.3) * 0.05;
-      book.group.rotation.x = -0.1 + Math.sin(t * 0.45) * 0.02;
-      book.ring.rotation.z = t * 0.25;
-      book.ring2.rotation.z = -t * 0.4;
-      book.group.updateMatrix();
-
-      // Card, devices and chart drift on their own subtle bobs.
-      card.group.position.y = CARD_POS.y + Math.sin(t * 0.7 + 0.4) * 0.06;
-      card.group.rotation.y = 0.14 + Math.sin(t * 0.34) * 0.04;
-      card.group.updateMatrix();
-      phone.group.position.y = PHONE_POS.y + Math.sin(t * 0.75 + 1.7) * 0.05;
-      phone.group.updateMatrix();
-      tablet.group.position.y = TABLET_POS.y + Math.sin(t * 0.7 + 2.6) * 0.04;
-      tablet.group.updateMatrix();
-      chart.group.position.y = CHART_POS.y + Math.sin(t * 0.6 + 1.2) * 0.05;
-      chart.group.updateMatrix();
-      gradeToken.position.y = 1.96 + Math.sin(t * 0.8 + 0.6) * 0.06;
-      caption.position.y = 1.54 + Math.sin(t * 0.8 + 1.1) * 0.05;
-
-      applyCycle(p, t);
-
-      // AI sparks twinkle on the drafted rows.
-      for (let i = 0; i < card.sparks.length; i++) {
-        const s = card.sparks[i];
-        s.rotation.y = t * 1.4 + i;
-        s.rotation.z = t * 0.9 + i * 0.7;
+      // Focus: the deck nearest the cursor's height lifts and glows.
+      const layerAt = (1 - (pointer.y + 1) / 2) * (LAYERS - 1);
+      for (let i = 0; i < LAYERS; i++) {
+        const ft = pointer.influence > 0.02 ? Math.max(0, 1 - Math.abs(layerAt - i)) * pointer.influence : 0;
+        focus[i] += (ft - focus[i]) * 0.1;
       }
 
-      for (const n of nodes) {
-        const pulse = 0.5 + 0.5 * Math.sin(t * 1.6 + n.phase);
-        n.mesh.scale.setScalar(0.85 + pulse * 0.4);
-        n.mat.emissiveIntensity = 0.5 + pulse * 0.7;
-      }
+      // Tilt is hard-clamped — the second border. Idle sway keeps it alive.
+      const sway = Math.sin(t * 0.24) * 0.035;
+      const targetRotY = THREE.MathUtils.clamp(baseRotY + pointer.x * 0.24 + sway, -MAX_TILT_Y, MAX_TILT_Y);
+      const targetRotX = THREE.MathUtils.clamp(baseRotX + pointer.y * 0.12, -MAX_TILT_X, MAX_TILT_X);
+      root.rotation.y += (targetRotY - root.rotation.y) * 0.07;
+      root.rotation.x += (targetRotX - root.rotation.x) * 0.07;
 
-      updateThreads();
+      layoutDecks(splay, t, p, burstQ);
+      applyFrame(p, burstQ, t);
 
       renderer.render(scene, camera);
+    };
+
+    const renderFrame = () => {
+      stepFrame(clock.getDelta());
       frame = requestAnimationFrame(renderFrame);
     };
 
@@ -1395,10 +1016,7 @@ export default function HeroScene({ className, labels }: { className?: string; l
       io = new IntersectionObserver(
         (entries) => {
           onScreen = (entries[0]?.intersectionRatio ?? 0) >= 0.1;
-          if (!onScreen) {
-            pointer.x = 0;
-            pointer.y = 0;
-          }
+          if (!onScreen) target.influence = 0;
           sync();
         },
         { threshold: [0, 0.1, 0.25] },
@@ -1424,6 +1042,8 @@ export default function HeroScene({ className, labels }: { className?: string; l
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
       window.removeEventListener("pointermove", onPointerMove);
+      window.removeEventListener("pointerout", onPointerLeaveWindow);
+      container.removeEventListener("pointerdown", onPointerDown);
       scene.traverse((obj) => {
         const withGeo = obj as Partial<THREE.Mesh>;
         if (withGeo.geometry) withGeo.geometry.dispose();

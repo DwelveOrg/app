@@ -23,10 +23,10 @@ export const queryKeys = {
     all: ["enrollment"] as const,
     overview: (schoolId: string) =>
       [...queryKeys.enrollment.all, "overview", schoolId] as const,
-    /** The student class list for a school (`GET /classes`). */
-    discoverAll: (schoolId: string) =>
-      [...queryKeys.enrollment.all, "discover", schoolId] as const,
-    discover: (schoolId: string) => queryKeys.enrollment.discoverAll(schoolId),
+    /** The student class directory for a school (`GET /classes`). */
+    studentClassesAll: (schoolId: string) =>
+      [...queryKeys.enrollment.all, "student-classes", schoolId] as const,
+    studentClasses: (schoolId: string) => queryKeys.enrollment.studentClassesAll(schoolId),
     myClasses: () => [...queryKeys.enrollment.all, "my-classes"] as const,
     myRequestsAll: () => [...queryKeys.enrollment.all, "my-requests"] as const,
     myRequests: (limit: number) =>

@@ -33,7 +33,7 @@ export default function StudentOverviewCards({
   }[] = [
     {
       key: "available",
-      href: "/groups/discover",
+      href: "/groups",
       icon: Compass,
       value: availableClasses,
       label: t("root.enrollment.overview.available"),

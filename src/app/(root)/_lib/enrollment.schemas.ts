@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { classItemSchema } from "./classes.schemas";
+import { classItemSchema, enrollmentModeSchema } from "./classes.schemas";
 
 /**
  * Zod schemas for the V1 class-enrollment API (see
@@ -20,13 +20,13 @@ export const enrollmentStatusSchema = z.enum([
 ]);
 export type EnrollmentStatus = z.infer<typeof enrollmentStatusSchema>;
 
-/** How a class admits students. Drives the discover-card call to action. */
-export const enrollmentModeSchema = z.enum([
-  "REQUEST_APPROVAL",
-  "DIRECT_ASSIGNMENT",
-  "OPEN",
-]);
-export type EnrollmentMode = z.infer<typeof enrollmentModeSchema>;
+/**
+ * How a class admits students. Drives the directory-card call to action.
+ * Defined with the class schemas (every class payload carries it) and
+ * re-exported here so the enrollment surfaces have one import site.
+ */
+export { enrollmentModeSchema };
+export type { EnrollmentMode } from "./classes.schemas";
 
 /** Pagination envelope returned by every paginated enrollment list. */
 export const paginationMetaSchema = z.object({
