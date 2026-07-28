@@ -85,8 +85,10 @@ function MainPage() {
           </div>
         </motion.div>
 
-        {/* Right: 3D hero scene (material → book drafts test → teacher approves →
-            devices take it timed → instant grading → class analytics) */}
+        {/* Right: 3D hero scene — the pipeline tower: five stacked decks
+            (material → AI draft → approval → class → analytics) on a glowing
+            spine, one short pulse riding bottom → top. Pointer interaction is
+            fenced to this box. */}
         <motion.div className="relative" {...fade(0.15)}>
           <div className="relative mx-auto aspect-square w-full max-w-[600px] overflow-hidden sm:aspect-[5/4] lg:aspect-square">
             {/* Brand glow / WebGL fallback backdrop — two layers for depth: a soft
