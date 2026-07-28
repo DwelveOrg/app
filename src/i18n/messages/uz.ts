@@ -1198,7 +1198,7 @@ translation: {
             progress: "Rivojlanish kuzatuvi",
           },
           scene: {
-            alt: "Imtihon varagʻi avtomatik baholanmoqda va undan sinf koʻrsatkichlari grafigi oʻsib chiqmoqda",
+            alt: "Oʻquv materiali porlayotgan ochiq kitobga tushadi, u test qoralamasini yaratadi; oʻqituvchi uni tasdiqlaydi, oʻquvchilar testni oʻz qurilmalarida topshiradi va sinf koʻrsatkichlari grafigi oʻsadi",
             quiz: "Haftalik test",
             graded: "Baholandi",
             average: "Sinf oʻrtachasi",

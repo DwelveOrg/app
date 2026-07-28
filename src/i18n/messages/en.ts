@@ -1198,7 +1198,7 @@ translation: {
             progress: "Progress tracking",
           },
           scene: {
-            alt: "An exam sheet being graded automatically as a class performance chart rises from it",
+            alt: "Lesson material dives into a glowing open book that drafts a test; the teacher approves it, students take it on their devices, and a class performance chart rises",
             quiz: "Weekly quiz",
             graded: "Graded",
             average: "Class average",
