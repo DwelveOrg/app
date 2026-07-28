@@ -5,6 +5,7 @@ export type AuthLayoutProps = Readonly<{
 }>;
 
 export type LoginPageClientProps = {
+  deleted?: string;
   logout?: string;
   /** Root-relative path to return to after a successful login (e.g. an invite). */
   next?: string;
