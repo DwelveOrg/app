@@ -1,16 +1,13 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Camera, LoaderCircle, ShieldCheck, Trash2 } from "lucide-react";
+import { Camera, LoaderCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { updateAvatarAction } from "@/app/(root)/_lib/profile-actions";
-import type {
-  ProfileAccount,
-  ProfileSelectedSchool,
-} from "@/app/(root)/_lib/profile.schemas";
+import type { ProfileAccount } from "@/app/(root)/_lib/profile.schemas";
 import { cn } from "@/lib/utils";
 
 const ACCEPTED_MIME = "image/jpeg,image/png,image/webp";
@@ -30,13 +27,14 @@ function getInitials(name: string) {
 
 type ProfileSummaryCardProps = {
   account: ProfileAccount;
-  selectedSchool: ProfileSelectedSchool | null;
 };
 
-export function ProfileSummaryCard({
-  account,
-  selectedSchool,
-}: Readonly<ProfileSummaryCardProps>) {
+/**
+ * Account identity only: avatar, name, and email. The active school and its
+ * role live in `SelectedSchoolCard` — the profile page never shows a school or
+ * membership count (`docs/features/profile-page-contract.md`).
+ */
+export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps>) {
   const { t } = useTranslation();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -44,9 +42,6 @@ export function ProfileSummaryCard({
   const [preview, setPreview] = useState<string | null>(null);
 
   const avatar = preview ?? account.avatarUrl ?? null;
-  const roleKey = selectedSchool
-    ? `root.profile.roles.${selectedSchool.member.role.toLowerCase()}`
-    : null;
 
   const handleFile = (file: File | null) => {
     if (!file) return;
@@ -152,19 +147,6 @@ export function ProfileSummaryCard({
           <p className="mt-0.5 truncate text-sm text-[var(--muted-foreground)]">
             {account.email}
           </p>
-          <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:justify-start">
-            {roleKey ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2.5 py-1 text-xs font-semibold text-[var(--primary)]">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                {t(roleKey)}
-              </span>
-            ) : null}
-            {selectedSchool ? (
-              <span className="inline-flex items-center rounded-full bg-[var(--muted)] px-2.5 py-1 text-xs font-medium text-[var(--muted-foreground)]">
-                {selectedSchool.school.name}
-              </span>
-            ) : null}
-          </div>
         </div>
 
         {account.avatarUrl ? (

@@ -34,8 +34,10 @@ export function MembershipsPanel({
           <h2 className="text-base font-bold text-[var(--foreground)]">
             {t("root.profile.memberships.title")}
           </h2>
+          {/* Deliberately not a count: the profile page shows the active school,
+              never a "you belong to N schools" metric. */}
           <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
-            {t("root.profile.memberships.description", { count: memberships.length })}
+            {t("root.profile.memberships.description")}
           </p>
         </div>
       </header>

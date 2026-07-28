@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { ArrowLeft, Check, Loader2, X } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import { Button } from "@/components/ui/Button";
-import { RelativeTime } from "@/components/Custom/RelativeTime";
+import Skeleton from "@/components/ui/Skeleton";
 import type { ClassEnrollmentItem } from "@/app/(root)/_lib/enrollment.schemas";
 import {
   useApproveEnrollmentMutation,
@@ -15,6 +14,7 @@ import {
   useRejectEnrollmentMutation,
 } from "@/app/(root)/_hooks/useEnrollment";
 import Empty from "../../../_components/ui/Empty";
+import ClassJoinRequestRow from "./ClassJoinRequestRow";
 import RejectRequestDialog from "./RejectRequestDialog";
 import ClassTeacherRequestsList from "./ClassTeacherRequestsList";
 
@@ -142,9 +142,9 @@ export default function ClassRequestsView({
       ) : query.isLoading ? (
         <div aria-busy="true" className="space-y-3">
           {Array.from({ length: 3 }).map((_, index) => (
-            <div
+            <Skeleton
               key={index}
-              className="h-24 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--muted)]"
+              className="h-24 rounded-2xl border border-[var(--border)]"
             />
           ))}
         </div>
@@ -161,7 +161,7 @@ export default function ClassRequestsView({
       ) : (
         <ul className="flex flex-col gap-3">
           {requests.map((request) => (
-            <RequestRow
+            <ClassJoinRequestRow
               key={request.id}
               request={request}
               onApprove={() => handleApprove(request.id)}
@@ -186,65 +186,3 @@ export default function ClassRequestsView({
   );
 }
 
-type RequestRowProps = {
-  request: ClassEnrollmentItem;
-  onApprove: () => void;
-  onReject: () => void;
-  isApproving: boolean;
-  isRejecting: boolean;
-};
-
-function RequestRow({ request, onApprove, onReject, isApproving, isRejecting }: RequestRowProps) {
-  const { t } = useTranslation();
-  const { student } = request;
-  const initial = student.fullName.trim().charAt(0).toUpperCase() || "?";
-  const busy = isApproving || isRejecting;
-
-  return (
-    <li className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:flex-row sm:items-center">
-      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-semibold text-[var(--primary)]">
-        {initial}
-      </span>
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--foreground)]">
-          {student.fullName}
-        </p>
-        {student.email ? (
-          <p className="truncate text-xs text-[var(--muted-foreground)]">{student.email}</p>
-        ) : null}
-        {request.message ? (
-          <p className="mt-1.5 rounded-lg bg-[var(--muted)] px-3 py-1.5 text-xs text-[var(--foreground)]">
-            {request.message}
-          </p>
-        ) : null}
-        {request.requestedAt ? (
-          <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
-            <RelativeTime date={request.requestedAt} />
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2">
-        <Button
-          size="lg"
-          disabled={busy}
-          aria-busy={isApproving}
-          onClick={onApprove}
-        >
-          {isApproving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
-          {t("root.enrollment.classRequests.approve")}
-        </Button>
-        <Button
-          size="lg"
-          variant="destructive"
-          disabled={busy}
-          onClick={onReject}
-        >
-          <X className="h-4 w-4" />
-          {t("root.enrollment.classRequests.reject")}
-        </Button>
-      </div>
-    </li>
-  );
-}

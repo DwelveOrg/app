@@ -37,6 +37,13 @@ export default async function Page() {
   ]);
   const items = classes.map((item) => toClassCardItem(item, user?.memberId));
 
+  // `GET /schools/:schoolId/members` returns populated rows only to admins; for
+  // everyone else `members` is `[]` and only the counts above are usable.
+  const teachers = isAdmin
+    ? (schoolMembers?.members ?? []).filter((member) => member.role === "TEACHER")
+    : [];
+  const teachersError = isAdmin && schoolMembers === null;
+
   // `GET /classes` is role-scoped: students receive the discoverable list, so the
   // header count comes from the student overview instead (keeping it consistent
   // with the "Available classes" card rather than showing a misleading 0).
@@ -70,7 +77,13 @@ export default async function Page() {
         />
       ) : null}
 
-      <SchoolTabsSection classItems={items} students={students} isAdmin={isAdmin} />
+      <SchoolTabsSection
+        classItems={items}
+        students={students}
+        teachers={teachers}
+        teachersError={teachersError}
+        isAdmin={isAdmin}
+      />
     </section>
   );
 }

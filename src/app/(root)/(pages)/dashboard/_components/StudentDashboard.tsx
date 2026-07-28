@@ -122,7 +122,7 @@ function FindYourClasses({ pendingRequests }: { pendingRequests: number }) {
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <Button asChild size="lg">
-          <Link href="/groups/discover">
+          <Link href="/groups">
             <Compass className="h-4 w-4" />
             {t("root.dashboard.student.onboarding.browse")}
           </Link>

@@ -462,9 +462,28 @@ translation: {
           },
           tabs: {
             classes: "Sinflar",
+            teachers: "O'qituvchilar",
             students: "O'quvchilar",
             courses: "Kurslar",
             groups: "Guruhlar",
+          },
+          teachers: {
+            columns: {
+              teacher: "O'qituvchi",
+              email: "Email",
+              status: "Holat",
+              joined: "Qo'shilgan",
+            },
+            status: {
+              ready: "Tayyor",
+              pending: "Profil to'ldirilmagan",
+            },
+            emptyTitle: "Hozircha o'qituvchilar yo'q",
+            emptyDescription:
+              "O'qituvchini uning emailiga bog'langan havola bilan taklif qiling. U havolani qabul qilib qo'shiladi — hisobni siz yaratmaysiz.",
+            errorTitle: "O'qituvchilarni yuklab bo'lmadi",
+            errorDescription: "Maktab a'zolari ro'yxati yuklanmadi. Qayta urinib ko'ring.",
+            retry: "Qayta urinish",
           },
           actions: {
             edit: "Tahrirlash",
@@ -624,8 +643,7 @@ translation: {
           loadMore: "Ko'proq yuklash",
           nav: {
             label: "Sinf bo'limlari",
-            myClasses: "Mening sinflarim",
-            discover: "Topish",
+            classes: "Sinflar",
             requests: "So'rovlar",
           },
           status: {
@@ -646,19 +664,19 @@ translation: {
             active: "Mening sinflarim",
             pending: "Kutilayotgan so'rovlar",
           },
-          myClasses: {
-            title: "Mening sinflarim",
-            subtitle: "Siz {{count}} ta faol sinfga a'zosiz.",
-            subtitleEmpty: "A'zo bo'lgan sinflaringiz shu yerda ko'rinadi.",
-            emptyTitle: "Siz hali birorta sinfga a'zo emassiz.",
-            emptyDescription:
-              "Mavjud sinflarni ko'ring yoki o'qituvchi sizni biriktirishini kuting.",
-            browse: "Sinflarni ko'rish",
-          },
-          discover: {
-            title: "Sinflarni topish",
-            subtitle: "Maktabingizdagi sinflarni toping va qo'shilish so'rovini yuboring.",
+          directory: {
+            title: "Sinflar",
+            subtitle_one: "Siz {{count}} ta sinfga a'zosiz.",
+            subtitle_other: "Siz {{count}} ta sinfga a'zosiz.",
+            subtitleEmpty: "Maktabingizdagi barcha sinflar — keraklisiga qo'shiling.",
             searchPlaceholder: "Sinflarni qidirish",
+            retry: "Qayta urinish",
+            filters: {
+              label: "Sinflarni filtrlash",
+              all: "Barchasi",
+              enrolled: "A'zo",
+              available: "Mavjud",
+            },
             requestToJoin: "Qo'shilish so'rovi",
             open: "Sinfni ochish",
             requestPending: "So'rov yuborildi",
@@ -668,16 +686,25 @@ translation: {
             unavailable: "Qo'shilish mumkin emas",
             noTeacher: "O'qituvchi biriktirilmagan",
             seats: "{{count}}/{{capacity}} ro'yxatda",
-            enrolledCount: "{{count}} ro'yxatda",
+            enrolledCount_one: "{{count}} ro'yxatda",
+            enrolledCount_other: "{{count}} ro'yxatda",
             requestedToast: "«{{name}}» sinfiga so'rov yuborildi.",
             joinedToast: "Siz «{{name}}» sinfiga qo'shildingiz.",
             cancelledToast: "So'rov bekor qilindi.",
             errorTitle: "Sinflarni yuklab bo'lmadi",
             errorDescription: "Birozdan so'ng qayta urinib ko'ring.",
-            emptyTitle: "Topiladigan sinflar yo'q",
-            emptyDescription: "Hozircha qo'shilish mumkin bo'lgan sinflar yo'q.",
             noResultsTitle: "Mos sinflar yo'q",
             noResultsDescription: "Boshqa so'rovni sinab ko'ring.",
+            empty: {
+              allTitle: "Hozircha sinflar yo'q",
+              allDescription: "Maktabingizda hali sinflar yaratilmagan.",
+              enrolledTitle: "Siz hali birorta sinfga a'zo emassiz",
+              enrolledDescription:
+                "Sinfga qo'shilish so'rovini yuboring yoki o'qituvchi sizni biriktirishini kuting.",
+              availableTitle: "Qo'shiladigan sinf qolmadi",
+              availableDescription: "Siz allaqachon barcha ochiq sinflarga a'zosiz.",
+              showAll: "Barcha sinflarni ko'rsatish",
+            },
           },
           requestDialog: {
             title: "«{{name}}» sinfiga qo'shilish so'rovi",
@@ -783,6 +810,7 @@ translation: {
         },
         classDetail: {
           back: "Sinflarga qaytish",
+          noDescription: "Hozircha tavsif yo'q.",
           actions: {
             open: "Sinfni ochish",
             edit: "Tahrirlash",
@@ -791,6 +819,48 @@ translation: {
             addTest: "Test qo'shish",
             addExam: "Imtihon qo'shish",
             comingSoon: "{{action}} — tez orada",
+          },
+          overview: {
+            title: "Sinf haqida",
+            teacher: "O'qituvchi",
+            moreTeachers_one: "+{{count}} o'qituvchi",
+            moreTeachers_other: "+{{count}} o'qituvchi",
+            participants: "Ishtirokchilar",
+            enrollment: "Qabul",
+            created: "Yaratilgan",
+          },
+          people: {
+            title: "Sinf ishtirokchilari",
+          },
+          requests: {
+            title: "Qo'shilish so'rovlari",
+            viewAll: "Barchasini ko'rish",
+            more_one: "Yana {{count}} ta so'rov",
+            more_other: "Yana {{count}} ta so'rov",
+          },
+          removeStudent: {
+            title: "{{name}} sinfdan chiqarilsinmi?",
+            description:
+              "U sinf va uning testlariga kirish huquqini yo'qotadi. Keyinroq qayta qo'sha olasiz.",
+            confirm: "O'quvchini chiqarish",
+            cancel: "Bekor qilish",
+          },
+          states: {
+            retry: "Qayta urinish",
+            backToClasses: "Sinflarga qaytish",
+            forbidden: {
+              title: "Bu sinfga hali kirish huquqingiz yo'q",
+              description:
+                "Kirish huquqini o'qituvchi yoki administrator beradi. So'rov yuborgan bo'lsangiz, u tasdiqlangach kirasiz.",
+            },
+            notFound: {
+              title: "Sinf topilmadi",
+              description: "Sinf o'chirilgan bo'lishi yoki havola eskirgan bo'lishi mumkin.",
+            },
+            error: {
+              title: "Sinfni yuklab bo'lmadi",
+              description: "Bizning tomonimizda xatolik yuz berdi. Qayta urinib ko'ring.",
+            },
           },
           teachers: {
             title: "O'qituvchilar · {{count}}",
@@ -873,11 +943,15 @@ translation: {
               title: "Sinflar ({{count}})",
             },
           },
+          school: {
+            title: "Faol maktab",
+            noneTitle: "Siz hali maktabda emassiz",
+            noneDescription:
+              "O'z maktabingizni yarating, o'quvchi sifatida qo'shiling yoki o'qituvchi taklifini faollashtiring.",
+          },
           memberships: {
             title: "Maktablar",
-            description_one: "Siz {{count}} ta maktabga tegishlisiz.",
-            description_other: "Siz {{count}} ta maktabga tegishlisiz.",
-            description: "Siz {{count}} ta maktabga tegishlisiz.",
+            description: "Siz a'zo bo'lgan maktablar. Faol maktabni almashtirish uchun tanlang.",
             active: "Faol",
           },
           password: {

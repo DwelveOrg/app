@@ -1,7 +1,6 @@
 import RoleEmptyState from "../_components/ui/RoleEmptyState";
 import { getUser } from "../../_utils/getUser";
 import { getClasses } from "../../_utils/getClasses";
-import { getMyClasses } from "../../_utils/getMyClasses";
 import ClassesView from "./_components/ClassesView";
 import StudentClassesView from "./_components/StudentClassesView";
 import TeacherClassesView from "./_components/TeacherClassesView";
@@ -19,13 +18,11 @@ export default async function Page() {
     );
   }
 
-  // Students see My Classes: only their ACTIVE roster classes (`GET /me/classes`),
-  // plus the Discover / Requests entry points. School membership does not imply
-  // class enrollment, so this is deliberately separate from the school directory.
+  // Students get one directory: `GET /classes` returns every active class in the
+  // school with their own access flags, so enrolled and joinable classes live in
+  // the same list. Client-rendered so request/cancel mutations refresh it.
   if (user.schoolRole === "STUDENT") {
-    const classes = await getMyClasses();
-    const items = classes.map((item) => toClassCardItem(item, user.memberId));
-    return <StudentClassesView items={items} schoolId={user.schoolId} />;
+    return <StudentClassesView schoolId={user.schoolId} />;
   }
 
   // Teachers now see every active class in the school (`GET /classes` returns

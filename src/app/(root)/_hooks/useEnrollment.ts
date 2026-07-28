@@ -44,7 +44,13 @@ export function useStudentOverview(schoolId: string | undefined) {
   });
 }
 
-export function useDiscoverClasses({
+/**
+ * The single student class directory (`GET /classes`). It returns every active
+ * class in the selected school with the backend's own access flags, so it backs
+ * both "my classes" and "classes I could join" — there is no separate discover
+ * surface or endpoint.
+ */
+export function useStudentClasses({
   schoolId,
   enabled = true,
 }: {
@@ -54,7 +60,7 @@ export function useDiscoverClasses({
   // `GET /classes` returns the whole student class list in one shot (no server
   // pagination or search), so this is a plain query; the view filters locally.
   return useQuery({
-    queryKey: queryKeys.enrollment.discover(schoolId ?? ""),
+    queryKey: queryKeys.enrollment.studentClasses(schoolId ?? ""),
     queryFn: () => getStudentClassesAction(),
     enabled: Boolean(schoolId) && enabled,
   });
@@ -95,8 +101,8 @@ export function useClassJoinRequests({
 
 /**
  * Refreshes every student-facing enrollment surface after a request/cancel
- * (see the Cache Refresh Rules in the feature doc): overview counts, discovery,
- * pending requests, and My Classes.
+ * (see the Cache Refresh Rules in the feature doc): overview counts, the class
+ * directory, pending requests, and the dashboard class list.
  */
 function useInvalidateStudentEnrollment(schoolId: string | undefined) {
   const queryClient = useQueryClient();
@@ -106,7 +112,7 @@ function useInvalidateStudentEnrollment(schoolId: string | undefined) {
         queryKey: queryKeys.enrollment.overview(schoolId ?? ""),
       }),
       queryClient.invalidateQueries({
-        queryKey: queryKeys.enrollment.discoverAll(schoolId ?? ""),
+        queryKey: queryKeys.enrollment.studentClassesAll(schoolId ?? ""),
       }),
       queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.myRequestsAll() }),
       queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.myClasses() }),

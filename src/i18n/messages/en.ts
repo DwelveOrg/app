@@ -462,9 +462,28 @@ translation: {
           },
           tabs: {
             classes: "Classes",
+            teachers: "Teachers",
             students: "Students",
             courses: "Courses",
             groups: "Groups",
+          },
+          teachers: {
+            columns: {
+              teacher: "Teacher",
+              email: "Email",
+              status: "Status",
+              joined: "Joined",
+            },
+            status: {
+              ready: "Ready",
+              pending: "Profile pending",
+            },
+            emptyTitle: "No teachers yet",
+            emptyDescription:
+              "Invite a teacher with an email-bound link. They join by accepting it — you never create the account.",
+            errorTitle: "Couldn't load teachers",
+            errorDescription: "The school roster didn't load. Please try again.",
+            retry: "Try again",
           },
           actions: {
             edit: "Edit",
@@ -624,8 +643,7 @@ translation: {
           loadMore: "Load more",
           nav: {
             label: "Class views",
-            myClasses: "My classes",
-            discover: "Discover",
+            classes: "Classes",
             requests: "Requests",
           },
           status: {
@@ -646,19 +664,19 @@ translation: {
             active: "My classes",
             pending: "Pending requests",
           },
-          myClasses: {
-            title: "My classes",
-            subtitle: "You are enrolled in {{count}} active classes.",
-            subtitleEmpty: "Your enrolled classes will appear here.",
-            emptyTitle: "You are not enrolled in any classes yet.",
-            emptyDescription:
-              "Browse available classes or wait for a teacher to assign you.",
-            browse: "Browse classes",
-          },
-          discover: {
-            title: "Discover classes",
-            subtitle: "Find and request to join classes at your school.",
+          directory: {
+            title: "Classes",
+            subtitle_one: "You are enrolled in {{count}} class.",
+            subtitle_other: "You are enrolled in {{count}} classes.",
+            subtitleEmpty: "Every class at your school — join the ones you need.",
             searchPlaceholder: "Search classes",
+            retry: "Try again",
+            filters: {
+              label: "Filter classes",
+              all: "All",
+              enrolled: "Enrolled",
+              available: "Available",
+            },
             requestToJoin: "Request to join",
             open: "Open class",
             requestPending: "Request pending",
@@ -668,16 +686,25 @@ translation: {
             unavailable: "Not available to join",
             noTeacher: "No teacher assigned",
             seats: "{{count}}/{{capacity}} enrolled",
-            enrolledCount: "{{count}} enrolled",
+            enrolledCount_one: "{{count}} enrolled",
+            enrolledCount_other: "{{count}} enrolled",
             requestedToast: "Request sent to \"{{name}}\".",
             joinedToast: "You joined \"{{name}}\".",
             cancelledToast: "Request cancelled.",
             errorTitle: "Couldn't load classes",
             errorDescription: "Please try again in a moment.",
-            emptyTitle: "No classes to discover",
-            emptyDescription: "There are no classes available to join right now.",
             noResultsTitle: "No matching classes",
             noResultsDescription: "Try a different search term.",
+            empty: {
+              allTitle: "No classes yet",
+              allDescription: "There are no classes in your school yet.",
+              enrolledTitle: "You are not enrolled in any classes yet",
+              enrolledDescription:
+                "Request to join a class, or wait for a teacher to assign you.",
+              availableTitle: "Nothing left to join",
+              availableDescription: "You are already in every class open to you.",
+              showAll: "Show all classes",
+            },
           },
           requestDialog: {
             title: "Request to join \"{{name}}\"",
@@ -783,6 +810,7 @@ translation: {
         },
         classDetail: {
           back: "Back to classes",
+          noDescription: "No description yet.",
           actions: {
             open: "Open class",
             edit: "Edit",
@@ -791,6 +819,49 @@ translation: {
             addTest: "Add test",
             addExam: "Add exam",
             comingSoon: "{{action}} — coming soon",
+          },
+          overview: {
+            title: "Class overview",
+            teacher: "Teacher",
+            moreTeachers_one: "+{{count}} more teacher",
+            moreTeachers_other: "+{{count}} more teachers",
+            participants: "Participants",
+            enrollment: "Enrollment",
+            created: "Created",
+          },
+          people: {
+            title: "People in this class",
+          },
+          requests: {
+            title: "Join requests",
+            viewAll: "View all",
+            more_one: "{{count}} more request",
+            more_other: "{{count}} more requests",
+          },
+          removeStudent: {
+            title: "Remove {{name}} from this class?",
+            description:
+              "They lose access to the class and its tests. You can add them back later.",
+            confirm: "Remove student",
+            cancel: "Cancel",
+          },
+          states: {
+            retry: "Try again",
+            backToClasses: "Back to classes",
+            forbidden: {
+              title: "You don't have access to this class yet",
+              description:
+                "Class access is granted by a teacher or admin. If you've requested to join, you'll get in once it's approved.",
+            },
+            notFound: {
+              title: "Class not found",
+              description:
+                "This class may have been deleted, or the link is no longer valid.",
+            },
+            error: {
+              title: "Couldn't load this class",
+              description: "Something went wrong on our side. Please try again.",
+            },
           },
           teachers: {
             title: "Teachers · {{count}}",
@@ -873,11 +944,15 @@ translation: {
               title: "Classes ({{count}})",
             },
           },
+          school: {
+            title: "Active school",
+            noneTitle: "You're not in a school yet",
+            noneDescription:
+              "Create your own school, join one as a student, or redeem a teacher invite.",
+          },
           memberships: {
             title: "Schools",
-            description_one: "You belong to {{count}} school.",
-            description_other: "You belong to {{count}} schools.",
-            description: "You belong to {{count}} schools.",
+            description: "Schools you belong to. Switch to change your active school.",
             active: "Active",
           },
           password: {
