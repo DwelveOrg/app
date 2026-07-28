@@ -6,11 +6,7 @@ import { SettingsGroup } from "./SettingsGroup";
 import { SettingsRow } from "./SettingsRow";
 import { LogoutAllButton } from "./LogoutAllButton";
 import { DeleteAccountButton } from "./DeleteAccountButton";
-import type { SettingsAccountContext } from "../_types";
-
-export function SecuritySection({
-  account,
-}: Readonly<{ account: SettingsAccountContext }>) {
+export function SecuritySection() {
   const { t } = useTranslation();
 
   return (
@@ -45,14 +41,7 @@ export function SecuritySection({
         danger
         title={t("root.settings.security.deleteAccount.title")}
         description={t("root.settings.security.deleteAccount.description")}
-        action={
-          <DeleteAccountButton
-            accountName={account.name}
-            accountEmail={account.email}
-            schoolName={account.schoolName}
-            role={account.role}
-          />
-        }
+        action={<DeleteAccountButton />}
       />
     </SettingsGroup>
   );

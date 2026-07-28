@@ -16,6 +16,7 @@ import {
 } from "@/app/(authentication)/_lib/session";
 import {
   changePasswordRequest,
+  deleteAccountRequest,
   getProfileSessionsRequest,
   revokeProfileSessionRequest,
   updateAvatarRequest,
@@ -40,6 +41,7 @@ const INVALID_PROFILE_ERROR = "Please check the profile details and try again.";
 const INVALID_AVATAR_ERROR = "Could not update your avatar. Please try again.";
 const INVALID_PASSWORD_ERROR = "Could not change your password. Please try again.";
 const REVOKE_SESSION_ERROR = "Could not revoke that session. Please try again.";
+const DELETE_ACCOUNT_ERROR = "Could not delete your account. Please try again.";
 const NETWORK_ERROR = "Unable to reach Dwelve API. Please try again.";
 
 function getActionError(error: unknown, fallback: string) {
@@ -257,6 +259,22 @@ export async function updateAvatarAction(
   } catch (error) {
     return { error: getActionError(error, INVALID_AVATAR_ERROR) };
   }
+}
+
+/**
+ * Permanently deletes the current account, clears this device's encrypted
+ * session cookie, then routes to login. The backend also revokes every refresh
+ * session so other signed-in devices lose access immediately.
+ */
+export async function deleteAccountAction(): Promise<{ error?: string }> {
+  try {
+    await deleteAccountRequest(authedBackendJson);
+  } catch (error) {
+    return { error: getActionError(error, DELETE_ACCOUNT_ERROR) };
+  }
+
+  await deleteSession();
+  redirect("/login?deleted=1");
 }
 
 /**

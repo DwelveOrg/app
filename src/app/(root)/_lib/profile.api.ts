@@ -95,6 +95,13 @@ export function changePasswordRequest(
 }
 
 /** `GET /profile/sessions` — active refresh sessions for the current user. */
+/** `DELETE /profile` — permanently deletes the authenticated account. */
+export function deleteAccountRequest(requestJson: BackendRequester = authedBackendJson) {
+  return requestJson("/profile", {
+    method: "DELETE",
+  });
+}
+
 export function getProfileSessionsRequest(requestJson: BackendRequester = authedBackendJson) {
   return requestJson("/profile/sessions", {
     responseSchema: profileSessionsResponseSchema,

@@ -385,14 +385,11 @@ translation: {
             deleteAccount: {
               title: "Delete account",
               description: "Permanently remove your account and all associated data.",
-              confirmTitle: "Request account deletion?",
+              confirmTitle: "Delete account?",
               confirmDescription:
-                "Deletion is permanent — your memberships, submissions and results cannot be restored. Continuing opens a deletion request to our team in your mail app.",
-              confirm: "Request deletion",
+                "Deletion is permanent — your memberships, submissions and results cannot be restored. Continuing permanently deletes your account and signs you out.",
+              confirm: "Delete account",
               cancel: "Cancel",
-              requestBody:
-                "I would like my Dwelve account and all associated data to be permanently deleted.",
-              requested: "Deletion request opened in your mail app.",
             },
           },
           support: {
@@ -1173,7 +1170,7 @@ translation: {
             progress: "Progress tracking",
           },
           scene: {
-            alt: "Lesson material dives into a glowing open book that drafts a test; the teacher approves it, students take it on their devices, and a class performance chart rises",
+            alt: "A tower of five floating decks — lesson material, AI drafting, teacher approval, the class, and analytics — with a pulse of light carrying a test from material to graded results",
             quiz: "Weekly quiz",
             graded: "Graded",
             average: "Class average",
@@ -1443,6 +1440,7 @@ translation: {
           success: "Login successful",
           logoutSuccess: "Logged out successfully",
           logoutAllSuccess: "Signed out of all devices",
+          accountDeletedSuccess: "Your account has been deleted",
           submit: "Login",
           noAccount: "No account yet?",
           signup: "Sign up",

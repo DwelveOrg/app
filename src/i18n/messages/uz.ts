@@ -385,14 +385,11 @@ translation: {
             deleteAccount: {
               title: "Hisobni o'chirish",
               description: "Hisob va unga bog'liq barcha ma'lumotlarni butunlay o'chiring.",
-              confirmTitle: "Hisobni o'chirishni so'raysizmi?",
+              confirmTitle: "Hisobni o'chirasizmi?",
               confirmDescription:
-                "O'chirish qaytarib bo'lmaydi — a'zoliklar, topshiriqlar va natijalarni tiklab bo'lmaydi. Davom etsangiz, pochta ilovangizda o'chirish so'rovi ochiladi.",
-              confirm: "O'chirishni so'rash",
+                "O'chirish qaytarib bo'lmaydi — a'zoliklar, topshiriqlar va natijalarni tiklab bo'lmaydi. Davom etsangiz, hisobingiz butunlay o'chiriladi va tizimdan chiqasiz.",
+              confirm: "Hisobni o'chirish",
               cancel: "Bekor qilish",
-              requestBody:
-                "Dwelve hisobim va unga bog'liq barcha ma'lumotlar butunlay o'chirilishini so'rayman.",
-              requested: "O'chirish so'rovi pochta ilovangizda ochildi.",
             },
           },
           support: {
@@ -1173,7 +1170,7 @@ translation: {
             progress: "Rivojlanish kuzatuvi",
           },
           scene: {
-            alt: "Oʻquv materiali porlayotgan ochiq kitobga tushadi, u test qoralamasini yaratadi; oʻqituvchi uni tasdiqlaydi, oʻquvchilar testni oʻz qurilmalarida topshiradi va sinf koʻrsatkichlari grafigi oʻsadi",
+            alt: "Beshta muallaq paneldan iborat minora — oʻquv materiali, sunʼiy intellekt qoralamasi, oʻqituvchi tasdigʻi, sinf va tahlillar — boʻylab yorugʻlik impulsi testni materialdan tayyor baholargacha olib oʻtadi",
             quiz: "Haftalik test",
             graded: "Baholandi",
             average: "Sinf oʻrtachasi",
@@ -1443,6 +1440,7 @@ translation: {
           success: "Kirish muvaffaqiyatli.",
           logoutSuccess: "Hisobdan muvaffaqiyatli chiqdingiz",
           logoutAllSuccess: "Barcha qurilmalardan chiqdingiz",
+          accountDeletedSuccess: "Hisobingiz o'chirildi",
           submit: "Kirish",
           noAccount: "Hisob yo'qmi?",
           signup: "Boshlash",

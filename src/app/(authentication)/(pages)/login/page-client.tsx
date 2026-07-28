@@ -19,11 +19,11 @@ import { useLoginMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMut
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
 import { safeNextPath } from "../../_utils/next-path";
 
-export default function LoginPageClient({ logout, next }: Readonly<LoginPageClientProps>) {
+export default function LoginPageClient({ deleted, logout, next }: Readonly<LoginPageClientProps>) {
   const { t } = useTranslation();
   const router = useRouter();
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
-  const logoutToastShownRef = React.useRef(false);
+  const statusToastShownRef = React.useRef(false);
   const loginMutation = useLoginMutation();
   const googleMutation = useGoogleAuthMutation();
   const [showPassword, setShowPassword] = React.useState(false);
@@ -39,14 +39,16 @@ export default function LoginPageClient({ logout, next }: Readonly<LoginPageClie
   });
 
   React.useEffect(() => {
-    if (logoutToastShownRef.current) return;
-    if (logout !== "1" && logout !== "all") return;
-    logoutToastShownRef.current = true;
-    toast.success(
-      logout === "all" ? t("auth.login.logoutAllSuccess") : t("auth.login.logoutSuccess"),
-    );
+    if (statusToastShownRef.current) return;
+    if (deleted !== "1" && logout !== "1" && logout !== "all") return;
+    statusToastShownRef.current = true;
+    toast.success(deleted === "1"
+      ? t("auth.login.accountDeletedSuccess")
+      : logout === "all"
+        ? t("auth.login.logoutAllSuccess")
+        : t("auth.login.logoutSuccess"));
     router.replace("/login");
-  }, [logout, router, t]);
+  }, [deleted, logout, router, t]);
 
   const onSubmit: SubmitHandler<LoginFormField> = async (data) => {
     clearErrors("root");

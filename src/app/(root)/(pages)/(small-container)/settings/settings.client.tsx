@@ -36,7 +36,7 @@ export default function SettingsClient({ user, profile }: Readonly<SettingsClien
       />
       <AccountCard account={account} />
       <PreferencesSection />
-      <SecuritySection account={account} />
+      <SecuritySection />
       <SupportSection account={account} />
     </motion.div>
   );

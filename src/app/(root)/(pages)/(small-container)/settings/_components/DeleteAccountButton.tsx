@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { Trash2 } from "lucide-react";
+import { useState, useTransition } from "react";
+import { LoaderCircle, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
+import { deleteAccountAction } from "@/app/(root)/_lib/profile-actions";
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -16,56 +17,29 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { rowDangerActionClassName, supportEmail } from "../_constants";
-import { buildAccountContext, buildMailtoHref } from "../_utils/mailto";
-
-type DeleteAccountButtonProps = {
-  accountName?: string | null;
-  accountEmail?: string | null;
-  schoolName?: string | null;
-  role?: string | null;
-};
+import { rowDangerActionClassName } from "../_constants";
 
 /**
- * Account deletion request.
- *
- * The backend has no account-deletion endpoint (nothing under `/profile` or
- * `/auth` removes a user), so this cannot delete anything client-side. Rather
- * than a dead button, it confirms intent and composes a deletion request to
- * {@link supportEmail}. Replace the mailto with a `DELETE /profile` call once
- * that endpoint ships — the confirmation copy already sets the right
- * expectations about permanence.
+ * Account deletion control. Its confirmation dialog preserves the existing
+ * settings-page treatment while the server action removes the signed-in account.
  */
-export function DeleteAccountButton({
-  accountName,
-  accountEmail,
-  schoolName,
-  role,
-}: Readonly<DeleteAccountButtonProps>) {
+export function DeleteAccountButton() {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const handleConfirm = () => {
-    const href = buildMailtoHref({
-      to: supportEmail,
-      subject: "Account deletion request — Dwelve",
-      body:
-        t("root.settings.security.deleteAccount.requestBody") +
-        buildAccountContext({
-          fullName: accountName,
-          email: accountEmail,
-          schoolName,
-          role,
-        }),
-    });
+    startTransition(async () => {
+      const result = await deleteAccountAction();
 
-    window.location.href = href;
-    setOpen(false);
-    toast.success(t("root.settings.security.deleteAccount.requested"));
+      if (result.error) {
+        toast.error(result.error);
+      }
+    });
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
+    <AlertDialog open={open} onOpenChange={(next) => !isPending && setOpen(next)}>
       <AlertDialogTrigger asChild>
         <button type="button" className={rowDangerActionClassName}>
           {t("root.settings.actions.delete")}
@@ -84,14 +58,16 @@ export function DeleteAccountButton({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>
+          <AlertDialogCancel disabled={isPending}>
             {t("root.settings.security.deleteAccount.cancel")}
           </AlertDialogCancel>
           <button
             type="button"
             onClick={handleConfirm}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-semibold text-[var(--destructive-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--destructive)_45%,transparent)]"
+            disabled={isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[var(--destructive)] px-4 py-2 text-sm font-semibold text-[var(--destructive-foreground)] transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--destructive)_45%,transparent)] disabled:opacity-70"
           >
+            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {t("root.settings.security.deleteAccount.confirm")}
           </button>
         </AlertDialogFooter>
