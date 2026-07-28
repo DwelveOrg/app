@@ -363,11 +363,7 @@ translation: {
             },
             activeSessions: {
               title: "Active sessions",
-              description: "See which devices are currently signed in to your account.",
-            },
-            loginHistory: {
-              title: "Login history",
-              description: "Review recent sign-in attempts and suspicious access activity.",
+              description: "See which devices are signed in and sign out the ones you don't recognise.",
             },
             logoutAllDevices: {
               title: "Logout from all devices",
@@ -389,7 +385,14 @@ translation: {
             deleteAccount: {
               title: "Delete account",
               description: "Permanently remove your account and all associated data.",
-              unavailable: "Unable to delete an account.",
+              confirmTitle: "Request account deletion?",
+              confirmDescription:
+                "Deletion is permanent — your memberships, submissions and results cannot be restored. Continuing opens a deletion request to our team in your mail app.",
+              confirm: "Request deletion",
+              cancel: "Cancel",
+              requestBody:
+                "I would like my Dwelve account and all associated data to be permanently deleted.",
+              requested: "Deletion request opened in your mail app.",
             },
           },
           support: {
@@ -416,7 +419,10 @@ translation: {
             feedbackModal: {
               description: "Share the details below so we can follow up quickly.",
               messageLabel: "Message",
-              attachmentLabel: "Attachment",
+              attachmentHint:
+                "Your account details are attached automatically. Add screenshots in your mail app before sending.",
+              tooShort: "Please add at least {{count}} characters so we can act on it.",
+              opened: "Draft opened in your mail app — send it to reach us.",
               placeholder: "Describe the issue or idea...",
               close: "Close modal",
               submit: "Submit",
@@ -431,41 +437,6 @@ translation: {
                 "The dashboard keeps classes, homework, and exams organized with clear status tabs, deadlines, and quick actions. Students can access tests in seconds, submit work online, and receive feedback as soon as grades are released.",
                 "Core features include time-controlled exams, instant grading, reusable question banks, performance insights, and a focused notification center that highlights what needs attention first.",
                 "Dwelve is designed for speed, clarity, and accessibility. Light and dark themes, responsive layouts, and focused workflows help reduce manual grading effort while keeping both teachers and students aligned.",
-              ],
-            },
-          },
-          loginHistory: {
-            page: {
-              title: "Login history",
-              description: "Recent sign-in activity for your account.",
-              status: {
-                blocked: "Blocked",
-              },
-              items: [
-                {
-                  device: "MacBook Pro 14” • Chrome",
-                  location: "Tashkent, UZ",
-                  time: "Today, 09:42",
-                  status: "Successful",
-                },
-                {
-                  device: "iPhone 13 • Safari",
-                  location: "Tashkent, UZ",
-                  time: "Yesterday, 21:18",
-                  status: "Successful",
-                },
-                {
-                  device: "Windows 11 • Edge",
-                  location: "Samarkand, UZ",
-                  time: "Mar 15, 18:03",
-                  status: "Successful",
-                },
-                {
-                  device: "Unknown device",
-                  location: "Bukhara, UZ",
-                  time: "Mar 12, 07:25",
-                  status: "Blocked",
-                },
               ],
             },
           },
@@ -950,6 +921,10 @@ translation: {
             revoked: "Session revoked.",
             empty: "No active sessions.",
             unknownDevice: "Unknown device",
+          },
+          security: {
+            title: "Password & security",
+            description: "Manage your password, active sessions and account safety in Settings.",
           },
         },
         notifications: {

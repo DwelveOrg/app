@@ -6,11 +6,10 @@ import { useTranslation } from "react-i18next";
 import PageHeader from "@/app/(root)/_components/PageHeader";
 import Empty from "../../_components/ui/Empty";
 import { AccountDetailsForm } from "./_components/AccountDetailsForm";
-import { ChangePasswordForm } from "./_components/ChangePasswordForm";
 import { MembershipsPanel } from "./_components/MembershipsPanel";
 import { ProfileSummaryCard } from "./_components/ProfileSummaryCard";
 import { SchoolProfileForm } from "./_components/SchoolProfileForm";
-import { SessionsPanel } from "./_components/SessionsPanel";
+import { SecurityLinkCard } from "./_components/SecurityLinkCard";
 import type { ProfileClientProps } from "./_types";
 
 export default function ProfileClient({ user, profile }: Readonly<ProfileClientProps>) {
@@ -28,7 +27,6 @@ export default function ProfileClient({ user, profile }: Readonly<ProfileClientP
   const { account, selectedSchool, memberships } = profile;
   const showSchoolProfile =
     selectedSchool && selectedSchool.roleProfile.type !== "ADMIN";
-  const hasPassword = account.authMethods?.password ?? true;
 
   return (
     <motion.div
@@ -52,9 +50,7 @@ export default function ProfileClient({ user, profile }: Readonly<ProfileClientP
 
       <MembershipsPanel memberships={memberships} selectedSchool={selectedSchool} />
 
-      <ChangePasswordForm hasPassword={hasPassword} />
-
-      <SessionsPanel />
+      <SecurityLinkCard />
     </motion.div>
   );
 }

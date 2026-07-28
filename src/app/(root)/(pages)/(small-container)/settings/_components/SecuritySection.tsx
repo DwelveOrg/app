@@ -1,14 +1,16 @@
 "use client";
 
-import { History, KeyRound, LogOut, ShieldEllipsis, Trash2 } from "lucide-react";
-import { toast } from "react-toastify";
+import { KeyRound, Laptop, LogOut, ShieldEllipsis, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { SettingsGroup } from "./SettingsGroup";
 import { SettingsRow } from "./SettingsRow";
 import { LogoutAllButton } from "./LogoutAllButton";
-import { rowDangerActionClassName } from "../_constants";
+import { DeleteAccountButton } from "./DeleteAccountButton";
+import type { SettingsAccountContext } from "../_types";
 
-export function SecuritySection() {
+export function SecuritySection({
+  account,
+}: Readonly<{ account: SettingsAccountContext }>) {
   const { t } = useTranslation();
 
   return (
@@ -19,6 +21,7 @@ export function SecuritySection() {
         description={t("root.settings.security.changePassword.description")}
         href="/settings/change-password"
       />
+      {/* No 2FA model on the backend yet — stays a signposted placeholder. */}
       <SettingsRow
         icon={ShieldEllipsis}
         title={t("root.settings.security.twoFactor.title")}
@@ -26,10 +29,10 @@ export function SecuritySection() {
         soon
       />
       <SettingsRow
-        icon={History}
-        title={t("root.settings.security.loginHistory.title")}
-        description={t("root.settings.security.loginHistory.description")}
-        href="/settings/login-history"
+        icon={Laptop}
+        title={t("root.settings.security.activeSessions.title")}
+        description={t("root.settings.security.activeSessions.description")}
+        href="/settings/sessions"
       />
       <SettingsRow
         icon={LogOut}
@@ -43,13 +46,12 @@ export function SecuritySection() {
         title={t("root.settings.security.deleteAccount.title")}
         description={t("root.settings.security.deleteAccount.description")}
         action={
-          <button
-            type="button"
-            onClick={() => toast.error(t("root.settings.security.deleteAccount.unavailable"))}
-            className={rowDangerActionClassName}
-          >
-            {t("root.settings.actions.delete")}
-          </button>
+          <DeleteAccountButton
+            accountName={account.name}
+            accountEmail={account.email}
+            schoolName={account.schoolName}
+            role={account.role}
+          />
         }
       />
     </SettingsGroup>
