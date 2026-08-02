@@ -59,8 +59,10 @@ function mapTeacherRequestError(error: unknown, fallback: string): string {
 /* Reads (called from React Query hooks)                                       */
 /* -------------------------------------------------------------------------- */
 
-export async function getTeacherClassesAction(): Promise<TeacherClassesResponse> {
-  return getTeacherClassesRequest();
+export async function getTeacherClassesAction(
+  schoolId: string,
+): Promise<TeacherClassesResponse> {
+  return getTeacherClassesRequest(schoolId);
 }
 
 type TeacherRequestsInput = {

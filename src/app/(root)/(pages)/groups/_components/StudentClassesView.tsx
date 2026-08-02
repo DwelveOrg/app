@@ -24,11 +24,9 @@ const FILTERS: { value: DirectoryFilter; labelKey: string }[] = [
 ];
 
 /**
- * The single student class directory. `GET /classes` returns every active class
- * in the selected school along with the viewer's own access flags, so enrolled
- * and joinable classes live in one list — there is no separate Discover
- * surface. Filtering and search are client-side; the endpoint returns a flat
- * list with no pagination.
+ * Student class directory embedded on the School page. It is the only surface
+ * that lists requestable classes; the user's Classes page contains active
+ * enrollments only. Filtering and search stay client-side.
  */
 export default function StudentClassesView({ schoolId }: StudentClassesViewProps) {
   const { t } = useTranslation();

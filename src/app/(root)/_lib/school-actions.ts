@@ -9,6 +9,8 @@ import {
   BackendResponseValidationError,
   createTeacherInviteRequest,
   deleteSchoolRequest,
+  leaveSchoolRequest,
+  removeSchoolMemberRequest,
   updateSchoolRequest,
 } from "@/app/(authentication)/_lib/api";
 import { createSession, getSession } from "@/app/(authentication)/_lib/session";
@@ -17,6 +19,8 @@ import { getUser } from "../_utils/getUser";
 import {
   deleteSchoolSchema,
   inviteTeacherSchema,
+  leaveSchoolSchema,
+  removeSchoolMemberSchema,
   updateSchoolSchema,
 } from "./actions.schemas";
 
@@ -162,5 +166,62 @@ export const deleteSchoolAction = actionClient
     // Re-sync + redirect run outside the try/catch so Next.js can handle its
     // internal NEXT_REDIRECT throw (mirrors revokeSessionAction).
     await clearSelectedSchoolSession();
+    redirect("/dashboard");
+  });
+
+/**
+ * Removes a teacher or student from the selected school. The backend checks the
+ * caller is an ADMIN and refuses admin memberships, regardless of this action.
+ */
+export const removeSchoolMemberAction = actionClient
+  .inputSchema(removeSchoolMemberSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      await removeSchoolMemberRequest(
+        user.schoolId,
+        parsedInput.memberId,
+        authedBackendJson,
+      );
+      return { memberId: parsedInput.memberId };
+    } catch (error) {
+      throw new ActionError(getActionError(error, "Could not remove this member. Please try again."));
+    }
+  });
+
+/**
+ * Teachers and students may leave a school. Replace both session tokens and
+ * clear its school context before redirecting so subsequent requests cannot use
+ * stale membership claims.
+ */
+export const leaveSchoolAction = actionClient
+  .inputSchema(leaveSchoolSchema)
+  .action(async () => {
+    const session = await getSession();
+    if (!session?.userId || !session.schoolId) {
+      throw new ActionError("You must select a school before leaving it.");
+    }
+
+    try {
+      const { tokens } = await leaveSchoolRequest(
+        session.schoolId,
+        authedBackendJson,
+      );
+      await createSession({
+        userId: session.userId,
+        email: session.email,
+        fullName: session.fullName,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        membershipCount: Math.max((session.membershipCount ?? 1) - 1, 0),
+      });
+    } catch (error) {
+      throw new ActionError(getActionError(error, "Could not leave the school. Please try again."));
+    }
+
     redirect("/dashboard");
   });

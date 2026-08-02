@@ -13,10 +13,9 @@ type TeacherClassesViewProps = {
 };
 
 /**
- * Teacher-facing class list. `GET /classes` returns every active class in the
- * selected school (including ones the teacher does not yet teach) so the teacher
- * can request to teach them. Assigned classes surface the normal open action.
- * Backed by React Query so request/cancel and notification actions refresh it.
+ * Teacher-facing school directory. It is embedded on the School page so that
+ * requestable classes never appear on My Classes. Assigned classes retain the
+ * normal open action. React Query refreshes request/cancel state.
  */
 export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps) {
   const { t } = useTranslation();

@@ -177,6 +177,10 @@ Pull requests should include:
 - affected language resources
 - auth/session impact, if relevant
 
+When the maintainer asks to publish changes, use Git directly to stage, commit,
+and push the intended branch. Review the working tree first and never include
+unrelated changes unless the maintainer explicitly requests all changes.
+
 ---
 
 ## Security and configuration

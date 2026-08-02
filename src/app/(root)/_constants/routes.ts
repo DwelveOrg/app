@@ -1,6 +1,7 @@
 export const ROUTE_LABEL_KEYS: Record<string, string> = {
   dashboard: "root.pages.dashboard",
   groups: "root.pages.classes",
+  tests: "root.pages.tests",
   school: "root.pages.school",
   notifications: "root.pages.notifications",
   profile: "root.pages.profile",

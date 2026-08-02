@@ -81,7 +81,7 @@ export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) 
         onOpenChange={(open) => {
           if (!open) setRemoveTarget(null);
         }}
-        studentId={removeTarget?.id ?? ""}
+        memberId={removeTarget?.memberId ?? ""}
         studentName={removeTarget?.fullName ?? ""}
       />
     </div>

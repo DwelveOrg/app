@@ -21,6 +21,7 @@ import {
   forgotPasswordResponseSchema,
   healthResponseSchema,
   joinSchoolResponseSchema,
+  leaveSchoolResponseSchema,
   schoolDetailResponseSchema,
   schoolMembersResponseSchema,
   teacherInviteResponseSchema,
@@ -35,6 +36,7 @@ import {
   type ForgotPasswordResponse,
   type HealthResponse,
   type JoinSchoolResponse,
+  type LeaveSchoolResponse,
   type SchoolDetailResponse,
   type SchoolMembersResponse,
   type TeacherInviteResponse,
@@ -58,6 +60,7 @@ export type {
   ForgotPasswordResponse,
   HealthResponse,
   JoinSchoolResponse,
+  LeaveSchoolResponse,
   SchoolDetailResponse,
   SchoolMembersResponse,
   TeacherInviteResponse,
@@ -211,6 +214,28 @@ export function getSchoolMembersRequest(
 ) {
   return requestJson(`/schools/${schoolId}/members`, {
     responseSchema: schoolMembersResponseSchema,
+  });
+}
+
+/** Removes an active TEACHER or STUDENT membership. ADMINs cannot be removed. */
+export function removeSchoolMemberRequest(
+  schoolId: string,
+  memberId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/members/${memberId}`, {
+    method: "DELETE",
+  });
+}
+
+/** Teachers and students can leave their selected school and receive no-school tokens. */
+export function leaveSchoolRequest(
+  schoolId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/membership`, {
+    method: "DELETE",
+    responseSchema: leaveSchoolResponseSchema,
   });
 }
 

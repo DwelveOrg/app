@@ -17,12 +17,12 @@ import {
   AlertDialogMedia,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { removeStudentFromSchoolAction } from "@/app/(root)/_lib/students-actions";
+import { removeSchoolMemberAction } from "@/app/(root)/_lib/school-actions";
 
 type RemoveStudentDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  studentId: string;
+  memberId: string;
   studentName: string;
 };
 
@@ -34,7 +34,7 @@ type RemoveStudentDialogProps = {
 export default function RemoveStudentDialog({
   open,
   onOpenChange,
-  studentId,
+  memberId,
   studentName,
 }: RemoveStudentDialogProps) {
   const { t } = useTranslation();
@@ -43,7 +43,7 @@ export default function RemoveStudentDialog({
 
   const handleRemove = () => {
     startTransition(async () => {
-      const result = await removeStudentFromSchoolAction({ studentId });
+      const result = await removeSchoolMemberAction({ memberId });
       if (result?.serverError) {
         toast.error(result.serverError);
         return;

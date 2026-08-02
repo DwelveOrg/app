@@ -37,6 +37,11 @@ export const authTokensSchema = z.object({
   refreshToken: z.string(),
 });
 
+export const leaveSchoolResponseSchema = z.object({
+  success: z.literal(true),
+  tokens: authTokensSchema,
+});
+
 /** Shape returned by `/auth/logout` and `/auth/logout-all` on success. */
 export const authSuccessSchema = z.object({ success: z.boolean() }).passthrough();
 
@@ -100,6 +105,13 @@ export const schoolDetailResponseSchema = z
     school: backendSchoolSchema,
     currentUserRole: schoolRoleSchema,
     membership: backendMemberSchema,
+    counts: z
+      .object({
+        students: z.number(),
+        teachers: z.number(),
+        classes: z.number(),
+      })
+      .optional(),
   })
   .passthrough();
 
@@ -173,6 +185,7 @@ export type BackendUser = z.infer<typeof backendUserSchema>;
 export type BackendSchool = z.infer<typeof backendSchoolSchema>;
 export type BackendMember = z.infer<typeof backendMemberSchema>;
 export type AuthTokens = z.infer<typeof authTokensSchema>;
+export type LeaveSchoolResponse = z.infer<typeof leaveSchoolResponseSchema>;
 export type AuthSuccess = z.infer<typeof authSuccessSchema>;
 export type ForgotPasswordResponse = z.infer<typeof forgotPasswordResponseSchema>;
 export type HealthResponse = z.infer<typeof healthResponseSchema>;

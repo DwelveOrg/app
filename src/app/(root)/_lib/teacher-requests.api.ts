@@ -30,14 +30,15 @@ type ListQuery = {
 };
 
 /**
- * `GET /classes` for a TEACHER - every active class in the selected school with
- * the teacher request/enter flags. The school comes from the session JWT, so no
- * params are needed. Returns a flat list; search is applied client-side.
+ * `GET /schools/:schoolId/classes` for a TEACHER - every active class in the
+ * school directory with request/enter flags. The My Classes page remains
+ * `GET /classes` and includes only classes the teacher has been assigned.
  */
 export function getTeacherClassesRequest(
+  schoolId: string,
   requestJson: BackendRequester = authedBackendJson,
 ) {
-  return requestJson("/classes", {
+  return requestJson(`/schools/${schoolId}/classes`, {
     responseSchema: teacherClassesResponseSchema,
   });
 }

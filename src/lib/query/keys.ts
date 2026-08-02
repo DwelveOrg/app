@@ -13,6 +13,15 @@ export const queryKeys = {
     all: ["classes"] as const,
     detail: (classId: string) => [...queryKeys.classes.all, "detail", classId] as const,
   },
+  tests: {
+    all: ["tests"] as const,
+    list: (classId: string, filters: { status: string; page: number }) =>
+      [...queryKeys.tests.all, "list", classId, filters] as const,
+    detail: (testId: string) => [...queryKeys.tests.all, "detail", testId] as const,
+    validation: (testId: string) =>
+      [...queryKeys.tests.all, "validation", testId] as const,
+    formats: () => [...queryKeys.tests.all, "formats"] as const,
+  },
   notifications: {
     all: ["notifications"] as const,
     status: () => [...queryKeys.notifications.all, "status"] as const,

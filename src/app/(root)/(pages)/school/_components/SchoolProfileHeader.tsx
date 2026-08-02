@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, MapPin, Pencil, Trash2, UserPlus } from "lucide-react";
+import { ChevronDown, LogOut, MapPin, Pencil, Trash2, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import { Button } from "@/components/ui/Button";
@@ -15,6 +15,7 @@ import InviteTeacherDialog from "./InviteTeacherDialog";
 import AddStudentsDialog from "./AddStudentsDialog";
 import EditSchoolDialog from "./EditSchoolDialog";
 import DeleteSchoolDialog from "./DeleteSchoolDialog";
+import LeaveSchoolDialog from "./LeaveSchoolDialog";
 
 type SchoolProfileHeaderProps = {
   name: string;
@@ -58,6 +59,7 @@ export default function SchoolProfileHeader({
   const [inviteTeacherOpen, setInviteTeacherOpen] = useState(false);
   const [addStudentsOpen, setAddStudentsOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [leaveOpen, setLeaveOpen] = useState(false);
 
   const initial = name.charAt(0).toUpperCase() || "S";
 
@@ -155,9 +157,21 @@ export default function SchoolProfileHeader({
             </Button>
           </div>
         ) : role ? (
-          <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)]">
-            {t("root.schoolPage.viewingAs", { role: t(ROLE_LABEL_KEYS[role]) })}
-          </span>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <span className="inline-flex items-center rounded-full border border-[var(--border)] bg-[var(--background)] px-3 py-1.5 text-xs font-medium text-[var(--muted-foreground)]">
+              {t("root.schoolPage.viewingAs", { role: t(ROLE_LABEL_KEYS[role]) })}
+            </span>
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              onClick={() => setLeaveOpen(true)}
+              className="text-[var(--muted-foreground)] hover:border-[color-mix(in_srgb,var(--destructive)_35%,transparent)] hover:text-[var(--destructive)]"
+            >
+              <LogOut className="h-4 w-4" />
+              {t("root.schoolPage.actions.leave")}
+            </Button>
+          </div>
         ) : null}
       </div>
 
@@ -180,6 +194,14 @@ export default function SchoolProfileHeader({
             schoolName={name}
           />
         </>
+      ) : null}
+
+      {!isAdmin && role ? (
+        <LeaveSchoolDialog
+          open={leaveOpen}
+          onOpenChange={setLeaveOpen}
+          schoolName={name}
+        />
       ) : null}
     </section>
   );

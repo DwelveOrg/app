@@ -45,10 +45,9 @@ export function useStudentOverview(schoolId: string | undefined) {
 }
 
 /**
- * The single student class directory (`GET /classes`). It returns every active
- * class in the selected school with the backend's own access flags, so it backs
- * both "my classes" and "classes I could join" — there is no separate discover
- * surface or endpoint.
+ * The School page directory (`GET /schools/:schoolId/classes`). It returns
+ * active and requestable classes with the backend's access flags. My Classes is
+ * intentionally sourced separately from `GET /classes`.
  */
 export function useStudentClasses({
   schoolId,
@@ -57,11 +56,11 @@ export function useStudentClasses({
   schoolId: string | undefined;
   enabled?: boolean;
 }) {
-  // `GET /classes` returns the whole student class list in one shot (no server
-  // pagination or search), so this is a plain query; the view filters locally.
+  // The school directory is returned in one shot (no server pagination/search),
+  // so this is a plain query and the view filters locally.
   return useQuery({
     queryKey: queryKeys.enrollment.studentClasses(schoolId ?? ""),
-    queryFn: () => getStudentClassesAction(),
+    queryFn: () => getStudentClassesAction(schoolId as string),
     enabled: Boolean(schoolId) && enabled,
   });
 }

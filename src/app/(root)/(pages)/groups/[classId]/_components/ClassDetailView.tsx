@@ -178,26 +178,29 @@ export default function ClassDetailView({
           {canManage ? (
             <div className="flex flex-wrap items-center gap-2">
               {isAdmin ? (
-                <>
-                  <Button variant="outline" size="lg" onClick={() => setEditOpen(true)}>
-                    <Pencil className="h-4 w-4" />
-                    {t("root.classDetail.actions.edit")}
-                  </Button>
+                <Button variant="outline" size="lg" onClick={() => setEditOpen(true)}>
+                  <Pencil className="h-4 w-4" />
+                  {t("root.classDetail.actions.edit")}
+                </Button>
+              ) : null}
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button size="lg">
-                        <MoreHorizontal className="h-4 w-4" />
-                        {t("root.classDetail.actions.more")}
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem
-                        onSelect={() => notifySoon("root.classDetail.actions.addTest")}
-                      >
-                        <FileText className="h-4 w-4" />
-                        {t("root.classDetail.actions.addTest")}
-                      </DropdownMenuItem>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="lg">
+                    <MoreHorizontal className="h-4 w-4" />
+                    {t("root.classDetail.actions.more")}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  {/* Teachers author tests too, so this is not admin-only. */}
+                  <DropdownMenuItem
+                    onSelect={() => router.push(`/groups/${classItem.id}/tests`)}
+                  >
+                    <FileText className="h-4 w-4" />
+                    {t("root.classDetail.actions.addTest")}
+                  </DropdownMenuItem>
+                  {isAdmin ? (
+                    <>
                       <DropdownMenuItem
                         onSelect={() => notifySoon("root.classDetail.actions.addExam")}
                       >
@@ -211,10 +214,10 @@ export default function ClassDetailView({
                         <Trash2 className="h-4 w-4" />
                         {t("root.classDetail.actions.delete")}
                       </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </>
-              ) : null}
+                    </>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           ) : null}
         </div>

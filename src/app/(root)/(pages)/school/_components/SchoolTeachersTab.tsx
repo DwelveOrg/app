@@ -2,14 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { RefreshCw, UserPlus } from "lucide-react";
+import { MoreVertical, RefreshCw, UserMinus, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { SchoolRosterMember } from "@/app/(authentication)/_lib/api.schemas";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import { Button } from "@/components/ui/Button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import Empty from "../../_components/ui/Empty";
 import InviteTeacherDialog from "./InviteTeacherDialog";
+import RemoveTeacherDialog from "./RemoveTeacherDialog";
 
 type SchoolTeachersTabProps = {
   /** Already filtered to `role === "TEACHER"` by the page. */
@@ -29,6 +36,7 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
   const { t } = useTranslation();
   const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<SchoolRosterMember | null>(null);
 
   if (hasError) {
     return (
@@ -74,6 +82,9 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.email")}</th>
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.status")}</th>
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.joined")}</th>
+              <th className="px-4 py-3">
+                <span className="sr-only">{t("root.schoolPage.teachers.columns.actions")}</span>
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--border)]">
@@ -93,6 +104,9 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
                 </td>
                 <td className="px-4 py-3 align-top text-[var(--muted-foreground)]">
                   {teacher.createdAt ? <RelativeTime date={teacher.createdAt} /> : "—"}
+                </td>
+                <td className="px-4 py-3 align-top text-right">
+                  <TeacherActionsMenu teacher={teacher} onRemove={setRemoveTarget} />
                 </td>
               </tr>
             ))}
@@ -114,6 +128,7 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
                   {teacher.email}
                 </div>
               </div>
+              <TeacherActionsMenu teacher={teacher} onRemove={setRemoveTarget} />
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
               <ProfileStatus teacherProfileId={teacher.teacherProfileId} />
@@ -122,7 +137,49 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
           </li>
         ))}
       </ul>
+
+      <RemoveTeacherDialog
+        open={removeTarget !== null}
+        onOpenChange={(open) => {
+          if (!open) setRemoveTarget(null);
+        }}
+        memberId={removeTarget?.memberId ?? ""}
+        teacherName={removeTarget?.fullName ?? ""}
+      />
     </div>
+  );
+}
+
+function TeacherActionsMenu({
+  teacher,
+  onRemove,
+}: {
+  teacher: SchoolRosterMember;
+  onRemove: (teacher: SchoolRosterMember) => void;
+}) {
+  const { t } = useTranslation();
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          aria-label={t("root.schoolPage.teachers.actions.menu", { name: teacher.fullName })}
+          className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+        >
+          <MoreVertical className="h-4 w-4" />
+        </button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-52">
+        <DropdownMenuItem
+          onSelect={() => onRemove(teacher)}
+          className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+        >
+          <UserMinus className="h-4 w-4" />
+          {t("root.schoolPage.teachers.actions.remove")}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
 

@@ -42,14 +42,15 @@ export function getStudentOverviewRequest(
 }
 
 /**
- * `GET /classes` - the STUDENT-visible class list for the selected school.
- * The selected school comes from the session JWT, so no path/query params are
- * needed. Returns a flat list (no pagination); search is applied client-side.
+ * `GET /schools/:schoolId/classes` - the student-visible directory on the
+ * School page. It contains requestable classes as well as active classes; the
+ * user-facing Classes page is backed by `GET /classes` instead.
  */
 export function getStudentClassesRequest(
+  schoolId: string,
   requestJson: BackendRequester = authedBackendJson,
 ) {
-  return requestJson("/classes", {
+  return requestJson(`/schools/${schoolId}/classes`, {
     responseSchema: studentClassesResponseSchema,
   });
 }

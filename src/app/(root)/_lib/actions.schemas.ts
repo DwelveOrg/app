@@ -77,6 +77,16 @@ export const removeSchoolStudentSchema = z.object({
 
 export type RemoveSchoolStudentInput = z.infer<typeof removeSchoolStudentSchema>;
 
+/** Removes a non-admin school membership (`SchoolMember.id`). */
+export const removeSchoolMemberSchema = z.object({
+  memberId: z.string().min(1),
+});
+
+export type RemoveSchoolMemberInput = z.infer<typeof removeSchoolMemberSchema>;
+
+/** Teachers and students leave their currently selected school. */
+export const leaveSchoolSchema = z.object({});
+
 export const updateSchoolSchema = z.object({
   name: z.string().trim().min(1).max(120),
   description: z.string().trim().max(500).optional(),
