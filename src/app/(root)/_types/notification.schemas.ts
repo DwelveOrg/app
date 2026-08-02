@@ -46,3 +46,47 @@ export const notificationsListResponseSchema = z
       .passthrough(),
   })
   .passthrough();
+
+export const markNotificationReadResponseSchema = z
+  .object({
+    notification: backendNotificationItemSchema,
+  })
+  .passthrough();
+
+export const markAllNotificationsReadResponseSchema = z
+  .object({
+    updated: z.number(),
+    unreadCount: z.number(),
+  })
+  .passthrough();
+
+export const deleteNotificationResponseSchema = z
+  .object({
+    success: z.literal(true),
+  })
+  .passthrough();
+
+export const respondToInvitationResponseSchema = markNotificationReadResponseSchema.extend({
+  session: z
+    .object({
+      school: z
+        .object({
+          id: z.string(),
+        })
+        .passthrough(),
+      member: z
+        .object({
+          id: z.string(),
+          schoolId: z.string(),
+          role: z.enum(["ADMIN", "TEACHER", "STUDENT"]),
+        })
+        .passthrough(),
+      tokens: z
+        .object({
+          accessToken: z.string(),
+          refreshToken: z.string(),
+        })
+        .passthrough(),
+    })
+    .optional(),
+});

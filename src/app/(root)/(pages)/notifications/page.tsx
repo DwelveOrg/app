@@ -36,13 +36,6 @@ const Page = () => {
 
   const [activeFilter, setActiveFilter] = useState<NotificationFilter>("all");
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
-  const [optimisticallyReadIds, setOptimisticallyReadIds] = useState<Set<string>>(() => new Set());
-  const [optimisticallyDeletedIds, setOptimisticallyDeletedIds] = useState<Set<string>>(
-    () => new Set(),
-  );
-  const [respondedInvites, setRespondedInvites] = useState<Map<string, InvitationResponse>>(
-    () => new Map(),
-  );
 
   // `all`/`unread` map to the backend `tab`; the category pills map to the
   // backend `category` param (server-side filtering) — each its own query cache.
@@ -61,39 +54,16 @@ const Page = () => {
   const unreadCount = statusQuery.data?.unreadCount ?? 0;
 
   const allItems = useMemo<NotificationItem[]>(
-    () =>
-      notificationsQuery.data?.pages
-        .flatMap((page) => page.data)
-        .map((item) => {
-          let next = item;
-          if (optimisticallyReadIds.has(item.id)) {
-            next = { ...next, unread: false, readAt: next.readAt ?? new Date().toISOString() };
-          }
-          const response = respondedInvites.get(item.id);
-          if (response) {
-            next = {
-              ...next,
-              data: {
-                ...(next.data as Record<string, unknown> | null),
-                status: response === "accept" ? "accepted" : "declined",
-              },
-            };
-          }
-          return next;
-        }) ?? [],
-    [notificationsQuery.data?.pages, optimisticallyReadIds, respondedInvites],
+    () => notificationsQuery.data?.pages.flatMap((page) => page.data) ?? [],
+    [notificationsQuery.data?.pages],
   );
 
   const visibleItems = useMemo(
     () =>
-      allItems.filter((item) => {
-        if (optimisticallyDeletedIds.has(item.id)) return false;
-        // Category filtering is server-side now; only the optimistic unread
-        // filter stays client-side so read items leave the Unread tab at once.
-        if (activeFilter === "unread" && !item.unread) return false;
-        return true;
-      }),
-    [activeFilter, allItems, optimisticallyDeletedIds],
+      // Category filtering is server-side. Cache updates mark items read before
+      // the network request settles, so the Unread tab changes immediately.
+      allItems.filter((item) => activeFilter !== "unread" || item.unread),
+    [activeFilter, allItems],
   );
 
   const groupedItems = useMemo(
@@ -103,16 +73,7 @@ const Page = () => {
 
   const markReadOptimistic = useCallback(
     (id: string) => {
-      setOptimisticallyReadIds((current) => new Set(current).add(id));
-      markReadMutation.mutate(id, {
-        onError: () => {
-          setOptimisticallyReadIds((current) => {
-            const next = new Set(current);
-            next.delete(id);
-            return next;
-          });
-        },
-      });
+      markReadMutation.mutate(id);
     },
     [markReadMutation],
   );
@@ -147,66 +108,29 @@ const Page = () => {
 
   const handleDelete = useCallback(
     (id: string) => {
-      setOptimisticallyDeletedIds((current) => new Set(current).add(id));
       setSelectedNotification((current) => (current?.id === id ? null : current));
-      deleteNotificationMutation.mutate(id, {
-        onError: () => {
-          setOptimisticallyDeletedIds((current) => {
-            const next = new Set(current);
-            next.delete(id);
-            return next;
-          });
-        },
-      });
+      deleteNotificationMutation.mutate(id);
     },
     [deleteNotificationMutation],
   );
 
   const handleRespond = useCallback(
     (id: string, response: InvitationResponse) => {
-      setRespondedInvites((current) => new Map(current).set(id, response));
-      setOptimisticallyReadIds((current) => new Set(current).add(id));
       respondMutation.mutate(
         { id, response },
         {
-          onError: () => {
-            setRespondedInvites((current) => {
-              const next = new Map(current);
-              next.delete(id);
-              return next;
-            });
-            setOptimisticallyReadIds((current) => {
-              const next = new Set(current);
-              next.delete(id);
-              return next;
-            });
+          onSuccess: ({ selectedSchoolId }) => {
+            if (selectedSchoolId) router.refresh();
           },
         },
       );
     },
-    [respondMutation],
+    [respondMutation, router],
   );
 
   const handleMarkAllRead = useCallback(() => {
-    const unreadIds = allItems.filter((item) => item.unread).map((item) => item.id);
-    if (unreadIds.length === 0) return;
-
-    setOptimisticallyReadIds((current) => {
-      const next = new Set(current);
-      unreadIds.forEach((id) => next.add(id));
-      return next;
-    });
-
-    markAllReadMutation.mutate(unreadIds, {
-      onError: () => {
-        setOptimisticallyReadIds((current) => {
-          const next = new Set(current);
-          unreadIds.forEach((id) => next.delete(id));
-          return next;
-        });
-      },
-    });
-  }, [allItems, markAllReadMutation]);
+    if (unreadCount > 0) markAllReadMutation.mutate();
+  }, [markAllReadMutation, unreadCount]);
 
   const hasItems = visibleItems.length > 0;
 

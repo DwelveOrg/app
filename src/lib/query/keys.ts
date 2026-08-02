@@ -25,8 +25,9 @@ export const queryKeys = {
   notifications: {
     all: ["notifications"] as const,
     status: () => [...queryKeys.notifications.all, "status"] as const,
+    lists: () => [...queryKeys.notifications.all, "list"] as const,
     list: (tab: "all" | "unread", limit: number, category?: string) =>
-      [...queryKeys.notifications.all, "list", tab, category ?? "all", limit] as const,
+      [...queryKeys.notifications.lists(), tab, category ?? "all", limit] as const,
   },
   enrollment: {
     all: ["enrollment"] as const,

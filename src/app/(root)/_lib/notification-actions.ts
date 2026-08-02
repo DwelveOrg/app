@@ -1,20 +1,38 @@
 "use server";
 
+import { actionClient, ActionError } from "@/lib/safe-action";
 import {
   authedBackendJson,
   SessionExpiredError,
 } from "@/app/(authentication)/_lib/backend";
+import {
+  createSession,
+  getSession,
+} from "@/app/(authentication)/_lib/session";
+import {
+  BackendApiError,
+  BackendResponseValidationError,
+} from "@/lib/api/backend";
 import type {
-  InvitationResponse,
   NotificationCategory,
+  NotificationItem,
   NotificationStatusResponse,
   NotificationsListResponse,
   NotificationTab,
 } from "@/app/(root)/_types";
 import {
+  deleteNotificationResponseSchema,
+  markAllNotificationsReadResponseSchema,
+  markNotificationReadResponseSchema,
   notificationStatusResponseSchema,
   notificationsListResponseSchema,
+  respondToInvitationResponseSchema,
 } from "@/app/(root)/_types/notification.schemas";
+import {
+  markAllNotificationsReadInputSchema,
+  notificationIdInputSchema,
+  respondToInvitationInputSchema,
+} from "./notification-actions.schemas";
 
 type ListNotificationsInput = {
   tab?: NotificationTab;
@@ -23,21 +41,46 @@ type ListNotificationsInput = {
   limit?: number;
 };
 
+const EMPTY_STATUS: NotificationStatusResponse = {
+  hasUnread: false,
+  unreadCount: 0,
+};
+const GENERIC_ACTION_ERROR = "Unable to update this notification. Please try again.";
+const NETWORK_ERROR = "Unable to reach Dwelve API. Please try again.";
+
 function buildNotificationsQuery(input: ListNotificationsInput = {}) {
   return {
     tab: input.tab ?? "all",
     page: input.page ?? 1,
     limit: input.limit ?? 10,
-    // Only sent when a category tab is active; the backend filters server-side.
     ...(input.category ? { category: input.category } : {}),
   };
 }
 
-const EMPTY_STATUS: NotificationStatusResponse = {
-  hasUnread: false,
-  unreadCount: 0,
-};
+function withUnread(notification: Omit<NotificationItem, "unread">): NotificationItem {
+  return {
+    ...notification,
+    unread: notification.readAt == null,
+  };
+}
 
+function getActionError(error: unknown) {
+  if (error instanceof SessionExpiredError || error instanceof BackendApiError) {
+    return error.message;
+  }
+  if (error instanceof TypeError) {
+    return NETWORK_ERROR;
+  }
+  if (error instanceof BackendResponseValidationError) {
+    console.error("Notification response validation error:", error);
+    return GENERIC_ACTION_ERROR;
+  }
+
+  console.error("Notification action error:", error);
+  return GENERIC_ACTION_ERROR;
+}
+
+/** Read action used by React Query when a notification surface mounts. */
 export async function getNotificationStatusAction(): Promise<NotificationStatusResponse> {
   try {
     return await authedBackendJson("/notifications/status", {
@@ -52,6 +95,7 @@ export async function getNotificationStatusAction(): Promise<NotificationStatusR
   }
 }
 
+/** Paginated read action used by React Query's infinite notification cache. */
 export async function listNotificationsAction(
   input: ListNotificationsInput = {},
 ): Promise<NotificationsListResponse> {
@@ -60,69 +104,97 @@ export async function listNotificationsAction(
     responseSchema: notificationsListResponseSchema,
   });
 
-  // The backend is the source of truth for read state via `readAt`; it does not
-  // send the `unread` convenience flag the UI reads, so derive it here once.
   return {
     ...response,
-    data: response.data.map((item) => ({ ...item, unread: item.readAt == null })),
+    data: response.data.map(withUnread),
   };
 }
 
-export async function markNotificationReadAction(notificationId: string) {
-  return authedBackendJson(`/notifications/${notificationId}/read`, {
-    method: "PATCH",
-  });
-}
+export const markNotificationReadAction = actionClient
+  .inputSchema(notificationIdInputSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const response = await authedBackendJson(
+        `/notifications/${parsedInput.notificationId}/read`,
+        {
+          method: "PATCH",
+          responseSchema: markNotificationReadResponseSchema,
+        },
+      );
 
-export async function deleteNotificationAction(notificationId: string) {
-  return authedBackendJson(`/notifications/${notificationId}`, {
-    method: "DELETE",
-  });
-}
-
-/**
- * Marks every unread notification as read in one call.
- *
- * Prefers the dedicated bulk endpoint (`PATCH /notifications/read-all`, see
- * docs/features/notifications.md). Until the backend ships it, this
- * falls back to reading each known unread id so the feature works today.
- */
-export async function markAllNotificationsReadAction(ids: string[] = []) {
-  try {
-    return await authedBackendJson("/notifications/read-all", { method: "PATCH" });
-  } catch (error) {
-    if (error instanceof SessionExpiredError) {
-      throw error;
+      return { notification: withUnread(response.notification) };
+    } catch (error) {
+      throw new ActionError(getActionError(error));
     }
+  });
 
-    await Promise.allSettled(ids.map((id) => markNotificationReadAction(id)));
-    return { ok: true, fallback: true } as const;
-  }
-}
-
-/**
- * Accepts or declines an invitation-type notification.
- *
- * Prefers the dedicated invitation endpoint
- * (`POST /notifications/:id/invitation`, see the backend doc). Until it exists,
- * responding still resolves the card by marking it read so the UI stays
- * consistent.
- */
-export async function respondToInvitationAction(
-  notificationId: string,
-  response: InvitationResponse,
-) {
-  try {
-    return await authedBackendJson(`/notifications/${notificationId}/invitation`, {
-      method: "POST",
-      body: { response },
-    });
-  } catch (error) {
-    if (error instanceof SessionExpiredError) {
-      throw error;
+export const markAllNotificationsReadAction = actionClient
+  .inputSchema(markAllNotificationsReadInputSchema)
+  .action(async () => {
+    try {
+      return await authedBackendJson("/notifications/read-all", {
+        method: "PATCH",
+        responseSchema: markAllNotificationsReadResponseSchema,
+      });
+    } catch (error) {
+      throw new ActionError(getActionError(error));
     }
+  });
 
-    await markNotificationReadAction(notificationId);
-    return { ok: true, fallback: true } as const;
-  }
-}
+export const deleteNotificationAction = actionClient
+  .inputSchema(notificationIdInputSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      await authedBackendJson(`/notifications/${parsedInput.notificationId}`, {
+        method: "DELETE",
+        responseSchema: deleteNotificationResponseSchema,
+      });
+
+      return { notificationId: parsedInput.notificationId };
+    } catch (error) {
+      throw new ActionError(getActionError(error));
+    }
+  });
+
+export const respondToInvitationAction = actionClient
+  .inputSchema(respondToInvitationInputSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const response = await authedBackendJson(
+        `/notifications/${parsedInput.notificationId}/invitation`,
+        {
+          method: "POST",
+          body: { response: parsedInput.response },
+          responseSchema: respondToInvitationResponseSchema,
+        },
+      );
+
+      if (response.session) {
+        const currentSession = await getSession();
+        if (!currentSession?.userId || !currentSession.email || !currentSession.fullName) {
+          throw new SessionExpiredError();
+        }
+
+        // The backend returns tokens scoped to the newly accepted school. Store
+        // them before the client refreshes any school-scoped server components.
+        await createSession({
+          userId: currentSession.userId,
+          email: currentSession.email,
+          fullName: currentSession.fullName,
+          accessToken: response.session.tokens.accessToken,
+          refreshToken: response.session.tokens.refreshToken,
+          schoolId: response.session.school.id,
+          memberId: response.session.member.id,
+          schoolRole: response.session.member.role,
+          membershipCount: Math.max((currentSession.membershipCount ?? 0) + 1, 1),
+        });
+      }
+
+      return {
+        notification: withUnread(response.notification),
+        selectedSchoolId: response.session?.school.id,
+      };
+    } catch (error) {
+      throw new ActionError(getActionError(error));
+    }
+  });
