@@ -126,7 +126,7 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
         </p>
       </div>
 
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/12 px-2.5 py-1 text-xs font-medium text-warning-text">
         <Clock className="h-3.5 w-3.5" />
         {t("root.enrollment.status.pending")}
       </span>

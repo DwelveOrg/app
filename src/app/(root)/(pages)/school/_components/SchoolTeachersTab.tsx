@@ -193,7 +193,7 @@ function ProfileStatus({ teacherProfileId }: { teacherProfileId: string | null }
 
   if (teacherProfileId) {
     return (
-      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300">
+      <span className="inline-flex items-center rounded-full bg-success/12 px-2 py-0.5 text-xs font-medium text-success-text">
         {t("root.schoolPage.teachers.status.ready")}
       </span>
     );

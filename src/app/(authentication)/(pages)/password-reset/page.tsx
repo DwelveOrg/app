@@ -63,22 +63,22 @@ export default function PasswordResetPage() {
         <div className="w-full max-w-[400px]">
           {sent ? (
             <div className="text-center">
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
                 <MailCheck className="h-7 w-7" />
               </div>
-              <h1 className="text-2xl font-bold text-[#1a1a2e] dark:text-white">
+              <h1 className="text-2xl font-bold text-foreground">
                 {t("auth.passwordReset.sentTitle")}
               </h1>
-              <p className="mt-2 text-sm text-[#64748b] dark:text-slate-400">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {t("auth.passwordReset.sentBody")}
               </p>
 
               {devResetUrl && (
-                <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-left text-xs text-amber-800 dark:border-amber-800/50 dark:bg-amber-900/20 dark:text-amber-300">
+                <div className="mt-6 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-xs text-warning-text">
                   <p className="font-semibold">{t("auth.passwordReset.devLinkNotice")}</p>
                   <Link
                     href={devResetUrl}
-                    className="mt-1 block break-all font-medium text-indigo-600 underline dark:text-indigo-400"
+                    className="mt-1 block break-all font-medium text-primary underline"
                   >
                     {t("auth.passwordReset.devLinkCta")}
                   </Link>
@@ -87,7 +87,7 @@ export default function PasswordResetPage() {
 
               <Link
                 href="/login"
-                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-[var(--primary-hover)]"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t("auth.passwordReset.backToLogin")}
@@ -96,37 +96,37 @@ export default function PasswordResetPage() {
           ) : (
             <>
               <div className="mb-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                   {t("auth.passwordReset.access")}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold text-[#1a1a2e] dark:text-white">
+                <h1 className="mt-2 text-3xl font-bold text-foreground">
                   {t("auth.passwordReset.title")}
                 </h1>
-                <p className="mt-2 text-sm text-[#64748b] dark:text-slate-400">
+                <p className="mt-2 text-sm text-muted-foreground">
                   {t("auth.passwordReset.subtitle")}
                 </p>
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#1a1a2e] dark:text-white">
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
                     {t("auth.passwordReset.emailLabel")}
                   </label>
                   <Input
                     {...register("email")}
                     type="email"
                     placeholder={t("auth.passwordReset.emailPlaceholder")}
-                    className={`w-full py-3 ${errors.email ? "border-red-500 focus:border-red-500" : ""}`}
+                    className={`w-full py-3 ${errors.email ? "border-destructive focus:border-destructive" : ""}`}
                   />
                   {errors.email && (
-                    <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    <p className="mt-1.5 text-xs text-destructive-text">
                       {errors.email.message}
                     </p>
                   )}
                 </div>
 
                 {errors.root && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-400">
+                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
                     {errors.root.message}
                   </div>
                 )}
@@ -144,10 +144,10 @@ export default function PasswordResetPage() {
                 </Btn>
               </form>
 
-              <p className="mt-8 text-center text-sm text-[#64748b] dark:text-slate-400">
+              <p className="mt-8 text-center text-sm text-muted-foreground">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-[var(--primary-hover)]"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("auth.passwordReset.backToLogin")}

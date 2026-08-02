@@ -29,7 +29,7 @@ export default function Page() {
               className={`inline-flex h-10 cursor-pointer items-center justify-center rounded-full border px-4 text-sm font-semibold transition ${
                 isActive
                   ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-200"
+                  : "border-border bg-card text-muted-foreground hover:border-[var(--ring)]"
               }`}
             >
               {t(examTabLabelKeys[tab])}

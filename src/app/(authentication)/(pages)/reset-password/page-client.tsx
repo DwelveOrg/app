@@ -69,18 +69,18 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
         <div className="w-full max-w-[400px]">
           {!token ? (
             <div className="text-center">
-              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+              <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive-text">
                 <ShieldAlert className="h-7 w-7" />
               </div>
-              <h1 className="text-2xl font-bold text-[#1a1a2e] dark:text-white">
+              <h1 className="text-2xl font-bold text-foreground">
                 {t("auth.resetPassword.invalidTitle")}
               </h1>
-              <p className="mt-2 text-sm text-[#64748b] dark:text-slate-400">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {t("auth.resetPassword.invalidBody")}
               </p>
               <Link
                 href="/password-reset"
-                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-[var(--primary-hover)]"
               >
                 {t("auth.resetPassword.requestNew")}
               </Link>
@@ -88,20 +88,20 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
           ) : (
             <>
               <div className="mb-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-indigo-600 dark:text-indigo-400">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                   {t("auth.resetPassword.access")}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold text-[#1a1a2e] dark:text-white">
+                <h1 className="mt-2 text-3xl font-bold text-foreground">
                   {t("auth.resetPassword.title")}
                 </h1>
-                <p className="mt-2 text-sm text-[#64748b] dark:text-slate-400">
+                <p className="mt-2 text-sm text-muted-foreground">
                   {t("auth.resetPassword.subtitle")}
                 </p>
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#1a1a2e] dark:text-white">
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
                     {t("auth.resetPassword.passwordLabel")}
                   </label>
                   <div className="relative">
@@ -109,26 +109,26 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
                       {...register("password")}
                       type={showPassword ? "text" : "password"}
                       placeholder={t("auth.resetPassword.passwordPlaceholder")}
-                      className={`w-full py-3 pr-11 ${errors.password ? "border-red-500 focus:border-red-500" : ""}`}
+                      className={`w-full py-3 pr-11 ${errors.password ? "border-destructive focus:border-destructive" : ""}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((p) => !p)}
-                      className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-[#94a3b8] transition hover:text-[#1a1a2e] dark:hover:text-white"
+                      className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition hover:text-foreground"
                       aria-label={showPassword ? t("auth.resetPassword.hidePassword") : t("auth.resetPassword.showPassword")}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    <p className="mt-1.5 text-xs text-destructive-text">
                       {errors.password.message}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-[#1a1a2e] dark:text-white">
+                  <label className="mb-1.5 block text-sm font-medium text-foreground">
                     {t("auth.resetPassword.confirmPasswordLabel")}
                   </label>
                   <div className="relative">
@@ -136,26 +136,26 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
                       {...register("confirmPassword")}
                       type={showConfirm ? "text" : "password"}
                       placeholder={t("auth.resetPassword.confirmPasswordPlaceholder")}
-                      className={`w-full py-3 pr-11 ${errors.confirmPassword ? "border-red-500 focus:border-red-500" : ""}`}
+                      className={`w-full py-3 pr-11 ${errors.confirmPassword ? "border-destructive focus:border-destructive" : ""}`}
                     />
                     <button
                       type="button"
                       onClick={() => setShowConfirm((p) => !p)}
-                      className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-[#94a3b8] transition hover:text-[#1a1a2e] dark:hover:text-white"
+                      className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition hover:text-foreground"
                       aria-label={showConfirm ? t("auth.resetPassword.hidePassword") : t("auth.resetPassword.showPassword")}
                     >
                       {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+                    <p className="mt-1.5 text-xs text-destructive-text">
                       {errors.confirmPassword.message}
                     </p>
                   )}
                 </div>
 
                 {errors.root && (
-                  <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-400">
+                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
                     {errors.root.message}
                   </div>
                 )}
@@ -173,10 +173,10 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
                 </Btn>
               </form>
 
-              <p className="mt-8 text-center text-sm text-[#64748b] dark:text-slate-400">
+              <p className="mt-8 text-center text-sm text-muted-foreground">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 font-semibold text-indigo-600 hover:text-indigo-700 dark:text-indigo-400"
+                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-[var(--primary-hover)]"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("auth.resetPassword.backToLogin")}

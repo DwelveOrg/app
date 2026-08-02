@@ -40,7 +40,7 @@ export default function LoginPanel() {
               <p className="text-xs font-semibold text-white">{t("auth.visual.login.card.subject")}</p>
               <p className="mt-0.5 text-[10px] text-white/45">{t("auth.visual.login.card.meta")}</p>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-emerald-400/25 bg-emerald-400/15 px-2 py-1 text-[10px] font-semibold text-emerald-300">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-success/30 bg-success/15 px-2 py-1 text-[10px] font-semibold text-success">
               <Check className="h-3 w-3" />
               {t("auth.visual.login.card.done")}
             </span>
@@ -49,7 +49,7 @@ export default function LoginPanel() {
             {bars.map((h, i) => (
               <div
                 key={i}
-                className="flex-1 rounded-t-[3px] bg-gradient-to-t from-indigo-400/50 to-indigo-200/80 transition-all"
+                className="flex-1 rounded-t-[3px] bg-gradient-to-t from-brand-violet/50 to-brand-violet-300/80 transition-all"
                 style={{ height: `${h}%` }}
               />
             ))}

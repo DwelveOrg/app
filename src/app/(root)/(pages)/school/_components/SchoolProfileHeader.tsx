@@ -65,8 +65,8 @@ export default function SchoolProfileHeader({
 
   const stats = [
     { key: "classes", dot: "bg-[var(--primary)]", value: classCount, label: t("root.classes.stats.classes") },
-    { key: "students", dot: "bg-emerald-500", value: studentCount, label: t("root.classes.stats.students") },
-    { key: "teachers", dot: "bg-amber-500", value: teacherCount, label: t("root.classes.stats.teachers") },
+    { key: "students", dot: "bg-success", value: studentCount, label: t("root.classes.stats.students") },
+    { key: "teachers", dot: "bg-warning", value: teacherCount, label: t("root.classes.stats.teachers") },
   ];
 
   return (
@@ -83,7 +83,7 @@ export default function SchoolProfileHeader({
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                   isActive
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    ? "bg-success/12 text-success-text"
                     : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                 }`}
               >

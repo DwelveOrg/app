@@ -63,7 +63,7 @@ export default function AddStudentsDialog({
                 className="inline-flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
                 aria-label={t("root.dashboard.school.copyJoinCode")}
               >
-                {copied ? <Check className="h-4 w-4 text-emerald-500" /> : <Copy className="h-4 w-4" />}
+                {copied ? <Check className="h-4 w-4 text-success-text" /> : <Copy className="h-4 w-4" />}
               </button>
             </div>
           </div>

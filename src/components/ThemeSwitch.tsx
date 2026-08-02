@@ -24,7 +24,7 @@ export default function ThemeSwitch() {
       aria-checked={isDark}
       aria-label="Toggle theme"
       className={`relative inline-flex h-6 w-10 items-center rounded-full transition-colors cursor-pointer ${
-        isDark ? "bg-slate-700" : "bg-slate-300"
+        isDark ? "bg-accent" : "bg-border"
       }`}
     >
       <span

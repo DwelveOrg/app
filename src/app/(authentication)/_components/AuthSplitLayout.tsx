@@ -14,33 +14,37 @@ type PanelConfig = {
   orb3: string;
 };
 
+// The three panels previously ran indigo / cyan-teal / fuchsia — three unrelated
+// hues across three screens of one product. They now differentiate by depth
+// within the single brand ramp (ink → violet-900 → violet-800 → violet-600):
+// login sits deepest, signup opens up toward the accent, admin stays authoritative.
 const PANEL_CONFIGS: Record<AuthLayoutVariant, PanelConfig> = {
   login: {
     imageSrc:
       "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=1400&q=80",
     imageAlt: "Students collaborating at laptops",
-    gradient: "from-[#1e1b4b]/90 via-[#3730a3]/78 to-[#312e81]/88",
-    orb1: "bg-indigo-600/25",
-    orb2: "bg-violet-600/20",
-    orb3: "bg-blue-700/15",
+    gradient: "from-brand-ink/92 via-brand-violet-900/74 to-brand-violet-800/62",
+    orb1: "bg-brand-violet-600/18",
+    orb2: "bg-brand-violet/14",
+    orb3: "bg-brand-violet-800/12",
   },
   signup: {
     imageSrc:
       "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1400&q=80",
     imageAlt: "Student focused at study desk",
-    gradient: "from-[#0a1f2e]/90 via-[#0e3a5f]/80 to-[#0d2947]/90",
-    orb1: "bg-sky-600/25",
-    orb2: "bg-cyan-600/20",
-    orb3: "bg-blue-500/15",
+    gradient: "from-brand-violet-900/86 via-brand-violet-800/66 to-brand-ink/88",
+    orb1: "bg-brand-violet/16",
+    orb2: "bg-brand-violet-300/12",
+    orb3: "bg-brand-violet-600/12",
   },
   admin: {
     imageSrc:
       "https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=1400&q=80",
     imageAlt: "Lecture hall aerial view",
-    gradient: "from-[#1a0536]/90 via-[#4a0f70]/78 to-[#2a0550]/88",
-    orb1: "bg-violet-600/25",
-    orb2: "bg-purple-600/20",
-    orb3: "bg-fuchsia-700/15",
+    gradient: "from-brand-ink/94 via-brand-violet-900/72 to-brand-violet-800/64",
+    orb1: "bg-brand-violet-800/20",
+    orb2: "bg-brand-violet/12",
+    orb3: "bg-brand-violet-900/16",
   },
 };
 
@@ -101,7 +105,7 @@ export default function AuthSplitLayout({
       </div>
 
       {/* ── Right form panel ── */}
-      <div className="flex flex-1 flex-col overflow-y-auto bg-white dark:bg-[#0b0f1a]">
+      <div className="flex flex-1 flex-col overflow-y-auto bg-background">
         {children}
       </div>
     </div>

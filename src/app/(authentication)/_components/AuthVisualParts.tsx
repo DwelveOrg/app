@@ -35,7 +35,7 @@ export function AuthPanelHeading({
 export function AuthStatusBadge({ children }: { children: ReactNode }) {
   return (
     <div className="inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-xs font-medium text-white/90 backdrop-blur-sm">
-      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+      <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-success shadow-[0_0_6px_color-mix(in_srgb,var(--success)_90%,transparent)]" />
       {children}
     </div>
   );

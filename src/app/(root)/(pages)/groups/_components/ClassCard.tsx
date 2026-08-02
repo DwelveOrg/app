@@ -93,7 +93,7 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
           <span
             className={`text-xs font-semibold ${
               isActive
-                ? "text-emerald-600 dark:text-emerald-400"
+                ? "text-success-text"
                 : "text-[var(--muted-foreground)]"
             }`}
           >

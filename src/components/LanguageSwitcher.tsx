@@ -41,7 +41,7 @@ export default function LanguageSwitcher({
   return (
     <div className={`inline-flex items-center gap-2  ${compact ? "justify-center" : ""}`}>
       {!compact ? (
-        <span className="text-xs font-medium text-slate-600 dark:text-slate-300">{t("language.label")}</span>
+        <span className="text-xs font-medium text-muted-foreground">{t("language.label")}</span>
       ) : null}
       <Select
         value={supportedLanguages.includes(currentLanguage) ? currentLanguage : "en"}
@@ -65,14 +65,14 @@ export default function LanguageSwitcher({
         </SelectTrigger>
         <SelectContent
           className={cn(
-            "border-slate-200/80 bg-white text-slate-700 dark:border-white/10 dark:bg-[#111827] dark:text-slate-100",
+            "border-border bg-popover text-popover-foreground",
             contentClassName
           )}
         >
           {supportedLanguages.map((language) => (
             <SelectItem
               className={cn(
-                "cursor-pointer data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:data-[highlighted]:bg-white/10 dark:data-[highlighted]:text-white",
+                "cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
                 itemClassName
               )}
               key={language}

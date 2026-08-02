@@ -137,6 +137,19 @@ Because Dwelve grades tests, the green/red pair carries meaning (correct / incor
 | Danger | `#E5484D` | `#FCEBEB` | Incorrect answer, failed, destructive action |
 | Info | `#4F86FF` | `#E9F0FF` | Neutral information, tips, integrity notices |
 
+#### Semantic text variants
+
+The fills above are tuned to carry white or ink *on top of* them. As **text** on a light surface they land at 2.2–3.9:1, which fails AA — this is why field errors and status chips historically reached for Tailwind's `red-600` / `emerald-700` / `amber-700` and broke the one-palette rule. Use these darkened same-hue variants whenever a semantic colour is the *text*:
+
+| Token | Light | Dark | Contrast (light, on white / on its 10–12% tint) |
+|---|---|---|---|
+| `--destructive-text` | `#C72329` | `#FF7A7E` | 5.7:1 / 5.0:1 |
+| `--success-text` | `#107F5A` | `#3DD9A4` | 5.0:1 / 4.5:1 |
+| `--warning-text` | `#9B5908` | `#F5C15C` | 5.5:1 / 5.0:1 |
+| `--info-text` | `#1756D3` | `#7FA6F5` | 6.4:1 / 5.6:1 |
+
+In dark mode the fills are already light enough to serve as text, so the variants there equal the fills. Available as `text-destructive-text`, `text-success-text`, and so on. The matching soft surface is the fill at 10–12% (`bg-destructive/10`, `bg-success/12`), which stays correct in both themes.
+
 ### 4.5 Brand gradient
 
 `linear-gradient(135deg, #7B58E8 0%, #6A5DE9 100%)`
@@ -183,12 +196,15 @@ Light mode:
 
 Dark mode:
 
-- Page background: `#14152A`.
-- Cards and elevated panels: `#131A3A`.
-- Primary text: `#ECEEF9` or White.
-- Muted text: `#9AA0BE`.
-- Primary actions and focus states: Violet Light `#7B58E8`.
+- Page background / canvas: `#0C0B10`.
+- Sidebar (second neutral layer): `#121118`.
+- Cards, top bar, and elevated panels: `#17161E`; floating popovers/dropdowns one step up at `#1C1A24`.
+- Primary text: `#ECEAF2`.
+- Muted text: `#A3A0B2`.
+- Primary actions and focus states: Violet 400 `#9B80FF`.
 - Keep the logo wordmark white on dark backgrounds and preserve the violet book-page gradient.
+
+**Dark surfaces are near-neutral, not navy.** See §6.1 for why and for the exact ramp.
 
 Marketing visuals:
 
@@ -206,26 +222,54 @@ Color is implemented as CSS variables in `src/app/globals.css` and exposed to Ta
 
 | shadcn / Tailwind token | Light | Dark |
 |---|---|---|
-| `--background` | `#FFFFFF` | `#14152A` |
-| `--foreground` | `#0F1537` | `#ECEEF9` |
-| `--card` | `#FFFFFF` | `#131A3A` |
-| `--card-foreground` | `#0F1537` | `#ECEEF9` |
-| `--primary` | `#6A5DE9` | `#7B58E8` |
-| `--primary-foreground` | `#FFFFFF` | `#14152A` |
-| `--secondary` | `#F3F4FF` | `#1B2245` |
-| `--secondary-foreground` | `#2E246E` | `#ECEEF9` |
-| `--muted` | `#F1F2F9` | `#1B2245` |
-| `--muted-foreground` | `#565C7A` | `#9AA0BE` |
-| `--accent` | `#EFEBFF` | `#25204A` |
-| `--accent-foreground` | `#4B36C9` | `#D7CEFF` |
-| `--destructive` | `#E5484D` | `#FF6B6F` |
-| `--border` / `--input` | `#E6E8F2` | `#262C4E` |
-| `--ring` | `#7B58E8` | `#7B58E8` |
+| `--background` | `#FFFFFF` | `#0C0B10` |
+| `--foreground` | `#0F1537` | `#ECEAF2` |
+| `--card` | `#FFFFFF` | `#17161E` |
+| `--card-foreground` | `#0F1537` | `#ECEAF2` |
+| `--popover` | `#FFFFFF` | `#1C1A24` |
+| `--primary` | `#6A5DE9` | `#9B80FF` |
+| `--primary-hover` | `#5739D6` | `#B3A0FF` |
+| `--primary-foreground` | `#FFFFFF` | `#14121B` |
+| `--secondary` | `#F3F4FF` | `#211F2A` |
+| `--secondary-foreground` | `#2E246E` | `#ECEAF2` |
+| `--muted` | `#F1F2F9` | `#211F2A` |
+| `--muted-foreground` | `#565C7A` | `#A3A0B2` |
+| `--accent` | `#EFEBFF` | `#2C2839` |
+| `--accent-foreground` | `#4B36C9` | `#C9BCFF` |
+| `--destructive` | `#E5484D` | `#FF7A7E` |
+| `--border` / `--input` | `#E6E8F2` | `#302D3B` |
+| `--sidebar` | `#F7F8FC` | `#121118` |
+| `--ring` | `#7B58E8` | `#9B80FF` |
 | `--radius` | `0.75rem` | `0.75rem` |
 
-Brand-named tokens (`--brand-ink`, `--brand-violet`, `--brand-violet-600`, `--brand-mist`, `--brand-gradient`) are also exported so logo-accurate colors can be used directly, e.g. `bg-brand-violet`, `text-brand-ink`, `bg-[image:var(--brand-gradient)]`.
+Brand-named tokens (`--brand-ink`, `--brand-violet`, `--brand-violet-600`, `--brand-violet-300`, `--brand-violet-800`, `--brand-violet-900`, `--brand-mist`, `--brand-gradient`) are also exported so logo-accurate colors can be used directly, e.g. `bg-brand-violet`, `text-brand-ink`, `bg-[image:var(--brand-gradient)]`.
 
 Dark mode uses the `.dark` class strategy through `next-themes`, consistent with CLAUDE.md.
+
+### 6.1 Dark surfaces are near-neutral
+
+> **Changelog — 2 August 2026:** The dark theme was retuned. Surfaces moved from a saturated navy-violet ramp to a near-neutral one; `--primary` moved to violet-400 `#9B80FF`; semantic text variants were added (§4.4). Light mode is unchanged.
+
+Dark surfaces sit at **11–16% saturation** on the brand hue (~255°), not the 40–55% navy-violet they used to. That earlier ramp put chroma on every surface, so each panel competed with the content on it and the product read as loud — while the violet accent, sitting on an already-violet background, had nowhere to stand out.
+
+Surfaces now step by **luminance**, and panels are separated by the hairline `--border`, not by a fill contrast. Chroma is reserved for `--primary`, the semantic colours, and the charts. The trace of brand hue left in the neutrals is what keeps them from reading as generic grey.
+
+| Layer | Dark | Role |
+|---|---|---|
+| Canvas | `#0C0B10` | Page background behind everything |
+| Sidebar | `#121118` | Second neutral layer, one step off the canvas |
+| Surface | `#17161E` | Cards, top bar, panels |
+| Popover | `#1C1A24` | Floating elevation above surfaces |
+| Fill | `#211F2A` | Hover, inputs, chips (`--muted` / `--secondary`) |
+| Active tint | `#2C2839` | Selected / highlighted (`--accent`) |
+| Hairline | `#302D3B` | Borders and dividers |
+
+Rules that follow from this:
+
+- **Do not raise surface saturation to signal brand.** The brand is carried by `--primary`, not by the background.
+- **Do not separate panels with fill contrast.** Two adjacent surfaces differ by about one step; the hairline is what makes the edge.
+- **Full-page gradients stop at `--card`.** Ramping the canvas all the way to `--secondary` made the bottom of a long page lighter than the panels sitting on it.
+- **Brand glows are ≤12% mixes.** On a near-neutral canvas an 18% violet bloom glares; it should be felt at the edge of vision, not looked at.
 
 ---
 

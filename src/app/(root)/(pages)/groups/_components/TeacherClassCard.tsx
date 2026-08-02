@@ -147,7 +147,7 @@ export default function TeacherClassCard({ item, schoolId }: TeacherClassCardPro
     if (item.teacherRequestStatus === "PENDING") {
       return (
         <div className="flex flex-col gap-2">
-          <span className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-100 px-2.5 py-2 text-sm font-medium text-amber-700 dark:bg-amber-500/15 dark:text-amber-300">
+          <span className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-warning/12 px-2.5 py-2 text-sm font-medium text-warning-text">
             <Clock className="h-4 w-4" />
             {t("root.enrollment.teacher.requestPending")}
           </span>
