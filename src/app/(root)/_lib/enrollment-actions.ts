@@ -66,8 +66,10 @@ function mapEnrollmentError(error: unknown, fallback: string): string {
 /* Reads (called from React Query hooks)                                       */
 /* -------------------------------------------------------------------------- */
 
-export async function getStudentClassesAction(): Promise<StudentClassesResponse> {
-  return getStudentClassesRequest();
+export async function getStudentClassesAction(
+  schoolId: string,
+): Promise<StudentClassesResponse> {
+  return getStudentClassesRequest(schoolId);
 }
 
 export async function getStudentOverviewAction(

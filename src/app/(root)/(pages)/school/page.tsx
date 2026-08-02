@@ -30,7 +30,7 @@ export default async function Page() {
   // Backend gates `GET /students` to ADMIN and `student-overview` to STUDENT, so
   // only fire each for the matching role.
   const [classes, schoolMembers, students, studentOverview] = await Promise.all([
-    getClasses(),
+    isAdmin ? getClasses() : Promise.resolve([]),
     user?.schoolId ? getSchoolMembers(user.schoolId) : null,
     isAdmin ? getStudents() : Promise.resolve([]),
     isStudent && user?.schoolId ? getStudentOverview(user.schoolId) : Promise.resolve(null),
@@ -44,12 +44,7 @@ export default async function Page() {
     : [];
   const teachersError = isAdmin && schoolMembers === null;
 
-  // `GET /classes` is role-scoped: students receive the discoverable list, so the
-  // header count comes from the student overview instead (keeping it consistent
-  // with the "Available classes" card rather than showing a misleading 0).
-  const classCount = isStudent
-    ? studentOverview?.counts.availableClasses ?? 0
-    : classes.length;
+  const classCount = detail.counts?.classes ?? classes.length;
 
   return (
     <section className="flex flex-col gap-6 py-6">
@@ -83,6 +78,8 @@ export default async function Page() {
         teachers={teachers}
         teachersError={teachersError}
         isAdmin={isAdmin}
+        schoolId={user?.schoolId}
+        role={currentUserRole}
       />
     </section>
   );

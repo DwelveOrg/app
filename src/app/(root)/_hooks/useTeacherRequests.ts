@@ -26,9 +26,8 @@ const MUTATION_FALLBACK = "Something went wrong. Please try again.";
 /* -------------------------------------------------------------------------- */
 
 /**
- * `GET /classes` for a teacher returns every active class in the school in one
- * shot (no server pagination or search), so this is a plain query; the view
- * filters locally.
+ * The School page directory returns every active class in one shot (no server
+ * pagination or search), so this is a plain query; the view filters locally.
  */
 export function useTeacherClasses({
   schoolId,
@@ -39,7 +38,7 @@ export function useTeacherClasses({
 }) {
   return useQuery({
     queryKey: queryKeys.enrollment.teacherClasses(schoolId ?? ""),
-    queryFn: () => getTeacherClassesAction(),
+    queryFn: () => getTeacherClassesAction(schoolId as string),
     enabled: Boolean(schoolId) && enabled,
   });
 }

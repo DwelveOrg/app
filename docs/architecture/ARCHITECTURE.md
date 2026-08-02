@@ -74,6 +74,25 @@ Use the libraries already installed in this project for their assigned jobs:
 Do not install a new library for one of these jobs unless there is a concrete
 gap and this architecture document is updated in the same change.
 
+### UI primitives added for the test builder
+
+`src/components/ui` gained `tabs`, `checkbox`, `radio-group`, `label`, `switch`,
+and `badge` via `npx shadcn@latest add` in the `radix-nova` style. These add **no
+new dependency**: they import from the `radix-ui` meta package, which is already
+installed.
+
+Two notes for anyone regenerating them:
+
+- The registry emits `data-checked:` / `data-active:` Tailwind variants, which
+  target a newer Radix than the pinned `radix-ui@1.4.3`. That version writes
+  `data-state="checked"` / `data-state="active"`, so the selectors in those files
+  were changed to `data-[state=…]:`. Without the swap, checked and active states
+  render with no visual difference. Re-running the generator overwrites this.
+- There is still **no drag-and-drop library**. Ordering in the test builder uses
+  up/down buttons (`useFieldArray`'s `move`), which are also keyboard- and
+  touch-accessible. Adding `dnd-kit` or similar requires updating this document
+  first.
+
 ## Schema Placement
 
 Place schemas where their ownership is clearest:
