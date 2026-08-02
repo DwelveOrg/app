@@ -144,8 +144,8 @@ export const unpublishTestAction = actionClient
   .inputSchema(unpublishTestSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const { test } = await unpublishTestRequest(parsedInput.testId);
-      return { id: test.id, status: test.status, title: test.title };
+      const { success } = await unpublishTestRequest(parsedInput.testId);
+      return { id: parsedInput.testId, success };
     } catch (error) {
       throw new ActionError(
         mapTestError(error, "Could not move the test back to draft."),
