@@ -7,7 +7,7 @@ const Btn = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <button
         ref={ref}
-        className={`mt-2 rounded-lg bg-[#0046FF] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#0036c4] cursor-pointer disabled:cursor-not-allowed disabled:opacity-60 ${className || ""}`}
+        className={`mt-2 cursor-pointer rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-[var(--primary-hover)] disabled:cursor-not-allowed disabled:opacity-60 ${className || ""}`}
         {...props}
       >
         {children}

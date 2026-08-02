@@ -42,7 +42,7 @@ export default function ThemeSwitchAlternative({
   return (
     <div className={`inline-flex items-center gap-2 ${compact ? "justify-center" : ""}`}>
       {!compact ? (
-        <span className="text-xs font-medium text-slate-600 dark:text-slate-300">
+        <span className="text-xs font-medium text-muted-foreground">
           {t("root.settings.appearance.themeLabel")}
         </span>
       ) : null}
@@ -58,13 +58,13 @@ export default function ThemeSwitchAlternative({
         </SelectTrigger>
         <SelectContent
           className={cn(
-            "border-slate-200/80 bg-white text-slate-700 dark:border-white/10 dark:bg-[#111827] dark:text-slate-100",
+            "border-border bg-popover text-popover-foreground",
             contentClassName
           )}
         >
           <SelectItem
             className={cn(
-              "cursor-pointer data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:data-[highlighted]:bg-white/10 dark:data-[highlighted]:text-white",
+              "cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
               itemClassName
             )}
             value="light"
@@ -73,7 +73,7 @@ export default function ThemeSwitchAlternative({
           </SelectItem>
           <SelectItem
             className={cn(
-              "cursor-pointer data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:data-[highlighted]:bg-white/10 dark:data-[highlighted]:text-white",
+              "cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
               itemClassName
             )}
             value="dark"
@@ -82,7 +82,7 @@ export default function ThemeSwitchAlternative({
           </SelectItem>
           <SelectItem
             className={cn(
-              "cursor-pointer data-[highlighted]:bg-slate-100 data-[highlighted]:text-slate-900 dark:data-[highlighted]:bg-white/10 dark:data-[highlighted]:text-white",
+              "cursor-pointer data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground",
               itemClassName
             )}
             value="system"

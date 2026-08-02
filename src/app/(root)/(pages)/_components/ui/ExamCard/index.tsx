@@ -5,13 +5,13 @@ import { AlarmClock, CalendarDays, Clock, ListChecks, GraduationCap } from "luci
 import { useTranslation } from "react-i18next";
 
 const InfoRow = ({ icon: Icon, label, value }: { icon: typeof CalendarDays; label: string; value: string }) => (
-  <div className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-white/70 px-3 py-2 text-sm text-slate-600 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-200">
-    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-600 dark:bg-white/10 dark:text-slate-200">
+  <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
+    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
       <Icon className="h-4 w-4" />
     </div>
     <div className="min-w-0">
-      <p className="text-xs uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">{label}</p>
-      <p className="truncate text-sm font-semibold text-slate-800 dark:text-white">{value}</p>
+      <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
+      <p className="truncate text-sm font-semibold text-foreground">{value}</p>
     </div>
   </div>
 );
@@ -20,16 +20,16 @@ export default function ExamCard({ exam }: { exam: ExamItem }) {
   const { t } = useTranslation();
 
   return (
-    <article className="group relative overflow-hidden rounded-[28px] border border-slate-200/80 bg-white/90 p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)] dark:border-white/10 dark:bg-[#1b1b1b]/90 dark:shadow-[0_22px_60px_rgba(0,0,0,0.3)]">
-      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-sky-200/50 blur-3xl dark:bg-sky-400/20" />
+    <article className="group relative overflow-hidden rounded-[28px] border border-border bg-card p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.3)]">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/15 blur-3xl dark:bg-primary/12" />
       <div className="relative space-y-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-muted-foreground">
               {t(exam.subject)}
             </p>
-            <h3 className="mt-2 text-lg font-semibold text-slate-900 dark:text-white">{t(exam.title)}</h3>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-300">
+            <h3 className="mt-2 text-lg font-semibold text-foreground">{t(exam.title)}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
               {t("root.exams.card.labels.instructor")}: {t(exam.instructor)}
             </p>
           </div>
@@ -55,12 +55,12 @@ export default function ExamCard({ exam }: { exam: ExamItem }) {
           <InfoRow icon={AlarmClock} label={t("root.exams.card.labels.deadline")} value={exam.deadline} />
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4 dark:border-white/10 dark:bg-white/5">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-muted p-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
               {t("root.exams.card.labels.passingScore")}
             </p>
-            <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-white">{exam.passingScore}%</p>
+            <p className="mt-1 text-lg font-semibold text-foreground">{exam.passingScore}%</p>
           </div>
           <div className="flex items-center gap-2">
             {!exam.completed && (
@@ -76,7 +76,7 @@ export default function ExamCard({ exam }: { exam: ExamItem }) {
               className={`inline-flex h-11 cursor-pointer items-center justify-center rounded-xl px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
                 exam.completed
                   ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
-                  : "border border-slate-200 bg-white text-slate-700 hover:border-slate-300 dark:border-white/10 dark:bg-white/5 dark:text-slate-100"
+                  : "border border-border bg-card text-foreground hover:border-[var(--ring)]"
               }`}
             >
               {t("root.exams.card.actions.details")}

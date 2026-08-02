@@ -65,7 +65,7 @@ export default function AdminPanel() {
               <p className="text-xs font-semibold text-white">{t("auth.visual.admin.classCard.title")}</p>
               <p className="mt-0.5 text-[10px] text-white/45">{t("auth.visual.admin.classCard.meta")}</p>
             </div>
-            <span className="rounded-lg bg-indigo-400/20 px-2 py-1 text-[10px] font-semibold text-indigo-300">
+            <span className="rounded-lg bg-brand-violet-300/20 px-2 py-1 text-[10px] font-semibold text-brand-violet-300">
               {t("auth.visual.admin.classCard.status")}
             </span>
           </div>
@@ -78,7 +78,7 @@ export default function AdminPanel() {
                 </div>
                 <div className="h-1.5 rounded-full bg-white/10">
                   <div
-                    className="h-1.5 rounded-full bg-gradient-to-r from-indigo-400 to-indigo-200"
+                    className="h-1.5 rounded-full bg-gradient-to-r from-brand-violet-600 to-brand-violet-300"
                     style={{ width: `${item.pct}%` }}
                   />
                 </div>

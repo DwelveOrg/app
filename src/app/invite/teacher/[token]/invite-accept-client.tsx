@@ -48,25 +48,25 @@ export default function InviteAcceptClient({
   const isBusy = acceptMutation.isPending;
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden bg-[#f6f7fb] px-6 py-12 dark:bg-[#0b0f1a]">
+    <div className="app-shell-bg relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden px-6 py-12">
       {/* Ambient brand glow */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-indigo-500/15 blur-[90px] dark:bg-indigo-600/20" />
-      <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-violet-500/10 blur-[80px] dark:bg-violet-700/15" />
+      <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-primary/12 blur-[90px]" />
+      <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-primary/8 blur-[80px]" />
 
       <div className="relative z-10 w-full max-w-[440px]">
         <div className="mb-8 flex justify-center">
           <DwelveLogo variant="form" />
         </div>
 
-        <div className="rounded-3xl border border-black/5 bg-white p-8 shadow-[0_24px_70px_rgba(15,23,42,0.10)] dark:border-white/10 dark:bg-[#111827]">
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400">
+        <div className="rounded-3xl border border-border bg-card p-8 shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
             <GraduationCap className="h-7 w-7" />
           </div>
 
-          <h1 className="text-center text-2xl font-bold text-[#1a1a2e] dark:text-white">
+          <h1 className="text-center text-2xl font-bold text-foreground">
             {t("auth.invite.teacherTitle")}
           </h1>
-          <p className="mt-2 text-center text-sm text-[#64748b] dark:text-slate-400">
+          <p className="mt-2 text-center text-sm text-muted-foreground">
             {isAuthenticated
               ? t("auth.invite.teacherSubtitle")
               : t("auth.invite.authPromptSubtitle")}
@@ -75,13 +75,13 @@ export default function InviteAcceptClient({
           {isAuthenticated ? (
             <div className="mt-7 space-y-4">
               {email && (
-                <p className="text-center text-xs text-[#94a3b8] dark:text-slate-500">
+                <p className="text-center text-xs text-muted-foreground">
                   {t("auth.invite.signedInAs", { email })}
                 </p>
               )}
 
               {error && (
-                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-400">
+                <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
                   {error}
                 </div>
               )}
@@ -99,7 +99,7 @@ export default function InviteAcceptClient({
                 )}
               </Btn>
 
-              <p className="text-center text-xs text-[#94a3b8] dark:text-slate-500">
+              <p className="text-center text-xs text-muted-foreground">
                 {t("auth.invite.emailMismatchNote")}
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function InviteAcceptClient({
               </Link>
               <Link
                 href={signupHref}
-                className="flex w-full items-center justify-center rounded-xl border border-[#e2e8f0] py-3 text-sm font-semibold text-[#1a1a2e] transition hover:bg-[#f8fafc] dark:border-white/10 dark:text-white dark:hover:bg-white/5"
+                className="flex w-full items-center justify-center rounded-xl border border-border py-3 text-sm font-semibold text-foreground transition hover:bg-muted"
               >
                 {t("auth.invite.signup")}
               </Link>
@@ -123,7 +123,7 @@ export default function InviteAcceptClient({
         <p className="mt-8 text-center">
           <Link
             href="/"
-            className="text-xs text-[#94a3b8] transition hover:text-[#64748b] dark:text-slate-500 dark:hover:text-slate-400"
+            className="text-xs text-muted-foreground transition hover:text-foreground"
           >
             &larr; {t("auth.invite.backToLanding")}
           </Link>

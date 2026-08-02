@@ -152,7 +152,7 @@ export default function ClassDetailView({
               <span
                 className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                   classItem.isActive
-                    ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                    ? "bg-success/12 text-success-text"
                     : "bg-[var(--muted)] text-[var(--muted-foreground)]"
                 }`}
               >

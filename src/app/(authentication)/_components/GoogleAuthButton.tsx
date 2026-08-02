@@ -147,9 +147,8 @@ export default function GoogleAuthButton({ onCredential, disabled, text }: Props
 
   const baseClasses = cn(
     "flex w-full items-center justify-center gap-2.5 rounded-xl",
-    "border border-[#e2e8f0] bg-white px-4 py-3",
-    "text-sm font-medium text-[#1a1a2e]",
-    "dark:border-white/10 dark:bg-white/[0.04] dark:text-white"
+    "border border-border bg-card px-4 py-3",
+    "text-sm font-medium text-foreground"
   );
 
   if (!clientId) {
@@ -175,7 +174,7 @@ export default function GoogleAuthButton({ onCredential, disabled, text }: Props
         className={cn(
           baseClasses,
           "pointer-events-none transition-colors",
-          "group-hover:bg-[#f8fafc] dark:group-hover:bg-white/[0.08]"
+          "group-hover:bg-muted"
         )}
       >
         {gisLoading ? (

@@ -87,7 +87,7 @@ export default function CreateSchoolForm() {
         <div>
           <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
             {t("root.dashboard.schoolForm.fields.name.label")}
-            <span className="text-red-500"> *</span>
+            <span className="text-destructive"> *</span>
           </label>
           <Input
             {...register("name")}
@@ -96,7 +96,7 @@ export default function CreateSchoolForm() {
             autoFocus
           />
           {errors.name && (
-            <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{errors.name.message}</p>
+            <p className="mt-1.5 text-xs text-destructive-text">{errors.name.message}</p>
           )}
         </div>
 
@@ -111,7 +111,7 @@ export default function CreateSchoolForm() {
             aria-invalid={Boolean(errors.description)}
           />
           {errors.description && (
-            <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+            <p className="mt-1.5 text-xs text-destructive-text">
               {errors.description.message}
             </p>
           )}
@@ -128,7 +128,7 @@ export default function CreateSchoolForm() {
               aria-invalid={Boolean(errors.country)}
             />
             {errors.country && (
-              <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">
+              <p className="mt-1.5 text-xs text-destructive-text">
                 {errors.country.message}
               </p>
             )}
@@ -144,7 +144,7 @@ export default function CreateSchoolForm() {
               aria-invalid={Boolean(errors.city)}
             />
             {errors.city && (
-              <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{errors.city.message}</p>
+              <p className="mt-1.5 text-xs text-destructive-text">{errors.city.message}</p>
             )}
           </div>
         </div>
@@ -166,7 +166,7 @@ export default function CreateSchoolForm() {
         />
 
         {errors.root && (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800/50 dark:bg-red-900/20 dark:text-red-400">
+          <div className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive-text">
             {errors.root.message}
           </div>
         )}
