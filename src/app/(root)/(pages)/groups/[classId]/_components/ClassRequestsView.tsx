@@ -17,6 +17,7 @@ import Empty from "../../../_components/ui/Empty";
 import ClassJoinRequestRow from "./ClassJoinRequestRow";
 import RejectRequestDialog from "./RejectRequestDialog";
 import ClassTeacherRequestsList from "./ClassTeacherRequestsList";
+import TabBar from "@/components/ui/TabBar";
 
 type RequestsTab = "students" | "teachers";
 
@@ -88,53 +89,33 @@ export default function ClassRequestsView({
     <section className="flex flex-col gap-6 py-6">
       <Link
         href={`/groups/${classId}`}
-        className="inline-flex w-fit items-center gap-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
+        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         {t("root.enrollment.classRequests.back")}
       </Link>
 
       <header>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="type-title text-foreground">
           {t("root.enrollment.classRequests.title")}
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+        <p className="mt-1 text-sm text-muted-foreground">
           {t("root.enrollment.classRequests.subtitle", { name: className })}
         </p>
       </header>
 
       {/* Admins triage two request queues; teachers only see student requests. */}
       {isAdmin ? (
-        <div
-          role="tablist"
-          aria-label={t("root.enrollment.teacherRequests.tabsLabel")}
-          className="flex flex-wrap items-center gap-1 border-b border-[var(--border)]"
-        >
-          {(["students", "teachers"] as const).map((value) => {
-            const isActive = tab === value;
-            return (
-              <button
-                key={value}
-                type="button"
-                role="tab"
-                aria-selected={isActive}
-                onClick={() => setTab(value)}
-                className={`relative inline-flex h-9 cursor-pointer items-center px-3 text-sm font-medium transition-colors ${
-                  isActive
-                    ? "text-[var(--primary)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                }`}
-              >
-                {value === "students"
-                  ? t("root.enrollment.teacherRequests.tabStudents")
-                  : t("root.enrollment.teacherRequests.tabTeachers")}
-                {isActive ? (
-                  <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--primary)]" />
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+        <TabBar
+          layoutId="class-requests-tabs"
+          ariaLabel={t("root.enrollment.teacherRequests.tabsLabel")}
+          value={tab}
+          onSelect={(next) => setTab(next as "students" | "teachers")}
+          items={[
+            { value: "students", label: t("root.enrollment.teacherRequests.tabStudents") },
+            { value: "teachers", label: t("root.enrollment.teacherRequests.tabTeachers") },
+          ]}
+        />
       ) : null}
 
       {isAdmin && tab === "teachers" ? (
@@ -144,7 +125,7 @@ export default function ClassRequestsView({
           {Array.from({ length: 3 }).map((_, index) => (
             <Skeleton
               key={index}
-              className="h-24 rounded-2xl border border-[var(--border)]"
+              className="h-24 rounded-2xl border border-border"
             />
           ))}
         </div>

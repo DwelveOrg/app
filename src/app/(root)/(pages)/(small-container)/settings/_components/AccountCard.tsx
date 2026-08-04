@@ -3,19 +3,10 @@
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Avatar from "@/components/ui/Avatar";
+import Badge from "@/components/ui/badge";
 import type { SettingsAccountContext } from "../_types";
-
-function getInitials(name: string) {
-  return (
-    name
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "?"
-  );
-}
+import Surface from "@/components/ui/Surface";
 
 export function AccountCard({ account }: Readonly<{ account: SettingsAccountContext }>) {
   const { t } = useTranslation();
@@ -26,46 +17,29 @@ export function AccountCard({ account }: Readonly<{ account: SettingsAccountCont
   const roleKey = account.role ? `root.profile.roles.${account.role.toLowerCase()}` : null;
 
   return (
-    <div className="flex items-center gap-3.5 rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 py-3.5 sm:px-5">
-      <div className="grid size-11 shrink-0 place-items-center overflow-hidden rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-sm font-semibold text-[var(--primary)]">
-        {account.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={account.avatarUrl}
-            alt={name}
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          getInitials(name)
-        )}
-      </div>
+    <Surface padding="none" className="flex items-center gap-3.5 px-4 py-3.5 sm:px-5">
+      <Avatar name={name} src={account.avatarUrl} size="md" />
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--foreground)]">{name}</p>
-        <p className="truncate text-[13px] text-[var(--muted-foreground)]">
+        <p className="truncate text-sm font-semibold text-foreground">{name}</p>
+        <p className="truncate text-[13px] text-muted-foreground">
           {account.email}
         </p>
         {roleKey || account.schoolName ? (
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-            {roleKey ? (
-              <span className="inline-flex items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-0.5 text-[11px] font-semibold text-[var(--primary)]">
-                {t(roleKey)}
-              </span>
-            ) : null}
+            {roleKey ? <Badge variant="primary">{t(roleKey)}</Badge> : null}
             {account.schoolName ? (
-              <span className="inline-flex max-w-full items-center truncate rounded-full bg-[var(--muted)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
-                {account.schoolName}
-              </span>
+              <Badge className="max-w-full truncate">{account.schoolName}</Badge>
             ) : null}
           </div>
         ) : null}
       </div>
       <Link
         href="/profile"
-        className="flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-[var(--primary)] transition-opacity hover:opacity-75"
+        className="flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-primary transition-opacity hover:opacity-75"
       >
         {t("root.pages.profile")}
         <ChevronRight className="h-3.5 w-3.5" />
       </Link>
-    </div>
+    </Surface>
   );
 }

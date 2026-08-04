@@ -30,10 +30,10 @@ export function NotificationSection({
   return (
     <>
       <div className="flex items-center justify-between gap-3 bg-[color-mix(in_srgb,var(--muted)_55%,transparent)] px-4 py-2.5 sm:px-5">
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">
+        <span className="text-2xs font-semibold uppercase tracking-wider text-muted-foreground">
           {label}
         </span>
-        <span className="text-[11px] font-semibold text-[var(--muted-foreground)]">
+        <span className="text-2xs font-semibold text-muted-foreground">
           {items.length}
         </span>
       </div>

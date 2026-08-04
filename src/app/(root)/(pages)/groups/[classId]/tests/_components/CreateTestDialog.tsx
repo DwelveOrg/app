@@ -95,10 +95,10 @@ export default function CreateTestDialog({
         <div>
           <label
             htmlFor={titleId}
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             {t("root.tests.create.titleLabel")}
-            <span className="text-[var(--destructive)]"> *</span>
+            <span className="text-destructive"> *</span>
           </label>
           <Input
             id={titleId}
@@ -108,7 +108,7 @@ export default function CreateTestDialog({
             autoFocus
           />
           {errors.title ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
+            <p className="mt-1.5 text-xs text-destructive">
               {t("root.tests.create.titleError")}
             </p>
           ) : null}
@@ -119,12 +119,12 @@ export default function CreateTestDialog({
           name="format"
           render={({ field }) => (
             <fieldset>
-              <legend className="mb-2 text-sm font-medium text-[var(--foreground)]">
+              <legend className="mb-2 text-sm font-medium text-foreground">
                 {t("root.tests.create.formatLabel")}
               </legend>
 
               {formatKeys.length === 0 ? (
-                <p className="rounded-xl border border-[var(--border)] bg-[var(--muted)] px-4 py-3 text-sm text-[var(--muted-foreground)]">
+                <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
                   {t("root.tests.create.noFormats")}
                 </p>
               ) : (
@@ -143,17 +143,17 @@ export default function CreateTestDialog({
                         className={cn(
                           "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition",
                           isSelected
-                            ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]"
-                            : "border-[var(--border)] bg-[var(--background)] hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]",
+                            ? "border-primary bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]"
+                            : "border-border bg-background hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]",
                         )}
                       >
                         <RadioGroupItem value={format} className="mt-0.5" />
                         <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+                          <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                             {translateKey(t, blueprint.labelKey, humanizeToken(format))}
                             {isSelected ? (
                               <Check
-                                className="h-3.5 w-3.5 text-[var(--primary)]"
+                                className="h-3.5 w-3.5 text-primary"
                                 aria-hidden="true"
                               />
                             ) : null}
@@ -164,7 +164,7 @@ export default function CreateTestDialog({
                             catalogs do not describe yet falls back to a summary
                             read straight off its blueprint.
                           */}
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
                             {t(`root.tests.create.formatDescriptions.${format}`, {
                               defaultValue: t("root.tests.create.formatFallback", {
                                 sections: blueprint.sectionPresets.length,

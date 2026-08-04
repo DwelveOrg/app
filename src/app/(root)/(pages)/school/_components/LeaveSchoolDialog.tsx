@@ -1,21 +1,11 @@
 "use client";
 
 import { useTransition } from "react";
-import { LoaderCircle, LogOut } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { leaveSchoolAction } from "@/app/(root)/_lib/school-actions";
 
 type LeaveSchoolDialogProps = {
@@ -47,36 +37,16 @@ export default function LeaveSchoolDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <LogOut />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            {t("root.schoolPage.leave.title", { name: schoolName })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("root.schoolPage.leave.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            {t("root.schoolPage.leave.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={(event) => {
-              event.preventDefault();
-              handleLeave();
-            }}
-            disabled={isPending}
-          >
-            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {t("root.schoolPage.leave.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={<LogOut />}
+      title={t("root.schoolPage.leave.title", { name: schoolName })}
+      description={t("root.schoolPage.leave.description")}
+      cancelLabel={t("root.schoolPage.leave.cancel")}
+      confirmLabel={t("root.schoolPage.leave.confirm")}
+      isPending={isPending}
+      onConfirm={handleLeave}
+    />
   );
 }

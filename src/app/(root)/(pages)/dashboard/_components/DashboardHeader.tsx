@@ -2,6 +2,7 @@
 
 import { useTranslation } from "react-i18next";
 
+import PageHeader from "@/app/(root)/_components/PageHeader";
 import JoinCodeChip from "./JoinCodeChip";
 
 type DashboardHeaderProps = {
@@ -36,17 +37,10 @@ export default function DashboardHeader({
     : t("root.dashboard.welcome.titleGeneric");
 
   return (
-    <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-      <div className="min-w-0">
-        <h1 className="text-[26px] font-bold leading-tight tracking-tight text-balance text-[var(--foreground)] md:text-[30px]">
-          {title}
-        </h1>
-        <p className="mt-1.5 text-[15px] text-[var(--muted-foreground)]">
-          {t("root.dashboard.welcome.subtitle")}
-        </p>
-      </div>
-
-      {isAdmin && studentJoinCode ? <JoinCodeChip code={studentJoinCode} /> : null}
-    </header>
+    <PageHeader
+      title={title}
+      subtitle={t("root.dashboard.welcome.subtitle")}
+      actions={isAdmin && studentJoinCode ? <JoinCodeChip code={studentJoinCode} /> : null}
+    />
   );
 }

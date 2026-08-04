@@ -4,144 +4,260 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* ============================================================================
+   Dwelve design tokens — v2
+
+   Two accents, one system:
+   - VIOLET is identity. It belongs to the logo, the wordmark, the auth panel and
+     the landing bloom. It never marks an action.
+   - TEAL is action. Buttons, selection, focus, active nav, primary data. If a
+     thing can be clicked or is currently chosen, it is teal.
+
+   The two themes are deliberately *different characters*, not inversions:
+   light is warm paper under cool ink; dark is a cool near-black under warmer
+   accents. Depth is real — surfaces sit above the canvas and carry elevation —
+   so `--card` is lighter than `--background` in light mode, which is the
+   opposite of the old flat shell.
+   ========================================================================= */
+
 :root {
   --radius: 0.75rem;
 
-  --brand-ink: #0F1430;
+  /* --- Brand (identity only — never an action colour) -------------------- */
+  --brand: #6A4FF0;
+  --brand-ink: #17122E;
   --brand-violet: #7B61FF;
+  --brand-violet-300: #A996FF;
   --brand-violet-600: #6A4FF0;
-  --brand-violet-300: #8E78FF;
-  /* Deep stops of the violet ramp (design-system §4.2). Needed by the auth
-     photo panels, which previously reached for ad-hoc indigo/cyan/fuchsia. */
   --brand-violet-800: #4B36C9;
-  --brand-violet-900: #2E246E;
-  --brand-mist: #F3F4FF;
+  --brand-violet-900: #2A1E63;
+  --brand-mist: #F1EEFF;
   --brand-gradient: linear-gradient(135deg, #8E78FF 0%, #6A4FF0 100%);
 
-  --success: #16B981;
+  /* --- Surfaces: warm paper, stepping *up* toward the content ------------ */
+  --background: #FCFCFA;
+  --foreground: #16151C;
+  --card: #FFFFFF;
+  --card-foreground: #16151C;
+  --popover: #FFFFFF;
+  --popover-foreground: #16151C;
+  --sidebar: #F7F6F2;
+  --sidebar-foreground: #16151C;
+  --muted: #F4F3EF;
+  --muted-foreground: #56545F;
+  --secondary: #F1EFE9;
+  --secondary-foreground: #2E2C36;
+  --border: #E7E5DF;
+  --input: #E7E5DF;
+
+  /* --- Action: deep teal -------------------------------------------------
+     #0A7268 carries white at 5.8:1, so a 14px semibold button label clears AA
+     as *normal* text (large-text rules start at 18.66px bold). The brighter
+     --ring is for focus only, where 3:1 against the adjacent surface is the bar. */
+  --primary: #0A7268;
+  --primary-hover: #075E56;
+  --primary-foreground: #FFFFFF;
+  --ring: #0E8C7A;
+  --accent: #E6F2EF;
+  --accent-foreground: #075243;
+
+  /* --- Semantic ----------------------------------------------------------
+     Each is dark enough to work BOTH as a fill under white text and as text on
+     the canvas (all ≥5:1), which is why the `-text` variants below are plain
+     aliases rather than separate colours.
+     --success sits ~132° (leaf green), 43° off the teal primary, so "correct"
+     can never be misread as "actionable" on a graded answer. */
+  --success: #25793A;
   --success-foreground: #FFFFFF;
-  --warning: #F59E0B;
-  --warning-foreground: #0F1430;
-  --info: #4F86FF;
+  --warning: #B45309;
+  --warning-foreground: #FFFFFF;
+  --destructive: #BE2E22;
+  --destructive-foreground: #FFFFFF;
+  --info: #1D5FD1;
   --info-foreground: #FFFFFF;
 
-  /* Text-safe variants of the semantic colors. The fills above are tuned to
-     carry white/ink on top of them; as *text* on a light surface they land at
-     2.2-3.9:1, which is why field errors and status labels kept reaching for
-     Tailwind's red-600 / emerald-700 / amber-700 instead. These are the same
-     hues darkened until small text clears 4.5:1 both on the page and on the
-     matching 10-12% tinted callout. In dark mode the fills are already light
-     enough to be text, so the variants there equal the fills. */
-  --destructive-text: #C72329;
-  --success-text: #107F5A;
-  --warning-text: #9B5908;
-  --info-text: #1756D3;
+  --success-text: var(--success);
+  --warning-text: var(--warning);
+  --destructive-text: var(--destructive);
+  --info-text: var(--info);
 
-  --background: #FFFFFF;
-  --foreground: #0F1430;
-  --card: #FFFFFF;
-  --card-foreground: #0F1430;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F1430;
-  --primary: #6A4FF0;
-  --primary-hover: #5739D6;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F3F4FF;
-  --secondary-foreground: #2C1C73;
-  --muted: #F1F2F9;
-  --muted-foreground: #565C7A;
-  --accent: #EFEBFF;
-  --accent-foreground: #432BA6;
-  --destructive: #E5484D;
-  --destructive-foreground: #FFFFFF;
-  --border: #E6E8F2;
-  --input: #E6E8F2;
-  --ring: #7B61FF;
+  /* --- Charts: five separable hues, none of them the success green -------- */
+  --chart-1: #0A7268;
+  --chart-2: #6A4FF0;
+  --chart-3: #B45309;
+  --chart-4: #C2317A;
+  --chart-5: #1D5FD1;
 
-  --chart-1: #7B61FF;
-  --chart-2: #16B981;
-  --chart-3: #4F86FF;
-  --chart-4: #F59E0B;
-  --chart-5: #E5484D;
+  /* Ramp-as-label: a seeded avatar or category chip puts ramp-coloured text on
+     a 16% wash of its own hue. The raw ramp value is tuned to be a legible
+     *mark* on the card (the gate holds it to 3:1), which is not enough once it
+     becomes 11px text on a background pulled toward it — three of the five land
+     at 4.0-4.2:1. `-tint` is the resolved wash and `-ink` is the same hue
+     deepened only as far as AA needs, so the pairing clears 4.5:1 in both
+     themes. Both are literal so `check:contrast` can assert the pair. */
+  --chart-1-tint: #D8E8E7;
+  --chart-2-tint: #E7E3FD;
+  --chart-3-tint: #F3E3D8;
+  --chart-4-tint: #F5DEEA;
+  --chart-5-tint: #DBE5F8;
+  --chart-1-ink: #0A7268;
+  --chart-2-ink: #644AE2;
+  --chart-3-ink: #A64C08;
+  --chart-4-ink: #B42E71;
+  --chart-5-ink: #1D5FD1;
 
-  --sidebar: #F7F8FC;
-  --sidebar-foreground: #0F1430;
-  --sidebar-primary: #6A4FF0;
+  --sidebar-primary: #0A7268;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F3F4FF;
-  --sidebar-accent-foreground: #2C1C73;
-  --sidebar-border: #E6E8F2;
-  --sidebar-ring: #7B61FF;
+  --sidebar-accent: #E6F2EF;
+  --sidebar-accent-foreground: #075243;
+  --sidebar-border: #E7E5DF;
+  --sidebar-ring: #0E8C7A;
 
-  --selection: #E9E3FF;
-  --selection-foreground: #0F1430;
+  --selection: #CFE8E2;
+  --selection-foreground: #16151C;
+
+  /* --- Scrim shared by every dialog, sheet and popover backdrop ----------- */
+  --overlay: rgb(28 24 20 / 0.32);
+
+  /* --- Elevation ---------------------------------------------------------
+     Tinted with the warm ink, not a neutral slate — a shadow that disagrees
+     with its surface temperature is what makes "soft depth" read as grime. */
+  --shadow-tint: 28 24 20;
+  --elev-1:
+    0 1px 2px rgb(var(--shadow-tint) / 0.05),
+    0 1px 1px rgb(var(--shadow-tint) / 0.04);
+  --elev-2:
+    0 2px 4px -1px rgb(var(--shadow-tint) / 0.06),
+    0 4px 12px -2px rgb(var(--shadow-tint) / 0.06);
+  --elev-3:
+    0 6px 12px -4px rgb(var(--shadow-tint) / 0.08),
+    0 12px 28px -8px rgb(var(--shadow-tint) / 0.10);
+  --elev-4:
+    0 12px 24px -8px rgb(var(--shadow-tint) / 0.10),
+    0 28px 56px -16px rgb(var(--shadow-tint) / 0.14);
+  --elev-primary: 0 8px 24px -8px color-mix(in srgb, var(--primary) 55%, transparent);
+  --elev-brand: 0 8px 24px -8px color-mix(in srgb, var(--brand) 55%, transparent);
+
+  /* --- Motion ------------------------------------------------------------ */
+  /* 120–260ms across the board. Users are mid-task; nobody should wait for
+     choreography. --dur-4 exists for genuine layout moves, not page entrances. */
+  --dur-1: 120ms;
+  --dur-2: 180ms;
+  --dur-3: 260ms;
+  --dur-4: 360ms;
+  --lift: -2px;
 }
 
-/* Dark theme — quiet violet-grey neutrals, violet reserved for accent.
-   The surfaces are a near-neutral charcoal ramp carrying only a trace of the
-   brand hue (~255°, S 11-16%), not the old navy-violet (S 40-55%). Saturated
-   surfaces make every panel compete with the content on it; keeping the chroma
-   in the accent and the semantic colors is what lets the violet still read as
-   the brand. Surfaces step by luminance, and panels are separated by the
-   hairline `--border`, not by a fill contrast. */
+/* ============================================================================
+   Dark — cool near-black canvas, warmer accents.
+
+   Shadows barely register on a near-black surface, so every elevation level
+   pairs a deeper cast shadow with a top inner hairline. The highlight edge is
+   what actually makes a dark panel look raised; the shadow only separates it
+   from what is behind.
+   ========================================================================= */
 .dark {
-  --background: #0C0B10;
-  --foreground: #ECEAF2;
-  --card: #17161E;
-  --card-foreground: #ECEAF2;
-  --popover: #1C1A24;
-  --popover-foreground: #ECEAF2;
-  --primary: #9B80FF;
-  --primary-hover: #B3A0FF;
-  --primary-foreground: #14121B;
-  --secondary: #211F2A;
-  --secondary-foreground: #ECEAF2;
-  --muted: #211F2A;
-  --muted-foreground: #A3A0B2;
-  --accent: #2C2839;
-  --accent-foreground: #C9BCFF;
-  --destructive: #FF7A7E;
-  --destructive-foreground: #14121B;
-  --border: #302D3B;
-  --input: #302D3B;
-  --ring: #9B80FF;
+  --brand: #A78BFF;
+  --brand-ink: #0A0A0C;
+  --brand-violet: #A78BFF;
+  --brand-violet-300: #C9BCFF;
+  --brand-violet-600: #8E72FF;
+  --brand-violet-800: #6A4FF0;
+  --brand-violet-900: #34277A;
+  --brand-mist: #1D1930;
+  --brand-gradient: linear-gradient(135deg, #C9BCFF 0%, #8E72FF 100%);
 
-  --success: #3DD9A4;
-  --success-foreground: #14121B;
-  --warning: #F5C15C;
-  --warning-foreground: #14121B;
-  --info: #7FA6F5;
-  --info-foreground: #14121B;
+  --background: #0A0A0C;
+  --foreground: #EDECF0;
+  --card: #141419;
+  --card-foreground: #EDECF0;
+  --popover: #1B1B22;
+  --popover-foreground: #EDECF0;
+  --sidebar: #0F0F13;
+  --sidebar-foreground: #EDECF0;
+  --muted: #212129;
+  --muted-foreground: #9C9AA6;
+  --secondary: #212129;
+  --secondary-foreground: #EDECF0;
+  --border: #2A2A33;
+  --input: #2A2A33;
 
-  --destructive-text: #FF7A7E;
-  --success-text: #3DD9A4;
-  --warning-text: #F5C15C;
-  --info-text: #7FA6F5;
+  --primary: #3DD1B8;
+  --primary-hover: #63E0CB;
+  --primary-foreground: #062622;
+  --ring: #3DD1B8;
+  --accent: #16302C;
+  --accent-foreground: #7FE7D3;
 
-  --chart-1: #9B80FF;
-  --chart-2: #3DD9A4;
-  --chart-3: #7FA6F5;
-  --chart-4: #F5C15C;
-  --chart-5: #FF7A7E;
+  --success: #5FCB63;
+  --success-foreground: #08210F;
+  --warning: #F0B23C;
+  --warning-foreground: #2A1B05;
+  --destructive: #FF7A70;
+  --destructive-foreground: #2A0C0A;
+  --info: #79A9FF;
+  --info-foreground: #06152E;
 
-  /* Second neutral layer: the sidebar sits between the canvas and the content
-     surface, mirroring light mode where #F7F8FC sits between #F1F2F9 and white. */
-  --sidebar: #121118;
-  --sidebar-foreground: #ECEAF2;
-  --sidebar-primary: #9B80FF;
-  --sidebar-primary-foreground: #14121B;
-  --sidebar-accent: #211F2A;
-  --sidebar-accent-foreground: #ECEAF2;
-  --sidebar-border: #302D3B;
-  --sidebar-ring: #9B80FF;
+  --success-text: var(--success);
+  --warning-text: var(--warning);
+  --destructive-text: var(--destructive);
+  --info-text: var(--info);
 
-  --selection: #3B3168;
-  --selection-foreground: #ECEAF2;
+  --chart-1: #3DD1B8;
+  --chart-2: #A78BFF;
+  --chart-3: #F0B23C;
+  --chart-4: #F2789F;
+  --chart-5: #79A9FF;
+
+  /* Dark inverts the problem: the ramp is already bright against a near-black
+     wash, so every slot clears AA on its own tint untouched. */
+  --chart-1-tint: #1B3232;
+  --chart-2-tint: #2C273E;
+  --chart-3-tint: #372D1F;
+  --chart-4-tint: #38242E;
+  --chart-5-tint: #242C3E;
+  --chart-1-ink: var(--chart-1);
+  --chart-2-ink: var(--chart-2);
+  --chart-3-ink: var(--chart-3);
+  --chart-4-ink: var(--chart-4);
+  --chart-5-ink: var(--chart-5);
+
+  --sidebar-primary: #3DD1B8;
+  --sidebar-primary-foreground: #062622;
+  --sidebar-accent: #16302C;
+  --sidebar-accent-foreground: #7FE7D3;
+  --sidebar-border: #2A2A33;
+  --sidebar-ring: #3DD1B8;
+
+  --selection: #14453E;
+  --selection-foreground: #EDECF0;
+
+  --overlay: rgb(0 0 0 / 0.6);
+
+  --shadow-tint: 0 0 0;
+  --elev-1:
+    0 1px 2px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.035);
+  --elev-2:
+    0 2px 6px -1px rgb(0 0 0 / 0.6),
+    0 6px 16px -4px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.045);
+  --elev-3:
+    0 8px 18px -6px rgb(0 0 0 / 0.7),
+    0 16px 36px -12px rgb(0 0 0 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.055);
+  --elev-4:
+    0 16px 32px -10px rgb(0 0 0 / 0.75),
+    0 36px 72px -20px rgb(0 0 0 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.07);
+  --elev-primary: 0 8px 26px -8px color-mix(in srgb, var(--primary) 45%, transparent);
+  --elev-brand: 0 8px 26px -8px color-mix(in srgb, var(--brand) 50%, transparent);
 }
 
 @theme inline {
   --font-sans: var(--font-dwelve-sans);
   --font-serif: var(--font-dwelve-serif);
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -151,6 +267,12 @@
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
 
+  /* The two sizes below the Tailwind scale that this UI genuinely needs. */
+  --text-3xs: 0.625rem;
+  --text-3xs--line-height: 0.875rem;
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -158,6 +280,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -170,6 +293,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-overlay: var(--overlay);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -178,16 +302,18 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
+  /* Kept as aliases so existing `text-success-text` call sites keep resolving.
+     New code should use the plain semantic token — the fills are AA as text. */
   --color-destructive-text: var(--destructive-text);
   --color-success-text: var(--success-text);
   --color-warning-text: var(--warning-text);
   --color-info-text: var(--info-text);
 
+  --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
-  --color-brand-primary: var(--primary);
   --color-brand-violet: var(--brand-violet);
-  --color-brand-violet-600: var(--brand-violet-600);
   --color-brand-violet-300: var(--brand-violet-300);
+  --color-brand-violet-600: var(--brand-violet-600);
   --color-brand-violet-800: var(--brand-violet-800);
   --color-brand-violet-900: var(--brand-violet-900);
   --color-brand-mist: var(--brand-mist);
@@ -206,16 +332,18 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-active: var(--sidebar-accent);
 
-  --color-app-background: var(--muted);
-  --color-surface: var(--card);
-  --color-text-heading: var(--foreground);
-  --color-text-body: var(--muted-foreground);
-  --color-text-muted: #797F9C;
-  --color-status-success: var(--success);
-  --color-status-warning: var(--warning);
-  --color-status-error: var(--destructive);
+  /* Elevation as real utilities: shadow-elev-2, shadow-elev-primary, ... */
+  --shadow-elev-1: var(--elev-1);
+  --shadow-elev-2: var(--elev-2);
+  --shadow-elev-3: var(--elev-3);
+  --shadow-elev-4: var(--elev-4);
+  --shadow-elev-primary: var(--elev-primary);
+  --shadow-elev-brand: var(--elev-brand);
+
+  /* Easing as real utilities: ease-out-quint, ease-out-expo. */
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @layer base {
@@ -226,48 +354,164 @@
   html {
     @apply font-sans;
     scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground;
   }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
 }
+
+/* ============================================================================
+   Type scale
+
+   Eight named styles instead of 113 arbitrary `text-[Npx]`. Every heading in
+   the product should be one of these, so "what size is a page title" has one
+   answer rather than four.
+
+   Only `type-display` is fluid, and only because it is marketing — the landing
+   hero is the one place a heading is the subject rather than a label. Product
+   headings are a fixed rem scale on purpose: a clamped h1 that shrinks inside a
+   narrow panel looks broken, not responsive, and users sit at a steady DPI.
+   ========================================================================= */
+
+@utility type-display {
+  font-size: clamp(2.25rem, 5.2vw, 3.5rem);
+  line-height: 1.04;
+  letter-spacing: -0.03em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+@utility type-title {
+  font-size: 1.75rem;
+  line-height: 1.18;
+  letter-spacing: -0.022em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+@utility type-section {
+  font-size: 1.25rem;
+  line-height: 1.28;
+  letter-spacing: -0.018em;
+  font-weight: 700;
+  text-wrap: balance;
+}
+
+@utility type-heading {
+  font-size: 1.0625rem;
+  line-height: 1.35;
+  letter-spacing: -0.012em;
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+@utility type-body {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+@utility type-label {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  font-weight: 500;
+}
+
+@utility type-caption {
+  font-size: 0.75rem;
+  line-height: 1.35;
+  font-weight: 400;
+}
+
+@utility type-micro {
+  font-size: 0.6875rem;
+  line-height: 1;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* ============================================================================
+   Interaction
+
+   `interactive` is the one tactile recipe: a surface lifts on hover and settles
+   under the pointer on press. Defined once so the whole product presses the
+   same way, and so tuning the feel is a one-line change.
+   ========================================================================= */
+
+@utility interactive {
+  transition:
+    transform var(--dur-2) var(--ease-out-quint),
+    box-shadow var(--dur-2) var(--ease-out-quint),
+    border-color var(--dur-1) linear,
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
+
+  &:hover {
+    transform: translateY(var(--lift));
+  }
+
+  &:active {
+    transform: translateY(0);
+    transition-duration: var(--dur-1);
+  }
+}
+
+/* Same timing, no travel — for controls that must not move (rows, nav items,
+   anything in a list where a 2px lift would read as a layout shift). */
+@utility interactive-flat {
+  transition:
+    box-shadow var(--dur-2) var(--ease-out-quint),
+    border-color var(--dur-1) linear,
+    background-color var(--dur-1) linear,
+    color var(--dur-1) linear;
+
+  &:active {
+    transform: scale(0.99);
+    transition-duration: var(--dur-1);
+  }
+}
+
+/* ============================================================================
+   Shell canvases
+   ========================================================================= */
 
 .app-shell-bg {
-  background-color: var(--muted);
-  background-image: linear-gradient(180deg, var(--background) 0%, var(--muted) 45%, var(--secondary) 100%);
-}
-
-/* Dark canvas lifts only as far as the content surface. Ending the ramp on
-   --secondary made the lower half of every long page visibly lighter than the
-   panels sitting on it, which reads as a gradient rather than as depth. */
-.dark .app-shell-bg {
   background-color: var(--background);
-  background-image: linear-gradient(180deg, var(--background) 0%, var(--card) 100%);
 }
 
 .landing-shell-bg {
   background-color: var(--background);
   background-image:
-    radial-gradient(60% 55% at 82% -5%, color-mix(in srgb, var(--brand-violet) 8%, transparent), transparent 70%),
-    radial-gradient(45% 40% at 8% 2%, color-mix(in srgb, var(--brand-violet-300) 6%, transparent), transparent 70%);
+    radial-gradient(58% 52% at 84% -6%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 6% 4%, color-mix(in srgb, var(--primary) 7%, transparent), transparent 70%);
 }
 
-/* One brand moment on the landing canvas. Against the old navy surfaces an 18%
-   violet bloom was barely distinguishable; against the neutral canvas it would
-   glare, so it drops to 12% and the second wash goes to the near-neutral
-   --accent. The glow should be felt at the edge of vision, not looked at. */
+/* On a near-black canvas the same washes glare, so both drop and the violet
+   one leads — the landing page is where identity, not action, is the subject. */
 .dark .landing-shell-bg {
-  background-color: var(--background);
   background-image:
-    radial-gradient(60% 55% at 82% -5%, color-mix(in srgb, var(--primary) 12%, transparent), transparent 70%),
-    radial-gradient(45% 40% at 8% 2%, color-mix(in srgb, var(--accent) 55%, transparent), transparent 70%);
+    radial-gradient(58% 52% at 84% -6%, color-mix(in srgb, var(--brand) 13%, transparent), transparent 70%),
+    radial-gradient(42% 38% at 6% 4%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%);
 }
+
+/* ============================================================================
+   Keyframes
+   ========================================================================= */
 
 @keyframes layout-fade-slide {
   0% {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
   }
   100% {
     opacity: 1;
@@ -301,8 +545,7 @@
   }
 }
 
-/* Sweeping sheen for the landing "demo video" mocks (skeleton rows + progress
-   fill while the card is in its loading phase). Animates background-position
+/* Sweeping sheen for the landing "demo video" mocks. Animates background-position
    only, so it stays on the compositor. Disabled under reduced motion below. */
 @keyframes mock-shimmer {
   0% {
@@ -348,25 +591,26 @@
 }
 
 .animate-accordion-down {
-  animation: accordion-down 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: accordion-down var(--dur-3) var(--ease-out-quint);
 }
 
 .animate-accordion-up {
-  animation: accordion-up 260ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: accordion-up var(--dur-2) cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Deliberately short. The app loads into a task; a long entrance is something
+   the user has to sit through on every navigation. */
 .layout-enter {
-  animation: layout-fade-slide 380ms ease-out both;
+  animation: layout-fade-slide var(--dur-3) var(--ease-out-quint) both;
 }
 
-/* Landing nav/hero/CTA buttons now live in the shared <BrandButton> component
-   (src/components/Custom/BrandButton.tsx) — see the reuse rule in CLAUDE.md. */
+/* ============================================================================
+   Scrollbars
+   ========================================================================= */
 
-/* Content-column scrollbar. Mixed from --muted-foreground so the thumb tracks
-   the theme instead of hard-coding a slate that only suited light mode. */
 .content-scroll {
   scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 38%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--muted-foreground) 34%, transparent) transparent;
 }
 
 .content-scroll::-webkit-scrollbar {
@@ -379,22 +623,27 @@
 
 .content-scroll::-webkit-scrollbar-thumb {
   border-radius: 9999px;
-  background-color: color-mix(in srgb, var(--muted-foreground) 38%, transparent);
-  transition: background-color 150ms ease-out;
+  background-color: color-mix(in srgb, var(--muted-foreground) 34%, transparent);
+  transition: background-color var(--dur-1) ease-out;
 }
 
 .content-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: color-mix(in srgb, var(--muted-foreground) 62%, transparent);
+  background-color: color-mix(in srgb, var(--muted-foreground) 60%, transparent);
 }
 
-.sidebar-scroll {
+.no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
 
-.sidebar-scroll::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* ============================================================================
+   Reduced motion — every animated affordance above needs a still equivalent,
+   including the tactile lift, which is a transform like any other.
+   ========================================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -407,6 +656,17 @@
   .mock-shimmer,
   .landing-marquee-track {
     animation: none;
+  }
+
+  .interactive,
+  .interactive-flat {
+    transition-duration: 1ms;
+  }
+
+  .interactive:hover,
+  .interactive:active,
+  .interactive-flat:active {
+    transform: none;
   }
 }
 

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import { useCreateSchoolMutation } from "../_hooks/useCreateSchoolMutation";
+import Surface from "@/components/ui/Surface";
 
 const SESSION_EXPIRED_HINT = "session expired";
 
@@ -66,26 +67,27 @@ export default function CreateSchoolForm() {
   return (
     <div className="mx-auto w-full max-w-xl">
       <div className="mb-6 flex items-center gap-3">
-        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary)]/10 text-[var(--primary)]">
+        <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
           <School className="h-5 w-5" />
         </span>
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="type-title text-foreground">
             {t("root.dashboard.schoolForm.title")}
           </h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("root.dashboard.schoolForm.subtitle")}
           </p>
         </div>
       </div>
 
-      <form
-        className="space-y-5 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm"
+      <Surface
+        as="form"
+        className="space-y-5 p-6"
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.dashboard.schoolForm.fields.name.label")}
             <span className="text-destructive"> *</span>
           </label>
@@ -96,12 +98,12 @@ export default function CreateSchoolForm() {
             autoFocus
           />
           {errors.name && (
-            <p className="mt-1.5 text-xs text-destructive-text">{errors.name.message}</p>
+            <p className="mt-1.5 text-xs text-destructive">{errors.name.message}</p>
           )}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.dashboard.schoolForm.fields.description.label")}
           </label>
           <Textarea
@@ -111,7 +113,7 @@ export default function CreateSchoolForm() {
             aria-invalid={Boolean(errors.description)}
           />
           {errors.description && (
-            <p className="mt-1.5 text-xs text-destructive-text">
+            <p className="mt-1.5 text-xs text-destructive">
               {errors.description.message}
             </p>
           )}
@@ -119,7 +121,7 @@ export default function CreateSchoolForm() {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               {t("root.dashboard.schoolForm.fields.country.label")}
             </label>
             <Input
@@ -128,14 +130,14 @@ export default function CreateSchoolForm() {
               aria-invalid={Boolean(errors.country)}
             />
             {errors.country && (
-              <p className="mt-1.5 text-xs text-destructive-text">
+              <p className="mt-1.5 text-xs text-destructive">
                 {errors.country.message}
               </p>
             )}
           </div>
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               {t("root.dashboard.schoolForm.fields.city.label")}
             </label>
             <Input
@@ -144,7 +146,7 @@ export default function CreateSchoolForm() {
               aria-invalid={Boolean(errors.city)}
             />
             {errors.city && (
-              <p className="mt-1.5 text-xs text-destructive-text">{errors.city.message}</p>
+              <p className="mt-1.5 text-xs text-destructive">{errors.city.message}</p>
             )}
           </div>
         </div>
@@ -166,7 +168,7 @@ export default function CreateSchoolForm() {
         />
 
         {errors.root && (
-          <div className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive-text">
+          <div className="rounded-lg border border-destructive/25 bg-destructive/10 px-3 py-2 text-sm text-destructive">
             {errors.root.message}
           </div>
         )}
@@ -180,7 +182,7 @@ export default function CreateSchoolForm() {
             {t("root.dashboard.schoolForm.submit")}
           </Button>
         </div>
-      </form>
+      </Surface>
     </div>
   );
 }

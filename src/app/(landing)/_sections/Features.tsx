@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { LANDING_HEADING } from "../_components/SectionHeading";
+import { surfaceVariants } from "@/components/ui/Surface";
 
 type Feature = {
   title: string;
@@ -81,7 +83,7 @@ export default function Features() {
   const SpotlightIcon = spotlight.icon;
 
   return (
-    <section id="features" className="w-full scroll-mt-24 py-20 md:py-28">
+    <section id="features" className="w-full scroll-mt-24 py-20 md:py-24">
       <div className="mx-auto w-full max-w-6xl px-4">
         <motion.div
           className="mx-auto max-w-2xl text-center"
@@ -90,7 +92,7 @@ export default function Features() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.4 }}
         >
-          <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2 className={LANDING_HEADING}>
             {t("landing.features.title")}
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
@@ -114,7 +116,7 @@ export default function Features() {
               aria-hidden="true"
               className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-primary/15 blur-3xl dark:bg-primary/20"
             />
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 text-white shadow-[0_12px_30px_-8px_rgba(106,79,240,0.65)]">
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 text-white shadow-elev-brand">
               <SpotlightIcon className="h-7 w-7" />
             </div>
             <h3 className="relative mt-6 text-2xl font-bold tracking-tight text-foreground">
@@ -126,7 +128,7 @@ export default function Features() {
 
             {/* A small "submissions auto-graded" visual to fill and ground the tile. */}
             <div className="relative mt-auto pt-8">
-              <div className="space-y-2.5 rounded-2xl border border-border bg-card/70 p-4 backdrop-blur-sm dark:bg-white/[0.04]">
+              <div className={cn(surfaceVariants({ padding: "none" }), "space-y-2.5 bg-card/70 p-4 backdrop-blur-sm dark:bg-white/[0.04]")}>
                 {GRADED_ROWS.map((row, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <span className={cn("h-7 w-7 shrink-0 rounded-full", row.avatar)} />
@@ -152,7 +154,7 @@ export default function Features() {
               <motion.article
                 key={feature.title}
                 variants={card}
-                className="group flex flex-col rounded-2xl border border-border bg-card p-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)] dark:hover:border-white/20"
+                className={cn(surfaceVariants({ padding: "none" }), "interactive group flex flex-col p-6 duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-elev-3 dark:hover:border-white/20")}
               >
                 <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", feature.tile)}>
                   <Icon className="h-5 w-5" />

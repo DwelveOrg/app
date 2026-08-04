@@ -3,7 +3,10 @@ export const BRAND_NAME = "Dwelve" as const;
 
 /**
  * Tailwind classes applied to the wordmark text inside DwelveLogo.
- * Uses DM Serif Display (`font-serif`) — the "royalty" display serif reserved for the Dwelve
- * wordmark per the design system. Kept here so the wordmark style is identical everywhere.
+ *
+ * Manrope 700, not the display serif: the delivered logo artwork uses a bold geometric sans, and
+ * design-system §2 requires the wordmark to match the mark it sits beside. Kept here so the
+ * wordmark style is identical everywhere.
  */
-export const BRAND_WORDMARK_CLASSES = "font-serif leading-none" as const;
+export const BRAND_WORDMARK_CLASSES =
+  "font-sans font-bold leading-none tracking-[-0.02em]" as const;

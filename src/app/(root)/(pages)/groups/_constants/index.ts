@@ -9,23 +9,36 @@ export const classFilterLabelKeys: Record<ClassFilter, string> = {
 };
 
 /**
- * Decorative avatar tints — purely visual variety, like an avatar colour set,
- * not semantic tokens. Assigned per class by a stable index so each class keeps
- * the same colour across filters.
+ * Decorative class tints.
+ *
+ * These used to be six raw Tailwind hues (indigo/amber/emerald/pink/sky/orange), each with a
+ * hand-written `dark:` variant — the only multi-hue palette in the authenticated app, and the one
+ * place a new brand colour would have looked obviously wrong. They now come from the chart ramp, so
+ * they follow the theme, need no `dark:` overrides, and stay inside the documented palette.
+ *
+ * Uses the ramp's `-tint` / `-ink` pair rather than mixing the raw value: the fill is light enough
+ * to sit under the initial in both themes, and the ink is deepened just far enough that the pairing
+ * clears 4.5:1. The raw ramp only cleared AA here while the initial was 16px bold (large text); the
+ * shared `Avatar` renders it smaller, at which point three of the five slots would have failed.
+ *
+ * Written out one per line, deliberately. These were previously generated with
+ * `[1,2,3,4,5].map(slot => \`bg-[…var(--chart-${slot})…]\`)`, which Tailwind's scanner cannot see —
+ * it matches class names as literal text in the source, and a template hole is not a class name.
+ * The utilities were never generated, so every accent tile rendered with a transparent background
+ * and inherited text colour. Keep these literal.
  */
 export const classAccents = [
-  "bg-indigo-100 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300",
-  "bg-amber-100 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300",
-  "bg-emerald-100 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300",
-  "bg-pink-100 text-pink-600 dark:bg-pink-500/15 dark:text-pink-300",
-  "bg-sky-100 text-sky-600 dark:bg-sky-500/15 dark:text-sky-300",
-  "bg-orange-100 text-orange-600 dark:bg-orange-500/15 dark:text-orange-300",
-] as const;
+  "bg-[var(--chart-1-tint)] text-[var(--chart-1-ink)]",
+  "bg-[var(--chart-2-tint)] text-[var(--chart-2-ink)]",
+  "bg-[var(--chart-3-tint)] text-[var(--chart-3-ink)]",
+  "bg-[var(--chart-4-tint)] text-[var(--chart-4-ink)]",
+  "bg-[var(--chart-5-tint)] text-[var(--chart-5-ink)]",
+];
 
 /**
- * Deterministic accent for a class from its id, so a class keeps the same colour
- * across filters and page loads (the real ids are opaque, so we hash them into
- * the palette rather than relying on array position).
+ * Deterministic accent for a class from its id, so a class keeps the same colour across filters and
+ * page loads (the real ids are opaque, so we hash them into the palette rather than relying on
+ * array position).
  */
 export function classAccent(id: string): string {
   let hash = 0;

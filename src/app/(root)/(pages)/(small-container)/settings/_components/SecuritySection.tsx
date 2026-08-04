@@ -2,8 +2,8 @@
 
 import { KeyRound, Laptop, LogOut, ShieldEllipsis, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import ListRow from "@/app/(root)/_components/ListRow";
 import { SettingsGroup } from "./SettingsGroup";
-import { SettingsRow } from "./SettingsRow";
 import { LogoutAllButton } from "./LogoutAllButton";
 import { DeleteAccountButton } from "./DeleteAccountButton";
 export function SecuritySection() {
@@ -11,32 +11,33 @@ export function SecuritySection() {
 
   return (
     <SettingsGroup label={t("root.settings.security.title")}>
-      <SettingsRow
+      <ListRow
         icon={KeyRound}
         title={t("root.settings.security.changePassword.title")}
         description={t("root.settings.security.changePassword.description")}
         href="/settings/change-password"
       />
       {/* No 2FA model on the backend yet — stays a signposted placeholder. */}
-      <SettingsRow
+      <ListRow
         icon={ShieldEllipsis}
         title={t("root.settings.security.twoFactor.title")}
         description={t("root.settings.security.twoFactor.description")}
         soon
+        soonLabel={t("root.settings.actions.comingSoon")}
       />
-      <SettingsRow
+      <ListRow
         icon={Laptop}
         title={t("root.settings.security.activeSessions.title")}
         description={t("root.settings.security.activeSessions.description")}
         href="/settings/sessions"
       />
-      <SettingsRow
+      <ListRow
         icon={LogOut}
         title={t("root.settings.security.logoutAllDevices.title")}
         description={t("root.settings.security.logoutAllDevices.description")}
         action={<LogoutAllButton />}
       />
-      <SettingsRow
+      <ListRow
         icon={Trash2}
         danger
         title={t("root.settings.security.deleteAccount.title")}

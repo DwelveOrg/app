@@ -2,22 +2,18 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { MoreVertical, Pencil, Trash2, FileText, GraduationCap } from "lucide-react";
+import { Pencil, Trash2, FileText, GraduationCap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 
-import { Button } from "@/components/ui/Button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import RowActionsMenu from "@/components/ui/RowActionsMenu";
 import { classAccent } from "../_constants";
 import type { ClassItem } from "../_types";
 import EditClassDialog from "./EditClassDialog";
 import DeleteClassDialog from "./DeleteClassDialog";
+import Surface from "@/components/ui/Surface";
+import Badge from "@/components/ui/badge";
 
 type ClassCardProps = {
   item: ClassItem;
@@ -39,7 +35,7 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
     toast.info(t("root.classDetail.actions.comingSoon", { action: t(labelKey) }));
 
   return (
-    <div className="group relative flex h-full flex-col rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[color-mix(in_srgb,var(--primary)_45%,transparent)] hover:shadow-sm">
+    <Surface interactive className="group flex h-full flex-col">
       <Link href={detailHref} className="flex flex-1 flex-col" aria-label={item.name}>
         <div className="flex items-start gap-3">
           {item.pictureUrl ? (
@@ -59,19 +55,19 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2 pr-8">
-              <h3 className="truncate text-[15px] font-semibold text-[var(--foreground)]">
+              <h3 className="truncate text-[15px] font-semibold text-foreground">
                 {item.name}
               </h3>
               {item.viewerRole ? (
-                <span className="shrink-0 rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-0.5 text-[10px] font-semibold text-[var(--primary)]">
+                <Badge variant="primary" size="xs">
                   {item.viewerRole === "teacher"
                     ? t("root.classes.card.teaching")
                     : t("root.classes.card.enrolled")}
-                </span>
+                </Badge>
               ) : null}
             </div>
             {item.description ? (
-              <p className="mt-0.5 line-clamp-1 text-xs text-[var(--muted-foreground)]">
+              <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                 {item.description}
               </p>
             ) : null}
@@ -79,22 +75,22 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
         </div>
 
         {item.teacher ? (
-          <p className="mt-4 truncate text-sm text-[var(--muted-foreground)]">{item.teacher}</p>
+          <p className="mt-4 truncate text-sm text-muted-foreground">{item.teacher}</p>
         ) : (
-          <p className="mt-4 truncate text-sm text-[var(--muted-foreground)]/60">
+          <p className="mt-4 truncate text-sm text-muted-foreground/60">
             {t("root.classes.card.noTeacher")}
           </p>
         )}
 
         <div className="mt-4 flex items-center justify-between">
-          <span className="inline-flex items-center rounded-lg bg-[var(--muted)] px-2.5 py-1 text-xs font-medium text-[var(--muted-foreground)]">
+          <span className="inline-flex items-center rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {t("root.classes.card.students", { count: item.studentCount })}
           </span>
           <span
             className={`text-xs font-semibold ${
               isActive
-                ? "text-success-text"
-                : "text-[var(--muted-foreground)]"
+                ? "text-success"
+                : "text-muted-foreground"
             }`}
           >
             {isActive ? t("root.classes.status.active") : t("root.classes.status.archived")}
@@ -104,66 +100,43 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
 
       {isAdmin ? (
         <div className="absolute right-3 top-3">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 rounded-full bg-[var(--card)]/80 backdrop-blur"
-                aria-label={t("root.classDetail.actions.more")}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  router.push(detailHref);
-                }}
-              >
-                {t("root.classDetail.actions.open")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  setEditOpen(true);
-                }}
-              >
-                <Pencil className="h-4 w-4" />
-                {t("root.classDetail.actions.edit")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  notifySoon("root.classDetail.actions.addTest");
-                }}
-              >
-                <FileText className="h-4 w-4" />
-                {t("root.classDetail.actions.addTest")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  notifySoon("root.classDetail.actions.addExam");
-                }}
-              >
-                <GraduationCap className="h-4 w-4" />
-                {t("root.classDetail.actions.addExam")}
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onSelect={(event) => {
-                  event.preventDefault();
-                  setDeleteOpen(true);
-                }}
-                className="text-[var(--destructive)] focus:text-[var(--destructive)]"
-              >
-                <Trash2 className="h-4 w-4" />
-                {t("root.classDetail.actions.delete")}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActionsMenu
+            variant="floating"
+            label={t("root.classDetail.actions.more")}
+            contentClassName="w-44"
+            actions={[
+              {
+                label: t("root.classDetail.actions.open"),
+                keepOpen: true,
+                onSelect: () => router.push(detailHref),
+              },
+              {
+                label: t("root.classDetail.actions.edit"),
+                icon: Pencil,
+                keepOpen: true,
+                onSelect: () => setEditOpen(true),
+              },
+              {
+                label: t("root.classDetail.actions.addTest"),
+                icon: FileText,
+                keepOpen: true,
+                onSelect: () => notifySoon("root.classDetail.actions.addTest"),
+              },
+              {
+                label: t("root.classDetail.actions.addExam"),
+                icon: GraduationCap,
+                keepOpen: true,
+                onSelect: () => notifySoon("root.classDetail.actions.addExam"),
+              },
+              {
+                label: t("root.classDetail.actions.delete"),
+                icon: Trash2,
+                destructive: true,
+                keepOpen: true,
+                onSelect: () => setDeleteOpen(true),
+              },
+            ]}
+          />
         </div>
       ) : null}
 
@@ -187,6 +160,6 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
           />
         </>
       ) : null}
-    </div>
+    </Surface>
   );
 }

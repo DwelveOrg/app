@@ -3,13 +3,39 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "motion/react";
-import { BarChart3, TrendingUp } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
 import SectionHeading from "../_components/SectionHeading";
 import FeatureBullets from "../_components/FeatureBullets";
+import Surface from "@/components/ui/Surface";
 
-const BARS = ["38%", "62%", "48%", "82%", "55%", "70%", "94%"];
+/**
+ * Score distribution. Bands are numeric so they read identically in en/ru/uz and need no catalog
+ * entry; the last band is the one the section is about, so it carries the accent.
+ */
+const DISTRIBUTION = [
+  { band: "0–40", height: 18 },
+  { band: "41–50", height: 34 },
+  { band: "51–60", height: 46 },
+  { band: "61–70", height: 62 },
+  { band: "71–80", height: 78 },
+  { band: "81–90", height: 92 },
+  { band: "91–100", height: 68 },
+];
 
+/**
+ * The analytics section.
+ *
+ * The other three story sections on this page (`MainPage`, `AiGeneration`, `TeacherControl`) are
+ * all `lg:grid-cols-2` with copy on one side and a product mock on the other, flipped by
+ * `order-*`. Four of the same shape in a row reads as a template rather than a page, so this one
+ * is built differently: the copy and its bullets share one band across the top, and the data gets
+ * the full column width as a single wide instrument panel instead of a phone-sized screenshot.
+ *
+ * That is also the honest presentation — the section's claim is that the distribution matters more
+ * than the average, and a chart you can actually read makes the argument that a shrunken mock only
+ * gestures at.
+ */
 export default function Analytics() {
   const { t } = useTranslation();
   const shouldReduceMotion = useReducedMotion();
@@ -24,98 +50,116 @@ export default function Analytics() {
   ];
 
   return (
-    <section id="analytics" className="w-full scroll-mt-24 py-20 md:py-28">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
-        <div>
+    <section
+      id="analytics"
+      className="w-full scroll-mt-24 border-y border-border/70 bg-muted/45 py-24 md:py-32"
+    >
+      <div className="mx-auto w-full max-w-6xl px-4">
+        {/* Copy band: heading and evidence sit side by side, not opposite a mock. */}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-end lg:gap-16">
           <SectionHeading
             align="left"
             title={t("landing.analytics.title")}
             subtitle={t("landing.analytics.subtitle")}
           />
-          <FeatureBullets items={bullets} className="mt-8" />
+          <FeatureBullets
+            items={bullets}
+            className="sm:columns-2 sm:gap-x-8 sm:space-y-0 [&>li]:mb-3.5 [&>li]:break-inside-avoid"
+          />
         </div>
 
-        <motion.div
-          className="relative"
-          initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.55 }}
-        >
-          <AnalyticsMock />
-        </motion.div>
+        <AnalyticsPanel reduced={Boolean(shouldReduceMotion)} />
       </div>
     </section>
   );
 }
 
-function AnalyticsMock() {
+function AnalyticsPanel({ reduced }: Readonly<{ reduced: boolean }>) {
   const { t } = useTranslation();
 
   return (
-    <div className="rounded-[28px] bg-muted p-3 sm:p-5 dark:bg-white/5">
-      <div className="rounded-2xl bg-card p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-bold text-foreground">
-            {t("landing.analytics.mock.title")}
+    <Surface
+      as="figure"
+      padding="none"
+      elevation={2}
+      className="mt-14 overflow-hidden md:mt-16"
+    >
+      {/* Header: the summary numbers read as a row of facts, not a stack of stat cards. */}
+      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-5 border-b border-border px-5 py-5 sm:px-7">
+        <div>
+          <p className="type-micro text-muted-foreground">
+            {t("landing.analytics.mock.average")}
           </p>
-          <BarChart3 className="h-4 w-4 text-muted-foreground" />
-        </div>
-
-        {/* Headline stats */}
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-xl bg-muted px-4 py-3 dark:bg-white/5">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              {t("landing.analytics.mock.average")}
-            </p>
-            <div className="mt-1 flex items-baseline gap-1.5">
-              <p className="text-2xl font-bold text-foreground">82%</p>
-              <span className="inline-flex items-center gap-0.5 text-xs font-semibold text-success">
-                <TrendingUp className="h-3 w-3" />
-                8%
-              </span>
-            </div>
-          </div>
-          <div className="rounded-xl bg-muted px-4 py-3 dark:bg-white/5">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              {t("landing.analytics.mock.submitted")}
-            </p>
-            <p className="mt-1 text-2xl font-bold text-foreground">
-              24<span className="text-base font-semibold text-muted-foreground">/28</span>
-            </p>
+          <div className="mt-1.5 flex items-baseline gap-2">
+            <span className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+              82%
+            </span>
+            <span className="inline-flex items-center gap-0.5 text-sm font-semibold text-success">
+              <TrendingUp aria-hidden className="size-3.5" />
+              8%
+            </span>
           </div>
         </div>
 
-        {/* Score distribution */}
-        <div className="mt-3 flex h-28 items-end justify-between gap-2 rounded-xl bg-accent/50 p-4 dark:bg-primary/10">
-          {BARS.map((height, i) => (
-            <div
-              key={i}
-              className={`w-full rounded-md ${
-                i === BARS.length - 1
-                  ? "bg-primary"
-                  : "bg-primary/40"
-              }`}
-              style={{ height }}
-            />
-          ))}
+        <div>
+          <p className="type-micro text-muted-foreground">
+            {t("landing.analytics.mock.submitted")}
+          </p>
+          <p className="mt-1.5 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            24
+            <span className="text-xl font-semibold text-muted-foreground">/28</span>
+          </p>
         </div>
 
-        {/* Most-missed question */}
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
-          <div className="min-w-0">
-            <p className="text-[11px] font-medium text-muted-foreground">
-              {t("landing.analytics.mock.missedLabel")}
-            </p>
-            <p className="truncate text-sm font-semibold text-foreground">
-              {t("landing.analytics.mock.missedQuestion")}
-            </p>
-          </div>
-          <span className="inline-flex shrink-0 items-center rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-semibold text-destructive">
-            {t("landing.analytics.mock.missedRate")}
-          </span>
+        <figcaption className="type-caption ml-auto text-muted-foreground">
+          {t("landing.analytics.mock.title")}
+        </figcaption>
+      </div>
+
+      {/* The chart is the section's argument, so it gets the room. */}
+      <div className="px-5 pb-6 pt-8 sm:px-7">
+        <div className="flex h-44 items-end gap-2 sm:h-56 sm:gap-3">
+          {DISTRIBUTION.map((bar, index) => {
+            const isPeak = bar.height === Math.max(...DISTRIBUTION.map((b) => b.height));
+            return (
+              <div key={bar.band} className="flex h-full flex-1 flex-col justify-end gap-2">
+                <motion.div
+                  className={`w-full rounded-t-md ${isPeak ? "bg-primary" : "bg-primary/35"}`}
+                  // Height is inline because it is data, not design. `transformOrigin: bottom`
+                  // makes the grow-in read as a bar rising from the axis rather than inflating.
+                  style={{ height: `${bar.height}%`, transformOrigin: "bottom" }}
+                  initial={reduced ? false : { scaleY: 0, opacity: 0 }}
+                  whileInView={{ scaleY: 1, opacity: 1 }}
+                  viewport={{ once: true, amount: 0.4 }}
+                  transition={{
+                    duration: reduced ? 0 : 0.5,
+                    delay: reduced ? 0 : index * 0.06,
+                    ease: [0.22, 1, 0.36, 1],
+                  }}
+                />
+                <span className="text-center text-3xs tabular-nums text-muted-foreground sm:text-2xs">
+                  {bar.band}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
-    </div>
+
+      {/* The finding, docked to the panel it came from. */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-t border-border bg-muted/50 px-5 py-4 sm:px-7">
+        <div className="min-w-0">
+          <p className="type-micro text-muted-foreground">
+            {t("landing.analytics.mock.missedLabel")}
+          </p>
+          <p className="mt-1 truncate text-sm font-semibold text-foreground">
+            {t("landing.analytics.mock.missedQuestion")}
+          </p>
+        </div>
+        <span className="inline-flex shrink-0 items-center rounded-full bg-destructive/10 px-2.5 py-1 text-2xs font-semibold text-destructive">
+          {t("landing.analytics.mock.missedRate")}
+        </span>
+      </div>
+    </Surface>
   );
 }

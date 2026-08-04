@@ -16,6 +16,7 @@ import {
 import type { ProfileSelectedSchool } from "@/app/(root)/_lib/profile.schemas";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
+import Surface from "@/components/ui/Surface";
 
 type SchoolProfileFormProps = {
   selectedSchool: ProfileSelectedSchool;
@@ -75,16 +76,16 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
     (values.bio ?? "").trim() !== (defaults.bio ?? "").trim();
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <Surface as="section">
       <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
           <GraduationCap className="h-[18px] w-[18px]" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-base font-bold text-[var(--foreground)]">
+          <h2 className="text-base font-bold text-foreground">
             {t(isStudent ? "root.profile.roleProfile.student.title" : "root.profile.roleProfile.teacher.title")}
           </h2>
-          <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {t(
               isStudent
                 ? "root.profile.roleProfile.student.description"
@@ -99,12 +100,12 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
         <div>
           <label
             htmlFor="profile-phone"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             {t("root.profile.roleProfile.phone.label")}
           </label>
           <div className="relative">
-            <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="profile-phone"
               {...form.register("phone")}
@@ -119,7 +120,7 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
           <div>
             <label
               htmlFor="profile-bio"
-              className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
+              className="mb-1.5 block text-sm font-medium text-foreground"
             >
               {t("root.profile.roleProfile.bio.label")}
             </label>
@@ -129,22 +130,22 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
               {...form.register("bio")}
               placeholder={t("root.profile.roleProfile.bio.placeholder")}
             />
-            <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
+            <p className="mt-1.5 text-xs text-muted-foreground">
               {t("root.profile.roleProfile.bio.hint")}
             </p>
           </div>
         ) : null}
 
         {role.type !== "ADMIN" && role.classes.length > 0 ? (
-          <div className="rounded-xl border border-[var(--border)] bg-[var(--muted)] p-4">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+          <div className="rounded-xl border border-border bg-muted p-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
               {t("root.profile.roleProfile.classes.title", { count: role.classCount ?? role.classes.length })}
             </p>
             <ul className="mt-2 flex flex-wrap gap-1.5">
               {role.classes.map((cls) => (
                 <li
                   key={cls.assignmentId}
-                  className="inline-flex items-center rounded-full bg-[var(--card)] px-2.5 py-1 text-xs font-medium text-[var(--foreground)]"
+                  className="inline-flex items-center rounded-full bg-card px-2.5 py-1 text-xs font-medium text-foreground"
                 >
                   {cls.name}
                 </li>
@@ -157,13 +158,13 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
           <button
             type="submit"
             disabled={isBusy || !isDirty}
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
             {t("root.profile.form.save")}
           </button>
         </div>
       </form>
-    </section>
+    </Surface>
   );
 }

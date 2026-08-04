@@ -19,6 +19,13 @@ type SectionHeadingProps = {
  * One source of truth for the marketing type scale and entrance motion so the
  * new sections read as a single system rather than copy-pasted Tailwind.
  */
+/**
+ * The marketing heading style. Four sections bypassed `SectionHeading` and re-declared this exact
+ * string inline, so a change here used to reach only some of the page.
+ */
+export const LANDING_HEADING =
+  "text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl";
+
 export default function SectionHeading({
   label,
   title,
@@ -44,7 +51,7 @@ export default function SectionHeading({
       ) : null}
       <h2
         className={cn(
-          "text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl",
+          LANDING_HEADING,
           label && "mt-3",
         )}
       >

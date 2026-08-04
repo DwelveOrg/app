@@ -10,6 +10,7 @@ import { useStudentClasses } from "@/app/(root)/_hooks/useEnrollment";
 import Empty from "../../_components/ui/Empty";
 import ClassesNav from "./ClassesNav";
 import StudentClassCard from "./StudentClassCard";
+import Surface from "@/components/ui/Surface";
 
 type StudentClassesViewProps = {
   schoolId: string | undefined;
@@ -77,10 +78,10 @@ export default function StudentClassesView({ schoolId }: StudentClassesViewProps
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="type-title text-foreground">
           {t("root.enrollment.directory.title")}
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+        <p className="mt-1 text-sm text-muted-foreground">
           {enrolledCount > 0
             ? t("root.enrollment.directory.subtitle", { count: enrolledCount })
             : t("root.enrollment.directory.subtitleEmpty")}
@@ -91,21 +92,23 @@ export default function StudentClassesView({ schoolId }: StudentClassesViewProps
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative min-w-0 flex-1 sm:max-w-md">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
             value={searchInput}
             onChange={(event) => setSearchInput(event.target.value)}
             placeholder={t("root.enrollment.directory.searchPlaceholder")}
             aria-label={t("root.enrollment.directory.searchPlaceholder")}
-            className="h-10 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] pl-9 pr-3 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+            className="h-10 w-full rounded-xl border border-border bg-card pl-9 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring shadow-elev-1"
           />
         </div>
 
-        <div
+        <Surface
           role="group"
           aria-label={t("root.enrollment.directory.filters.label")}
-          className="flex items-center gap-1 rounded-xl border border-[var(--border)] bg-[var(--card)] p-1"
+          radius="md"
+          padding="none"
+          className="flex items-center gap-1 p-1"
         >
           {FILTERS.map((option) => {
             const isActive = filter === option.value;
@@ -117,21 +120,21 @@ export default function StudentClassesView({ schoolId }: StudentClassesViewProps
                 onClick={() => setFilter(option.value)}
                 className={`inline-flex h-8 cursor-pointer items-center rounded-lg px-3 text-sm font-medium transition-colors ${
                   isActive
-                    ? "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]"
-                    : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+                    ? "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {t(option.labelKey)}
               </button>
             );
           })}
-        </div>
+        </Surface>
       </div>
 
       {query.isLoading ? (
         <div aria-busy="true" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <Skeleton key={index} className="h-52 rounded-2xl border border-[var(--border)]" />
+            <Skeleton key={index} className="h-52 rounded-2xl border border-border" />
           ))}
         </div>
       ) : query.isError ? (

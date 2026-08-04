@@ -76,19 +76,19 @@ export default function JoinSchoolDialog({ trigger }: JoinSchoolDialogProps) {
       <DialogPrimitive.Trigger asChild>{trigger}</DialogPrimitive.Trigger>
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/20 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0 dark:bg-black/50" />
-        <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-[0_20px_60px_rgba(15,23,42,0.18)] duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95 dark:shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
-          <DialogPrimitive.Title className="text-base font-semibold text-[var(--foreground)]">
+        <DialogPrimitive.Content className="fixed top-1/2 left-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-card p-5 shadow-elev-4 duration-100 outline-none data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95">
+          <DialogPrimitive.Title className="text-base font-semibold text-foreground">
             {t("root.joinSchool.title")}
           </DialogPrimitive.Title>
-          <DialogPrimitive.Description className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <DialogPrimitive.Description className="mt-1 text-sm text-muted-foreground">
             {t("root.joinSchool.description")}
           </DialogPrimitive.Description>
 
           <form className="mt-4 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+              <label className="mb-1.5 block text-sm font-medium text-foreground">
                 {t("root.joinSchool.codeLabel")}
-                <span className="text-[var(--destructive)]"> *</span>
+                <span className="text-destructive"> *</span>
               </label>
               <Input
                 {...register("code")}
@@ -97,14 +97,14 @@ export default function JoinSchoolDialog({ trigger }: JoinSchoolDialogProps) {
                 autoFocus
               />
               {errors.code && (
-                <p className="mt-1.5 text-xs text-[var(--destructive)]">
+                <p className="mt-1.5 text-xs text-destructive">
                   {errors.code.message}
                 </p>
               )}
             </div>
 
             {errors.root && (
-              <div className="rounded-lg border border-[color-mix(in_srgb,var(--destructive)_25%,transparent)] bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] px-3 py-2 text-sm text-[var(--destructive)]">
+              <div className="rounded-lg border border-[color-mix(in_srgb,var(--destructive)_25%,transparent)] bg-[color-mix(in_srgb,var(--destructive)_8%,transparent)] px-3 py-2 text-sm text-destructive">
                 {errors.root.message}
               </div>
             )}

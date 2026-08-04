@@ -103,9 +103,9 @@ export default function EditClassDialog({
         <input type="hidden" {...register("classId")} />
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.schoolPage.createClass.nameLabel")}
-            <span className="text-[var(--destructive)]"> *</span>
+            <span className="text-destructive"> *</span>
           </label>
           <Input
             {...register("name")}
@@ -114,14 +114,14 @@ export default function EditClassDialog({
             autoFocus
           />
           {errors.name && (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
+            <p className="mt-1.5 text-xs text-destructive">
               {t("root.schoolPage.createClass.nameError")}
             </p>
           )}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.schoolPage.createClass.descLabel")}
           </label>
           <Textarea

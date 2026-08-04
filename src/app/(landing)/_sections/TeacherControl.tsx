@@ -33,10 +33,13 @@ export default function TeacherControl() {
   ];
 
   return (
-    <section id="teacher-control" className="w-full scroll-mt-24 py-20 md:py-28">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
+    <section
+      id="teacher-control"
+      className="w-full scroll-mt-24 border-y border-border/70 bg-muted/45 py-24 md:py-32"
+    >
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 lg:grid-cols-2 [&>*]:min-w-0">
         <motion.div
-          className="order-2 lg:order-1"
+          className="order-2 min-w-0 lg:order-1"
           initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
@@ -45,7 +48,7 @@ export default function TeacherControl() {
           <ReviewMock />
         </motion.div>
 
-        <div className="order-1 lg:order-2">
+        <div className="order-1 min-w-0 lg:order-2">
           <SectionHeading
             align="left"
             title={t("landing.teacherControl.title")}
@@ -79,17 +82,17 @@ function ReviewMock() {
 
   return (
     <div ref={ref} className="rounded-[28px] bg-muted p-3 sm:p-5 dark:bg-white/5">
-      <div className="rounded-2xl bg-card p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+      <div className="rounded-2xl bg-card p-5 shadow-elev-4">
         {/* Header: draft tag + review status flipping to approved */}
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground">
             {t("landing.ai.mock.tag")}
           </span>
           <AnimatePresence mode="wait" initial={false}>
             {approved ? (
               <motion.span
                 key="approved"
-                className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-semibold text-success"
+                className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-2xs font-semibold text-success"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
@@ -101,7 +104,7 @@ function ReviewMock() {
             ) : (
               <motion.span
                 key="review"
-                className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-[11px] font-semibold text-warning"
+                className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-2xs font-semibold text-warning"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}

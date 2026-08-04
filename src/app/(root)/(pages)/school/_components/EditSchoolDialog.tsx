@@ -102,9 +102,9 @@ export default function EditSchoolDialog({
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.schoolPage.edit.nameLabel")}
-            <span className="text-[var(--destructive)]"> *</span>
+            <span className="text-destructive"> *</span>
           </label>
           <Input
             {...register("name")}
@@ -113,14 +113,14 @@ export default function EditSchoolDialog({
             autoFocus
           />
           {errors.name ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
+            <p className="mt-1.5 text-xs text-destructive">
               {t("root.schoolPage.edit.nameError")}
             </p>
           ) : null}
         </div>
 
         <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+          <label className="mb-1.5 block text-sm font-medium text-foreground">
             {t("root.schoolPage.edit.descLabel")}
           </label>
           <Textarea
@@ -133,7 +133,7 @@ export default function EditSchoolDialog({
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               {t("root.schoolPage.edit.cityLabel")}
             </label>
             <Input
@@ -143,7 +143,7 @@ export default function EditSchoolDialog({
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
+            <label className="mb-1.5 block text-sm font-medium text-foreground">
               {t("root.schoolPage.edit.countryLabel")}
             </label>
             <Input

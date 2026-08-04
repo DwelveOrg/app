@@ -46,6 +46,7 @@ import PublishDialog from "./PublishDialog";
 import SectionCard from "./SectionCard";
 import TestSettingsDialog from "./TestSettingsDialog";
 import TestStatusBadge from "./TestStatusBadge";
+import Badge from "@/components/ui/badge";
 
 type TestBuilderProps = {
   test: ApiTestDetail;
@@ -260,22 +261,22 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-xl font-bold text-[var(--foreground)] sm:text-2xl">
+            <h1 className="type-section text-foreground">
               {test.title}
             </h1>
             <TestStatusBadge status={test.status} />
-            <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+            <Badge variant="outline">
               {translateKey(t, blueprint?.labelKey, humanizeToken(test.format))}
-            </span>
+            </Badge>
           </div>
 
-          <dl className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-[var(--muted-foreground)]">
+          <dl className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
             <div className="flex items-center gap-1.5">
               <dt className="inline-flex items-center gap-1">
                 <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="sr-only">{t("root.tests.list.meta.questions")}</span>
               </dt>
-              <dd className="font-medium text-[var(--foreground)]">
+              <dd className="font-medium text-foreground">
                 {t("root.tests.list.meta.questionCount", { count: questionCount })}
               </dd>
             </div>
@@ -284,7 +285,7 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
                 <Target className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="sr-only">{t("root.tests.list.meta.points")}</span>
               </dt>
-              <dd className="font-medium text-[var(--foreground)]">
+              <dd className="font-medium text-foreground">
                 {t("root.tests.list.meta.pointCount", { count: totalPoints })}
               </dd>
             </div>
@@ -302,7 +303,7 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
 
       {isDraft ? null : (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-4 py-3">
-          <p className="min-w-0 flex-1 text-sm text-[var(--foreground)]">
+          <p className="min-w-0 flex-1 text-sm text-foreground">
             {test.status === "PUBLISHED"
               ? t("root.tests.builder.publishedLock")
               : t("root.tests.builder.archivedLock")}
@@ -362,8 +363,8 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
       ) : null}
 
       {/* Sticky action bar: save is one request, publish opens the checklist. */}
-      <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--border)] bg-[color-mix(in_srgb,var(--card)_92%,transparent)] px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,0.10)] backdrop-blur dark:shadow-[0_8px_30px_rgba(0,0,0,0.35)]">
-        <p className="min-w-0 flex-1 text-xs text-[var(--muted-foreground)]">
+      <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-[color-mix(in_srgb,var(--card)_92%,transparent)] px-4 py-3 shadow-elev-3 backdrop-blur">
+        <p className="min-w-0 flex-1 text-xs text-muted-foreground">
           {isDirty
             ? t("root.tests.builder.unsavedChanges")
             : t("root.tests.builder.allSaved")}
@@ -388,7 +389,7 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
         <Button
           type="button"
           variant="ghost"
-          className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+          className="text-muted-foreground hover:text-destructive"
           onClick={() => setDeleteOpen(true)}
         >
           {isDraft ? t("root.tests.list.actions.delete") : t("root.tests.list.actions.archive")}
@@ -429,7 +430,7 @@ function BackLink({ classId }: { classId: string }) {
   return (
     <Link
       href={`/groups/${classId}/tests`}
-      className="inline-flex w-fit items-center gap-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
+      className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
     >
       <ArrowLeft className="h-4 w-4" />
       {t("root.tests.builder.backToTests")}

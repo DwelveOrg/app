@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { GraduationCap, LoaderCircle } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 
-import Btn from "@/components/Custom/CustomButton";
+import Button from "@/components/ui/Button";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import { useAcceptTeacherInviteMutation } from "@/app/(authentication)/_hooks/useAuthMutations";
 
@@ -58,7 +58,7 @@ export default function InviteAcceptClient({
           <DwelveLogo variant="form" />
         </div>
 
-        <div className="rounded-3xl border border-border bg-card p-8 shadow-[0_24px_70px_rgba(15,23,42,0.10)]">
+        <div className="rounded-3xl border border-border bg-card p-8 shadow-elev-4">
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
             <GraduationCap className="h-7 w-7" />
           </div>
@@ -81,23 +81,20 @@ export default function InviteAcceptClient({
               )}
 
               {error && (
-                <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
+                <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                   {error}
                 </div>
               )}
 
-              <Btn
+              <Button
                 type="button"
                 onClick={onAccept}
-                disabled={isBusy}
-                className="w-full flex items-center justify-center py-3 text-sm"
+                size="xl"
+                className="w-full"
+                loading={isBusy}
               >
-                {isBusy ? (
-                  <LoaderCircle className="h-5 w-5 animate-spin" />
-                ) : (
-                  t("auth.invite.accept")
-                )}
-              </Btn>
+                {t("auth.invite.accept")}
+              </Button>
 
               <p className="text-center text-xs text-muted-foreground">
                 {t("auth.invite.emailMismatchNote")}
@@ -105,17 +102,12 @@ export default function InviteAcceptClient({
             </div>
           ) : (
             <div className="mt-7 space-y-3">
-              <Link href={loginHref} className="block">
-                <Btn type="button" className="w-full flex items-center justify-center py-3 text-sm">
-                  {t("auth.invite.login")}
-                </Btn>
-              </Link>
-              <Link
-                href={signupHref}
-                className="flex w-full items-center justify-center rounded-xl border border-border py-3 text-sm font-semibold text-foreground transition hover:bg-muted"
-              >
-                {t("auth.invite.signup")}
-              </Link>
+              <Button asChild size="xl" className="w-full">
+                <Link href={loginHref}>{t("auth.invite.login")}</Link>
+              </Button>
+              <Button asChild variant="outline" size="xl" className="w-full">
+                <Link href={signupHref}>{t("auth.invite.signup")}</Link>
+              </Button>
             </div>
           )}
         </div>

@@ -127,24 +127,24 @@ export default function TestSettingsDialog({
           <Input
             {...register("title")}
             aria-invalid={Boolean(errors.title)}
-            className="py-2.5"
+            size="md"
           />
           {errors.title ? (
-            <p className="mt-1 text-[11px] text-[var(--destructive)]">
+            <p className="mt-1 text-2xs text-destructive">
               {t("root.tests.settings.titleRequired")}
             </p>
           ) : null}
         </Field>
 
         <Field label={t("root.tests.settings.descriptionLabel")}>
-          <Textarea {...register("description")} rows={2} className="py-2.5" />
+          <Textarea {...register("description")} rows={2} fieldSize="md" />
         </Field>
 
         <Field
           label={t("root.tests.settings.instructionsLabel")}
           hint={t("root.tests.settings.instructionsHint")}
         >
-          <Textarea {...register("instructions")} rows={3} className="py-2.5" />
+          <Textarea {...register("instructions")} rows={3} fieldSize="md" />
         </Field>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -170,7 +170,7 @@ export default function TestSettingsDialog({
             <Input
               type="datetime-local"
               {...register("availableFrom")}
-              className="py-2.5"
+              size="md"
             />
           </Field>
           <Field label={t("root.tests.settings.availableUntil")}>
@@ -178,10 +178,10 @@ export default function TestSettingsDialog({
               type="datetime-local"
               {...register("availableUntil")}
               aria-invalid={Boolean(errors.availableUntil)}
-              className="py-2.5"
+              size="md"
             />
             {errors.availableUntil ? (
-              <p className="mt-1 text-[11px] text-[var(--destructive)]">
+              <p className="mt-1 text-2xs text-destructive">
                 {t("root.tests.settings.windowInvalid")}
               </p>
             ) : null}
@@ -192,9 +192,9 @@ export default function TestSettingsDialog({
           control={control}
           name="shuffleQuestions"
           render={({ field }) => (
-            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5">
+            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2.5">
               <Switch checked={field.value} onCheckedChange={field.onChange} />
-              <span className="text-sm font-medium text-[var(--foreground)]">
+              <span className="text-sm font-medium text-foreground">
                 {t("root.tests.settings.shuffle")}
               </span>
             </label>

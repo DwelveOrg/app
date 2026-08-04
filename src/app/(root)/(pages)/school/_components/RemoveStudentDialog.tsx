@@ -1,22 +1,12 @@
 "use client";
 
 import { useTransition } from "react";
-import { LoaderCircle, UserMinus } from "lucide-react";
+import { UserMinus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { removeSchoolMemberAction } from "@/app/(root)/_lib/school-actions";
 
 type RemoveStudentDialogProps = {
@@ -59,36 +49,16 @@ export default function RemoveStudentDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <UserMinus />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            {t("root.schoolPage.students.remove.title", { name: studentName })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("root.schoolPage.students.remove.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            {t("root.schoolPage.students.remove.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={(event) => {
-              event.preventDefault();
-              handleRemove();
-            }}
-            disabled={isPending}
-          >
-            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {t("root.schoolPage.students.remove.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={<UserMinus />}
+      title={t("root.schoolPage.students.remove.title", { name: studentName })}
+      description={t("root.schoolPage.students.remove.description")}
+      cancelLabel={t("root.schoolPage.students.remove.cancel")}
+      confirmLabel={t("root.schoolPage.students.remove.confirm")}
+      isPending={isPending}
+      onConfirm={handleRemove}
+    />
   );
 }

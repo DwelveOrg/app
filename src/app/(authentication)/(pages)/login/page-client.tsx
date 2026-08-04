@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
-import Btn from "@/components/Custom/CustomButton";
-import { Eye, EyeOff, LoaderCircle } from "lucide-react";
+import Button from "@/components/ui/Button";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -26,7 +25,6 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
   const statusToastShownRef = React.useRef(false);
   const loginMutation = useLoginMutation();
   const googleMutation = useGoogleAuthMutation();
-  const [showPassword, setShowPassword] = React.useState(false);
   const {
     register,
     handleSubmit,
@@ -91,7 +89,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               {t("auth.login.access")}
             </p>
-            <h1 className="mt-2 text-3xl font-bold text-foreground">
+            <h1 className="mt-2 type-title text-foreground">
               {t("auth.login.title")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -125,7 +123,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
                 className={`w-full py-3 ${errors.identifier ? "border-destructive focus:border-destructive" : ""}`}
               />
               {errors.identifier && (
-                <p className="mt-1.5 text-xs text-destructive-text">{errors.identifier.message}</p>
+                <p className="mt-1.5 text-xs text-destructive">{errors.identifier.message}</p>
               )}
             </div>
 
@@ -134,49 +132,37 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
                 <label className="text-sm font-medium text-foreground">
                   {t("auth.login.passwordLabel")}
                 </label>
-                <Link href="/password-reset" className="text-xs font-medium text-primary hover:text-[var(--primary-hover)]">
+                <Link href="/password-reset" className="text-xs font-medium text-primary hover:text-primary-hover">
                   {t("auth.login.forgot")}
                 </Link>
               </div>
-              <div className="relative">
-                <Input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  placeholder={t("auth.login.passwordPlaceholder")}
-                  className={`w-full py-3 pr-11 ${errors.password ? "border-destructive focus:border-destructive" : ""}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((p) => !p)}
-                  className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-muted-foreground hover:text-foreground transition"
-                  aria-label={showPassword ? t("auth.login.hidePassword") : t("auth.login.showPassword")}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
+              <Input
+                {...register("password")}
+                type="password"
+                placeholder={t("auth.login.passwordPlaceholder")}
+                revealLabel={t("auth.login.showPassword")}
+                hideLabel={t("auth.login.hidePassword")}
+                aria-invalid={Boolean(errors.password)}
+              />
               {errors.password && (
-                <p className="mt-1.5 text-xs text-destructive-text">{errors.password.message}</p>
+                <p className="mt-1.5 text-xs text-destructive">{errors.password.message}</p>
               )}
             </div>
 
             {errors.root && (
-              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
+              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {errors.root.message}
               </div>
             )}
 
-            <Btn
-              type="submit"
-              className="w-full flex items-center justify-center py-3 text-sm"
-              disabled={isBusy}
-            >
-              {isBusy ? <LoaderCircle className="h-5 w-5 animate-spin" /> : t("auth.login.submit")}
-            </Btn>
+            <Button type="submit" size="xl" className="w-full" loading={isBusy}>
+              {t("auth.login.submit")}
+            </Button>
           </form>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             {t("auth.login.noAccount")}{" "}
-            <Link href={signupHref} className="font-semibold text-primary hover:text-[var(--primary-hover)]">
+            <Link href={signupHref} className="font-semibold text-primary hover:text-primary-hover">
               {t("auth.login.signup")}
             </Link>
           </p>

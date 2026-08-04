@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import SectionHeading from "../_components/SectionHeading";
 import FeatureBullets from "../_components/FeatureBullets";
 import { useMockSequence } from "../_hooks/useMockSequence";
+import { surfaceVariants } from "@/components/ui/Surface";
 
 // Looping "demo video": analyse the upload, draft the questions, land on the
 // finished draft, then replay. READY is last so it's the resting/default frame.
@@ -30,8 +31,8 @@ export default function AiGeneration() {
   ];
 
   return (
-    <section id="ai-generation" className="w-full scroll-mt-24 py-20 md:py-28">
-      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 lg:grid-cols-2">
+    <section id="ai-generation" className="w-full scroll-mt-24 py-24 md:py-32">
+      <div className="mx-auto grid w-full max-w-6xl items-center gap-12 px-4 lg:grid-cols-2 [&>*]:min-w-0">
         <div>
           <SectionHeading
             align="left"
@@ -73,7 +74,7 @@ function AiMock() {
 
   return (
     <div ref={ref} className="rounded-[28px] bg-muted p-3 sm:p-5 dark:bg-white/5">
-      <div className="rounded-2xl bg-card p-5 shadow-[0_24px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+      <div className="rounded-2xl bg-card p-5 shadow-elev-4">
         {/* Uploaded source file — spinner while analysing, then a settled check */}
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted p-3 dark:bg-white/5">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
@@ -152,7 +153,7 @@ function AiMock() {
             {t("landing.ai.mock.heading")}
           </p>
           <motion.span
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-[11px] font-semibold text-accent-foreground"
+            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground"
             initial={false}
             animate={{ opacity: ready ? 1 : 0.4, scale: ready ? 1 : 0.9 }}
             transition={{ type: "spring", stiffness: 420, damping: 22 }}
@@ -167,7 +168,7 @@ function AiMock() {
           {questions.map((q, i) => (
             <div
               key={i}
-              className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 dark:bg-white/[0.03]"
+              className={cn(surfaceVariants({ radius: "md", padding: "none" }), "flex items-start gap-3 p-3 dark:bg-white/[0.03]")}
             >
               <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-muted text-xs font-bold text-muted-foreground dark:bg-white/10">
                 {i + 1}
@@ -189,7 +190,7 @@ function AiMock() {
                 </div>
               </div>
               <motion.span
-                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2 py-1 text-[11px] font-semibold text-muted-foreground"
+                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border px-2 py-1 text-2xs font-semibold text-muted-foreground"
                 initial={false}
                 animate={{ opacity: ready ? 1 : 0.3 }}
                 transition={{ duration: 0.4, delay: ready ? i * 0.11 + 0.1 : 0 }}

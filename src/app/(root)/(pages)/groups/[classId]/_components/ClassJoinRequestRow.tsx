@@ -4,8 +4,10 @@ import { Check, Loader2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
+import Avatar from "@/components/ui/Avatar";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import type { ClassEnrollmentItem } from "@/app/(root)/_lib/enrollment.schemas";
+import Surface from "@/components/ui/Surface";
 
 type ClassJoinRequestRowProps = {
   request: ClassEnrollmentItem;
@@ -29,29 +31,26 @@ export default function ClassJoinRequestRow({
 }: ClassJoinRequestRowProps) {
   const { t } = useTranslation();
   const { student } = request;
-  const initial = student.fullName.trim().charAt(0).toUpperCase() || "?";
   const busy = isApproving || isRejecting;
 
   return (
-    <li className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:flex-row sm:items-center">
-      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-semibold text-[var(--primary)]">
-        {initial}
-      </span>
+    <Surface as="li" padding="sm" className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <Avatar name={student.fullName} tint="seeded" />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+        <p className="truncate text-sm font-semibold text-foreground">
           {student.fullName}
         </p>
         {student.email ? (
-          <p className="truncate text-xs text-[var(--muted-foreground)]">{student.email}</p>
+          <p className="truncate text-xs text-muted-foreground">{student.email}</p>
         ) : null}
         {request.message ? (
-          <p className="mt-1.5 rounded-lg bg-[var(--muted)] px-3 py-1.5 text-xs text-[var(--foreground)]">
+          <p className="mt-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground">
             {request.message}
           </p>
         ) : null}
         {request.requestedAt ? (
-          <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
+          <p className="mt-1 text-2xs text-muted-foreground">
             <RelativeTime date={request.requestedAt} />
           </p>
         ) : null}
@@ -71,6 +70,6 @@ export default function ClassJoinRequestRow({
           {t("root.enrollment.classRequests.reject")}
         </Button>
       </div>
-    </li>
+    </Surface>
   );
 }

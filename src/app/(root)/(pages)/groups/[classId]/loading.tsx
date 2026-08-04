@@ -1,4 +1,5 @@
-import Skeleton from "@/components/ui/Skeleton";
+import Skeleton, { SkeletonPage } from "@/components/ui/Skeleton";
+import Surface from "@/components/ui/Surface";
 
 /**
  * Streaming placeholder for the class page: identity header, overview facts,
@@ -6,10 +7,8 @@ import Skeleton from "@/components/ui/Skeleton";
  */
 export default function Loading() {
   return (
-    <section aria-busy="true" className="flex flex-col gap-6 py-6">
-      <Skeleton className="h-5 w-32" />
-
-      <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6">
+    <SkeletonPage backLink header="none">
+      <Surface padding="lg">
         <div className="flex flex-wrap items-start gap-4">
           <Skeleton className="h-16 w-16 rounded-2xl" />
           <div className="min-w-0 flex-1 space-y-3">
@@ -24,12 +23,12 @@ export default function Loading() {
             <Skeleton key={index} className="h-16" />
           ))}
         </div>
-      </div>
+      </Surface>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Skeleton className="h-64 rounded-2xl" />
         <Skeleton className="h-64 rounded-2xl" />
       </div>
-    </section>
+    </SkeletonPage>
   );
 }

@@ -22,8 +22,8 @@ export default function ManualEditor({
 
   return (
     <div className="space-y-3">
-      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--foreground)]">
-        <PenLine className="h-3.5 w-3.5 text-[var(--muted-foreground)]" aria-hidden="true" />
+      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground">
+        <PenLine className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
         {t("root.tests.builder.manual.title")}
       </p>
 

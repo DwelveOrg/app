@@ -2,18 +2,15 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GraduationCap, MoreVertical, UserMinus } from "lucide-react";
+import { GraduationCap, UserMinus } from "lucide-react";
 
+import Avatar from "@/components/ui/Avatar";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import RowActionsMenu from "@/components/ui/RowActionsMenu";
 import Empty from "../../_components/ui/Empty";
 import RemoveStudentDialog from "./RemoveStudentDialog";
+import Surface from "@/components/ui/Surface";
 
 type SchoolStudentsTabProps = {
   students: StudentItem[];
@@ -38,11 +35,11 @@ export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) 
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
+    <Surface padding="none" className="overflow-hidden">
       {/* Desktop / tablet: proper table. */}
       <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-left text-sm">
-          <thead className="bg-[var(--muted)]/40 text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">
+          <thead className="bg-muted/40 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3">{t("root.schoolPage.students.columns.student")}</th>
               <th className="px-4 py-3">{t("root.schoolPage.students.columns.code")}</th>
@@ -53,7 +50,7 @@ export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) 
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[var(--border)]">
+          <tbody className="divide-y divide-border">
             {students.map((student) => (
               <StudentRow
                 key={student.memberId}
@@ -66,7 +63,7 @@ export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) 
       </div>
 
       {/* Mobile: stacked cards. */}
-      <ul className="divide-y divide-[var(--border)] md:hidden">
+      <ul className="divide-y divide-border md:hidden">
         {students.map((student) => (
           <StudentCard
             key={student.memberId}
@@ -84,7 +81,7 @@ export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) 
         memberId={removeTarget?.memberId ?? ""}
         studentName={removeTarget?.fullName ?? ""}
       />
-    </div>
+    </Surface>
   );
 }
 
@@ -98,26 +95,17 @@ function StudentActionsMenu({
   const { t } = useTranslation();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          aria-label={t("root.schoolPage.students.actions.menu", { name: student.fullName })}
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
-        >
-          <MoreVertical className="h-4 w-4" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuItem
-          onSelect={() => onRemove(student)}
-          className="text-[var(--destructive)] focus:text-[var(--destructive)]"
-        >
-          <UserMinus className="h-4 w-4" />
-          {t("root.schoolPage.students.actions.remove")}
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <RowActionsMenu
+      label={t("root.schoolPage.students.actions.menu", { name: student.fullName })}
+      actions={[
+        {
+          label: t("root.schoolPage.students.actions.remove"),
+          icon: UserMinus,
+          destructive: true,
+          onSelect: () => onRemove(student),
+        },
+      ]}
+    />
   );
 }
 
@@ -133,13 +121,13 @@ function StudentRow({
   const joinedAt = student.joinedAt ?? student.createdAt;
 
   return (
-    <tr className="text-[var(--foreground)]">
+    <tr className="text-foreground">
       <td className="px-4 py-3 align-top">
         <div className="flex items-center gap-3">
-          <Avatar name={student.fullName} />
+          <Avatar name={student.fullName} size="sm" tint="seeded" />
           <div className="min-w-0">
             <div className="truncate font-medium">{student.fullName}</div>
-            <div className="truncate text-xs text-[var(--muted-foreground)]">
+            <div className="truncate text-xs text-muted-foreground">
               {student.email}
             </div>
           </div>
@@ -147,15 +135,15 @@ function StudentRow({
       </td>
       <td className="px-4 py-3 align-top">
         {student.studentCode ? (
-          <span className="inline-flex items-center rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-xs text-[var(--foreground)]">
+          <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono text-xs text-foreground">
             {student.studentCode}
           </span>
         ) : (
-          <span className="text-xs text-[var(--muted-foreground)]">—</span>
+          <span className="text-xs text-muted-foreground">—</span>
         )}
       </td>
-      <td className="px-4 py-3 align-top text-[var(--muted-foreground)]">{classesText}</td>
-      <td className="px-4 py-3 align-top text-[var(--muted-foreground)]">
+      <td className="px-4 py-3 align-top text-muted-foreground">{classesText}</td>
+      <td className="px-4 py-3 align-top text-muted-foreground">
         {joinedAt ? <RelativeTime date={joinedAt} /> : "—"}
       </td>
       <td className="px-4 py-3 align-top text-right">
@@ -179,20 +167,20 @@ function StudentCard({
   return (
     <li className="flex flex-col gap-2 px-4 py-3">
       <div className="flex items-center gap-3">
-        <Avatar name={student.fullName} />
+        <Avatar name={student.fullName} size="sm" tint="seeded" />
         <div className="min-w-0 flex-1">
-          <div className="truncate font-medium text-[var(--foreground)]">
+          <div className="truncate font-medium text-foreground">
             {student.fullName}
           </div>
-          <div className="truncate text-xs text-[var(--muted-foreground)]">
+          <div className="truncate text-xs text-muted-foreground">
             {student.email}
           </div>
         </div>
         <StudentActionsMenu student={student} onRemove={onRemove} />
       </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-[var(--muted-foreground)]">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
         {student.studentCode ? (
-          <span className="inline-flex items-center rounded-md bg-[var(--muted)] px-2 py-0.5 font-mono text-[11px] text-[var(--foreground)]">
+          <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono text-2xs text-foreground">
             {student.studentCode}
           </span>
         ) : null}
@@ -203,15 +191,6 @@ function StudentCard({
         {joinedAt ? <RelativeTime date={joinedAt} /> : null}
       </div>
     </li>
-  );
-}
-
-function Avatar({ name }: { name: string }) {
-  const initial = name.trim().charAt(0).toUpperCase() || "?";
-  return (
-    <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-semibold text-[var(--primary)]">
-      {initial}
-    </span>
   );
 }
 

@@ -4,7 +4,7 @@ import { getClassTests } from "@/app/(root)/_utils/getClassTests";
 import { getTestFormats } from "@/app/(root)/_utils/getTestFormats";
 import { DEFAULT_TEST_STATUS, TESTS_PAGE_SIZE } from "./_constants";
 import TestsListView from "./_components/TestsListView";
-import TestsStateView from "./_components/TestsStateView";
+import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
 
 type PageProps = {
   params: Promise<{ classId: string }>;
@@ -26,11 +26,13 @@ export default async function Page({ params }: PageProps) {
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason="forbidden"
+        namespace="root.tests"
         backHref={backHref}
         backLabelKey="root.tests.list.backToClass"
-      />
+        retryLabelKey="root.tests.actions.retry"
+        />
     );
   }
 
@@ -46,21 +48,25 @@ export default async function Page({ params }: PageProps) {
 
   if (!classResult.ok) {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason={classResult.reason}
+        namespace="root.tests"
         backHref={backHref}
         backLabelKey="root.tests.list.backToClass"
-      />
+        retryLabelKey="root.tests.actions.retry"
+        />
     );
   }
 
   if (!testsResult.ok) {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason={testsResult.reason}
+        namespace="root.tests"
         backHref={backHref}
         backLabelKey="root.tests.list.backToClass"
-      />
+        retryLabelKey="root.tests.actions.retry"
+        />
     );
   }
 

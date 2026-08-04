@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/Button";
+import Avatar from "@/components/ui/Avatar";
+import { SkeletonList } from "@/components/ui/Skeleton";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import type { TeacherRequestItem } from "@/app/(root)/_lib/teacher-requests.schemas";
 import {
@@ -15,6 +17,7 @@ import {
 } from "@/app/(root)/_hooks/useTeacherRequests";
 import Empty from "../../../_components/ui/Empty";
 import RejectTeacherRequestDialog from "./RejectTeacherRequestDialog";
+import Surface from "@/components/ui/Surface";
 
 type ClassTeacherRequestsListProps = {
   classId: string;
@@ -71,14 +74,7 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
 
   if (query.isLoading) {
     return (
-      <div aria-busy="true" className="space-y-3">
-        {Array.from({ length: 3 }).map((_, index) => (
-          <div
-            key={index}
-            className="h-24 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--muted)]"
-          />
-        ))}
-      </div>
+      <SkeletonList count={3} />
     );
   }
 
@@ -139,29 +135,26 @@ type RequestRowProps = {
 function RequestRow({ request, onApprove, onReject, isApproving, isRejecting }: RequestRowProps) {
   const { t } = useTranslation();
   const { teacher } = request;
-  const initial = teacher.fullName.trim().charAt(0).toUpperCase() || "?";
   const busy = isApproving || isRejecting;
 
   return (
-    <li className="flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 sm:flex-row sm:items-center">
-      <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-semibold text-[var(--primary)]">
-        {initial}
-      </span>
+    <Surface as="li" padding="sm" className="flex flex-col gap-4 sm:flex-row sm:items-center">
+      <Avatar name={teacher.fullName} tint="seeded" />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--foreground)]">
+        <p className="truncate text-sm font-semibold text-foreground">
           {teacher.fullName}
         </p>
         {teacher.email ? (
-          <p className="truncate text-xs text-[var(--muted-foreground)]">{teacher.email}</p>
+          <p className="truncate text-xs text-muted-foreground">{teacher.email}</p>
         ) : null}
         {request.message ? (
-          <p className="mt-1.5 rounded-lg bg-[var(--muted)] px-3 py-1.5 text-xs text-[var(--foreground)]">
+          <p className="mt-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground">
             {request.message}
           </p>
         ) : null}
         {request.requestedAt ? (
-          <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">
+          <p className="mt-1 text-2xs text-muted-foreground">
             <RelativeTime date={request.requestedAt} />
           </p>
         ) : null}
@@ -181,6 +174,6 @@ function RequestRow({ request, onApprove, onReject, isApproving, isRejecting }: 
           {t("root.enrollment.teacherRequests.reject")}
         </Button>
       </div>
-    </li>
+    </Surface>
   );
 }

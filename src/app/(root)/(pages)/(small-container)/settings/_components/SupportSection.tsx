@@ -2,8 +2,8 @@
 
 import { BookOpenText, Bug, Mail, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import ListRow from "@/app/(root)/_components/ListRow";
 import { SettingsGroup } from "./SettingsGroup";
-import { SettingsRow } from "./SettingsRow";
 import { FeedbackModal } from "./FeedbackModal";
 import { rowActionClassName, supportEmail } from "../_constants";
 import type { SettingsAccountContext } from "../_types";
@@ -15,7 +15,7 @@ export function SupportSection({
 
   return (
     <SettingsGroup label={t("root.settings.support.title")}>
-      <SettingsRow
+      <ListRow
         icon={Bug}
         title={t("root.settings.support.reportBug.title")}
         description={t("root.settings.support.reportBug.description")}
@@ -31,7 +31,7 @@ export function SupportSection({
           </FeedbackModal>
         }
       />
-      <SettingsRow
+      <ListRow
         icon={Sparkles}
         title={t("root.settings.support.requestFeature.title")}
         description={t("root.settings.support.requestFeature.description")}
@@ -47,7 +47,7 @@ export function SupportSection({
           </FeedbackModal>
         }
       />
-      <SettingsRow
+      <ListRow
         icon={Mail}
         title={t("root.settings.support.contactSupport.title")}
         description={t("root.settings.support.contactSupport.description")}
@@ -57,7 +57,7 @@ export function SupportSection({
           </a>
         }
       />
-      <SettingsRow
+      <ListRow
         icon={BookOpenText}
         title={t("root.settings.support.documentation.title")}
         description={t("root.settings.support.documentation.description")}

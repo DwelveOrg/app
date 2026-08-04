@@ -2,8 +2,8 @@
 
 import { Languages, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import ListRow from "@/app/(root)/_components/ListRow";
 import { SettingsGroup } from "./SettingsGroup";
-import { SettingsRow } from "./SettingsRow";
 import { ThemeSegment } from "./ThemeSegment";
 import { LanguageSegment } from "./LanguageSegment";
 
@@ -12,13 +12,13 @@ export function PreferencesSection() {
 
   return (
     <SettingsGroup label={t("root.settings.groups.preferences")}>
-      <SettingsRow
+      <ListRow
         icon={Palette}
         title={t("root.settings.appearance.themeLabel")}
         description={t("root.settings.appearance.themeHelp")}
         control={<ThemeSegment />}
       />
-      <SettingsRow
+      <ListRow
         icon={Languages}
         title={t("root.settings.language.primary.title")}
         description={t("root.settings.language.primary.description")}

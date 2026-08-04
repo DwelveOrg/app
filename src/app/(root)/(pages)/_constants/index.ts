@@ -19,8 +19,25 @@ export const itemVariants: Variants = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.36, ease: entryEase },
+    transition: { duration: 0.26, ease: entryEase },
   },
+};
+
+/**
+ * Reduced-motion equivalents.
+ *
+ * `prefers-reduced-motion` is a hard requirement (design-system §5), and a staggered translate is
+ * exactly the kind of motion it exists to suppress. Callers select with `useReducedMotion()`;
+ * content still ends up visible, it just arrives at once instead of sliding in.
+ */
+export const staticContainerVariants: Variants = {
+  hidden: { opacity: 1 },
+  show: { opacity: 1 },
+};
+
+export const staticItemVariants: Variants = {
+  hidden: { opacity: 1, y: 0 },
+  show: { opacity: 1, y: 0 },
 };
 
 export const examTabs: ExamTab[] = ["active", "completed"];

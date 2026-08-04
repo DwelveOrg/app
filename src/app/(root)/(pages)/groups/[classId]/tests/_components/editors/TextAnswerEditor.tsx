@@ -32,7 +32,7 @@ export default function TextAnswerEditor({
   return (
     <div className="space-y-3">
       <div className="space-y-2">
-        <p className="text-xs font-medium text-[var(--foreground)]">
+        <p className="text-xs font-medium text-foreground">
           {t("root.tests.builder.text.title")}
         </p>
 
@@ -40,7 +40,7 @@ export default function TextAnswerEditor({
           {fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2"
+              className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2"
             >
               <Input
                 {...control.register(
@@ -93,13 +93,13 @@ export default function TextAnswerEditor({
             control={control}
             name={`${name}.config.caseSensitive`}
             render={({ field }) => (
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5">
+              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2.5">
                 <Switch
                   checked={field.value}
                   onCheckedChange={field.onChange}
                   disabled={disabled}
                 />
-                <span className="text-xs font-medium text-[var(--foreground)]">
+                <span className="text-xs font-medium text-foreground">
                   {t("root.tests.builder.text.caseSensitive")}
                 </span>
               </label>

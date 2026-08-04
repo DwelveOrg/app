@@ -36,13 +36,13 @@ export function Field({
     <div className={cn("min-w-0", className)}>
       <label
         htmlFor={htmlFor}
-        className="mb-1.5 block text-xs font-medium text-[var(--foreground)]"
+        className="mb-1.5 block text-xs font-medium text-foreground"
       >
         {label}
       </label>
       {children}
       {hint ? (
-        <p className="mt-1 text-[11px] text-[var(--muted-foreground)]">{hint}</p>
+        <p className="mt-1 text-2xs text-muted-foreground">{hint}</p>
       ) : null}
     </div>
   );
@@ -155,7 +155,7 @@ export function RowTextInput<TFieldValues extends FieldValues>({
             className={cn("py-2", className)}
           />
           {fieldState.error?.message ? (
-            <span className="mt-1 block text-[11px] text-[var(--destructive)]">
+            <span className="mt-1 block text-2xs text-destructive">
               {t(fieldState.error.message)}
             </span>
           ) : null}
@@ -220,7 +220,7 @@ export function RowControls({
         size="icon-sm"
         variant="ghost"
         aria-label={removeLabel}
-        className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+        className="text-muted-foreground hover:text-destructive"
         disabled={disabled || !canRemove}
         onClick={() => onRemove(index)}
       >

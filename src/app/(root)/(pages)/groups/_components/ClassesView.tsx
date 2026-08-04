@@ -10,6 +10,7 @@ import CreateClassDialog from "../../school/_components/CreateClassDialog";
 import { classFilterLabelKeys, classFilters } from "../_constants";
 import type { ClassFilter, ClassItem } from "../_types";
 import ClassGrid from "./ClassGrid";
+import TabBar from "@/components/ui/TabBar";
 
 type ClassesViewProps = {
   items: ClassItem[];
@@ -45,10 +46,10 @@ export default function ClassesView({ items, role }: ClassesViewProps) {
     <div className="flex flex-col gap-6">
       <header className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">
+          <h1 className="type-title text-foreground">
             {t("root.classes.title")}
           </h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-sm text-muted-foreground">
             {items.length > 0
               ? t(subtitleKeyForRole(role), { count: items.length })
               : t("root.classes.subtitleEmpty")}
@@ -64,30 +65,16 @@ export default function ClassesView({ items, role }: ClassesViewProps) {
 
       {items.length > 0 ? (
         <>
-          {/* Underline tabs filter the list by status. */}
-          <div className="flex flex-wrap items-center gap-1 border-b border-[var(--border)]">
-            {classFilters.map((value) => {
-              const isActive = filter === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => setFilter(value)}
-                  aria-pressed={isActive}
-                  className={`relative inline-flex h-9 cursor-pointer items-center px-3 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "text-[var(--primary)]"
-                      : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-                  }`}
-                >
-                  {t(classFilterLabelKeys[value])}
-                  {isActive ? (
-                    <span className="absolute inset-x-2 -bottom-px h-0.5 rounded-full bg-[var(--primary)]" />
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
+          <TabBar
+            layoutId="classes-filter"
+            ariaLabel={t("root.classes.filters.all")}
+            value={filter}
+            onSelect={(next) => setFilter(next as ClassFilter)}
+            items={classFilters.map((value) => ({
+              value,
+              label: t(classFilterLabelKeys[value]),
+            }))}
+          />
 
           {visible.length > 0 ? (
             <ClassGrid key={filter} items={visible} isAdmin={isAdmin} />

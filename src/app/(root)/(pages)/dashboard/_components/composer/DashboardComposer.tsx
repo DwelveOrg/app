@@ -1,7 +1,6 @@
 "use client";
 
 import type { ComponentType, ReactNode } from "react";
-import { useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -15,6 +14,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/Button";
+import CopyButton from "@/components/ui/CopyButton";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import { cn } from "@/lib/utils";
 import type { DashboardAvailability } from "@/app/(root)/_utils/getDashboard";
@@ -29,6 +29,7 @@ import Panel from "../Panel";
 import JoinCodeChip from "../JoinCodeChip";
 import TrendChart from "./TrendChart";
 import SegmentDonut from "./SegmentDonut";
+import Surface from "@/components/ui/Surface";
 
 export type StaffRole = "ADMIN" | "TEACHER";
 
@@ -87,21 +88,12 @@ function Header({ ctx }: ModuleProps) {
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
         {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--primary)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {eyebrow}
           </p>
         ) : null}
-        <h1
-          className={cn(
-            "font-bold text-balance text-[var(--foreground)]",
-            eyebrow
-              ? "mt-2 text-2xl md:text-3xl"
-              : "text-[26px] leading-tight tracking-tight md:text-[30px]",
-          )}
-        >
-          {title}
-        </h1>
-        <p className="mt-1.5 text-[15px] text-[var(--muted-foreground)]">{subtitle}</p>
+        <h1 className={cn("type-title text-foreground", eyebrow && "mt-2")}>{title}</h1>
+        <p className="mt-1.5 text-[15px] text-muted-foreground">{subtitle}</p>
       </div>
 
       {ctx.role === "ADMIN" && ctx.studentJoinCode ? (
@@ -122,11 +114,11 @@ function EmptyNote({
 }) {
   return (
     <div className="flex flex-col items-start gap-2 py-2">
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--accent)] text-[var(--primary)]">
+      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
         <Icon className="h-5 w-5" />
       </span>
-      <p className="text-sm font-semibold text-[var(--foreground)]">{title}</p>
-      <p className="max-w-[46ch] text-xs text-[var(--muted-foreground)]">{desc}</p>
+      <p className="text-sm font-semibold text-foreground">{title}</p>
+      <p className="max-w-[46ch] text-xs text-muted-foreground">{desc}</p>
     </div>
   );
 }
@@ -171,25 +163,22 @@ function KpiStrip({ ctx }: ModuleProps) {
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
       {tiles.map((tile) => (
-        <div
-          key={tile.key}
-          className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5"
-        >
-          <p className="text-sm font-medium text-[var(--muted-foreground)]">
+        <Surface key={tile.key}>
+          <p className="text-sm font-medium text-muted-foreground">
             {t(`${base}.${tile.key}`)}
           </p>
           <p
             className={cn(
               "mt-3 text-3xl font-bold tracking-tight tabular-nums",
-              tile.present ? "text-[var(--foreground)]" : "text-[var(--muted-foreground)]",
+              tile.present ? "text-foreground" : "text-muted-foreground",
             )}
           >
             {tile.value}
           </p>
           {tile.cue ? (
-            <p className="mt-2 text-[13px] font-medium text-[var(--primary)]">{tile.cue}</p>
+            <p className="mt-2 text-[13px] font-medium text-primary">{tile.cue}</p>
           ) : null}
-        </div>
+        </Surface>
       ))}
     </div>
   );
@@ -197,20 +186,7 @@ function KpiStrip({ ctx }: ModuleProps) {
 
 function SetupChecklist({ ctx }: ModuleProps) {
   const { t } = useTranslation();
-  const [copied, setCopied] = useState(false);
   const s = ctx.summary;
-
-  const copyCode = async () => {
-    if (!ctx.studentJoinCode) return;
-    try {
-      await navigator.clipboard.writeText(ctx.studentJoinCode);
-      setCopied(true);
-      toast.success(t("root.dashboard.school.joinCodeCopied"));
-      window.setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast.error(t("root.dashboard.school.joinCodeCopyError"));
-    }
-  };
 
   const steps = [
     { key: "createSchool", done: true, kind: "static" as const },
@@ -238,7 +214,7 @@ function SetupChecklist({ ctx }: ModuleProps) {
             <li
               key={step.key}
               className={cn(
-                "flex items-center gap-3 rounded-xl border border-[var(--border)] px-4 py-3",
+                "flex items-center gap-3 rounded-xl border border-border px-4 py-3",
                 step.done && "opacity-70",
               )}
             >
@@ -246,18 +222,18 @@ function SetupChecklist({ ctx }: ModuleProps) {
                 className={cn(
                   "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[13px] font-bold",
                   step.done
-                    ? "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-[var(--success)]"
-                    : "bg-[var(--accent)] text-[var(--primary)]",
+                    ? "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-success"
+                    : "bg-accent text-primary",
                 )}
               >
                 {step.done ? <Check className="h-4 w-4" /> : index + 1}
               </span>
 
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-[var(--foreground)]">
+                <p className="text-sm font-semibold text-foreground">
                   {t(`${b}.title`)}
                 </p>
-                <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {ctx.schoolName && step.key === "createSchool"
                     ? ctx.schoolName
                     : t(`${b}.desc`)}
@@ -265,7 +241,7 @@ function SetupChecklist({ ctx }: ModuleProps) {
               </div>
 
               {step.done ? (
-                <span className="shrink-0 text-xs font-medium text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-[var(--success)]">
+                <span className="shrink-0 text-xs font-medium text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-success">
                   {t("root.dashboard.setup.doneLabel")}
                 </span>
               ) : step.kind === "link" ? (
@@ -273,26 +249,18 @@ function SetupChecklist({ ctx }: ModuleProps) {
                   <Link href={step.href}>{t(`${b}.action`)}</Link>
                 </Button>
               ) : (
-                <Button
-                  type="button"
+                <CopyButton
+                  value={ctx.studentJoinCode ?? ""}
+                  icon={Share2}
+                  showLabel
                   variant="outline"
-                  size="sm"
                   className="shrink-0"
-                  onClick={copyCode}
                   disabled={!ctx.studentJoinCode}
-                >
-                  {copied ? (
-                    <>
-                      <Check className="h-3.5 w-3.5" />
-                      {t("root.dashboard.school.joinCodeCopied")}
-                    </>
-                  ) : (
-                    <>
-                      <Share2 className="h-3.5 w-3.5" />
-                      {t(`${b}.action`)}
-                    </>
-                  )}
-                </Button>
+                  label={t(`${b}.action`)}
+                  copiedLabel={t("root.dashboard.school.joinCodeCopied")}
+                  onCopied={() => toast.success(t("root.dashboard.school.joinCodeCopied"))}
+                  onError={() => toast.error(t("root.dashboard.school.joinCodeCopyError"))}
+                />
               )}
             </li>
           );
@@ -398,16 +366,16 @@ function Upcoming({ ctx }: ModuleProps) {
         {items.map((item) => (
           <li
             key={item.id}
-            className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-[var(--muted)]/60"
+            className="flex items-start gap-3 rounded-xl px-3 py-2.5 transition-colors hover:bg-muted/60"
           >
-            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-[var(--primary)]" />
+            <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-primary" />
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-[var(--foreground)]">
+              <p className="truncate text-sm font-medium text-foreground">
                 {item.title}
               </p>
               <RelativeTime
                 date={item.dueAt}
-                className="mt-0.5 block text-xs text-[var(--muted-foreground)]"
+                className="mt-0.5 block text-xs text-muted-foreground"
               />
             </div>
           </li>

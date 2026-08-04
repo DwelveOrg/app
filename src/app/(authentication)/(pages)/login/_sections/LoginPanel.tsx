@@ -12,10 +12,10 @@ export default function LoginPanel() {
   const { t } = useTranslation();
   const bars = [55, 72, 85, 90, 78, 88, 95, 70, 82];
   const avatars = [
-    { initials: "AY", color: "from-violet-500 to-purple-600" },
-    { initials: "KM", color: "from-blue-500 to-indigo-600" },
-    { initials: "SR", color: "from-emerald-500 to-teal-600" },
-    { initials: "NB", color: "from-amber-400 to-orange-500" },
+    { initials: "AY", color: "var(--chart-1)" },
+    { initials: "KM", color: "var(--chart-2)" },
+    { initials: "SR", color: "var(--chart-3)" },
+    { initials: "NB", color: "var(--chart-4)" },
   ];
 
   return (
@@ -34,13 +34,13 @@ export default function LoginPanel() {
           {t("auth.visual.login.subtitleLine2")}
         </AuthPanelHeading>
 
-        <div className="w-72 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+        <div className="w-72 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-elev-4">
           <div className="mb-3 flex items-start justify-between gap-2">
             <div>
               <p className="text-xs font-semibold text-white">{t("auth.visual.login.card.subject")}</p>
-              <p className="mt-0.5 text-[10px] text-white/45">{t("auth.visual.login.card.meta")}</p>
+              <p className="mt-0.5 text-3xs text-white/70">{t("auth.visual.login.card.meta")}</p>
             </div>
-            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-success/30 bg-success/15 px-2 py-1 text-[10px] font-semibold text-success">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-success/30 bg-success/15 px-2 py-1 text-3xs font-semibold text-success">
               <Check className="h-3 w-3" />
               {t("auth.visual.login.card.done")}
             </span>
@@ -55,7 +55,7 @@ export default function LoginPanel() {
             ))}
           </div>
           <div className="flex items-center justify-between text-xs">
-            <span className="text-white/45">{t("auth.visual.login.card.students")}</span>
+            <span className="text-white/70">{t("auth.visual.login.card.students")}</span>
             <span className="font-bold text-white">{t("auth.visual.login.card.average")}</span>
           </div>
         </div>

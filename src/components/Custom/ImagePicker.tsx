@@ -114,9 +114,9 @@ export default function ImagePicker({
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-[var(--foreground)]">{label}</label>
+        <label className="text-sm font-medium text-foreground">{label}</label>
         {hint ? (
-          <span className="text-xs text-[var(--muted-foreground)]">{hint}</span>
+          <span className="text-xs text-muted-foreground">{hint}</span>
         ) : null}
       </div>
 
@@ -126,7 +126,7 @@ export default function ImagePicker({
           onClick={openPicker}
           disabled={disabled}
           className={cn(
-            "relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--border)] bg-[var(--muted)]/40 text-[var(--muted-foreground)] transition hover:border-[var(--primary)] hover:text-[var(--primary)] disabled:cursor-not-allowed disabled:opacity-60",
+            "relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-dashed border-border bg-muted/40 text-muted-foreground transition hover:border-primary hover:text-primary disabled:cursor-not-allowed disabled:opacity-60",
           )}
           aria-label={displayedUrl ? replaceLabel : chooseLabel}
         >
@@ -157,7 +157,7 @@ export default function ImagePicker({
               size="sm"
               onClick={handleRemove}
               disabled={disabled}
-              className="text-[var(--destructive)]"
+              className="text-destructive"
             >
               <Trash2 className="h-4 w-4" />
               {removeLabel}
@@ -176,7 +176,7 @@ export default function ImagePicker({
       />
 
       {message ? (
-        <p className="text-xs text-[var(--destructive)]">{message}</p>
+        <p className="text-xs text-destructive">{message}</p>
       ) : null}
     </div>
   );

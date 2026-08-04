@@ -1,14 +1,23 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 import ExamCard from "../../_components/ui/ExamCard";
 import Empty from "../../_components/ui/Empty";
-import { containerVariants, examItems, examTabLabelKeys, examTabs, itemVariants } from "../../_constants";
+import {
+  containerVariants,
+  examItems,
+  examTabLabelKeys,
+  examTabs,
+  itemVariants,
+  staticContainerVariants,
+  staticItemVariants,
+} from "../../_constants";
 import type { ExamTab } from "../../_types";
 
 export default function Page() {
+  const reduce = useReducedMotion();
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<ExamTab>("active");
 
@@ -28,8 +37,8 @@ export default function Page() {
               onClick={() => setActiveTab(tab)}
               className={`inline-flex h-10 cursor-pointer items-center justify-center rounded-full border px-4 text-sm font-semibold transition ${
                 isActive
-                  ? "border-[var(--primary)] bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "border-border bg-card text-muted-foreground hover:border-[var(--ring)]"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-card text-muted-foreground hover:border-ring"
               }`}
             >
               {t(examTabLabelKeys[tab])}
@@ -48,13 +57,13 @@ export default function Page() {
       ) : (
         <motion.div
           key={activeTab}
-          variants={containerVariants}
+          variants={reduce ? staticContainerVariants : containerVariants}
           initial="hidden"
           animate="show"
           className="grid gap-5 lg:grid-cols-2"
         >
           {filteredItems.map((exam) => (
-            <motion.div key={exam.id} variants={itemVariants}>
+            <motion.div key={exam.id} variants={reduce ? staticItemVariants : itemVariants}>
               <ExamCard exam={exam} />
             </motion.div>
           ))}
