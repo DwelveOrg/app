@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -17,7 +16,7 @@ import Dialog from "@/app/(root)/_components/Dialog";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
+import SwitchRow from "./SwitchRow";
 import { useUpdateTestMutation } from "../_hooks/useSaveTestStructureMutation";
 import { Field, NumberField } from "./editors/fields";
 
@@ -123,28 +122,28 @@ export default function TestSettingsDialog({
       contentClassName="max-w-lg"
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <Field label={t("root.tests.settings.titleLabel")}>
+        <Field
+          size="sm"
+          label={t("root.tests.settings.titleLabel")}
+          error={errors.title ? t("root.tests.settings.titleRequired") : undefined}
+        >
           <Input
             {...register("title")}
             aria-invalid={Boolean(errors.title)}
-            className="py-2.5"
+            size="md"
           />
-          {errors.title ? (
-            <p className="mt-1 text-[11px] text-[var(--destructive)]">
-              {t("root.tests.settings.titleRequired")}
-            </p>
-          ) : null}
         </Field>
 
-        <Field label={t("root.tests.settings.descriptionLabel")}>
-          <Textarea {...register("description")} rows={2} className="py-2.5" />
+        <Field size="sm" label={t("root.tests.settings.descriptionLabel")}>
+          <Textarea {...register("description")} rows={2} fieldSize="md" />
         </Field>
 
         <Field
+          size="sm"
           label={t("root.tests.settings.instructionsLabel")}
           hint={t("root.tests.settings.instructionsHint")}
         >
-          <Textarea {...register("instructions")} rows={3} className="py-2.5" />
+          <Textarea {...register("instructions")} rows={3} fieldSize="md" />
         </Field>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -166,25 +165,24 @@ export default function TestSettingsDialog({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label={t("root.tests.settings.availableFrom")}>
+          <Field size="sm" label={t("root.tests.settings.availableFrom")}>
             <Input
               type="datetime-local"
               {...register("availableFrom")}
-              className="py-2.5"
+              size="md"
             />
           </Field>
-          <Field label={t("root.tests.settings.availableUntil")}>
+          <Field
+            size="sm"
+            label={t("root.tests.settings.availableUntil")}
+            error={errors.availableUntil ? t("root.tests.settings.windowInvalid") : undefined}
+          >
             <Input
               type="datetime-local"
               {...register("availableUntil")}
               aria-invalid={Boolean(errors.availableUntil)}
-              className="py-2.5"
+              size="md"
             />
-            {errors.availableUntil ? (
-              <p className="mt-1 text-[11px] text-[var(--destructive)]">
-                {t("root.tests.settings.windowInvalid")}
-              </p>
-            ) : null}
           </Field>
         </div>
 
@@ -192,12 +190,11 @@ export default function TestSettingsDialog({
           control={control}
           name="shuffleQuestions"
           render={({ field }) => (
-            <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5">
-              <Switch checked={field.value} onCheckedChange={field.onChange} />
-              <span className="text-sm font-medium text-[var(--foreground)]">
-                {t("root.tests.settings.shuffle")}
-              </span>
-            </label>
+            <SwitchRow
+              checked={field.value}
+              onCheckedChange={field.onChange}
+              label={t("root.tests.settings.shuffle")}
+            />
           )}
         />
 
@@ -207,8 +204,7 @@ export default function TestSettingsDialog({
               {t("root.tests.actions.cancel")}
             </Button>
           </DialogPrimitive.Close>
-          <Button type="submit" disabled={isBusy}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy}>
             {t("root.tests.actions.save")}
           </Button>
         </div>

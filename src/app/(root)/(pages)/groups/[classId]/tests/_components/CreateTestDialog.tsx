@@ -3,13 +3,14 @@
 import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, LoaderCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Dialog from "@/app/(root)/_components/Dialog";
@@ -92,14 +93,12 @@ export default function CreateTestDialog({
       description={t("root.tests.create.description")}
     >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label
-            htmlFor={titleId}
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.tests.create.titleLabel")}
-            <span className="text-[var(--destructive)]"> *</span>
-          </label>
+        <Field
+          htmlFor={titleId}
+          label={t("root.tests.create.titleLabel")}
+          required
+          error={errors.title ? t("root.tests.create.titleError") : undefined}
+        >
           <Input
             id={titleId}
             {...register("title")}
@@ -107,24 +106,19 @@ export default function CreateTestDialog({
             aria-invalid={Boolean(errors.title)}
             autoFocus
           />
-          {errors.title ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.tests.create.titleError")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
         <Controller
           control={control}
           name="format"
           render={({ field }) => (
             <fieldset>
-              <legend className="mb-2 text-sm font-medium text-[var(--foreground)]">
+              <legend className="mb-2 text-sm font-medium text-foreground">
                 {t("root.tests.create.formatLabel")}
               </legend>
 
               {formatKeys.length === 0 ? (
-                <p className="rounded-xl border border-[var(--border)] bg-[var(--muted)] px-4 py-3 text-sm text-[var(--muted-foreground)]">
+                <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
                   {t("root.tests.create.noFormats")}
                 </p>
               ) : (
@@ -143,17 +137,17 @@ export default function CreateTestDialog({
                         className={cn(
                           "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition",
                           isSelected
-                            ? "border-[var(--primary)] bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]"
-                            : "border-[var(--border)] bg-[var(--background)] hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]",
+                            ? "border-primary bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]"
+                            : "border-border bg-background hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]",
                         )}
                       >
                         <RadioGroupItem value={format} className="mt-0.5" />
                         <span className="min-w-0 flex-1">
-                          <span className="flex items-center gap-1.5 text-sm font-semibold text-[var(--foreground)]">
+                          <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                             {translateKey(t, blueprint.labelKey, humanizeToken(format))}
                             {isSelected ? (
                               <Check
-                                className="h-3.5 w-3.5 text-[var(--primary)]"
+                                className="h-3.5 w-3.5 text-primary"
                                 aria-hidden="true"
                               />
                             ) : null}
@@ -164,7 +158,7 @@ export default function CreateTestDialog({
                             catalogs do not describe yet falls back to a summary
                             read straight off its blueprint.
                           */}
-                          <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">
+                          <span className="mt-0.5 block text-xs text-muted-foreground">
                             {t(`root.tests.create.formatDescriptions.${format}`, {
                               defaultValue: t("root.tests.create.formatFallback", {
                                 sections: blueprint.sectionPresets.length,
@@ -188,8 +182,7 @@ export default function CreateTestDialog({
               {t("root.tests.actions.cancel")}
             </Button>
           </DialogPrimitive.Close>
-          <Button type="submit" disabled={isBusy || formatKeys.length === 0}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy} disabled={formatKeys.length === 0}>
             {t("root.tests.create.submit")}
           </Button>
         </div>

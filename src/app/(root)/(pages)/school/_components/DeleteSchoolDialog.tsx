@@ -1,21 +1,11 @@
 "use client";
 
 import { useTransition } from "react";
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { deleteSchoolAction } from "@/app/(root)/_lib/school-actions";
 
 type DeleteSchoolDialogProps = {
@@ -50,36 +40,16 @@ export default function DeleteSchoolDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <Trash2 />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            {t("root.schoolPage.delete.title", { name: schoolName })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("root.schoolPage.delete.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isPending}>
-            {t("root.schoolPage.delete.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={(event) => {
-              event.preventDefault();
-              handleDelete();
-            }}
-            disabled={isPending}
-          >
-            {isPending ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {t("root.schoolPage.delete.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={<Trash2 />}
+      title={t("root.schoolPage.delete.title", { name: schoolName })}
+      description={t("root.schoolPage.delete.description")}
+      cancelLabel={t("root.schoolPage.delete.cancel")}
+      confirmLabel={t("root.schoolPage.delete.confirm")}
+      isPending={isPending}
+      onConfirm={handleDelete}
+    />
   );
 }

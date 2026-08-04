@@ -46,11 +46,12 @@ export default function MainLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={cn("font-sans", dwelveSans.variable, dwelveSerif.variable)}>
-      <body
-        className="bg-background text-foreground antialiased min-h-screen transition-colors"
-      >
-        <Providers>{children}</Providers>
-        <Toaster />
+      <body className="min-h-screen bg-background text-foreground antialiased">
+        {/* Toaster lives inside Providers so it can read the resolved theme. */}
+        <Providers>
+          {children}
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

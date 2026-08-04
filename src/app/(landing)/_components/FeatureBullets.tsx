@@ -37,7 +37,7 @@ export default function FeatureBullets({ items, className }: { items: string[]; 
           <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-accent text-accent-foreground">
             <Check className="h-3.5 w-3.5" strokeWidth={3} />
           </span>
-          <span className="text-[15px] leading-relaxed text-muted-foreground">{item}</span>
+          <span className="text-15 leading-relaxed text-muted-foreground">{item}</span>
         </motion.li>
       ))}
     </motion.ul>

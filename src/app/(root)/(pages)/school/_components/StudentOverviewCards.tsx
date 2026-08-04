@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight, Clock, Compass, GraduationCap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { LucideIcon } from "lucide-react";
+import Surface from "@/components/ui/Surface";
 
 type StudentOverviewCardsProps = {
   availableClasses: number;
@@ -57,20 +58,23 @@ export default function StudentOverviewCards({
   return (
     <div className="grid gap-4 sm:grid-cols-3">
       {cards.map((card) => (
-        <Link
+        <Surface
           key={card.key}
+          as={Link}
           href={card.href}
-          className="group flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 transition hover:border-[color-mix(in_srgb,var(--primary)_45%,transparent)] hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          interactive
+          padding="sm"
+          className="group flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[var(--primary)]/10 text-[var(--primary)]">
+          <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
             <card.icon className="h-5 w-5" />
           </span>
           <div className="min-w-0 flex-1">
-            <div className="text-2xl font-bold text-[var(--foreground)]">{card.value}</div>
-            <div className="truncate text-sm text-[var(--muted-foreground)]">{card.label}</div>
+            <div className="text-2xl font-bold text-foreground">{card.value}</div>
+            <div className="truncate text-sm text-muted-foreground">{card.label}</div>
           </div>
-          <ChevronRight className="h-4 w-4 shrink-0 text-[var(--muted-foreground)] transition group-hover:translate-x-0.5" />
-        </Link>
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5" />
+        </Surface>
       ))}
     </div>
   );

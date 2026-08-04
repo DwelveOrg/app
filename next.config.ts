@@ -24,14 +24,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   // Never expose the framework fingerprint in the `X-Powered-By` header.
   poweredByHeader: false,
+  // No remote image hosts. The auth panels used to hotlink Unsplash; their visuals are now
+  // rendered from design tokens, so nothing outside this origin is loaded.
   images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
-    ],
+    remotePatterns: [],
   },
   async headers() {
     return [

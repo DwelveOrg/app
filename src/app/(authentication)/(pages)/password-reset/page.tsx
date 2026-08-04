@@ -6,10 +6,11 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, LoaderCircle, MailCheck } from "lucide-react";
+import { ArrowLeft, MailCheck } from "lucide-react";
 
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
-import Btn from "@/components/Custom/CustomButton";
+import Button from "@/components/ui/Button";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import {
   forgotPasswordSchema,
@@ -66,7 +67,7 @@ export default function PasswordResetPage() {
               <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-accent text-accent-foreground">
                 <MailCheck className="h-7 w-7" />
               </div>
-              <h1 className="text-2xl font-bold text-foreground">
+              <h1 className="type-section text-foreground">
                 {t("auth.passwordReset.sentTitle")}
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">
@@ -74,7 +75,7 @@ export default function PasswordResetPage() {
               </p>
 
               {devResetUrl && (
-                <div className="mt-6 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-xs text-warning-text">
+                <div className="mt-6 rounded-xl border border-warning/30 bg-warning/10 px-4 py-3 text-left text-xs text-warning">
                   <p className="font-semibold">{t("auth.passwordReset.devLinkNotice")}</p>
                   <Link
                     href={devResetUrl}
@@ -87,7 +88,7 @@ export default function PasswordResetPage() {
 
               <Link
                 href="/login"
-                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-[var(--primary-hover)]"
+                className="mt-8 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-primary-hover"
               >
                 <ArrowLeft className="h-4 w-4" />
                 {t("auth.passwordReset.backToLogin")}
@@ -99,7 +100,7 @@ export default function PasswordResetPage() {
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                   {t("auth.passwordReset.access")}
                 </p>
-                <h1 className="mt-2 text-3xl font-bold text-foreground">
+                <h1 className="mt-2 type-title text-foreground">
                   {t("auth.passwordReset.title")}
                 </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
@@ -108,46 +109,30 @@ export default function PasswordResetPage() {
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {t("auth.passwordReset.emailLabel")}
-                  </label>
+                <Field label={t("auth.passwordReset.emailLabel")} error={errors.email?.message}>
                   <Input
                     {...register("email")}
                     type="email"
                     placeholder={t("auth.passwordReset.emailPlaceholder")}
                     className={`w-full py-3 ${errors.email ? "border-destructive focus:border-destructive" : ""}`}
                   />
-                  {errors.email && (
-                    <p className="mt-1.5 text-xs text-destructive-text">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
                 {errors.root && (
-                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
+                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                     {errors.root.message}
                   </div>
                 )}
 
-                <Btn
-                  type="submit"
-                  className="w-full flex items-center justify-center py-3 text-sm"
-                  disabled={isBusy}
-                >
-                  {isBusy ? (
-                    <LoaderCircle className="h-5 w-5 animate-spin" />
-                  ) : (
-                    t("auth.passwordReset.submit")
-                  )}
-                </Btn>
+                <Button type="submit" size="xl" className="w-full" loading={isBusy}>
+                  {t("auth.passwordReset.submit")}
+                </Button>
               </form>
 
               <p className="mt-8 text-center text-sm text-muted-foreground">
                 <Link
                   href="/login"
-                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-[var(--primary-hover)]"
+                  className="inline-flex items-center gap-1.5 font-semibold text-primary hover:text-primary-hover"
                 >
                   <ArrowLeft className="h-4 w-4" />
                   {t("auth.passwordReset.backToLogin")}

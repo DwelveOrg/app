@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
-import Btn from "@/components/Custom/CustomButton";
-import { Eye, EyeOff, LoaderCircle } from "lucide-react";
+import Button from "@/components/ui/Button";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -32,7 +32,6 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
   const router = useRouter();
   const signupMutation = useSignupMutation();
   const googleMutation = useGoogleAuthMutation();
-  const [showPassword, setShowPassword] = React.useState(false);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const {
@@ -86,7 +85,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
               {t("auth.signup.access")}
             </p>
-            <h1 className="mt-2 text-3xl font-bold text-foreground">
+            <h1 className="mt-2 type-title text-foreground">
               {t("auth.signup.title")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -109,76 +108,44 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
           </div>
 
           <form className="mt-4 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.fullName")}
-              </label>
+            <Field label={t("auth.signup.fullName")} error={errors.fullName?.message}>
               <Input
                 {...register("fullName")}
                 type="text"
                 placeholder={t("auth.signup.fullNamePlaceholder")}
                 className={`w-full py-3 ${errors.fullName ? "border-destructive" : ""}`}
               />
-              {errors.fullName && (
-                <p className="mt-1.5 text-xs text-destructive-text">
-                  {errors.fullName.message}
-                </p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.email")}
-              </label>
+            <Field label={t("auth.signup.email")} error={errors.email?.message}>
               <Input
                 {...register("email")}
                 type="email"
                 placeholder={t("auth.signup.emailPlaceholder")}
                 className={`w-full py-3 ${errors.email ? "border-destructive" : ""}`}
               />
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-destructive-text">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.password")}
-              </label>
-              <div className="relative">
-                <Input
-                  {...register("password")}
-                  type={showPassword ? "text" : "password"}
-                  placeholder={t("auth.signup.createPasswordPlaceholder")}
-                  className={`w-full py-3 pr-11 ${errors.password ? "border-destructive" : ""}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword((p) => !p)}
-                  className="absolute inset-y-1 right-1 inline-flex w-9 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition hover:text-foreground"
-                  aria-label={showPassword ? t("auth.signup.hidePassword") : t("auth.signup.showPassword")}
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-destructive-text">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            <Field label={t("auth.signup.password")} error={errors.password?.message}>
+              <Input
+                {...register("password")}
+                type="password"
+                placeholder={t("auth.signup.createPasswordPlaceholder")}
+                revealLabel={t("auth.signup.showPassword")}
+                hideLabel={t("auth.signup.hidePassword")}
+                aria-invalid={Boolean(errors.password)}
+              />
+            </Field>
 
             {errors.root && (
-              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive-text">
+              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
                 {errors.root.message}
               </div>
             )}
 
-            <Btn type="submit" disabled={isBusy} className="w-full flex items-center justify-center py-3 text-sm">
-              {isBusy ? <LoaderCircle className="h-5 w-5 animate-spin" /> : t("auth.signup.createAccount")}
-            </Btn>
+            <Button type="submit" size="xl" className="w-full" loading={isBusy}>
+              {t("auth.signup.createAccount")}
+            </Button>
 
             <p className="text-center text-xs text-muted-foreground">
               {t("auth.signup.terms")}
@@ -187,7 +154,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("auth.signup.alreadyAccount")}{" "}
-            <Link href={loginHref} className="font-semibold text-primary hover:text-[var(--primary-hover)]">
+            <Link href={loginHref} className="font-semibold text-primary hover:text-primary-hover">
               {t("auth.signup.login")}
             </Link>
           </p>

@@ -2,38 +2,55 @@ import type { ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-type PageHeaderProps = {
-  /** Large page title shown at the top of the content area. */
+export type PageHeaderProps = {
+  /** Small uppercase line above the title — context, not decoration. */
+  eyebrow?: ReactNode;
   title: ReactNode;
-  /** Optional one-line supporting copy beneath the title. */
   subtitle?: ReactNode;
-  /** Optional trailing actions (buttons), right-aligned on wide screens. */
+  /** Trailing actions, right-aligned on wide screens. */
   actions?: ReactNode;
   className?: string;
 };
 
 /**
- * Content-area page header — the large title that used to live in the top bar.
- * The top bar now only carries the breadcrumb, so each view names itself here.
- * Reuse this everywhere a page needs a heading instead of re-styling an <h1>.
+ * The page title block. One treatment, everywhere.
+ *
+ * The app previously had four: this component (used by two pages), a hand-rolled copy in the
+ * dashboard, another in notifications, and a third size on the classes and school pages — all the
+ * same structure at gratuitously different sizes and gaps. Everything now routes through here, and
+ * the size comes from the `type-title` scale rather than an arbitrary pixel value.
+ *
+ * `truncate` is deliberately not applied to the title: Russian and Uzbek headings run longer than
+ * English and clipping them loses meaning. The title wraps and balances instead.
  */
-export default function PageHeader({ title, subtitle, actions, className }: PageHeaderProps) {
+export default function PageHeader({
+  eyebrow,
+  title,
+  subtitle,
+  actions,
+  className,
+}: PageHeaderProps) {
   return (
     <header
       className={cn(
-        "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
-        className
+        "flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6",
+        className,
       )}
     >
       <div className="min-w-0">
-        <h1 className="truncate text-[26px] font-bold leading-tight tracking-tight text-[var(--foreground)] capitalize md:text-[28px]">
-          {title}
-        </h1>
+        {eyebrow ? (
+          <p className="type-micro mb-2 text-primary">{eyebrow}</p>
+        ) : null}
+        <h1 className="type-title text-foreground">{title}</h1>
         {subtitle ? (
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">{subtitle}</p>
+          <p className="mt-1.5 max-w-[68ch] text-sm text-muted-foreground">{subtitle}</p>
         ) : null}
       </div>
-      {actions ? <div className="flex shrink-0 items-center gap-2">{actions}</div> : null}
+      {actions ? (
+        <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>
+      ) : null}
     </header>
   );
 }
+
+export { PageHeader };

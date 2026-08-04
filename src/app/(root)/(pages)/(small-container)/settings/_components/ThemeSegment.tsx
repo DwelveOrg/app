@@ -4,12 +4,14 @@ import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
+
 import type { ThemeOption } from "@/app/(root)/_types";
-import { Segmented, type SegmentedOption } from "./Segmented";
+import Segmented, { type SegmentedOption } from "@/components/ui/Segmented";
 
 export function ThemeSegment() {
   const { t } = useTranslation();
   const { theme, resolvedTheme, setTheme } = useTheme();
+  // The stored theme is client-only, so the control cannot render its value on the server.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -24,13 +26,9 @@ export function ThemeSegment() {
     { value: "system", label: t("root.settings.appearance.themes.system"), icon: Monitor },
   ];
 
-  if (!mounted) {
-    // Reserve the control's height so the row doesn't jump on hydration.
-    return <div className="h-11 rounded-xl border border-[var(--border)] bg-[var(--muted)]" />;
-  }
-
   return (
     <Segmented
+      pending={!mounted}
       layoutId="settings-theme"
       ariaLabel={t("root.settings.appearance.themeLabel")}
       value={current}

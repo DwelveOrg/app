@@ -1,29 +1,20 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Camera, LoaderCircle, Trash2 } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { updateAvatarAction } from "@/app/(root)/_lib/profile-actions";
 import type { ProfileAccount } from "@/app/(root)/_lib/profile.schemas";
+import Avatar from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import Surface from "@/components/ui/Surface";
 
 const ACCEPTED_MIME = "image/jpeg,image/png,image/webp";
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024;
-
-function getInitials(name: string) {
-  return (
-    name
-      .split(" ")
-      .filter(Boolean)
-      .map((part) => part[0])
-      .join("")
-      .slice(0, 2)
-      .toUpperCase() || "?"
-  );
-}
 
 type ProfileSummaryCardProps = {
   account: ProfileAccount;
@@ -88,45 +79,26 @@ export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps
   };
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <Surface as="section">
       <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-6">
         <div className="relative">
-          <div
-            className={cn(
-              "grid size-20 place-items-center overflow-hidden rounded-full text-xl font-semibold text-[var(--primary)]",
-              "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] ring-2 ring-[var(--card)]",
-            )}
-          >
-            {avatar ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={avatar}
-                alt={account.fullName}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <span>{getInitials(account.fullName)}</span>
-            )}
-          </div>
+          <Avatar
+            name={account.fullName}
+            src={avatar}
+            size="2xl"
+            className="ring-2 ring-card"
+          />
 
-          <button
+          <Button
             type="button"
+            size="icon-sm"
             onClick={() => inputRef.current?.click()}
-            disabled={isPending}
+            loading={isPending}
             aria-label={t("root.profile.avatar.change")}
-            className={cn(
-              "absolute -bottom-0.5 -right-0.5 grid size-8 place-items-center rounded-full",
-              "bg-[var(--primary)] text-[var(--primary-foreground)] shadow-sm ring-2 ring-[var(--card)]",
-              "transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]",
-              "disabled:opacity-70",
-            )}
+            className="absolute -right-0.5 -bottom-0.5 rounded-full ring-2 ring-card"
           >
-            {isPending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-          </button>
+            <Camera className="h-4 w-4" />
+          </Button>
 
           <input
             ref={inputRef}
@@ -141,10 +113,10 @@ export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps
         </div>
 
         <div className="min-w-0 flex-1 text-center sm:text-left">
-          <h2 className="truncate text-lg font-bold text-[var(--foreground)]">
+          <h2 className="truncate text-lg font-bold text-foreground">
             {account.fullName}
           </h2>
-          <p className="mt-0.5 truncate text-sm text-[var(--muted-foreground)]">
+          <p className="mt-0.5 truncate text-sm text-muted-foreground">
             {account.email}
           </p>
         </div>
@@ -155,9 +127,9 @@ export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps
             onClick={handleRemove}
             disabled={isPending}
             className={cn(
-              "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-xs font-semibold text-[var(--muted-foreground)]",
-              "transition hover:text-[var(--destructive)] hover:border-[color-mix(in_srgb,var(--destructive)_30%,transparent)]",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-70",
+              "inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-muted-foreground shadow-elev-1",
+              "transition hover:text-destructive hover:border-[color-mix(in_srgb,var(--destructive)_30%,transparent)]",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-70",
             )}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -166,9 +138,9 @@ export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps
         ) : null}
       </div>
 
-      <p className="mt-4 rounded-xl border border-dashed border-[var(--border)] bg-[var(--muted)] px-4 py-3 text-xs text-[var(--muted-foreground)]">
+      <p className="mt-4 rounded-xl border border-dashed border-border bg-muted px-4 py-3 text-xs text-muted-foreground">
         {t("root.profile.avatar.hint")}
       </p>
-    </section>
+    </Surface>
   );
 }

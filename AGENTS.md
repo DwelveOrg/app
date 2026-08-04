@@ -85,7 +85,6 @@ Shared code:
 - `src/components/ui` — shadcn/ui primitives
 - `src/components/Custom` — custom reusable components
 - `src/lib` — common helpers; `utils.ts` exports `cn`
-- `src/hooks` — React hooks
 - `src/i18n` — translations and i18next setup
 - `public/images` — static images and logos
 

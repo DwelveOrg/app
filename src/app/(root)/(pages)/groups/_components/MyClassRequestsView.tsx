@@ -1,12 +1,13 @@
 "use client";
 
 import { useMemo } from "react";
-import { Clock, Loader2 } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/Button";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
+import { SkeletonList } from "@/components/ui/Skeleton";
 import type { ClassEnrollmentItem } from "@/app/(root)/_lib/enrollment.schemas";
 import {
   useCancelJoinRequestMutation,
@@ -15,6 +16,8 @@ import {
 import Empty from "../../_components/ui/Empty";
 import { classAccent } from "../_constants";
 import ClassesNav from "./ClassesNav";
+import Surface from "@/components/ui/Surface";
+import Badge from "@/components/ui/badge";
 
 type MyClassRequestsViewProps = {
   schoolId: string | undefined;
@@ -45,10 +48,10 @@ export default function MyClassRequestsView({ schoolId }: MyClassRequestsViewPro
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="type-title text-foreground">
           {t("root.enrollment.requests.title")}
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+        <p className="mt-1 text-sm text-muted-foreground">
           {t("root.enrollment.requests.subtitle")}
         </p>
       </header>
@@ -56,14 +59,7 @@ export default function MyClassRequestsView({ schoolId }: MyClassRequestsViewPro
       <ClassesNav schoolId={schoolId} />
 
       {query.isLoading ? (
-        <div aria-busy="true" className="space-y-3">
-          {Array.from({ length: 3 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-20 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--muted)]"
-            />
-          ))}
-        </div>
+        <SkeletonList count={3} itemClassName="h-20" />
       ) : query.isError ? (
         <Empty
           title={t("root.enrollment.requests.errorTitle")}
@@ -106,7 +102,7 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
   const accent = classAccent(request.classId);
 
   return (
-    <li className="flex flex-wrap items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4">
+    <Surface as="li" padding="sm" className="flex flex-wrap items-center gap-4">
       <span
         className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-base font-bold ${accent}`}
       >
@@ -114,8 +110,8 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
       </span>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-[var(--foreground)]">{className}</p>
-        <p className="truncate text-xs text-[var(--muted-foreground)]">
+        <p className="truncate text-sm font-semibold text-foreground">{className}</p>
+        <p className="truncate text-xs text-muted-foreground">
           {teacher ?? t("root.enrollment.directory.noTeacher")}
           {request.requestedAt ? (
             <>
@@ -126,21 +122,19 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
         </p>
       </div>
 
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-warning/12 px-2.5 py-1 text-xs font-medium text-warning-text">
+      <Badge variant="warning" size="md">
         <Clock className="h-3.5 w-3.5" />
         {t("root.enrollment.status.pending")}
-      </span>
+      </Badge>
 
       <Button
         variant="outline"
         size="lg"
-        disabled={isCancelling}
-        aria-busy={isCancelling}
+        loading={isCancelling}
         onClick={onCancel}
       >
-        {isCancelling ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {t("root.enrollment.requests.cancel")}
       </Button>
-    </li>
+    </Surface>
   );
 }

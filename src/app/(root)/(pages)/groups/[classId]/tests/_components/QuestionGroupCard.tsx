@@ -17,6 +17,7 @@ import {
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -147,7 +148,7 @@ export default function QuestionGroupCard({
       ))}
 
       {fields.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--border)] px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
+        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
           {t("root.tests.builder.group.noQuestions")}
         </p>
       ) : null}
@@ -183,10 +184,11 @@ export default function QuestionGroupCard({
     <section
       id={groupId ? groupAnchorId(groupId) : undefined}
       className={cn(
-        "scroll-mt-24 rounded-2xl border bg-[var(--background)] p-4",
+        // Level 2: recessed into the section rather than stacked on it.
+        "scroll-mt-24 rounded-xl bg-muted/60 p-4",
         missingStimulus
-          ? "border-[color-mix(in_srgb,var(--warning)_45%,transparent)]"
-          : "border-[var(--border)]",
+          ? "ring-1 ring-warning/45"
+          : "ring-1 ring-border/70",
       )}
     >
       <header className="flex flex-wrap items-center gap-2">
@@ -197,7 +199,7 @@ export default function QuestionGroupCard({
           aria-label={t("root.tests.builder.group.title")}
           className="max-w-xs py-2 font-semibold"
         />
-        <span className="text-[11px] text-[var(--muted-foreground)]">
+        <span className="text-2xs text-muted-foreground">
           {t("root.tests.builder.group.questionRange", {
             from: startNumber,
             to: startNumber + Math.max(fields.length, 1) - 1,
@@ -231,7 +233,7 @@ export default function QuestionGroupCard({
             variant="ghost"
             disabled={disabled || count <= 1}
             aria-label={t("root.tests.builder.group.remove")}
-            className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+            className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(groupIndex)}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -240,13 +242,11 @@ export default function QuestionGroupCard({
       </header>
 
       <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div>
-          <label
-            htmlFor={`${sectionIndex}-${groupIndex}-passage`}
-            className="mb-1.5 block text-xs font-medium text-[var(--foreground)]"
-          >
-            {t("root.tests.builder.group.passage")}
-          </label>
+        <Field
+          size="sm"
+          htmlFor={`${sectionIndex}-${groupIndex}-passage`}
+          label={t("root.tests.builder.group.passage")}
+        >
           <Textarea
             {...control.register(`${name}.passage`)}
             id={`${sectionIndex}-${groupIndex}-passage`}
@@ -257,10 +257,10 @@ export default function QuestionGroupCard({
           />
           <p
             className={cn(
-              "mt-1 text-[11px]",
+              "mt-1 text-2xs",
               passage.length > TEST_LIMITS.passageChars
-                ? "text-[var(--destructive)]"
-                : "text-[var(--muted-foreground)]",
+                ? "text-destructive"
+                : "text-muted-foreground",
             )}
           >
             {t("root.tests.builder.group.charCount", {
@@ -270,17 +270,17 @@ export default function QuestionGroupCard({
           </p>
 
           {paragraphs.length > 1 ? (
-            <div className="mt-2 rounded-xl border border-[var(--border)] bg-[var(--muted)] px-3 py-2">
-              <p className="text-[11px] font-medium text-[var(--foreground)]">
+            <div className="mt-2 rounded-xl border border-border bg-muted px-3 py-2">
+              <p className="text-2xs font-medium text-foreground">
                 {t("root.tests.builder.group.paragraphLabels")}
               </p>
               <ul className="mt-1 space-y-0.5">
                 {paragraphs.map((paragraph) => (
                   <li
                     key={paragraph.label}
-                    className="flex gap-2 text-[11px] text-[var(--muted-foreground)]"
+                    className="flex gap-2 text-2xs text-muted-foreground"
                   >
-                    <span className="font-semibold text-[var(--foreground)]">
+                    <span className="font-semibold text-foreground">
                       {paragraph.label}
                     </span>
                     <span className="truncate">{paragraph.text}</span>
@@ -289,7 +289,7 @@ export default function QuestionGroupCard({
               </ul>
             </div>
           ) : null}
-        </div>
+        </Field>
 
         <div className="space-y-3">
           <Controller
@@ -307,13 +307,11 @@ export default function QuestionGroupCard({
             )}
           />
 
-          <div>
-            <label
-              htmlFor={`${sectionIndex}-${groupIndex}-instructions`}
-              className="mb-1.5 block text-xs font-medium text-[var(--foreground)]"
-            >
-              {t("root.tests.builder.group.instructions")}
-            </label>
+          <Field
+            size="sm"
+            htmlFor={`${sectionIndex}-${groupIndex}-instructions`}
+            label={t("root.tests.builder.group.instructions")}
+          >
             <Textarea
               {...control.register(`${name}.instructions`)}
               id={`${sectionIndex}-${groupIndex}-instructions`}
@@ -322,10 +320,10 @@ export default function QuestionGroupCard({
               placeholder={t("root.tests.builder.group.instructionsPlaceholder")}
               className="py-2.5"
             />
-          </div>
+          </Field>
 
           {missingStimulus ? (
-            <p className="inline-flex items-start gap-1.5 text-[11px] text-[var(--warning)]">
+            <p className="inline-flex items-start gap-1.5 text-2xs text-warning">
               <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
               {t("root.tests.builder.group.stimulusRequired")}
             </p>
@@ -333,7 +331,7 @@ export default function QuestionGroupCard({
         </div>
       </div>
 
-      <div className="mt-4 border-t border-[var(--border)] pt-4">{questionList}</div>
+      <div className="mt-4 border-t border-border pt-4">{questionList}</div>
     </section>
   );
 }

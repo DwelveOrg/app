@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 
 import DwelveLogo from "@/components/Custom/DwelveLogo";
-import BrandButton from "@/components/Custom/BrandButton";
+import Button from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /** In-page anchors the nav scrolls to, in document order. `target` matches the `id` on each landing section. */
@@ -140,12 +140,16 @@ export default function Navbar() {
 
           {/* Actions */}
           <div className="flex items-center justify-self-end gap-2 sm:gap-3">
-            <BrandButton href="/login" variant="secondary" size="sm">
+            <Button asChild variant="outline" size="lg">
+            <Link href="/login">
               {t("landing.nav.login")}
-            </BrandButton>
-            <BrandButton href="/signup" variant="primary" size="sm">
+            </Link>
+          </Button>
+            <Button asChild variant="brand" size="lg">
+            <Link href="/signup">
               {t("landing.nav.signup")}
-            </BrandButton>
+            </Link>
+          </Button>
           </div>
         </div>
       </div>

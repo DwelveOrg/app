@@ -38,7 +38,7 @@ export function NotificationDetailsDialog({
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-4 top-4 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg text-[var(--muted-foreground)] transition hover:bg-[var(--muted)] hover:text-[var(--foreground)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          className="absolute right-4 top-4 inline-flex size-8 cursor-pointer items-center justify-center rounded-lg text-muted-foreground transition hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           aria-label={t("root.notifications.close")}
         >
           <X className="h-4 w-4" />
@@ -56,7 +56,7 @@ export function NotificationDetailsDialog({
           {notification ? (
             <RelativeTime
               date={notification.createdAt}
-              className="mt-1 block text-center text-xs text-[var(--muted-foreground)]"
+              className="mt-1 block text-center text-xs text-muted-foreground"
             />
           ) : null}
         </AlertDialogHeader>

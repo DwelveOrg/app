@@ -13,7 +13,7 @@ type RoleEmptyStateProps = {
 };
 
 const CTA_CLASS =
-  "h-11 w-full cursor-pointer rounded-xl bg-[var(--primary)] px-5 text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]";
+  "h-11 w-full cursor-pointer rounded-xl bg-primary px-5 text-primary-foreground hover:bg-primary-hover";
 
 export default function RoleEmptyState({ role, entity }: RoleEmptyStateProps) {
   const { t } = useTranslation();

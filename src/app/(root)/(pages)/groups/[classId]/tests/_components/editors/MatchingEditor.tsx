@@ -58,7 +58,7 @@ export default function MatchingEditor({
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <section className="space-y-2">
-        <p className="text-xs font-medium text-[var(--foreground)]">
+        <p className="text-xs font-medium text-foreground">
           {t("root.tests.builder.matching.leftTitle")}
         </p>
 
@@ -70,7 +70,7 @@ export default function MatchingEditor({
             return (
               <div
                 key={field.id}
-                className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2"
+                className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2"
               >
                 <RowTextInput
                   control={control}
@@ -142,7 +142,7 @@ export default function MatchingEditor({
       </section>
 
       <section className="space-y-2">
-        <p className="text-xs font-medium text-[var(--foreground)]">
+        <p className="text-xs font-medium text-foreground">
           {t("root.tests.builder.matching.rightTitle")}
         </p>
 
@@ -150,7 +150,7 @@ export default function MatchingEditor({
           {rightItems.fields.map((field, index) => (
             <div
               key={field.id}
-              className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2"
+              className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2"
             >
               <Input
                 {...control.register(`${name}.config.rightItems.${index}.key`)}
@@ -197,7 +197,7 @@ export default function MatchingEditor({
       {(options ?? []).some(
         (option) => option?.matchKey && !rightKeys.includes(option.matchKey),
       ) ? (
-        <p className="inline-flex items-start gap-1.5 text-[11px] text-[var(--warning)] lg:col-span-2">
+        <p className="inline-flex items-start gap-1.5 text-2xs text-warning lg:col-span-2">
           <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           {t("root.tests.builder.matching.unresolved")}
         </p>

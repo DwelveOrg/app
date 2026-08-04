@@ -2,7 +2,7 @@ import { getUser } from "@/app/(root)/_utils/getUser";
 import { getTest } from "@/app/(root)/_utils/getTest";
 import { getTestFormats } from "@/app/(root)/_utils/getTestFormats";
 import TestBuilder from "../_components/TestBuilder";
-import TestsStateView from "../_components/TestsStateView";
+import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
 
 type PageProps = {
   params: Promise<{ classId: string; testId: string }>;
@@ -24,10 +24,12 @@ export default async function Page({ params }: PageProps) {
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason="forbidden"
+        namespace="root.tests"
         backHref={`/groups/${classId}`}
         backLabelKey="root.tests.list.backToClass"
+        retryLabelKey="root.tests.actions.retry"
       />
     );
   }
@@ -36,21 +38,25 @@ export default async function Page({ params }: PageProps) {
 
   if (!result.ok) {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason={result.reason}
+        namespace="root.tests"
         backHref={backHref}
         backLabelKey="root.tests.builder.backToTests"
-      />
+        retryLabelKey="root.tests.actions.retry"
+        />
     );
   }
 
   if (!catalog) {
     return (
-      <TestsStateView
+      <ResourceStateView
         reason="error"
+        namespace="root.tests"
         backHref={backHref}
         backLabelKey="root.tests.builder.backToTests"
-      />
+        retryLabelKey="root.tests.actions.retry"
+        />
     );
   }
 

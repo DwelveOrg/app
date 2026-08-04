@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
+import Skeleton from "@/components/ui/Skeleton";
 import Empty from "../_components/ui/Empty";
 import type {
   InvitationResponse,
@@ -25,6 +26,7 @@ import { NotificationSection } from "./_components/NotificationSection";
 import { NotificationTabs } from "./_components/NotificationTabs";
 import { NotificationsHeader } from "./_components/NotificationsHeader";
 import { groupNotificationsByDate, resolveNotificationHref } from "./_lib/notifications";
+import Surface from "@/components/ui/Surface";
 
 const PAGE_SIZE = 10;
 const CATEGORY_FILTERS: NotificationCategory[] = ["system", "payments", "invitations"];
@@ -140,7 +142,7 @@ const Page = () => {
         type="button"
         onClick={() => void notificationsQuery.fetchNextPage()}
         disabled={notificationsQuery.isFetchingNextPage}
-        className="cursor-pointer rounded-xl border border-[var(--border)] bg-[var(--card)] px-4 py-2 text-sm font-semibold text-[var(--foreground)] transition hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
+        className="cursor-pointer rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60 shadow-elev-1"
       >
         {notificationsQuery.isFetchingNextPage
           ? t("root.notifications.loading")
@@ -168,20 +170,21 @@ const Page = () => {
         {notificationsQuery.isLoading ? (
           <motion.section
             key="notifications-loading"
+            aria-busy="true"
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]"
+            className="divide-y divide-border overflow-hidden rounded-2xl border border-border bg-card shadow-elev-1"
           >
             {Array.from({ length: 4 }).map((_, index) => (
               <div key={index} className="flex items-start gap-3.5 px-5 py-4">
-                <div className="size-10 shrink-0 animate-pulse rounded-xl bg-[var(--muted)]" />
+                <Skeleton className="size-10 shrink-0" />
                 <div className="min-w-0 flex-1 space-y-2">
-                  <div className="h-3.5 w-40 animate-pulse rounded bg-[var(--muted)]" />
-                  <div className="h-3 w-full animate-pulse rounded bg-[var(--muted)]" />
-                  <div className="h-3 w-2/3 animate-pulse rounded bg-[var(--muted)]" />
+                  <Skeleton className="h-3.5 w-40 rounded" />
+                  <Skeleton className="h-3 w-full rounded" />
+                  <Skeleton className="h-3 w-2/3 rounded" />
                 </div>
-                <div className="h-3 w-14 shrink-0 animate-pulse rounded bg-[var(--muted)]" />
+                <Skeleton className="h-3 w-14 shrink-0 rounded" />
               </div>
             ))}
           </motion.section>
@@ -207,7 +210,7 @@ const Page = () => {
             transition={{ delay: 0.05, duration: 0.24 }}
             className="space-y-4"
           >
-            <div className="divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] shadow-sm">
+            <Surface divided>
               {groupedItems.map((group) => (
                 <NotificationSection
                   key={group.key}
@@ -219,7 +222,7 @@ const Page = () => {
                   onRespond={handleRespond}
                 />
               ))}
-            </div>
+            </Surface>
             {loadMore}
           </motion.section>
         ) : (

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Laptop, LoaderCircle, LogOut, Smartphone } from "lucide-react";
+import { Laptop, LogOut, Smartphone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -12,7 +12,11 @@ import {
 } from "@/app/(root)/_lib/profile-actions";
 import type { ProfileSession } from "@/app/(root)/_lib/profile.schemas";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
+import { Button } from "@/components/ui/Button";
+import { SkeletonList } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
+import Surface from "@/components/ui/Surface";
+import Badge from "@/components/ui/badge";
 
 function pickDeviceIcon(userAgent: string | null | undefined) {
   if (!userAgent) return Laptop;
@@ -91,35 +95,35 @@ export function SessionsPanel() {
   };
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <Surface as="section">
       <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
           <Laptop className="h-[18px] w-[18px]" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-base font-bold text-[var(--foreground)]">
+          <h2 className="text-base font-bold text-foreground">
             {t("root.profile.sessions.title")}
           </h2>
-          <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-0.5 text-sm text-muted-foreground">
             {t("root.profile.sessions.description")}
           </p>
         </div>
       </header>
 
       {sessions === null ? (
-        <div className="grid place-items-center py-10 text-[var(--muted-foreground)]">
-          <LoaderCircle className="h-5 w-5 animate-spin" />
-        </div>
+        // A list is loading, so it gets the list skeleton — a bare spinner said nothing about
+        // what was coming and made this the one panel in the product that loaded differently.
+        <SkeletonList count={2} itemClassName="h-20" />
       ) : error && sessions.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--muted)] px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
+        <p className="rounded-xl border border-dashed border-border bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
           {error}
         </p>
       ) : sessions.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-[var(--border)] bg-[var(--muted)] px-4 py-6 text-center text-sm text-[var(--muted-foreground)]">
+        <p className="rounded-xl border border-dashed border-border bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
           {t("root.profile.sessions.empty")}
         </p>
       ) : (
-        <ul className="divide-y divide-[var(--border)] overflow-hidden rounded-xl border border-[var(--border)]">
+        <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
           {sessions.map((session) => {
             const Icon = pickDeviceIcon(session.userAgent);
             const device = pickDeviceLabel(session.userAgent);
@@ -139,58 +143,50 @@ export function SessionsPanel() {
                     className={cn(
                       "mt-0.5 grid size-9 shrink-0 place-items-center rounded-lg",
                       session.isCurrent
-                        ? "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]"
-                        : "bg-[var(--muted)] text-[var(--muted-foreground)]",
+                        ? "bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary"
+                        : "bg-muted text-muted-foreground",
                     )}
                   >
                     <Icon className="h-[18px] w-[18px]" />
                   </span>
                   <div className="min-w-0">
-                    <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-[var(--foreground)]">
+                    <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-foreground">
                       <span className="truncate">{label}</span>
                       {session.isCurrent ? (
-                        <span className="inline-flex items-center rounded-full bg-[color-mix(in_srgb,var(--success)_16%,transparent)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--success)]">
+                        <Badge variant="success" size="xs" uppercase>
                           {t("root.profile.sessions.current")}
-                        </span>
+                        </Badge>
                       ) : null}
                     </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-[var(--muted-foreground)]">
+                    <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                       {session.ipAddress ? <span>{session.ipAddress}</span> : null}
                       {session.ipAddress ? (
-                        <span aria-hidden className="text-[var(--border)]">·</span>
+                        <span aria-hidden className="text-border">·</span>
                       ) : null}
                       <RelativeTime date={session.createdAt} />
                     </div>
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => handleRevoke(session.sessionId)}
-                  disabled={isRevoking}
-                  className={cn(
-                    "inline-flex h-9 items-center gap-1.5 self-start rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 text-xs font-semibold",
-                    "text-[var(--muted-foreground)] transition hover:text-[var(--destructive)] hover:border-[color-mix(in_srgb,var(--destructive)_30%,transparent)]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:opacity-70",
-                    "sm:self-auto",
-                  )}
+                  loading={isRevoking}
+                  className="self-start font-semibold text-muted-foreground hover:border-destructive/30 hover:text-destructive sm:self-auto"
                 >
-                  {isRevoking ? (
-                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <LogOut className="h-3.5 w-3.5" />
-                  )}
+                  <LogOut className="h-3.5 w-3.5" />
                   {t(
                     session.isCurrent
                       ? "root.profile.sessions.signOut"
                       : "root.profile.sessions.revoke",
                   )}
-                </button>
+                </Button>
               </li>
             );
           })}
         </ul>
       )}
-    </section>
+    </Surface>
   );
 }

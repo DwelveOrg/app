@@ -1,19 +1,9 @@
 "use client";
 
-import { LoaderCircle, UserMinus } from "lucide-react";
+import { UserMinus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 
 type RemoveClassStudentDialogProps = {
   open: boolean;
@@ -38,36 +28,16 @@ export default function RemoveClassStudentDialog({
   const { t } = useTranslation();
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <UserMinus />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            {t("root.classDetail.removeStudent.title", { name: studentName })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("root.classDetail.removeStudent.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isSubmitting}>
-            {t("root.classDetail.removeStudent.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={(event) => {
-              event.preventDefault();
-              onConfirm();
-            }}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {t("root.classDetail.removeStudent.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={<UserMinus />}
+      title={t("root.classDetail.removeStudent.title", { name: studentName })}
+      description={t("root.classDetail.removeStudent.description")}
+      cancelLabel={t("root.classDetail.removeStudent.cancel")}
+      confirmLabel={t("root.classDetail.removeStudent.confirm")}
+      isPending={isSubmitting}
+      onConfirm={onConfirm}
+    />
   );
 }

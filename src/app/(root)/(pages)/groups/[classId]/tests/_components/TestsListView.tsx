@@ -75,7 +75,7 @@ export default function TestsListView({
     <section className="flex flex-col gap-6 py-6">
       <Link
         href={`/groups/${classId}`}
-        className="inline-flex w-fit items-center gap-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
+        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         {t("root.tests.list.backToClass")}
@@ -83,10 +83,10 @@ export default function TestsListView({
 
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-xl font-bold text-[var(--foreground)] sm:text-2xl">
+          <h1 className="type-section text-foreground">
             {t("root.tests.list.title")}
           </h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("root.tests.list.subtitle", { name: className })}
           </p>
         </div>
@@ -169,7 +169,7 @@ export default function TestsListView({
             <ChevronLeft className="h-3.5 w-3.5" />
             {t("root.tests.list.previous")}
           </Button>
-          <span className="text-xs text-[var(--muted-foreground)]">
+          <span className="text-xs text-muted-foreground">
             {t("root.tests.list.pageOf", { page: meta.page, total: meta.totalPages })}
           </span>
           <Button

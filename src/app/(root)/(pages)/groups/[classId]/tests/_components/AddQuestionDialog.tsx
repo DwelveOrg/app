@@ -59,7 +59,7 @@ export default function AddQuestionDialog({
       contentClassName="max-w-2xl"
     >
       {families.length === 0 ? (
-        <p className="rounded-xl border border-[var(--border)] bg-[var(--muted)] px-4 py-3 text-sm text-[var(--muted-foreground)]">
+        <p className="rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
           {t("root.tests.builder.picker.empty")}
         </p>
       ) : (
@@ -70,7 +70,7 @@ export default function AddQuestionDialog({
                 {t(`root.tests.builder.families.${familyName}`, {
                   defaultValue: humanizeToken(familyName),
                 })}
-                <span className="text-[var(--muted-foreground)]">{entries.length}</span>
+                <span className="text-muted-foreground">{entries.length}</span>
               </TabsTrigger>
             ))}
           </TabsList>
@@ -86,10 +86,10 @@ export default function AddQuestionDialog({
                         onPick(type, spec);
                         onOpenChange(false);
                       }}
-                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2.5 text-left transition hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--border))] hover:bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]"
+                      className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-left transition hover:border-[color-mix(in_srgb,var(--primary)_45%,var(--border))] hover:bg-[color-mix(in_srgb,var(--primary)_6%,transparent)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                     >
                       <span className="flex flex-wrap items-center gap-2">
-                        <span className="text-sm font-semibold text-[var(--foreground)]">
+                        <span className="text-sm font-semibold text-foreground">
                           {translateKey(t, spec.labelKey, humanizeToken(type))}
                         </span>
 
@@ -97,8 +97,8 @@ export default function AddQuestionDialog({
                         <span
                           className={
                             spec.autoGradable
-                              ? "inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--success)_12%,transparent)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--success)]"
-                              : "inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]"
+                              ? "inline-flex items-center gap-1 rounded-full bg-[color-mix(in_srgb,var(--success)_12%,transparent)] px-1.5 py-0.5 text-3xs font-medium text-success"
+                              : "inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-3xs font-medium text-muted-foreground"
                           }
                         >
                           {spec.autoGradable ? (
@@ -112,14 +112,14 @@ export default function AddQuestionDialog({
                         </span>
 
                         {spec.requiresGroupStimulus ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-[var(--muted)] px-1.5 py-0.5 text-[10px] font-medium text-[var(--muted-foreground)]">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-3xs font-medium text-muted-foreground">
                             <ImageIcon className="h-2.5 w-2.5" aria-hidden="true" />
                             {t("root.tests.builder.picker.needsStimulus")}
                           </span>
                         ) : null}
                       </span>
 
-                      <span className="mt-0.5 block text-xs text-[var(--muted-foreground)]">
+                      <span className="mt-0.5 block text-xs text-muted-foreground">
                         {translateKey(
                           t,
                           spec.descriptionKey,

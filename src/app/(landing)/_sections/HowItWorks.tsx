@@ -4,6 +4,9 @@ import React from "react";
 import { ChartNoAxesCombined, Share2, ShieldCheck, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "motion/react";
+import { LANDING_HEADING } from "../_components/SectionHeading";
+import { surfaceVariants } from "@/components/ui/Surface";
+import { cn } from "@/lib/utils";
 
 type Step = {
   step: string;
@@ -57,7 +60,7 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="w-full scroll-mt-24 bg-secondary py-20 md:py-28 dark:bg-white/[0.02]"
+      className="w-full scroll-mt-24 py-20 md:py-24"
     >
       <div className="mx-auto w-full max-w-6xl px-4">
         <motion.div
@@ -67,7 +70,7 @@ export default function HowItWorks() {
           whileInView="visible"
           viewport={{ once: true, amount: 0.4 }}
         >
-          <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+          <h2 className={LANDING_HEADING}>
             {t("landing.howItWorks.title")}
           </h2>
           <p className="mt-4 text-base text-muted-foreground">
@@ -88,7 +91,7 @@ export default function HowItWorks() {
               <motion.article
                 key={item.step}
                 variants={card}
-                className="relative rounded-2xl border border-border bg-card p-7 shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+                className={cn(surfaceVariants({ padding: "none" }), "relative p-7")}
               >
                 <span className="absolute right-6 top-6 text-3xl font-bold text-primary/10 dark:text-primary/15">
                   {item.step}

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import Surface from "@/components/ui/Surface";
 
 /**
  * A labelled settings group: a quiet section label above a single flat panel
@@ -17,12 +18,10 @@ export function SettingsGroup({
 }) {
   return (
     <section>
-      <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-[var(--muted-foreground)]">
+      <h2 className="mb-2.5 px-1 text-13 font-semibold text-muted-foreground">
         {label}
       </h2>
-      <div className="divide-y divide-[var(--border)] overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-        {children}
-      </div>
+      <Surface divided>{children}</Surface>
     </section>
   );
 }

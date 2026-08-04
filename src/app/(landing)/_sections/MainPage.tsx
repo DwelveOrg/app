@@ -2,21 +2,25 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useTranslation } from "react-i18next";
 import { motion, useReducedMotion } from "motion/react";
-import { Sparkle } from "lucide-react";
+import { ArrowRight, Sparkle } from "lucide-react";
 
-import BrandButton from "@/components/Custom/BrandButton";
+import Button from "@/components/ui/Button";
 
 // Lazy, client-only: the three.js scene is its own chunk and never blocks paint.
 // The CSS glow behind it stays visible while it loads and if WebGL is missing.
 const HeroScene = dynamic(() => import("../_components/HeroScene"), { ssr: false });
 
+// Avatar tints come from the chart ramp, not raw Tailwind hues. The four-hue rainbow that used to
+// live here (and, verbatim, in the login and signup panels) was the loudest violation of the
+// one-palette rule and would have clashed with any brand change.
 const SOCIAL_PROOF_AVATARS = [
-  { initials: "AY", color: "from-violet-500 to-purple-600" },
-  { initials: "KM", color: "from-blue-500 to-indigo-600" },
-  { initials: "SR", color: "from-emerald-500 to-teal-600" },
-  { initials: "NB", color: "from-amber-400 to-orange-500" },
+  { initials: "AY", color: "var(--chart-1)" },
+  { initials: "KM", color: "var(--chart-2)" },
+  { initials: "SR", color: "var(--chart-3)" },
+  { initials: "NB", color: "var(--chart-4)" },
 ] as const;
 const USE_CASES = ["quizzes", "placement", "mock", "homework", "finals", "progress"] as const;
 
@@ -52,12 +56,17 @@ function MainPage() {
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
-            <BrandButton href="/signup" variant="primary" size="lg">
+            <Button asChild variant="brand" size="xl">
+            <Link href="/signup">
               {t("landing.main.primaryCta")}
-            </BrandButton>
-            <BrandButton href="/login" variant="secondary" size="lg" withArrow>
+            </Link>
+          </Button>
+            <Button asChild variant="outline" size="xl">
+            <Link href="/login">
               {t("landing.main.secondaryCta")}
-            </BrandButton>
+            <ArrowRight className="transition-transform duration-[var(--dur-2)] group-hover/button:translate-x-0.5" />
+            </Link>
+          </Button>
           </div>
 
           <div className="mt-9 flex items-center gap-3">
@@ -65,7 +74,8 @@ function MainPage() {
               {SOCIAL_PROOF_AVATARS.map((avatar) => (
                 <div
                   key={avatar.initials}
-                  className={`flex h-9 w-9 items-center justify-center rounded-full border-2 border-background bg-gradient-to-br ${avatar.color} text-[10px] font-bold text-white shadow-lg`}
+                  style={{ background: avatar.color }}
+                  className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-background text-3xs font-bold text-white shadow-elev-2"
                 >
                   {avatar.initials}
                 </div>

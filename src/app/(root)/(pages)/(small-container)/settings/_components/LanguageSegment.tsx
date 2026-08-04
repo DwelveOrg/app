@@ -2,11 +2,13 @@
 
 import { useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
+
+import Segmented, { type SegmentedOption } from "@/components/ui/Segmented";
 import { supportedLanguages, type AppLanguage } from "@/i18n/resources";
-import { Segmented, type SegmentedOption } from "./Segmented";
 
 export function LanguageSegment() {
   const { i18n, t } = useTranslation();
+  // The stored language is client-only, so the control cannot render its value on the server.
   const mounted = useSyncExternalStore(
     () => () => {},
     () => true,
@@ -27,12 +29,9 @@ export function LanguageSegment() {
     void i18n.changeLanguage(next);
   };
 
-  if (!mounted) {
-    return <div className="h-11 rounded-xl border border-[var(--border)] bg-[var(--muted)]" />;
-  }
-
   return (
     <Segmented
+      pending={!mounted}
       layoutId="settings-language"
       ariaLabel={t("language.label")}
       value={value}

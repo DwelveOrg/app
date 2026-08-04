@@ -30,7 +30,15 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system">
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="system"
+      storageKey="dwelve-theme"
+      // Without this, next-themes leaves the body's colour transition running
+      // during a theme swap, so every surface cross-fades one at a time and the
+      // flip reads as a smear rather than a switch.
+      disableTransitionOnChange
+    >
       <QueryProvider>{children}</QueryProvider>
     </ThemeProvider>
   );

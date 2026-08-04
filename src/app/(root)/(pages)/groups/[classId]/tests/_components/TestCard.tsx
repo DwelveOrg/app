@@ -13,6 +13,8 @@ import { RelativeTime } from "@/components/Custom/RelativeTime";
 import TestStatusBadge from "./TestStatusBadge";
 import DuplicateTestButton from "./DuplicateTestButton";
 import { humanizeToken, translateKey } from "../_lib/labels";
+import Surface from "@/components/ui/Surface";
+import Badge from "@/components/ui/badge";
 
 type TestCardProps = {
   test: ApiTestSummary;
@@ -43,14 +45,14 @@ export default function TestCard({
   const questionCount = test.counts?.questions ?? test.questionCount ?? null;
 
   return (
-    <article className="flex flex-col gap-3 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 transition hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]">
+    <Surface as="article" interactive className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-base font-semibold text-[var(--foreground)]">
+            <h3 className="min-w-0 text-base font-semibold text-foreground">
               <Link
                 href={`/groups/${classId}/tests/${test.id}`}
-                className="block truncate rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-[var(--primary)]/40"
+                className="block truncate rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 {test.title}
               </Link>
@@ -58,17 +60,17 @@ export default function TestCard({
             <TestStatusBadge status={test.status} />
           </div>
 
-          <p className="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
             {test.description || t("root.tests.list.noDescription")}
           </p>
         </div>
 
-        <span className="shrink-0 rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+        <Badge variant="outline">
           {formatLabel}
-        </span>
+        </Badge>
       </div>
 
-      <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--muted-foreground)]">
+      <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
         <Meta
           icon={<ListChecks className="h-3.5 w-3.5" />}
           label={t("root.tests.list.meta.questions")}
@@ -101,7 +103,7 @@ export default function TestCard({
         ) : null}
       </dl>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-[var(--border)] pt-3">
+      <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
         <Button asChild size="sm">
           <Link href={`/groups/${classId}/tests/${test.id}`}>
             {test.status === "DRAFT"
@@ -115,7 +117,7 @@ export default function TestCard({
         <Button
           size="sm"
           variant="ghost"
-          className="ml-auto text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+          className="ml-auto text-muted-foreground hover:text-destructive"
           onClick={() => onRequestDelete(test)}
         >
           <Trash2 className="h-3.5 w-3.5" />
@@ -124,7 +126,7 @@ export default function TestCard({
             : t("root.tests.list.actions.archive")}
         </Button>
       </div>
-    </article>
+    </Surface>
   );
 }
 
@@ -143,7 +145,7 @@ function Meta({
         <span aria-hidden="true">{icon}</span>
         <span className="sr-only">{label}</span>
       </dt>
-      <dd className="font-medium text-[var(--foreground)]">{value}</dd>
+      <dd className="font-medium text-foreground">{value}</dd>
     </div>
   );
 }
