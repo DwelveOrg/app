@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -9,6 +8,7 @@ import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import ImagePicker from "@/components/Custom/ImagePicker";
@@ -66,35 +66,27 @@ export default function CreateClassDialog({ open, onOpenChange }: CreateClassDia
       description={t("root.schoolPage.createClass.description")}
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
-            {t("root.schoolPage.createClass.nameLabel")}
-            <span className="text-[var(--destructive)]"> *</span>
-          </label>
+        <Field
+          label={t("root.schoolPage.createClass.nameLabel")}
+          required
+          error={errors.name ? t("root.schoolPage.createClass.nameError") : undefined}
+        >
           <Input
             {...register("name")}
             placeholder={t("root.schoolPage.createClass.namePlaceholder")}
             aria-invalid={Boolean(errors.name)}
             autoFocus
           />
-          {errors.name && (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.schoolPage.createClass.nameError")}
-            </p>
-          )}
-        </div>
+        </Field>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-[var(--foreground)]">
-            {t("root.schoolPage.createClass.descLabel")}
-          </label>
+        <Field label={t("root.schoolPage.createClass.descLabel")}>
           <Textarea
             {...register("description")}
             rows={3}
             placeholder={t("root.schoolPage.createClass.descPlaceholder")}
             aria-invalid={Boolean(errors.description)}
           />
-        </div>
+        </Field>
 
         <Controller
           control={control}
@@ -118,8 +110,7 @@ export default function CreateClassDialog({ open, onOpenChange }: CreateClassDia
               {t("root.schoolPage.createClass.cancel")}
             </Button>
           </DialogPrimitive.Close>
-          <Button type="submit" disabled={isBusy}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy}>
             {t("root.schoolPage.createClass.submit")}
           </Button>
         </div>

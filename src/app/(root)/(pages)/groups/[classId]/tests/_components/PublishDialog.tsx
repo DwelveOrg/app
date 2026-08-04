@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  LoaderCircle,
-  Send,
-} from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
@@ -122,7 +116,7 @@ export default function PublishDialog({
     >
       <div className="space-y-4">
         {hasUnsavedChanges ? (
-          <p className="inline-flex items-start gap-2 rounded-xl border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-3 py-2 text-xs text-[var(--warning)]">
+          <p className="inline-flex items-start gap-2 rounded-xl border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-3 py-2 text-xs text-warning">
             <AlertTriangle className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
             {t("root.tests.publish.unsaved")}
           </p>
@@ -134,17 +128,17 @@ export default function PublishDialog({
             <Skeleton className="h-10" />
           </div>
         ) : validation.isError ? (
-          <p className="rounded-xl border border-[var(--border)] bg-[var(--muted)] px-3 py-2 text-sm text-[var(--muted-foreground)]">
+          <p className="rounded-xl border border-border bg-muted px-3 py-2 text-sm text-muted-foreground">
             {t("root.tests.publish.checkFailed")}
           </p>
         ) : isReady ? (
-          <p className="inline-flex items-start gap-2 rounded-xl border border-[color-mix(in_srgb,var(--success)_40%,transparent)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)] px-3 py-2 text-sm text-[var(--success)]">
+          <p className="inline-flex items-start gap-2 rounded-xl border border-[color-mix(in_srgb,var(--success)_40%,transparent)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)] px-3 py-2 text-sm text-success">
             <CheckCircle2 className="mt-px h-4 w-4 shrink-0" aria-hidden="true" />
             {t("root.tests.publish.ready")}
           </p>
         ) : (
           <div className="space-y-2">
-            <p className="text-sm font-medium text-[var(--foreground)]">
+            <p className="text-sm font-medium text-foreground">
               {t("root.tests.publish.blocked", { count: issues.length })}
             </p>
             <ul className="max-h-64 space-y-1.5 overflow-y-auto pr-1">
@@ -164,22 +158,22 @@ export default function PublishDialog({
                       <button
                         type="button"
                         onClick={() => goToIssue(issue)}
-                        className="flex w-full items-start gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-left text-xs text-[var(--foreground)] transition hover:border-[var(--destructive)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--primary)]"
+                        className="flex w-full items-start gap-2 rounded-lg border border-border bg-background px-3 py-2 text-left text-xs text-foreground transition hover:border-destructive focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                       >
                         <AlertTriangle
-                          className="mt-px h-3.5 w-3.5 shrink-0 text-[var(--destructive)]"
+                          className="mt-px h-3.5 w-3.5 shrink-0 text-destructive"
                           aria-hidden="true"
                         />
                         <span className="flex-1">{message}</span>
                         <ArrowRight
-                          className="mt-px h-3.5 w-3.5 shrink-0 text-[var(--muted-foreground)]"
+                          className="mt-px h-3.5 w-3.5 shrink-0 text-muted-foreground"
                           aria-hidden="true"
                         />
                       </button>
                     ) : (
-                      <p className="flex items-start gap-2 rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-xs text-[var(--foreground)]">
+                      <p className="flex items-start gap-2 rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground">
                         <AlertTriangle
-                          className="mt-px h-3.5 w-3.5 shrink-0 text-[var(--destructive)]"
+                          className="mt-px h-3.5 w-3.5 shrink-0 text-destructive"
                           aria-hidden="true"
                         />
                         <span>{message}</span>
@@ -201,13 +195,10 @@ export default function PublishDialog({
           <Button
             type="button"
             onClick={handlePublish}
-            disabled={publish.isPending || !isReady}
+            loading={publish.isPending}
+            disabled={!isReady}
           >
-            {publish.isPending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            <Send className="h-4 w-4" />
             {t("root.tests.publish.confirm")}
           </Button>
         </div>

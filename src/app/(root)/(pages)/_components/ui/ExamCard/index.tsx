@@ -3,24 +3,25 @@
 import type { ExamItem } from "../../../_types";
 import { AlarmClock, CalendarDays, Clock, ListChecks, GraduationCap } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import Surface from "@/components/ui/Surface";
 
 const InfoRow = ({ icon: Icon, label, value }: { icon: typeof CalendarDays; label: string; value: string }) => (
-  <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-2 text-sm text-muted-foreground shadow-sm">
-    <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
-      <Icon className="h-4 w-4" />
+  <Surface padding="none" className="flex items-center gap-3 px-3 py-2 text-sm text-muted-foreground">
+    <div className="flex size-9 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+      <Icon className="size-4" />
     </div>
     <div className="min-w-0">
       <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground">{label}</p>
       <p className="truncate text-sm font-semibold text-foreground">{value}</p>
     </div>
-  </div>
+  </Surface>
 );
 
 export default function ExamCard({ exam }: { exam: ExamItem }) {
   const { t } = useTranslation();
 
   return (
-    <article className="group relative overflow-hidden rounded-[28px] border border-border bg-card p-5 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition hover:-translate-y-1 hover:shadow-[0_22px_60px_rgba(15,23,42,0.12)] dark:shadow-[0_22px_60px_rgba(0,0,0,0.3)]">
+    <article className="interactive group relative overflow-hidden rounded-[28px] border border-border bg-card p-5 shadow-elev-3 hover:-translate-y-1 hover:shadow-elev-4">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-primary/15 blur-3xl dark:bg-primary/12" />
       <div className="relative space-y-4">
         <div className="flex items-start justify-between gap-4">
@@ -66,17 +67,17 @@ export default function ExamCard({ exam }: { exam: ExamItem }) {
             {!exam.completed && (
               <button
                 type="button"
-                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-[var(--primary)] px-5 text-sm font-semibold text-[var(--primary-foreground)] transition hover:bg-[var(--primary-hover)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+                className="inline-flex h-11 cursor-pointer items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
                 {t("root.exams.card.actions.start", "Start")}
               </button>
             )}
             <button
               type="button"
-              className={`inline-flex h-11 cursor-pointer items-center justify-center rounded-xl px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] ${
-                exam.completed
-                  ? "bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary-hover)]"
-                  : "border border-border bg-card text-foreground hover:border-[var(--ring)]"
+              className={`inline-flex h-11 cursor-pointer items-center justify-center rounded-xl px-5 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+ exam.completed
+ ?"bg-primary text-primary-foreground hover:bg-primary-hover"
+                  : "border border-border bg-card text-foreground hover:border-ring"
               }`}
             >
               {t("root.exams.card.actions.details")}

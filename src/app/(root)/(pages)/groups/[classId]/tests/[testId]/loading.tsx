@@ -1,4 +1,4 @@
-import Skeleton from "@/components/ui/Skeleton";
+import Skeleton, { SkeletonPage } from "@/components/ui/Skeleton";
 
 /**
  * Streaming placeholder for the builder: back link, the test header with its
@@ -6,23 +6,10 @@ import Skeleton from "@/components/ui/Skeleton";
  */
 export default function Loading() {
   return (
-    <section aria-busy="true" className="flex flex-col gap-6 py-6">
-      <Skeleton className="h-5 w-32" />
-
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div className="space-y-2">
-          <Skeleton className="h-7 w-56" />
-          <Skeleton className="h-4 w-48" />
-        </div>
-        <div className="flex gap-2">
-          <Skeleton className="h-8 w-28 rounded-lg" />
-          <Skeleton className="h-8 w-28 rounded-lg" />
-        </div>
-      </div>
-
+    <SkeletonPage backLink header="withActions">
       <Skeleton className="h-72 rounded-2xl" />
       <Skeleton className="h-48 rounded-2xl" />
       <Skeleton className="h-14 rounded-2xl" />
-    </section>
+    </SkeletonPage>
   );
 }

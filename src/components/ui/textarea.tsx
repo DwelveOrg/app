@@ -1,25 +1,40 @@
 "use client";
 
 import * as React from "react";
+
+import {
+  fieldBaseClassName,
+  fieldSizeClassName,
+  fieldSurfaceClassName,
+  type FieldSize,
+  type FieldSurface,
+} from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
-type TextareaProps = React.ComponentPropsWithoutRef<"textarea">;
+type TextareaProps = React.ComponentPropsWithoutRef<"textarea"> & {
+  surface?: FieldSurface;
+  fieldSize?: FieldSize;
+};
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => {
+  ({ className, surface = "default", fieldSize = "lg", ...props }, ref) => {
     return (
       <textarea
         ref={ref}
         className={cn(
-          "w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/35 disabled:cursor-not-allowed disabled:opacity-60",
-          className
+          fieldBaseClassName,
+          fieldSurfaceClassName[surface],
+          fieldSizeClassName[fieldSize],
+          "resize-y",
+          className,
         )}
         {...props}
       />
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";
 
 export default Textarea;
+export { Textarea };

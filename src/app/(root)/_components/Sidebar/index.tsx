@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { NavItem } from "../../_types/index";
 import { isRouteActive } from "../../_constants";
+import Badge from "@/components/ui/badge";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import {
   DropdownMenu,
@@ -38,25 +39,24 @@ const SIDEBAR_WIDTH = "w-[264px]";
  * switching tabs never shifts the layout.
  */
 const ROW_BASE =
-  "group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-normal outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--sidebar)]";
-// Active fill is a soft brand tint derived from --primary (clearly visible on the
-// --sidebar surface, unlike the near-white --accent), not a solid fill.
+  "interactive-flat group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-15 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
+// Active is a soft action tint plus a left rail — the rail is what survives at a glance when the
+// tint sits on an already-tinted sidebar. A lift is deliberately absent: nav rows must never move.
 const ROW_ACTIVE =
-  "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--accent-foreground)] font-semibold tracking-[0.01em]";
-const ROW_IDLE =
-  "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]";
+  "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-accent-foreground font-semibold tracking-[0.01em] shadow-elev-1";
+const ROW_IDLE = "text-muted-foreground hover:bg-muted hover:text-foreground";
 
 function NavIcon({ icon: Icon, color }: { icon: LucideIcon; color?: string }) {
   return <Icon color={color} className="h-5 w-5 shrink-0" strokeWidth={2} />;
 }
 
-/** Red count pill used on the Notifications row. */
+/** Unread count on the Notifications row — the one solid badge in the shell. */
 function CountBadge({ count }: { count: number }) {
   if (count <= 0) return null;
   return (
-    <span className="ml-auto inline-flex h-5 min-w-[20px] items-center justify-center rounded-full bg-[var(--destructive)] px-1.5 text-[11px] font-bold leading-none text-[var(--destructive-foreground)]">
+    <Badge variant="solid" size="sm" shape="count" className="ml-auto">
       {count}
-    </span>
+    </Badge>
   );
 }
 
@@ -76,8 +76,14 @@ function NavLink({
       href={item.href}
       onClick={onClick}
       aria-current={active ? "page" : undefined}
-      className={`${ROW_BASE} ${active ? ROW_ACTIVE : ROW_IDLE}`}
+      className={`relative ${ROW_BASE} ${active ? ROW_ACTIVE : ROW_IDLE}`}
     >
+      {active ? (
+        <span
+          aria-hidden
+          className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-r-full bg-primary"
+        />
+      ) : null}
       <NavIcon icon={item.icon} />
       <span className="truncate">{item.label}</span>
       {badge ? <CountBadge count={badge} /> : null}
@@ -97,13 +103,13 @@ function LockedNavItem({
   return (
     <div
       aria-disabled="true"
-      className={`${ROW_BASE} cursor-not-allowed select-none text-[var(--muted-foreground)] opacity-55`}
+      className={`${ROW_BASE} cursor-not-allowed select-none text-muted-foreground opacity-55`}
     >
       <NavIcon icon={Icon} />
       <span className="truncate">{label}</span>
-      <span className="ml-auto shrink-0 rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--muted-foreground)]">
+      <Badge variant="neutral" size="xs" uppercase className="ml-auto">
         {comingSoonLabel}
-      </span>
+      </Badge>
     </div>
   );
 }
@@ -124,21 +130,21 @@ function MobileLink({
       href={item.href}
       onClick={onPress}
       aria-current={active ? "page" : undefined}
-      className={`relative flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 transition ${
+      className={`interactive-flat relative flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 ${
         active
-          ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-          : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+          ? "bg-accent text-accent-foreground"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >
       <span className="relative">
         <NavIcon icon={item.icon} />
         {badge ? (
-          <span className="absolute -right-2 -top-1.5 inline-flex h-4 min-w-[16px] items-center justify-center rounded-full bg-[var(--destructive)] px-1 text-[9px] font-bold leading-none text-[var(--destructive-foreground)]">
+          <Badge variant="solid" size="xs" shape="count" className="absolute -right-2 -top-1.5">
             {badge}
-          </span>
+          </Badge>
         ) : null}
       </span>
-      <span className="truncate text-[11px] font-semibold max-[430px]:hidden">{item.label}</span>
+      <span className="truncate text-2xs font-semibold max-[430px]:hidden">{item.label}</span>
     </Link>
   );
 }
@@ -173,7 +179,7 @@ export default function SideBar() {
     <>
       {/* Desktop: flat, flush-left full-height panel with a hairline right divider. */}
       <aside
-        className={`hidden md:sticky md:top-0 md:flex md:h-screen md:flex-col ${SIDEBAR_WIDTH} shrink-0 border-r border-[var(--border)] bg-[var(--sidebar)] text-[var(--sidebar-foreground)]`}
+        className={`hidden md:sticky md:top-0 md:flex md:h-screen md:flex-col ${SIDEBAR_WIDTH} shrink-0 border-r border-border bg-sidebar text-sidebar-foreground`}
       >
         <div className="px-6 pb-5 pt-6">
           <DwelveLogo variant="form" />
@@ -181,7 +187,7 @@ export default function SideBar() {
 
         <nav
           aria-label={t("sidebar.primaryNav")}
-          className="flex-1 space-y-1 overflow-y-auto px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="no-scrollbar flex-1 space-y-1 overflow-y-auto px-3"
         >
           {primaryItems.map((item) => (
             <NavLink key={item.href} item={item} active={isActive(item.href)} />
@@ -195,12 +201,12 @@ export default function SideBar() {
           <NavLink item={settingsItem} active={isActive(settingsItem.href)} />
         </nav>
 
-        <div className="space-y-1 border-t border-[var(--border)] px-3 py-3">
+        <div className="space-y-1 border-t border-border px-3 py-3">
           <NavLink item={profileItem} active={isActive(profileItem.href)} />
           <button
             type="button"
             onClick={logout}
-            className={`${ROW_BASE} ${ROW_IDLE} cursor-pointer hover:bg-[var(--destructive)]/10 hover:text-[var(--destructive)]`}
+            className={`${ROW_BASE} ${ROW_IDLE} cursor-pointer hover:bg-destructive/10 hover:text-destructive`}
           >
             <NavIcon icon={LogOut} />
             <span className="truncate">{t("sidebar.logOut")}</span>
@@ -212,7 +218,7 @@ export default function SideBar() {
       <div className="fixed inset-x-0 bottom-0 z-40 md:hidden">
         <nav
           aria-label={t("sidebar.primaryNav")}
-          className="border-t border-[var(--border)] bg-[var(--card)]/95 p-2 backdrop-blur"
+          className="border-t border-border bg-[color-mix(in_srgb,var(--card)_92%,transparent)] p-2 shadow-elev-3 supports-backdrop-filter:backdrop-blur-md"
         >
           <div className="flex items-stretch gap-1.5">
             {primaryItems.map((item) => (
@@ -233,10 +239,10 @@ export default function SideBar() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className={`flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-[11px] font-semibold transition ${
+                  className={`interactive-flat flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 text-2xs font-semibold ${
                     mobileMoreOpen
-                      ? "bg-[var(--accent)] text-[var(--accent-foreground)]"
-                      : "text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+                      ? "bg-accent text-accent-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                   aria-label={t("sidebar.toggleMore")}
                 >
@@ -247,7 +253,7 @@ export default function SideBar() {
               <DropdownMenuContent
                 side="top"
                 align="end"
-                className="mb-2 w-[260px] rounded-2xl border-[var(--border)] bg-[var(--popover)] p-2 shadow-xl max-[350px]:w-[220px]"
+                className="mb-2 w-[260px] rounded-2xl border-border bg-popover p-2 shadow-elev-3 max-[350px]:w-[220px]"
               >
                 <DropdownMenuItem
                   disabled
@@ -255,9 +261,9 @@ export default function SideBar() {
                 >
                   <NavIcon icon={NotebookPen} />
                   <span className="ml-3">{t("sidebar.assignments")}</span>
-                  <span className="ml-auto rounded-full bg-[var(--muted)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--muted-foreground)]">
+                  <Badge variant="neutral" size="xs" uppercase className="ml-auto">
                     {comingSoon}
-                  </span>
+                  </Badge>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="my-1.5" />
                 {mobileExtra.map((item) => (
@@ -266,8 +272,8 @@ export default function SideBar() {
                     asChild
                     className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs ${
                       isActive(item.href)
-                        ? "bg-[var(--accent)] text-[var(--accent-foreground)] focus:bg-[var(--accent)] focus:text-[var(--accent-foreground)]"
-                        : "text-[var(--popover-foreground)]/75"
+                        ? "bg-accent text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        : "text-popover-foreground/75"
                     }`}
                   >
                     <Link href={item.href}>
@@ -282,7 +288,7 @@ export default function SideBar() {
                     event.preventDefault();
                     logout();
                   }}
-                  className="cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--popover-foreground)]/75 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
+                  className="cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold text-popover-foreground/75 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
                 >
                   <NavIcon color="var(--destructive)" icon={LogOut} />
                   <span className="ml-3">{t("sidebar.logOut")}</span>

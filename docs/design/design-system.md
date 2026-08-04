@@ -1,35 +1,46 @@
 # Dwelve — Design System
 
-Status: draft · Last updated: 17 June 2026
+Status: v2 · Last updated: 3 August 2026
 
-This document is the design decision source of truth for Dwelve's frontend. Implementation values must be kept in sync with `src/app/globals.css`, `src/app/layout.tsx`, and the Tailwind theme setup.
+This document is the design decision source of truth for Dwelve's frontend. Implementation values
+must be kept in sync with `src/app/globals.css`, `src/app/layout.tsx`, and the Tailwind v4 theme
+setup. `globals.css` is the canonical implementation; this file is the contract.
 
-AGENTS.md and CLAUDE.md may summarize this file, but they must not duplicate the full design system.
+`AGENTS.md` and `CLAUDE.md` may summarize this file, but must not duplicate it.
 
-
-
-> **Logo color correction — 17 June 2026:** The logo assets in this package use the uploaded reference image as the master mask. The logo shape was not redrawn. Only RGB colors were mapped to the sampled reference palette: Ink `#0F1537`, Purple Accent `#7B58E8`, Purple Deep `#6A5DE9`, Light Background `#F3F4FF`, Dark Background `#14152A`, and White `#FFFFFF`.
-
-> **Changelog — 17 June 2026:** Added the canonical **Color system** (§4), **Logo color usage** (§5), and **Implementation mapping** (§6). These colors are derived from the approved Dwelve logo so that the logo, marketing, and product UI all share one palette. Before this revision the design system defined only typography and language rules, which left website color undefined and free to drift from the logo.
+> **Changelog — 3 August 2026 (v2).** Full visual redesign. The single-violet palette became a
+> **two-accent system** (violet = identity, teal = action). The deliberately flat shell became a
+> **soft-depth** one with a real elevation scale. Added the missing token categories — elevation,
+> motion, and type — and consolidated ~30 duplicated components into a shared primitive layer (§8).
+> Corrected pre-existing drift: six light-mode brand hexes that disagreed with the shipped CSS, a
+> logo asset path that never existed, and a §7.3 top-bar contract for a component that had already
+> been removed from the shell.
+>
+> **The consolidation in §8 is complete**, including a sixth primitive the original plan listed and
+> the first pass missed (`PersonRequestRow`). Every primitive named there has consumers, and the
+> duplicates it replaced are deleted. What is still open is *visual* verification of the last round
+> of migrations, plus the dark-mode hero — see
+> [redesign-remaining-work.md](./redesign-remaining-work.md), which also carries the grep checks
+> that catch the kind of drift lint and `tsc` cannot.
 
 ---
 
 ## 1. Multilingual rule
 
-Dwelve ships in:
+Dwelve ships in **Uzbek Latin**, **Russian**, and **English**.
 
-- Uzbek Latin
-- Russian
-- English
+Russian requires Cyrillic glyphs. Uzbek Latin requires Latin Extended glyphs and the turned-comma
+character U+02BB `ʻ`.
 
-Russian requires Cyrillic glyphs. Uzbek Latin requires Latin Extended glyphs and the turned-comma character U+02BB `ʻ`.
-
-Any component that can display user-generated text — names, answers, uploaded content, class titles, comments — must support all three languages. Test real strings before shipping:
+Any component that can display user-generated text — names, answers, uploaded content, class titles,
+comments — must support all three. Test real strings before shipping:
 
 - `Ольга`
 - `Gʻulom`
-- `O‘qituvchi`
+- `Oʻqituvchi`
 - `Student answer: Photosynthesis`
+
+Never use straight apostrophes for Uzbek `oʻ` / `gʻ`; use U+02BB `ʻ`.
 
 ---
 
@@ -39,292 +50,306 @@ Any component that can display user-generated text — names, answers, uploaded 
 
 | Role | Font | Usage |
 |---|---|---|
-| Display / editorial | DM Serif Display | Controlled Latin-only marketing headings |
-| UI / body | DM Sans, if Cyrillic support is confirmed by build; otherwise Manrope, Golos Text, PT Sans, or Noto Sans | All UI text, body copy, labels, buttons, tables, inputs, student names, scores, dashboards, and user-generated content |
+| UI / body / data | **Manrope** (400/500/600/700; latin, latin-ext, cyrillic) | Everything in the product: headings, body, labels, buttons, tables, inputs, student names, scores, dashboards, user-generated content |
+| Marketing display | **DM Serif Display** (400) | Landing display headings and the auth panel headline only — controlled, Latin-only copy |
 
-### Important rules
+Rules:
 
-- Do not use DM Serif Display for text that may contain Russian, Uzbek names, user-generated content, dashboard UI, table data, cards, badges, or inputs.
-- Do not use DM Serif Display for report-card student names.
-- Student names and scores should use the UI/body sans font, not the serif font.
-- Do not introduce Inter, Geist, or Montserrat as separate competing product fonts unless the design system is intentionally updated.
-- Do not use straight apostrophes for Uzbek `oʻ` / `gʻ`; use U+02BB `ʻ` where the product copy requires it.
+- Manrope is the only font in the authenticated app. Product UI does not need display/body pairing;
+  one well-tuned sans carries every role.
+- DM Serif Display must never render Russian, Uzbek names, user-generated content, dashboard UI,
+  table data, cards, badges, inputs, or report-card student names.
+- Do not introduce Inter, Geist, Montserrat, or DM Sans as competing product fonts.
+- The **wordmark** is Manrope 700, not the serif. The delivered logo artwork uses a bold geometric
+  sans and the wordmark must match it. Driven by `BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`.
 
-### Logo wordmark decision
+### Type scale
 
-The current mortarboard-and-open-book lockup is the canonical Dwelve mark. Its wordmark uses a **bold geometric sans** style, matching the product's modern ed-tech tone and the uploaded logo reference. The logo should therefore stay sans, not serif.
+Eight named styles, implemented as Tailwind v4 `@utility` classes in `globals.css`. **Every heading
+in the product is one of these.** Raw `text-[Npx]` in a component is a bug.
 
-- Keep the delivered SVG/logo artwork as the authority for the mark.
-- Do not re-cut the logo wordmark in DM Serif Display.
-- DM Serif Display remains allowed only for controlled Latin-only marketing headings, not for the logo, dashboard UI, forms, tables, names, scores, or user-generated content.
-- For live website text that visually supports the logo, prefer the UI sans family at 700–800 weight instead of introducing a separate competing brand font.
+| Utility | Size / line-height / weight | Use |
+|---|---|---|
+| `type-display` | `clamp(2.25rem, 5.2vw, 3.5rem)` · 1.04 · 700 | Landing hero only |
+| `type-title` | 1.75rem (28px) · 1.18 · 700 | Page titles |
+| `type-section` | 1.25rem (20px) · 1.28 · 700 | Entity headers (a school, a class, a test) |
+| `type-heading` | 1.0625rem (17px) · 1.35 · 600 | Panel and card headings |
+| `type-body` | 0.875rem (14px) · 1.6 · 400 | Body copy |
+| `type-label` | 0.8125rem (13px) · 1.4 · 500 | Form labels, list-row titles |
+| `type-caption` | 0.75rem (12px) · 1.35 · 400 | Secondary meta |
+| `type-micro` | 0.6875rem (11px) · 1 · 600 · uppercase · +0.06em | Badges, eyebrows, table headers |
+
+Plus four **size-only** steps in the Tailwind scale, for when a utility's weight and line-height
+would be wrong but the size is still needed: `text-3xs` (10px), `text-2xs` (11px), `text-13` (13px),
+`text-15` (15px). The last two fill the gaps Tailwind leaves between `text-xs` (12), `text-sm` (14)
+and `text-base` (16) — 13px for meta and dense labels, 15px for comfortable reading. Reach for a
+`type-*` utility first; these are the escape hatch, not the default.
+
+**`type-display` is the only fluid style, and only because the landing hero is marketing.** Product
+headings are a fixed rem scale: a clamped title that shrinks inside a narrow panel reads as broken,
+not responsive, and users sit at a steady DPI.
+
+**The two documented exceptions to "no raw sizes".** Both are outside the product type system by
+intent, and there are no others:
+
+- **Marketing display** — the auth panel headline (`AuthVisualParts`) and the closing CTA
+  (`CallToAction`) set their own display size. These are one-off compositions, not a scale.
+- **The wordmark** — 22px, set in `BRAND_WORDMARK_CLASSES` (`src/constants/brand.ts`), because it is
+  a lockup measurement against the 36px mark rather than a typographic choice.
+
+Cap body prose at 65–75ch. Tables and dense data may run wider.
+
+### Font implementation
+
+`src/app/layout.tsx` loads both families through `next/font/google` and exposes them as
+`--font-dwelve-sans` / `--font-dwelve-serif`, mapped to `--font-sans` / `--font-serif` in the
+`@theme inline` block.
 
 ---
 
-## 3. Font implementation
+## 3. Colour system
 
-The project uses Tailwind CSS v4, so map Next font variables through `globals.css`.
+Two accents, one system.
 
-### `src/app/layout.tsx`
+- **Violet is identity.** The logo, the wordmark, the auth visual panel, the landing bloom. It marks
+  *what this product is*. It never marks an action.
+- **Teal is action.** Buttons, current selection, focus rings, active navigation, primary data
+  series. If a thing can be clicked or is currently chosen, it is teal.
 
-```ts
-import { DM_Sans, DM_Serif_Display } from 'next/font/google'
+If a violet element is clickable, it is wrong. That single rule is what keeps the brand legible
+while the interface stays obvious.
 
-const sans = DM_Sans({
-  subsets: ['latin', 'latin-ext', 'cyrillic'],
-  weight: ['400', '500', '600'],
-  variable: '--font-dwelve-sans',
-  display: 'swap',
-})
+### 3.1 Light — warm paper, cool ink
 
-const serif = DM_Serif_Display({
-  subsets: ['latin', 'latin-ext'],
-  weight: ['400'],
-  variable: '--font-dwelve-serif',
-  display: 'swap',
-})
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html className={`${sans.variable} ${serif.variable}`}>
-      <body className="font-sans">{children}</body>
-    </html>
-  )
-}
-```
-
----
-
-## 4. Color system
-
-This palette is the single source of truth for color across the logo, marketing site, and product UI. It is derived from the approved Dwelve logo: deep indigo "Ink" for structure and text, a vibrant violet accent for emphasis and action, and a soft lavender "Mist" for quiet surfaces. **Do not introduce ad-hoc colors in components or `globals.css` that are not in this section.**
-
-### 4.1 Core brand
+Surfaces step **upward** toward the content: the canvas is warm off-white, and cards sit above it in
+pure white carrying elevation. This is the inverse of the old flat shell and it is what makes soft
+depth read.
 
 | Token | Hex | Role |
 |---|---|---|
-| Ink (Primary Dark) | `#0F1537` | Logo cap & left page on light, primary text, dark surfaces |
-| Violet (Brand Accent) | `#7B58E8` | Logo book page, brand accent, focus ring, highlights, large accent type |
-| Violet Deep (Action) | `#6A5DE9` | Primary buttons & links (AA-safe with white text) |
-| Mist (Light BG) | `#F3F4FF` | Soft section backgrounds, secondary surfaces, selected/hover tints |
-| White | `#FFFFFF` | Page background, surfaces, text on dark |
-| Black | `#000000` | Reserved for one-color print only; prefer Ink in product UI |
+| `--background` | `#FCFCFA` | Canvas |
+| `--card` / `--popover` | `#FFFFFF` | Surfaces above the canvas |
+| `--sidebar` | `#F7F6F2` | Second neutral layer |
+| `--muted` | `#F4F3EF` | Fills, hover, inputs |
+| `--secondary` | `#F1EFE9` | Deeper warm fill |
+| `--foreground` | `#16151C` | Primary text (17.7:1 on canvas) |
+| `--muted-foreground` | `#56545F` | Secondary text (7.2:1 on canvas) |
+| `--border` / `--input` | `#E7E5DF` | Hairlines |
+| `--primary` | `#0A7268` | Action teal (5.8:1 with white) |
+| `--primary-hover` | `#075E56` | |
+| `--ring` | `#0E8C7A` | Focus only |
+| `--accent` | `#E6F2EF` | Selected / active tint |
+| `--accent-foreground` | `#075243` | Text on accent (8.0:1) |
+| `--brand` | `#6A4FF0` | Identity violet |
 
-### 4.2 Violet scale (accent ramp)
+### 3.2 Dark — cool near-black, warmer accents
 
-`#7B58E8` is the brand anchor at **500**. Use the ramp for states, tints, charts, and elevation.
+| Token | Hex | Role |
+|---|---|---|
+| `--background` | `#0A0A0C` | Canvas |
+| `--sidebar` | `#0F0F13` | Second neutral layer |
+| `--card` | `#141419` | Surfaces |
+| `--popover` | `#1B1B22` | Floating elevation |
+| `--muted` / `--secondary` | `#212129` | Fills, hover, inputs |
+| `--border` / `--input` | `#2A2A33` | Hairlines |
+| `--foreground` | `#EDECF0` | Primary text (16.8:1) |
+| `--muted-foreground` | `#9C9AA6` | Secondary text (7.2:1) |
+| `--primary` | `#3DD1B8` | Action teal |
+| `--primary-foreground` | `#062622` | |
+| `--accent` | `#16302C` | Selected / active tint |
+| `--accent-foreground` | `#7FE7D3` | |
+| `--brand` | `#A78BFF` | Identity violet |
 
-| 50 | 100 | 200 | 300 | 400 | **500** | 600 | 700 | 800 | 900 |
-|---|---|---|---|---|---|---|---|---|---|
-| `#F4F1FF` | `#E9E3FF` | `#D3C7FF` | `#B7A3FF` | `#9B80FF` | `#7B58E8` | `#6A5DE9` | `#5739D6` | `#4B36C9` | `#2E246E` |
+The two themes are **different characters, not inversions**. Light is warm paper under cool ink;
+dark is a cool near-black under warmer accents. Do not "fix" one to match the other.
 
-### 4.3 Neutral / Ink scale (cool grey, tuned to the navy)
+### 3.3 Semantic
 
-| 0 | 50 | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `#FFFFFF` | `#F7F8FC` | `#F1F2F9` | `#E6E8F2` | `#D4D7E6` | `#A9AEC6` | `#797F9C` | `#565C7A` | `#3B4160` | `#242949` | `#0F1537` |
-
-Primary text = 900 (`#0F1537`). Muted text = 600 (`#565C7A`). Borders/dividers = 200 (`#E6E8F2`).
-
-### 4.4 Semantic
-
-Because Dwelve grades tests, the green/red pair carries meaning (correct / incorrect, pass / fail). Keep these consistent everywhere results are shown.
-
-| Token | Hex | Soft surface | Meaning |
+| Token | Light | Dark | Meaning |
 |---|---|---|---|
-| Success | `#16B981` | `#E7F8F1` | Correct answer, passed, positive trend |
-| Warning | `#F59E0B` | `#FEF3E2` | Caution, due soon, needs review |
-| Danger | `#E5484D` | `#FCEBEB` | Incorrect answer, failed, destructive action |
-| Info | `#4F86FF` | `#E9F0FF` | Neutral information, tips, integrity notices |
+| `--success` | `#25793A` | `#5FCB63` | Correct, passed, positive trend |
+| `--warning` | `#B45309` | `#F0B23C` | Caution, due soon, needs review |
+| `--destructive` | `#BE2E22` | `#FF7A70` | Incorrect, failed, destructive action |
+| `--info` | `#1D5FD1` | `#79A9FF` | Neutral information, integrity notices |
 
-#### Semantic text variants
+Every light semantic is dark enough to work **both** as a fill under white text and as text on the
+canvas (all ≥5:1). `--success-text` / `--warning-text` / `--destructive-text` / `--info-text` are
+therefore plain aliases of the fills, kept only so existing call sites keep resolving. New code
+should use the plain token.
 
-The fills above are tuned to carry white or ink *on top of* them. As **text** on a light surface they land at 2.2–3.9:1, which fails AA — this is why field errors and status chips historically reached for Tailwind's `red-600` / `emerald-700` / `amber-700` and broke the one-palette rule. Use these darkened same-hue variants whenever a semantic colour is the *text*:
+**Success sits ~39° off the action teal in hue** (light) and ~48° (dark). That separation is
+deliberate: in a product that grades answers, "correct" must never be misread as "clickable". The
+contrast gate enforces it.
 
-| Token | Light | Dark | Contrast (light, on white / on its 10–12% tint) |
-|---|---|---|---|
-| `--destructive-text` | `#C72329` | `#FF7A7E` | 5.7:1 / 5.0:1 |
-| `--success-text` | `#107F5A` | `#3DD9A4` | 5.0:1 / 4.5:1 |
-| `--warning-text` | `#9B5908` | `#F5C15C` | 5.5:1 / 5.0:1 |
-| `--info-text` | `#1756D3` | `#7FA6F5` | 6.4:1 / 5.6:1 |
+Never signal correct/incorrect by colour alone. Pair success/danger with an icon or label — for
+colour-blind users and for printed reports.
 
-In dark mode the fills are already light enough to serve as text, so the variants there equal the fills. Available as `text-destructive-text`, `text-success-text`, and so on. The matching soft surface is the fill at 10–12% (`bg-destructive/10`, `bg-success/12`), which stays correct in both themes.
+### 3.4 Charts
 
-### 4.5 Brand gradient
+Five separable hues, none of them the success green, all ≥3:1 on the card surface.
 
-`linear-gradient(135deg, #7B58E8 0%, #6A5DE9 100%)`
+| | Light | Dark |
+|---|---|---|
+| `--chart-1` | `#0A7268` teal | `#3DD1B8` |
+| `--chart-2` | `#6A4FF0` violet | `#A78BFF` |
+| `--chart-3` | `#B45309` amber | `#F0B23C` |
+| `--chart-4` | `#C2317A` rose | `#F2789F` |
+| `--chart-5` | `#1D5FD1` blue | `#79A9FF` |
 
-This is the gradient on the logo's book page. Reuse it sparingly for hero accents, primary CTAs on marketing pages, and progress emphasis. Do not place small body text on it (use white text only at large sizes).
+Never place chart-2 (violet) directly next to chart-5 (blue) in a legend or stacked series.
 
-### 4.6 Accessibility rules
+### 3.5 Accessibility gate
 
-- **`#6A5DE9` (Violet Deep)** on white ≈ 4.6:1 → AA for normal text. Use it for buttons, text links, and any small interactive label that needs white text.
-- **`#7B58E8` (Violet 500)** on white ≈ 3.7:1 → **not** for small body text. Use it for large headings (≥24px/bold ≥19px), icons, borders, focus rings, and filled chips.
-- **Ink `#0F1537`** on white ≈ 17:1 (AAA) and white on Ink ≈ 17:1 (AAA).
-- Never signal correct/incorrect by color alone; pair Success/Danger with an icon or label for color-blind users and for screenshots in reports.
+Body text ≥4.5:1. Large (≥24px, or ≥18.66px bold) and UI boundaries ≥3:1. Note that a 14px semibold
+button label is **normal** text under WCAG, not large — this is why `--primary` is as deep as it is.
+
+The palette is machine-checked. Any change to the `:root` / `.dark` blocks must keep the contrast
+gate green (see §9).
 
 ---
 
-## 5. Logo color usage
+## 4. Elevation
 
-The logo ships as outlined SVG and PNG exports in `public/dwelve_web_logo_assets/`. The canonical asset inventory, served URLs, and file-purpose mapping live in [brand-assets.md](./brand-assets.md). Color variants map to this palette exactly:
+Structure comes from two things: a **hairline** defines an edge, **elevation** separates a layer.
 
-| Surface | Cap & left page | Book (right page) | Wordmark |
-|---|---|---|---|
-| Light backgrounds | Ink `#0F1537` | Violet gradient `#7B58E8 → #6A5DE9` | Ink `#0F1537` |
-| Dark backgrounds | White `#FFFFFF` | Violet gradient `#7B58E8 → #6A5DE9` | White `#FFFFFF` |
-| One-color (print) | Ink **or** White (whole mark, flat) | same as mark | same as mark |
+| Token | Utility | Use |
+|---|---|---|
+| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page |
+| `--elev-2` | `shadow-elev-2` | Hover on an interactive card; sticky chrome |
+| `--elev-3` | `shadow-elev-3` | Dropdowns, popovers, sticky action bars |
+| `--elev-4` | `shadow-elev-4` | Dialogs, toasts |
+| `--elev-primary` / `--elev-brand` | `shadow-elev-primary` / `-brand` | The coloured glow under a primary or brand button |
 
-- Minimum clear space around the mark = the height of the cap.
-- Do not recolor the wordmark independently of the icon, recolor the book page to anything outside the violet ramp, or place the light-mode logo on backgrounds darker than Neutral 200.
-- For app icons / favicons use the icon-only mark on Mist `#F3F4FF` or white, with Ink `#0F1537` and the violet gradient preserved. Do not use unrelated blue, teal, orange, or generic SaaS gradients for logo containers.
-- Use `/dwelve_web_logo_assets/logos/dwelve-logo-horizontal.svg` as the default light-surface website logo and `/dwelve_web_logo_assets/logos/dwelve-logo-horizontal-dark.svg` on dark surfaces.
-- Use `/dwelve_web_logo_assets/logos/dwelve-logo-icon.svg` only where the full wordmark would be too small or redundant, such as app icons, compact navigation, or favicons.
+Rules:
 
-### 5.1 Website style direction
-
-The website should feel like the logo: structured, academic, modern, and slightly premium. Use Ink for authority, Mist for calm learning surfaces, and Violet only as the active/emphasis color. The product should not drift into random bright blues or generic rainbow gradients.
-
-Light mode:
-
-- Page background: White `#FFFFFF`.
-- Large soft sections: Mist `#F3F4FF` or Neutral 50 `#F7F8FC`.
-- Primary text: Ink `#0F1537`.
-- Muted text: Neutral 600 `#565C7A`.
-- Primary actions: Violet Deep `#6A5DE9`.
-- Decorative accents: Violet 500 `#7B58E8` or brand gradient only.
-
-Dark mode:
-
-- Page background / canvas: `#0C0B10`.
-- Sidebar (second neutral layer): `#121118`.
-- Cards, top bar, and elevated panels: `#17161E`; floating popovers/dropdowns one step up at `#1C1A24`.
-- Primary text: `#ECEAF2`.
-- Muted text: `#A3A0B2`.
-- Primary actions and focus states: Violet 400 `#9B80FF`.
-- Keep the logo wordmark white on dark backgrounds and preserve the violet book-page gradient.
-
-**Dark surfaces are near-neutral, not navy.** See §6.1 for why and for the exact ramp.
-
-Marketing visuals:
-
-- Use education/product imagery with clean cards, progress charts, question sheets, and dashboard previews.
-- Use the brand gradient sparingly for hero glows, CTA surfaces, active progress, and logo book-page continuity.
-- Avoid saturated non-brand blues as primary accents; the only blue in the system should be semantic Info `#4F86FF`.
-- Do not place small text directly on the violet gradient; use Ink/White backgrounds for readable copy.
-
+- **Light shadows are tinted with the warm ink (`28 24 20`), not a neutral slate.** A shadow that
+  disagrees with its surface temperature reads as grime.
+- **Dark elevation is a shadow *plus* a top inner hairline.** Cast shadows barely register on a
+  near-black canvas; the `inset 0 1px 0 rgb(255 255 255 / …)` highlight edge is what actually makes
+  a dark panel look raised.
+- **Levels are earned.** Most of a page lives at elevation 1. Two adjacent panels at different
+  levels means one of them is wrong.
+- **Never nest cards.** A bordered box inside a bordered box is a hierarchy failure. Use elevation
+  for the outer container and dividers or insets inside it.
+- Raw `shadow-[…]` in a component is a bug.
 
 ---
 
-## 6. Implementation mapping
+## 5. Motion
 
-Color is implemented as CSS variables in `src/app/globals.css` and exposed to Tailwind v4 via `@theme inline`. The shipped `globals.css` is the canonical implementation of this section; the table below is the contract.
-
-| shadcn / Tailwind token | Light | Dark |
+| Token | Value | Use |
 |---|---|---|
-| `--background` | `#FFFFFF` | `#0C0B10` |
-| `--foreground` | `#0F1537` | `#ECEAF2` |
-| `--card` | `#FFFFFF` | `#17161E` |
-| `--card-foreground` | `#0F1537` | `#ECEAF2` |
-| `--popover` | `#FFFFFF` | `#1C1A24` |
-| `--primary` | `#6A5DE9` | `#9B80FF` |
-| `--primary-hover` | `#5739D6` | `#B3A0FF` |
-| `--primary-foreground` | `#FFFFFF` | `#14121B` |
-| `--secondary` | `#F3F4FF` | `#211F2A` |
-| `--secondary-foreground` | `#2E246E` | `#ECEAF2` |
-| `--muted` | `#F1F2F9` | `#211F2A` |
-| `--muted-foreground` | `#565C7A` | `#A3A0B2` |
-| `--accent` | `#EFEBFF` | `#2C2839` |
-| `--accent-foreground` | `#4B36C9` | `#C9BCFF` |
-| `--destructive` | `#E5484D` | `#FF7A7E` |
-| `--border` / `--input` | `#E6E8F2` | `#302D3B` |
-| `--sidebar` | `#F7F8FC` | `#121118` |
-| `--ring` | `#7B58E8` | `#9B80FF` |
-| `--radius` | `0.75rem` | `0.75rem` |
+| `--dur-1` | 120ms | Colour and state |
+| `--dur-2` | 180ms | Hover, press |
+| `--dur-3` | 260ms | Enter, exit, accordion, page entrance |
+| `--dur-4` | 360ms | Genuine layout moves |
+| `--ease-out-quint` | `cubic-bezier(.22, 1, .36, 1)` | Default (`ease-out-quint`) |
+| `--ease-out-expo` | `cubic-bezier(.16, 1, .3, 1)` | Longer reveals (`ease-out-expo`) |
 
-Brand-named tokens (`--brand-ink`, `--brand-violet`, `--brand-violet-600`, `--brand-violet-300`, `--brand-violet-800`, `--brand-violet-900`, `--brand-mist`, `--brand-gradient`) are also exported so logo-accurate colors can be used directly, e.g. `bg-brand-violet`, `text-brand-ink`, `bg-[image:var(--brand-gradient)]`.
+- Motion conveys **state**, not personality. State change, feedback, loading, reveal — nothing else.
+- No page-load choreography. The app loads into a task.
+- Ease out. No bounce, no elastic.
+- `prefers-reduced-motion` is not optional. Every animation needs a still equivalent — including the
+  tactile lift, which is a transform like any other. `globals.css` neutralises `interactive`,
+  `interactive-flat`, and all keyframe animations under the query.
 
-Dark mode uses the `.dark` class strategy through `next-themes`, consistent with CLAUDE.md.
+### Interaction recipe
 
-### 6.1 Dark surfaces are near-neutral
+Two utilities carry every tactile affordance, so the whole product presses the same way and the feel
+is a one-line change:
 
-> **Changelog — 2 August 2026:** The dark theme was retuned. Surfaces moved from a saturated navy-violet ramp to a near-neutral one; `--primary` moved to violet-400 `#9B80FF`; semantic text variants were added (§4.4). Light mode is unchanged.
+- **`interactive`** — lifts `--lift` (-2px) on hover, settles to 0 on press. For cards and buttons.
+- **`interactive-flat`** — same timing, no travel; scales to 0.99 on press. For list rows, nav items,
+  and anything where a 2px lift would read as a layout shift.
 
-Dark surfaces sit at **11–16% saturation** on the brand hue (~255°), not the 40–55% navy-violet they used to. That earlier ramp put chroma on every surface, so each panel competed with the content on it and the product read as loud — while the violet accent, sitting on an already-violet background, had nowhere to stand out.
-
-Surfaces now step by **luminance**, and panels are separated by the hairline `--border`, not by a fill contrast. Chroma is reserved for `--primary`, the semantic colours, and the charts. The trace of brand hue left in the neutrals is what keeps them from reading as generic grey.
-
-| Layer | Dark | Role |
-|---|---|---|
-| Canvas | `#0C0B10` | Page background behind everything |
-| Sidebar | `#121118` | Second neutral layer, one step off the canvas |
-| Surface | `#17161E` | Cards, top bar, panels |
-| Popover | `#1C1A24` | Floating elevation above surfaces |
-| Fill | `#211F2A` | Hover, inputs, chips (`--muted` / `--secondary`) |
-| Active tint | `#2C2839` | Selected / highlighted (`--accent`) |
-| Hairline | `#302D3B` | Borders and dividers |
-
-Rules that follow from this:
-
-- **Do not raise surface saturation to signal brand.** The brand is carried by `--primary`, not by the background.
-- **Do not separate panels with fill contrast.** Two adjacent surfaces differ by about one step; the hairline is what makes the edge.
-- **Full-page gradients stop at `--card`.** Ramping the canvas all the way to `--secondary` made the bottom of a long page lighter than the panels sitting on it.
-- **Brand glows are ≤12% mixes.** On a near-neutral canvas an 18% violet bloom glares; it should be felt at the edge of vision, not looked at.
+Every interactive component ships **default, hover, focus-visible, active, disabled, and loading**.
+Shipping half of these is shipping an unfinished component.
 
 ---
 
-## 7. Application shell & navigation
+## 6. Logo
 
-> **Changelog — 23 June 2026:** The authenticated dashboard shell (`src/app/(root)`) was rebuilt from the floating-card layout to a **flat-panel layout** to match the approved reference (`public/images/image 7.svg`). Only structure, spacing, and component states changed — **all colors continue to come from the tokens in §4 / §6; no new colors were introduced.** This section is the contract for the shell; the implementation lives in `src/app/(root)/_components/`.
+The logo ships as PNG masters with SVG wrappers in `public/logo/`. The canonical asset inventory
+lives in [brand-assets.md](./brand-assets.md).
 
-### 7.1 Shell structure
+- `public/logo/logos/dwelve-logo-horizontal.svg` — default light-surface website logo.
+- `public/logo/logos/dwelve-logo-horizontal-dark.svg` — dark surfaces.
+- `public/logo/logos/dwelve-logo-icon.svg` — app icons, favicons, compact navigation.
 
-The shell is two columns with no outer canvas padding — panels meet at hairline dividers instead of floating on a tinted background.
+**The mark is a raster image with the violet baked in; CSS cannot recolour it.** This is the reason
+violet remains the identity accent. Do not place the light-mode mark on a surface darker than
+`--muted`, and do not recolour the wordmark independently of the icon.
 
-| Region | Surface token | Separator |
+Minimum clear space around the mark = the height of the cap.
+
+---
+
+## 7. Application shell
+
+Two columns, no top bar. `src/app/(root)/layout.tsx` is a flex row of `<SideBar>` plus a scrolling
+content column; each page owns its own header.
+
+| Region | Surface | Separator |
 |---|---|---|
-| Canvas (page background behind content) | `--muted` (light) / `--background` (dark) | — |
-| Sidebar (flush-left, full height) | `--sidebar` (cool off-white, one layer off the white content surface) | `border-r` = `--border` |
-| Top bar (flush-top of content column) | `--card` | `border-b` = `--border` |
-| Content | transparent (shows the canvas) | — |
+| Canvas | `--background` | — |
+| Sidebar (flush-left, full height, 264px) | `--sidebar` | `border-r` hairline |
+| Content | transparent over the canvas; panels are `--card` at `shadow-elev-1` | — |
 
-- Layout: `src/app/(root)/layout.tsx`. A flex row of `<SideBar>` + a content column (`<Navbar>` over a scrolling `<main>`).
-- Content is centred in a `max-w-[1180px]` column with `px-4 py-6 md:px-8 md:py-8`.
-- On mobile (`< md`) the sidebar collapses to a fixed bottom navigation bar; the content column is full-width and reserves `pb-24` for it.
+- Content is centred in `max-w-[1180px]` with `px-4 py-6 md:px-8 md:py-8`.
+- Below `md` the sidebar collapses to a fixed bottom navigation bar; the content column reserves
+  `pb-24`.
+- **Nav row state:** active is a soft teal tint (`--accent`) with `--accent-foreground` text at
+  `font-semibold`; idle is `--muted-foreground` at `font-normal`; hover shifts colour only. **Weight
+  is the state signal, never size** — a size change would reflow the sidebar on every navigation.
+- Rows use `interactive-flat`, not `interactive`. A lifting nav row is a layout shift.
 
-### 7.2 Sidebar (`_components/Sidebar`)
+---
 
-- Fixed width `264px`. No collapse/expand control — the sidebar is always expanded.
-- **Brand:** `<DwelveLogo variant="form" />` at the top (`px-6 pt-6 pb-5`, so the logo's left edge lines up with the nav-row icon column). No tagline/subtitle.
-- **Primary nav** (single flat list, in order): Dashboard, Classes, School, Assignments, Notifications, Settings.
-- **Bottom group** (separated by `border-t`): Profile, Log out. Log out is neutral at rest (icon inherits `--muted-foreground`) and turns `--destructive` — icon, text, and a soft background tint — on hover only.
-- **Row geometry:** `rounded-xl px-3 py-2.5`, 20px icon, `gap-3`, `text-[15px]`.
+## 8. Component vocabulary
 
-Nav row states:
+One component per job. Before building UI, check `src/components/ui`, `src/components/Custom`, and
+the route-local `_components` — and prefer extending a primitive over restyling from scratch.
 
-| State | Background | Text / icon | Weight |
-|---|---|---|---|
-| Active | `color-mix(--primary 14%, transparent)` — soft brand tint | `--accent-foreground` | `font-semibold` (600) + `tracking-[0.01em]` |
-| Idle | transparent | `--muted-foreground` | `font-normal` (400) |
-| Hover (idle) | `--muted` | `--foreground` | `font-normal` (400) — color shift only |
-| Locked ("Soon") | transparent, `opacity-55`, not interactive | `--muted-foreground` | `font-normal` (400) |
+| Primitive | Owns |
+|---|---|
+| `Surface` | Every card, panel, and bordered container. Padding, variant, elevation, interactive, divided. |
+| `Button` | Every button and button-shaped link. Includes `loading`. |
+| `Field` | Every form label + hint + error triplet. |
+| `Input` / `Textarea` | Every text entry, including the password reveal toggle. |
+| `Badge` | Every status pill, count chip, and category tag. |
+| `Avatar` | Every initial/photo avatar. |
+| `TabBar` | Every tab row, underline or pill. |
+| `Segmented` | Small mutually-exclusive choices (theme, language). |
+| `ConfirmDialog` | Every destructive confirmation. |
+| `MessagePromptDialog` | Every "give a reason" prompt. |
+| `PageHeader` | Every page title + subtitle + actions row. |
+| `SectionHeader` | Every icon-chip + title + description block inside a panel. |
+| `ListRow` | Every icon + title + description + trailing-control row. |
+| `PersonRequestRow` | Every pending request from a person, with approve and reject. |
+| `RowActionsMenu` | Every trailing overflow menu on a row or card. |
+| `EntityHeader` | Every school / class / test header. |
+| `CopyButton` | Every copy-to-clipboard control. |
+| `Skeleton` / `SkeletonList` / `SkeletonPage` | Every loading state. Never a bare spinner. |
+| `EmptyState` / `ResourceStateView` | Every empty, error, and not-found state. |
 
-**Weight is the primary state signal, not size.** Idle rests at `font-normal` (400) so the active jump to `font-semibold` (600) reads as a clear "you are here"; a heavier idle would leave the active state nowhere to go. Hover shifts colour only (no weight bump), so idle rows never carry two competing signals and never reflow. Row size is constant (`text-[15px]`) across all states — state is never signalled by size, which would shift the layout.
+If the same visual element appears in more than one place, it belongs in one of these. Two call
+sites that hard-code different values for "the same" thing is the bug this rule prevents.
 
-- **Count badge** (Notifications row): a pill using `--destructive` / `--destructive-foreground`, right-aligned (`ml-auto`). Driven by the live unread count from `notificationItems`.
-- The locked **Assignments** item carries a `--muted` "Soon" pill and is non-interactive (teacher-gated feature, not yet shipped).
+**Restyling a duplicate is not consolidating it.** Both request rows were migrated onto `Surface`,
+`Avatar`, and `Button` in the v2 pass and still stayed two identical components for a week, because
+they looked right — and looked right in the same way. When you touch a component, check whether its
+sibling exists before you improve it.
 
-The active treatment is a **soft brand tint** (`color-mix(in srgb, var(--primary) 14%, transparent)` background + `--accent-foreground` text), not a solid fill. It is mixed from `--primary` rather than the near-white `--accent` so it stays legible on the `--sidebar` surface in both themes. All interactive rows share one `focus-visible` ring (`--ring`, offset against `--sidebar`).
+---
 
-### 7.3 Top bar (`_components/Navbar`)
+## 9. Verifying a change
 
-- Flat bar, `--card` surface, `border-b` hairline, `px-4 py-3 md:px-6 md:py-3.5`. No large page title.
-- **Left:** breadcrumb only, always led by **Home** (→ `/dashboard`) followed by the active route trail, e.g. `Home / Notifications`. The trailing crumb is the current page (`--foreground`, semibold); ancestors are `--muted-foreground` links. Key: `root.breadcrumb.home`.
-- **Right:** a notification icon button (square, `rounded-xl`, `--border`), showing a `--destructive` dot when there are unread items, and a circular **avatar menu**.
-- **Avatar menu** (`_components/Navbar/_components/Profile`): a `--accent` circle showing the user's initial (or a fallback icon) that opens a dropdown with Profile, Settings, and Log out.
-
-### 7.4 Content page header (`_components/PageHeader`)
-
-> **Changelog — 1 July 2026:** The always-on content-area page title (`RouteHeader`, mounted once in the shell layout) was **removed**. It duplicated the breadcrumb's trailing crumb, which already names the current page in the top bar (§7.3). Content now starts directly under the top bar. `RouteHeader` is no longer rendered; the breadcrumb is the single source of the page's identity.
-
-- `PageHeader` — reusable presentational header (`title` ≈28px bold, optional `subtitle` in `--muted-foreground`, optional right-aligned `actions`). Kept for the occasional view that genuinely needs an in-content heading with a subtitle or action buttons; **compose it explicitly per page**, do not re-mount it globally. Most pages should rely on the breadcrumb alone.
+- `npm run lint` and `npm run build` must pass.
+- **`npm run check:contrast` must stay green** after any change to the `:root` / `.dark` blocks.
+  It parses `globals.css`, resolves `var()` aliases, and asserts a ratio for every
+  foreground/background pair the system relies on, plus hue-separation floors between
+  action / success / info. Source: `scripts/check-contrast.mjs`. Add a row to `CHECKS` there when
+  you add a token pair the UI depends on.
+- Walk the affected routes in **both themes**, at `<768px`, `768–1024px`, and `>1280px`.
+- Check Russian and Uzbek Latin for clipping and reflow.
+- Emulate `prefers-reduced-motion: reduce` and confirm every new affordance has a still equivalent.

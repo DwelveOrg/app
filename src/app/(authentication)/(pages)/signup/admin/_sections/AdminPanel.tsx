@@ -54,27 +54,27 @@ export default function AdminPanel() {
           {stats.map((stat) => (
             <div key={stat.label} className="flex-1 rounded-xl border border-white/15 bg-white/8 px-3 py-3 text-center backdrop-blur-sm">
               <p className="text-lg font-bold text-white">{stat.value}</p>
-              <p className="text-[10px] text-white/50">{stat.label}</p>
+              <p className="text-3xs text-white/70">{stat.label}</p>
             </div>
           ))}
         </div>
 
-        <div className="w-[280px] rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+        <div className="w-[280px] rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-elev-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <p className="text-xs font-semibold text-white">{t("auth.visual.admin.classCard.title")}</p>
-              <p className="mt-0.5 text-[10px] text-white/45">{t("auth.visual.admin.classCard.meta")}</p>
+              <p className="mt-0.5 text-3xs text-white/70">{t("auth.visual.admin.classCard.meta")}</p>
             </div>
-            <span className="rounded-lg bg-brand-violet-300/20 px-2 py-1 text-[10px] font-semibold text-brand-violet-300">
+            <span className="rounded-lg bg-brand-violet-300/20 px-2 py-1 text-3xs font-semibold text-brand-violet-300">
               {t("auth.visual.admin.classCard.status")}
             </span>
           </div>
           <div className="space-y-2">
             {tests.map((item) => (
               <div key={item.name}>
-                <div className="mb-1 flex justify-between text-[10px] text-white/55">
+                <div className="mb-1 flex justify-between text-3xs text-white/70">
                   <span>{item.name}</span>
-                  <span className="font-semibold text-white/80">{item.pct}%</span>
+                  <span className="font-semibold text-white">{item.pct}%</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/10">
                   <div
@@ -90,17 +90,17 @@ export default function AdminPanel() {
         <div className="space-y-3">
           {features.map((feature) => (
             <div key={feature.title} className="flex items-start gap-3">
-              <span className="mt-0.5 text-base text-white/90">{feature.icon}</span>
+              <span className="mt-0.5 text-base text-white">{feature.icon}</span>
               <div>
                 <p className="text-xs font-semibold text-white">{feature.title}</p>
-                <p className="text-[11px] text-white/45 leading-relaxed">{feature.desc}</p>
+                <p className="text-2xs text-white/70 leading-relaxed">{feature.desc}</p>
               </div>
             </div>
           ))}
         </div>
       </div>
 
-      <p className="text-sm text-white/50">
+      <p className="text-sm text-white/70">
         {t("auth.visual.admin.trustedPrefix")}{" "}
         <span className="font-semibold text-white">{t("auth.visual.admin.trustedStrong")}</span>{" "}
         {t("auth.visual.admin.trustedSuffix")}

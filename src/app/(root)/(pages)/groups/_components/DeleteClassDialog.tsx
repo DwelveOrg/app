@@ -1,21 +1,11 @@
 "use client";
 
-import { LoaderCircle, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogMedia,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { useDeleteClassMutation } from "@/app/(root)/(pages)/school/_hooks/useDeleteClassMutation";
 
 type DeleteClassDialogProps = {
@@ -65,36 +55,16 @@ export default function DeleteClassDialog({
   };
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogMedia>
-            <Trash2 />
-          </AlertDialogMedia>
-          <AlertDialogTitle>
-            {t("root.classDetail.delete.title", { name: className })}
-          </AlertDialogTitle>
-          <AlertDialogDescription>
-            {t("root.classDetail.delete.description")}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel disabled={isBusy}>
-            {t("root.classDetail.delete.cancel")}
-          </AlertDialogCancel>
-          <AlertDialogAction
-            variant="destructive"
-            onClick={(event) => {
-              event.preventDefault();
-              handleDelete();
-            }}
-            disabled={isBusy}
-          >
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
-            {t("root.classDetail.delete.confirm")}
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+    <ConfirmDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      icon={<Trash2 />}
+      title={t("root.classDetail.delete.title", { name: className })}
+      description={t("root.classDetail.delete.description")}
+      cancelLabel={t("root.classDetail.delete.cancel")}
+      confirmLabel={t("root.classDetail.delete.confirm")}
+      isPending={isBusy}
+      onConfirm={handleDelete}
+    />
   );
 }

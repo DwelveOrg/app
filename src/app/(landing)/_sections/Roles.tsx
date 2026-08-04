@@ -6,6 +6,8 @@ import { motion, useReducedMotion } from "motion/react";
 import { Building2, GraduationCap, Smartphone, type LucideIcon } from "lucide-react";
 
 import SectionHeading from "../_components/SectionHeading";
+import { surfaceVariants } from "@/components/ui/Surface";
+import { cn } from "@/lib/utils";
 
 type Role = {
   icon: LucideIcon;
@@ -48,7 +50,10 @@ export default function Roles() {
   };
 
   return (
-    <section id="roles" className="w-full scroll-mt-24 py-20 md:py-28">
+    <section
+      id="roles"
+      className="w-full scroll-mt-24 border-y border-border/70 bg-muted/45 py-20 md:py-24"
+    >
       <div className="mx-auto w-full max-w-6xl px-4">
         <SectionHeading
           title={t("landing.roles.title")}
@@ -70,8 +75,11 @@ export default function Roles() {
                 variants={card}
                 className={
                   role.featured
-                    ? "relative overflow-hidden rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 p-7 text-white shadow-[0_24px_50px_-12px_rgba(106,79,240,0.55)] lg:-translate-y-3"
-                    : "rounded-2xl border border-border bg-card p-7 shadow-[0_1px_2px_rgba(15,23,42,0.04)] transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-[0_18px_40px_rgba(15,23,42,0.08)]"
+                    ? "relative overflow-hidden rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 p-7 text-white shadow-elev-brand lg:-translate-y-3"
+                    : cn(
+                        surfaceVariants({ padding: "none" }),
+                        "p-7 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-elev-3",
+                      )
                 }
               >
                 {role.featured ? (
@@ -82,21 +90,21 @@ export default function Roles() {
                 ) : null}
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-                    role.featured
-                      ? "bg-white/15 text-white"
+ role.featured
+ ?"bg-white/15 text-white"
                       : "bg-accent text-accent-foreground"
                   }`}
                 >
                   <Icon className="h-6 w-6" />
                 </div>
                 <h3
-                  className={`mt-5 text-lg font-bold ${role.featured ? "text-white" : "text-foreground"}`}
+                  className={`mt-5 text-lg font-bold ${role.featured ?"text-white" : "text-foreground"}`}
                 >
                   {role.title}
                 </h3>
                 <p
                   className={`mt-2 text-sm leading-relaxed ${
-                    role.featured ? "text-white/85" : "text-muted-foreground"
+ role.featured ?"text-white/85" : "text-muted-foreground"
                   }`}
                 >
                   {role.description}

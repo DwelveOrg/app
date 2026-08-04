@@ -35,9 +35,9 @@ export default function OrderingEditor({
 
   return (
     <div className="space-y-2">
-      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--foreground)]">
+      <p className="inline-flex items-center gap-1.5 text-xs font-medium text-foreground">
         <ListOrdered
-          className="h-3.5 w-3.5 text-[var(--muted-foreground)]"
+          className="h-3.5 w-3.5 text-muted-foreground"
           aria-hidden="true"
         />
         {t("root.tests.builder.ordering.title")}
@@ -47,9 +47,9 @@ export default function OrderingEditor({
         {fields.map((field, index) => (
           <li
             key={field.id}
-            className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background)] px-3 py-2"
+            className="flex items-center gap-2 rounded-xl border border-border bg-background px-3 py-2"
           >
-            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[11px] font-semibold text-[var(--primary)]">
+            <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-2xs font-semibold text-primary">
               {index + 1}
             </span>
             <RowTextInput
@@ -87,7 +87,7 @@ export default function OrderingEditor({
         {t("root.tests.builder.ordering.add")}
       </Button>
 
-      <p className="text-[11px] text-[var(--muted-foreground)]">
+      <p className="text-2xs text-muted-foreground">
         {t("root.tests.builder.ordering.hint")}
       </p>
     </div>

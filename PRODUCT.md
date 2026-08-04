@@ -14,21 +14,45 @@ Dwelve (`gf-frontend`) is a digital academic testing and performance-management 
 
 ## Brand Personality
 
-Structured, academic, modern, quietly premium. Derived from the Dwelve logo: deep indigo "Ink" for authority, a violet accent for emphasis and action, calm lavender/neutral surfaces for focus. Confident and legible, never flashy.
+Structured, academic, modern, quietly premium. Two accents carry the whole system:
+**violet is identity** (the logo, the wordmark, the auth panel, the landing bloom) and
+**teal is action** (buttons, selection, focus, active navigation, primary data). Surfaces are calm
+and tactile — warm paper under cool ink in light, a cool near-black under warmer accents in dark.
+Confident and legible, never flashy.
 
 ## Anti-references
 
-- Generic SaaS "bright blue + rainbow gradient" dashboards. The product must never drift into random bright blues; the only blue in the system is semantic Info. The brand accent is violet (`--primary` `#6A5DE9` / `#7B58E8`).
-- Floating-card, heavy-shadow, glassmorphism layouts. The authenticated shell is deliberately flat: hairline borders, token surfaces, panels that meet at dividers rather than float.
-- Ad-hoc hex colors in components. All color comes from the tokens in `globals.css` / design-system §4–§6.
+- Generic SaaS "bright blue + rainbow gradient" dashboards. No multi-hue decorative palettes; the
+  only blue in the system is semantic Info, and category tints come from the chart ramp, not from
+  raw Tailwind hues.
+- Violet used as an action colour. Violet says *this is Dwelve*, never *click this*. If a violet
+  thing is clickable, it is wrong.
+- Glassmorphism as a default surface. Blur is for genuinely floating chrome (a sticky action bar,
+  a scrolled nav) — never for ordinary panels.
+- Ad-hoc hex colours, one-off `shadow-[…]` values, and arbitrary `text-[Npx]` sizes in components.
+  Colour comes from the tokens in `globals.css`, elevation from `shadow-elev-*`, type from the
+  `type-*` utilities.
+- Nested cards. A bordered box inside a bordered box inside a bordered box is a hierarchy failure,
+  not depth.
 
 ## Design Principles
 
-- **One palette, everywhere.** Logo, marketing, and product UI share the token system. No component invents its own hex.
-- **Flat over floating.** Structure comes from hairline borders and surface tokens (`--card`, `--muted`, `--sidebar`), not big shadows or gradients.
-- **Accent means action.** Violet `--primary` marks primary actions, current selection, and state — not decoration.
-- **Consistency over surprise.** The same button, card, and row vocabulary screen to screen. Delight is reserved for moments (empty-state artwork, subtle motion), not every surface.
-- **Trilingual by default.** Every text surface must hold English, Russian, and Uzbek Latin (including U+02BB `ʻ`).
+- **One palette, everywhere.** Logo, marketing, and product UI share the token system. No component
+  invents its own hex.
+- **Depth is real, and it is cheap.** Surfaces sit above the canvas and carry `shadow-elev-1/2`.
+  Elevation separates layers; hairline borders define edges. Neither is decoration, and levels are
+  earned — most of a page lives at elevation 1.
+- **Accent means action.** Teal `--primary` marks primary actions, current selection, and state.
+  Inactive things are never fully saturated.
+- **Everything you can touch responds.** Every interactive surface has default, hover, focus,
+  active, disabled, and loading. The `interactive` / `interactive-flat` utilities are the single
+  tactile recipe — lift on hover, settle on press — so the whole product presses the same way.
+- **Motion conveys state, not personality.** 120–260ms. No page-load choreography: the app loads
+  into a task.
+- **Consistency over surprise.** The same button, card, and row vocabulary screen to screen. Delight
+  is reserved for moments (empty-state artwork, the landing hero), not every surface.
+- **Trilingual by default.** Every text surface must hold English, Russian, and Uzbek Latin
+  (including U+02BB `ʻ`).
 
 ## Accessibility & Inclusion
 

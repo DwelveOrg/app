@@ -2,11 +2,11 @@ import type { FeedbackModalKind } from "../_types";
 
 /** Compact trailing button for rows that perform an action (send, contact, ...). */
 export const rowActionClassName =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--card)] px-3 py-1.5 text-[13px] font-semibold text-[var(--foreground)] transition-colors hover:bg-[var(--muted)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)]";
+  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-[13px] font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 /** Compact trailing button for destructive actions (delete account). */
 export const rowDangerActionClassName =
-  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--destructive)_12%,transparent)] px-3 py-1.5 text-[13px] font-semibold text-[var(--destructive)] transition-colors hover:bg-[color-mix(in_srgb,var(--destructive)_20%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--destructive)_45%,transparent)]";
+  "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--destructive)_12%,transparent)] px-3 py-1.5 text-[13px] font-semibold text-destructive transition-colors hover:bg-[color-mix(in_srgb,var(--destructive)_20%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--destructive)_45%,transparent)]";
 
 /**
  * Support inbox for the feedback, contact and account-deletion rows. There is no

@@ -102,30 +102,32 @@ function QuestionCard({
       id={questionId ? questionAnchorId(questionId) : undefined}
       tabIndex={-1}
       className={cn(
-        "scroll-mt-24 rounded-xl border bg-[var(--card)] p-4 transition",
+        // Level 3: a flat row, not a third card. Only the invalid state draws an edge, so a
+        // flagged question is the one thing on screen that reads as boxed.
+        "interactive-flat scroll-mt-24 rounded-lg bg-card p-4",
         flagged
-          ? "border-[var(--destructive)] ring-2 ring-[color-mix(in_srgb,var(--destructive)_25%,transparent)]"
-          : "border-[var(--border)]",
+          ? "ring-2 ring-destructive/45"
+          : "ring-1 ring-border/60 hover:ring-border",
       )}
     >
       <header className="flex flex-wrap items-center gap-2">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-xs font-bold text-[var(--primary)]">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-xs font-bold text-primary">
           {questionNumber}
         </span>
 
-        <span className="rounded-full border border-[var(--border)] bg-[var(--background)] px-2 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-2xs font-medium text-muted-foreground">
           {typeLabel}
         </span>
 
         {spec && !spec.autoGradable ? (
-          <span className="text-[11px] text-[var(--muted-foreground)]">
+          <span className="text-2xs text-muted-foreground">
             {t("root.tests.builder.question.manualGrading")}
           </span>
         ) : null}
 
         {spec?.autoGradable ? (
           <span
-            className="inline-flex items-center gap-1 text-[11px] text-[var(--muted-foreground)]"
+            className="inline-flex items-center gap-1 text-2xs text-muted-foreground"
             title={t("root.tests.builder.question.autoGraded")}
           >
             <Zap className="h-3 w-3" aria-hidden="true" />
@@ -138,7 +140,7 @@ function QuestionCard({
             control={control}
             name={`${name}.points`}
             render={({ field, fieldState }) => (
-              <label className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--muted-foreground)]">
+              <label className="flex items-center gap-1.5 text-2xs font-medium text-muted-foreground">
                 {t("root.tests.builder.question.points")}
                 <Input
                   type="number"
@@ -157,7 +159,7 @@ function QuestionCard({
                   ref={field.ref}
                 />
                 {fieldState.error ? (
-                  <span className="text-[var(--destructive)]">
+                  <span className="text-destructive">
                     {t("root.tests.builder.question.pointsInvalid")}
                   </span>
                 ) : null}
@@ -191,7 +193,7 @@ function QuestionCard({
             variant="ghost"
             disabled={disabled}
             aria-label={t("root.tests.builder.question.remove")}
-            className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+            className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(index)}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -200,7 +202,7 @@ function QuestionCard({
       </header>
 
       {spec ? null : (
-        <p className="mt-3 inline-flex items-start gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-[11px] text-[var(--warning)]">
+        <p className="mt-3 inline-flex items-start gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-2xs text-warning">
           <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
           {t("root.tests.builder.question.unknownType", { type })}
         </p>
@@ -222,7 +224,7 @@ function QuestionCard({
                 className="py-2.5"
               />
               {fieldState.error ? (
-                <p className="mt-1 text-[11px] text-[var(--destructive)]">
+                <p className="mt-1 text-2xs text-destructive">
                   {t("root.tests.builder.question.promptRequired")}
                 </p>
               ) : null}

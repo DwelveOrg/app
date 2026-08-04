@@ -1,4 +1,5 @@
 import type { TestStatus } from "@/app/(root)/_lib/tests.schemas";
+import type { BadgeVariant } from "@/components/ui/badge";
 
 /** Status tabs on the test list, in the order a teacher works through them. */
 export const TEST_STATUS_TABS: TestStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
@@ -25,13 +26,10 @@ export const SECTION_KINDS = ["GENERAL", "READING", "WRITING", "MATH"] as const;
  * Status tint. Each pairs a colour with its own label text, so status is never
  * signalled by colour alone (`docs/design/design-system.md`).
  */
-export const TEST_STATUS_TONE: Record<TestStatus, string> = {
-  DRAFT:
-    "border-[var(--border)] bg-[var(--muted)] text-[var(--muted-foreground)]",
-  PUBLISHED:
-    "border-[color-mix(in_srgb,var(--success)_35%,transparent)] bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-[var(--success)]",
-  ARCHIVED:
-    "border-[color-mix(in_srgb,var(--warning)_35%,transparent)] bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-[var(--warning)]",
+export const TEST_STATUS_TONE: Record<TestStatus, BadgeVariant> = {
+  DRAFT: "neutral",
+  PUBLISHED: "success",
+  ARCHIVED: "warning",
 };
 
 /* -------------------------------------------------------------------------- */

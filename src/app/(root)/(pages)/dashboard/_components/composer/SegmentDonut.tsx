@@ -97,13 +97,13 @@ export default function SegmentDonut({
         {segments.map((segment) => (
           <li
             key={segment.label}
-            className="inline-flex items-center gap-2 text-xs text-[var(--muted-foreground)]"
+            className="inline-flex items-center gap-2 text-xs text-muted-foreground"
           >
             <span
               className="h-2.5 w-2.5 shrink-0 rounded-[3px]"
               style={{ background: segment.color }}
             />
-            <span className="text-[var(--foreground)]">{segment.label}</span>
+            <span className="text-foreground">{segment.label}</span>
             <span className="tabular-nums">· {segment.value}</span>
           </li>
         ))}

@@ -2,7 +2,7 @@
 
 import { useEffect, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle, Mail, UserRound } from "lucide-react";
+import { Mail, UserRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -14,7 +14,10 @@ import {
   type UpdateFullNameInput,
 } from "@/app/(root)/_lib/profile.schemas.forms";
 import type { ProfileAccount } from "@/app/(root)/_lib/profile.schemas";
+import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
+import Surface from "@/components/ui/Surface";
 
 type AccountDetailsFormProps = {
   account: ProfileAccount;
@@ -57,26 +60,28 @@ export function AccountDetailsForm({ account }: Readonly<AccountDetailsFormProps
   const isBusy = isPending || form.formState.isSubmitting;
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <Surface as="section">
       <header className="mb-4">
-        <h2 className="text-base font-bold text-[var(--foreground)]">
+        <h2 className="text-base font-bold text-foreground">
           {t("root.profile.account.title")}
         </h2>
-        <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">
+        <p className="mt-0.5 text-sm text-muted-foreground">
           {t("root.profile.account.description")}
         </p>
       </header>
 
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <div>
-          <label
-            htmlFor="profile-full-name"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.account.fullName.label")}
-          </label>
+        <Field
+          htmlFor="profile-full-name"
+          label={t("root.profile.account.fullName.label")}
+          error={
+            form.formState.errors.fullName
+              ? t("root.profile.account.fullName.error")
+              : undefined
+          }
+        >
           <div className="relative">
-            <UserRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <UserRound className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="profile-full-name"
               {...form.register("fullName")}
@@ -86,22 +91,15 @@ export function AccountDetailsForm({ account }: Readonly<AccountDetailsFormProps
               autoComplete="name"
             />
           </div>
-          {form.formState.errors.fullName ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.profile.account.fullName.error")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
-        <div>
-          <label
-            htmlFor="profile-email"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.account.email.label")}
-          </label>
+        <Field
+          htmlFor="profile-email"
+          label={t("root.profile.account.email.label")}
+          hint={t("root.profile.account.email.hint")}
+        >
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+            <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="profile-email"
               type="email"
@@ -111,22 +109,14 @@ export function AccountDetailsForm({ account }: Readonly<AccountDetailsFormProps
               className="pl-10 cursor-not-allowed"
             />
           </div>
-          <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
-            {t("root.profile.account.email.hint")}
-          </p>
-        </div>
+        </Field>
 
         <div className="flex justify-end pt-1">
-          <button
-            type="submit"
-            disabled={isBusy || !isDirty}
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" size="lg" loading={isBusy} disabled={!isDirty}>
             {t("root.profile.form.save")}
-          </button>
+          </Button>
         </div>
       </form>
-    </section>
+    </Surface>
   );
 }

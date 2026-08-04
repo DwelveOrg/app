@@ -64,9 +64,9 @@ export function resolveNotificationHref(item: NotificationItem): string | null {
 
 /** Icon container tint per category, driven by design tokens (never hard-coded hex). */
 export const CATEGORY_TINT: Record<NotificationCategory, string> = {
-  system: "bg-[color-mix(in_srgb,var(--info)_14%,transparent)] text-[var(--info)]",
-  payments: "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-[var(--success)]",
-  invitations: "bg-[color-mix(in_srgb,var(--primary)_16%,transparent)] text-[var(--primary)]",
+  system: "bg-[color-mix(in_srgb,var(--info)_14%,transparent)] text-info",
+  payments: "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-success",
+  invitations: "bg-[color-mix(in_srgb,var(--primary)_16%,transparent)] text-primary",
 };
 
 /** True when a notification is an unresolved invitation (renders Accept / Decline). */

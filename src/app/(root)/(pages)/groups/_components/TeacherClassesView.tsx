@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import Skeleton from "@/components/ui/Skeleton";
 import Empty from "../../_components/ui/Empty";
 import { useTeacherClasses } from "@/app/(root)/_hooks/useTeacherRequests";
 import TeacherClassCard from "./TeacherClassCard";
@@ -50,33 +51,30 @@ export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps
   return (
     <div className="flex flex-col gap-6">
       <header>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
+        <h1 className="type-title text-foreground">
           {t("root.enrollment.teacher.title")}
         </h1>
-        <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+        <p className="mt-1 text-sm text-muted-foreground">
           {t("root.enrollment.teacher.subtitle")}
         </p>
       </header>
 
       <div className="relative max-w-md">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--muted-foreground)]" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="search"
           value={searchInput}
           onChange={(event) => setSearchInput(event.target.value)}
           placeholder={t("root.enrollment.teacher.searchPlaceholder")}
           aria-label={t("root.enrollment.teacher.searchPlaceholder")}
-          className="h-10 w-full rounded-xl border border-[var(--border)] bg-[var(--card)] pl-9 pr-3 text-sm text-[var(--foreground)] outline-none transition placeholder:text-[var(--muted-foreground)] focus-visible:ring-2 focus-visible:ring-[var(--ring)]"
+          className="h-10 w-full rounded-xl border border-border bg-card pl-9 pr-3 text-sm text-foreground outline-none transition placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring shadow-elev-1"
         />
       </div>
 
       {query.isLoading ? (
         <div aria-busy="true" className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div
-              key={index}
-              className="h-52 animate-pulse rounded-2xl border border-[var(--border)] bg-[var(--muted)]"
-            />
+            <Skeleton key={index} className="h-52 rounded-2xl" />
           ))}
         </div>
       ) : query.isError ? (

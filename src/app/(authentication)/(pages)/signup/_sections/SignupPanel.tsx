@@ -18,9 +18,9 @@ export default function SignupPanel() {
   ];
 
   const avatars = [
-    { initials: "JK", color: "from-pink-500 to-rose-600" },
-    { initials: "LM", color: "from-indigo-400 to-blue-600" },
-    { initials: "TA", color: "from-teal-500 to-emerald-600" },
+    { initials: "JK", color: "var(--chart-4)" },
+    { initials: "LM", color: "var(--chart-2)" },
+    { initials: "TA", color: "var(--chart-1)" },
   ];
 
   return (
@@ -41,10 +41,10 @@ export default function SignupPanel() {
           ))}
         </div>
 
-        <div className="w-64 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+        <div className="w-64 rounded-2xl border border-white/15 bg-white/10 p-4 backdrop-blur-md shadow-elev-4">
           <div className="mb-3 flex items-center justify-between">
             <div>
-              <p className="text-[10px] text-white/45">{t("auth.visual.signup.score.subject")}</p>
+              <p className="text-3xs text-white/70">{t("auth.visual.signup.score.subject")}</p>
               <p className="text-xs font-semibold text-white">{t("auth.visual.signup.score.title")}</p>
             </div>
             <div className="relative flex h-12 w-12 items-center justify-center">
@@ -60,17 +60,17 @@ export default function SignupPanel() {
                   pathLength="100"
                 />
               </svg>
-              <span className="relative text-[11px] font-bold text-white">94%</span>
+              <span className="relative text-2xs font-bold text-white">94%</span>
             </div>
           </div>
           <div className="flex gap-1.5">
             {["A", "B", "A+", "B+", "A"].map((grade, i) => (
-              <div key={i} className="flex-1 rounded-lg bg-white/12 py-1.5 text-center text-[10px] font-semibold text-white/80">
+              <div key={i} className="flex-1 rounded-lg bg-white/12 py-1.5 text-center text-3xs font-semibold text-white">
                 {grade}
               </div>
             ))}
           </div>
-          <p className="mt-2 text-right text-[10px] text-white/40">{t("auth.visual.signup.score.caption")}</p>
+          <p className="mt-2 text-right text-3xs text-white/70">{t("auth.visual.signup.score.caption")}</p>
         </div>
       </div>
 

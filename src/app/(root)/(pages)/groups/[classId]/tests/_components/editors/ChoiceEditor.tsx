@@ -74,7 +74,7 @@ export default function ChoiceEditor({
           "flex items-center gap-2 rounded-xl border px-3 py-2 transition",
           isCorrect
             ? "border-[color-mix(in_srgb,var(--success)_45%,transparent)] bg-[color-mix(in_srgb,var(--success)_10%,transparent)]"
-            : "border-[var(--border)] bg-[var(--background)]",
+            : "border-border bg-background",
         )}
       >
         {isSingle ? (
@@ -96,7 +96,7 @@ export default function ChoiceEditor({
           />
         )}
 
-        <span className="w-5 shrink-0 text-center text-xs font-semibold text-[var(--muted-foreground)]">
+        <span className="w-5 shrink-0 text-center text-xs font-semibold text-muted-foreground">
           {optionLabel(index)}
         </span>
 
@@ -115,7 +115,7 @@ export default function ChoiceEditor({
           paired with this check and its text label.
         */}
         {isCorrect ? (
-          <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-semibold text-[var(--success)]">
+          <span className="inline-flex shrink-0 items-center gap-1 text-2xs font-semibold text-success">
             <Check className="h-3.5 w-3.5" aria-hidden="true" />
             {t("root.tests.builder.options.correct")}
           </span>
@@ -140,7 +140,7 @@ export default function ChoiceEditor({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-medium text-[var(--foreground)]">
+      <p className="text-xs font-medium text-foreground">
         {isSingle
           ? t("root.tests.builder.options.singleTitle")
           : t("root.tests.builder.options.multiTitle")}
@@ -160,7 +160,7 @@ export default function ChoiceEditor({
 
       <div className="flex flex-wrap items-center gap-3">
         {hasFixedOptions ? (
-          <p className="text-[11px] text-[var(--muted-foreground)]">
+          <p className="text-2xs text-muted-foreground">
             {t("root.tests.builder.options.fixedHint")}
           </p>
         ) : (
@@ -177,7 +177,7 @@ export default function ChoiceEditor({
         )}
 
         {correctCount === 0 ? (
-          <p className="text-[11px] text-[var(--warning)]">
+          <p className="text-2xs text-warning">
             {t("root.tests.builder.options.noneCorrect")}
           </p>
         ) : null}

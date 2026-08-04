@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import * as THREE from "three";
 
 /**
@@ -30,23 +31,116 @@ import * as THREE from "three";
  * depth and is the graceful fallback when WebGL is unavailable.
  */
 
-// Brand palette — strictly the design-system violet/ink/success tokens.
-const VIOLET = 0x6a4ff0; // --primary
-const VIOLET_LIGHT = 0x8e78ff; // --brand-violet-300
-const VIOLET_BRIGHT = 0x9b80ff; // violet-400, for glow lines
-const VIOLET_DEEP = 0x5739d6; // --primary-hover
-const SUCCESS = 0x16b981;
-const LINE = 0xd7dcf2;
-const SHEET_SURFACE = 0xffffff;
-const CARD_SURFACE = 0xf7f8ff;
-const CLASS_SURFACE = 0xeef0fb;
-const TILE_IDLE = 0xdfe3f4;
+/**
+ * Scene palette, per theme.
+ *
+ * The scene used to hard-code one set of colours, so in dark mode it stayed a light-mode object —
+ * white sheets and near-white cards — floating on a near-black canvas. The decks now take their
+ * surfaces from the theme while the violet identity accent stays put in both.
+ *
+ * These are literals rather than reads of `getComputedStyle`, because three.js needs numeric
+ * colours at construction time and the CSS variables are hex strings that would need parsing on
+ * every material. They mirror the `--brand-*` ramp in globals.css; keep them in step with it.
+ */
+type ScenePalette = {
+  VIOLET: number;
+  VIOLET_LIGHT: number;
+  VIOLET_BRIGHT: number;
+  VIOLET_DEEP: number;
+  SUCCESS: number;
+  LINE: number;
+  SHEET_SURFACE: number;
+  CARD_SURFACE: number;
+  CLASS_SURFACE: number;
+  TILE_IDLE: number;
+  WHITE_CSS: string;
+  VIOLET_CSS: string;
+  VIOLET_DEEP_CSS: string;
+  SUCCESS_CSS: string;
+  GRADIENT_FROM: string;
+  /** Colour of text drawn onto label plaques — must read on SHEET_SURFACE. */
+  INK_CSS: string;
+};
 
-// CSS colours for the canvas-texture pills.
-const WHITE_CSS = "#FFFFFF";
-const VIOLET_CSS = "#6A4FF0";
-const VIOLET_DEEP_CSS = "#4B36C9";
-const SUCCESS_CSS = "#0A8F61";
+const PALETTES: Record<"light" | "dark", ScenePalette> = {
+  light: {
+    VIOLET: 0x6a4ff0,
+    VIOLET_LIGHT: 0x8e78ff,
+    VIOLET_BRIGHT: 0x9b80ff,
+    VIOLET_DEEP: 0x5739d6,
+    SUCCESS: 0x25793a,
+    LINE: 0xd7dcf2,
+    SHEET_SURFACE: 0xffffff,
+    CARD_SURFACE: 0xf7f8ff,
+    CLASS_SURFACE: 0xeef0fb,
+    TILE_IDLE: 0xdfe3f4,
+    WHITE_CSS: "#FFFFFF",
+    VIOLET_CSS: "#6A4FF0",
+    VIOLET_DEEP_CSS: "#4B36C9",
+    SUCCESS_CSS: "#25793A",
+    GRADIENT_FROM: "#8E78FF",
+    INK_CSS: "#16151C",
+  },
+  dark: {
+    VIOLET: 0xa78bff,
+    VIOLET_LIGHT: 0xc9bcff,
+    VIOLET_BRIGHT: 0xd8ceff,
+    VIOLET_DEEP: 0x8e72ff,
+    SUCCESS: 0x5fcb63,
+    LINE: 0x3a3752,
+    SHEET_SURFACE: 0x24222e,
+    CARD_SURFACE: 0x1d1b26,
+    CLASS_SURFACE: 0x191722,
+    TILE_IDLE: 0x2e2b3c,
+    WHITE_CSS: "#EDECF0",
+    VIOLET_CSS: "#A78BFF",
+    VIOLET_DEEP_CSS: "#C9BCFF",
+    SUCCESS_CSS: "#5FCB63",
+    GRADIENT_FROM: "#C9BCFF",
+    INK_CSS: "#EDECF0",
+  },
+};
+
+/**
+ * The active palette. Module-scoped because the scene builders below are plain functions called
+ * during construction, and threading a palette argument through all of them would be a far larger
+ * change than this earns. Set once at the top of the build effect, before anything reads it; only
+ * one hero scene is ever mounted.
+ */
+let P: ScenePalette = PALETTES.light;
+
+let VIOLET = P.VIOLET;
+let VIOLET_LIGHT = P.VIOLET_LIGHT;
+let VIOLET_BRIGHT = P.VIOLET_BRIGHT;
+let VIOLET_DEEP = P.VIOLET_DEEP;
+let SUCCESS = P.SUCCESS;
+let LINE = P.LINE;
+let SHEET_SURFACE = P.SHEET_SURFACE;
+let CARD_SURFACE = P.CARD_SURFACE;
+let CLASS_SURFACE = P.CLASS_SURFACE;
+let TILE_IDLE = P.TILE_IDLE;
+let WHITE_CSS = P.WHITE_CSS;
+let VIOLET_CSS = P.VIOLET_CSS;
+let VIOLET_DEEP_CSS = P.VIOLET_DEEP_CSS;
+let SUCCESS_CSS = P.SUCCESS_CSS;
+
+function applyScenePalette(isDark: boolean) {
+  P = PALETTES[isDark ? "dark" : "light"];
+  VIOLET = P.VIOLET;
+  VIOLET_LIGHT = P.VIOLET_LIGHT;
+  VIOLET_BRIGHT = P.VIOLET_BRIGHT;
+  VIOLET_DEEP = P.VIOLET_DEEP;
+  SUCCESS = P.SUCCESS;
+  LINE = P.LINE;
+  SHEET_SURFACE = P.SHEET_SURFACE;
+  CARD_SURFACE = P.CARD_SURFACE;
+  CLASS_SURFACE = P.CLASS_SURFACE;
+  TILE_IDLE = P.TILE_IDLE;
+  WHITE_CSS = P.WHITE_CSS;
+  VIOLET_CSS = P.VIOLET_CSS;
+  VIOLET_DEEP_CSS = P.VIOLET_DEEP_CSS;
+  SUCCESS_CSS = P.SUCCESS_CSS;
+}
 
 // --- Easing -----------------------------------------------------------------
 const clamp01 = (v: number) => (v < 0 ? 0 : v > 1 ? 1 : v);
@@ -156,7 +250,7 @@ function makeGradientTexture(): THREE.CanvasTexture | null {
   const ctx = canvas.getContext("2d");
   if (!ctx) return null;
   const grad = ctx.createLinearGradient(0, 0, 128, 128);
-  grad.addColorStop(0, "#8E78FF");
+  grad.addColorStop(0, P.GRADIENT_FROM);
   grad.addColorStop(1, VIOLET_CSS);
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, 128, 128);
@@ -249,9 +343,18 @@ export default function HeroScene({ className, labels }: { className?: string; l
   const gradedLabel = labels?.graded ?? "";
   const averageLabel = labels?.average ?? "";
 
+  // `resolvedTheme` collapses "system" to the concrete theme. It is undefined until the theme
+  // provider hydrates; the scene is client-only anyway, and treating that first frame as light
+  // matches the server-rendered CSS glow sitting behind the canvas.
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
+
+    // Must run before any builder below reads a colour.
+    applyScenePalette(isDark);
 
     // Local copy: the react-hooks immutability lint forbids passing effect
     // dependencies straight into helper closures.
@@ -1064,7 +1167,7 @@ export default function HeroScene({ className, labels }: { className?: string; l
         container.removeChild(renderer.domElement);
       }
     };
-  }, [quizLabel, reviewLabel, approvedLabel, gradedLabel, averageLabel]);
+  }, [quizLabel, reviewLabel, approvedLabel, gradedLabel, averageLabel, isDark]);
 
   return <div ref={containerRef} className={className} aria-hidden="true" />;
 }

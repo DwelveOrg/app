@@ -4,7 +4,8 @@ import { useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import { Modal } from "@/app/(root)/_components/Modal";
+import Dialog, { DialogFooterActions } from "@/app/(root)/_components/Dialog";
+import Field from "@/components/ui/Field";
 import Textarea from "@/components/ui/textarea";
 import {
   feedbackMinLength,
@@ -85,28 +86,36 @@ export function FeedbackModal({
   };
 
   return (
-    <Modal
-      className={rowActionClassName}
+    <Dialog
       open={open}
       onOpenChange={handleOpenChange}
       title={t(feedbackModalTitleKeys[kind])}
       description={t("root.settings.support.feedbackModal.description")}
-      trigger={children}
-      isSubmit
-      onSubmit={handleSubmit}
-      submitDisabled={isTooShort}
+      trigger={<button type="button" className={rowActionClassName}>{children}</button>}
+      showClose
       closeLabel={t("root.settings.support.feedbackModal.close")}
-      submitLabel={t("root.settings.support.feedbackModal.submit")}
+      footer={
+        <DialogFooterActions
+          cancelLabel={t("root.settings.support.feedbackModal.close")}
+          submitLabel={t("root.settings.support.feedbackModal.submit")}
+          submitDisabled={isTooShort}
+          onSubmit={handleSubmit}
+        />
+      }
     >
-      <div className="space-y-2">
-        <label
-          htmlFor={`feedback-message-${kind}`}
-          className="block text-sm font-semibold text-[var(--foreground)]"
-        >
-          {t("root.settings.support.feedbackModal.messageLabel")}
-        </label>
+      <Field
+        label={t("root.settings.support.feedbackModal.messageLabel")}
+        htmlFor={`feedback-message-${kind}`}
+        error={
+          showError
+            ? t("root.settings.support.feedbackModal.tooShort", { count: feedbackMinLength })
+            : undefined
+        }
+        hint={t("root.settings.support.feedbackModal.attachmentHint")}
+      >
         <Textarea
           id={`feedback-message-${kind}`}
+          surface="muted"
           value={message}
           onChange={(event) => {
             setMessage(event.target.value);
@@ -114,20 +123,9 @@ export function FeedbackModal({
           }}
           placeholder={t("root.settings.support.feedbackModal.placeholder")}
           aria-invalid={showError}
-          className="min-h-[140px] resize-y bg-[var(--muted)]"
+          className="min-h-[140px]"
         />
-        {showError ? (
-          <p className="text-xs text-[var(--destructive)]">
-            {t("root.settings.support.feedbackModal.tooShort", {
-              count: feedbackMinLength,
-            })}
-          </p>
-        ) : (
-          <p className="text-xs text-[var(--muted-foreground)]">
-            {t("root.settings.support.feedbackModal.attachmentHint")}
-          </p>
-        )}
-      </div>
-    </Modal>
+      </Field>
+    </Dialog>
   );
 }

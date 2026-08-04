@@ -79,33 +79,30 @@ export const RECENT_ACTIVITY: readonly ActivityItem[] = [
  * Tone → Tailwind class fragments. Kept in one place so a dot, a badge, and a
  * delta line for the same tone can never drift apart.
  *
- * Small status *text* is darkened toward black in light mode (raw --success /
- * --warning fail AA at label sizes on white) and uses the brighter raw token in
- * dark mode. Dots/badge fills don't carry the contrast burden, so they use the
- * tokens directly (as tints via color-mix).
+ * These used to darken the semantic tokens toward black for small text, because the old fills
+ * failed AA at label sizes on white. The v2 palette tunes every light semantic to clear 5:1 as
+ * text *and* as a fill under white, so the plain token is now correct in both themes.
  */
 export const TONE_TEXT: Record<Tone, string> = {
-  success: "text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-[var(--success)]",
-  warning: "text-[color-mix(in_srgb,var(--warning)_60%,#000)] dark:text-[var(--warning)]",
-  info: "text-[color-mix(in_srgb,var(--info)_80%,#000)] dark:text-[var(--info)]",
-  primary: "text-[var(--primary)]",
-  neutral: "text-[var(--muted-foreground)]",
+  success: "text-success",
+  warning: "text-warning",
+  info: "text-info",
+  primary: "text-primary",
+  neutral: "text-muted-foreground",
 };
 
 export const TONE_DOT: Record<Tone, string> = {
-  success: "bg-[var(--success)]",
-  warning: "bg-[var(--warning)]",
-  info: "bg-[var(--info)]",
-  primary: "bg-[var(--primary)]",
-  neutral: "bg-[var(--muted-foreground)]",
+  success: "bg-success",
+  warning: "bg-warning",
+  info: "bg-info",
+  primary: "bg-primary",
+  neutral: "bg-muted-foreground",
 };
 
 export const TONE_BADGE: Record<Tone, string> = {
-  success:
-    "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-[var(--success)]",
-  warning:
-    "bg-[color-mix(in_srgb,var(--warning)_18%,transparent)] text-[color-mix(in_srgb,var(--warning)_60%,#000)] dark:text-[var(--warning)]",
-  info: "bg-[color-mix(in_srgb,var(--info)_16%,transparent)] text-[color-mix(in_srgb,var(--info)_80%,#000)] dark:text-[var(--info)]",
-  primary: "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-[var(--primary)]",
-  neutral: "bg-[var(--muted)] text-[var(--muted-foreground)]",
+  success: "bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-success",
+  warning: "bg-[color-mix(in_srgb,var(--warning)_14%,transparent)] text-warning",
+  info: "bg-[color-mix(in_srgb,var(--info)_14%,transparent)] text-info",
+  primary: "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-primary",
+  neutral: "bg-muted text-muted-foreground",
 };

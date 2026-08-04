@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import { useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyRound, LoaderCircle } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -19,7 +19,10 @@ import {
   type ChangePasswordInput,
   type SetPasswordInput,
 } from "@/app/(root)/_lib/profile.schemas.forms";
-import Input from "@/components/ui/Input.dark";
+import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
+import Input from "@/components/ui/Input";
+import Surface from "@/components/ui/Surface";
 
 type ChangePasswordFormProps = {
   /** From `account.authMethods.password`: true → change flow, false → set flow. */
@@ -42,32 +45,27 @@ function PasswordCard({
   children,
 }: Readonly<{ title: string; description: string; children: ReactNode }>) {
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5">
+    <Surface as="section">
       <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
           <KeyRound className="h-[18px] w-[18px]" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-base font-bold text-[var(--foreground)]">{title}</h2>
-          <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">{description}</p>
+          <h2 className="text-base font-bold text-foreground">{title}</h2>
+          <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
         </div>
       </header>
       {children}
-    </section>
+    </Surface>
   );
 }
 
 function SubmitButton({ isBusy, label }: Readonly<{ isBusy: boolean; label: string }>) {
   return (
     <div className="flex justify-end pt-1">
-      <button
-        type="submit"
-        disabled={isBusy}
-        className="inline-flex h-10 items-center gap-2 rounded-xl bg-[var(--primary)] px-4 text-sm font-semibold text-[var(--primary-foreground)] transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+      <Button type="submit" size="lg" loading={isBusy}>
         {label}
-      </button>
+      </Button>
     </div>
   );
 }
@@ -111,14 +109,12 @@ function ChangePasswordFields() {
       description={t("root.profile.password.description")}
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <div>
-          <label
-            htmlFor="profile-current-password"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.password.current.label")}
-          </label>
+        <Field
+          htmlFor="profile-current-password"
+          label={t("root.profile.password.current.label")}
+        >
           <Input
+            surface="muted"
             id="profile-current-password"
             type="password"
             autoComplete="current-password"
@@ -126,16 +122,22 @@ function ChangePasswordFields() {
             placeholder={t("root.profile.password.current.placeholder")}
             aria-invalid={Boolean(form.formState.errors.currentPassword)}
           />
-        </div>
+        </Field>
 
-        <div>
-          <label
-            htmlFor="profile-new-password"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.password.new.label")}
-          </label>
+        <Field
+          htmlFor="profile-new-password"
+          label={t("root.profile.password.new.label")}
+          // Field falls back to the hint when there is no error, which is the alternation this
+          // form used to spell out with a ternary over two near-identical paragraphs.
+          error={
+            form.formState.errors.newPassword
+              ? t("root.profile.password.new.error")
+              : undefined
+          }
+          hint={t("root.profile.password.new.hint")}
+        >
           <Input
+            surface="muted"
             id="profile-new-password"
             type="password"
             autoComplete="new-password"
@@ -143,25 +145,19 @@ function ChangePasswordFields() {
             placeholder={t("root.profile.password.new.placeholder")}
             aria-invalid={Boolean(form.formState.errors.newPassword)}
           />
-          {form.formState.errors.newPassword ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.profile.password.new.error")}
-            </p>
-          ) : (
-            <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
-              {t("root.profile.password.new.hint")}
-            </p>
-          )}
-        </div>
+        </Field>
 
-        <div>
-          <label
-            htmlFor="profile-confirm-password"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.password.confirm.label")}
-          </label>
+        <Field
+          htmlFor="profile-confirm-password"
+          label={t("root.profile.password.confirm.label")}
+          error={
+            form.formState.errors.confirmPassword
+              ? t("root.profile.password.confirm.error")
+              : undefined
+          }
+        >
           <Input
+            surface="muted"
             id="profile-confirm-password"
             type="password"
             autoComplete="new-password"
@@ -169,12 +165,7 @@ function ChangePasswordFields() {
             placeholder={t("root.profile.password.confirm.placeholder")}
             aria-invalid={Boolean(form.formState.errors.confirmPassword)}
           />
-          {form.formState.errors.confirmPassword ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.profile.password.confirm.error")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
         <SubmitButton isBusy={isBusy} label={t("root.profile.password.submit")} />
       </form>
@@ -222,14 +213,18 @@ function SetPasswordFields() {
       description={t("root.profile.password.set.description")}
     >
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <div>
-          <label
-            htmlFor="profile-set-new-password"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.password.new.label")}
-          </label>
+        <Field
+          htmlFor="profile-set-new-password"
+          label={t("root.profile.password.new.label")}
+          error={
+            form.formState.errors.newPassword
+              ? t("root.profile.password.new.error")
+              : undefined
+          }
+          hint={t("root.profile.password.new.hint")}
+        >
           <Input
+            surface="muted"
             id="profile-set-new-password"
             type="password"
             autoComplete="new-password"
@@ -237,25 +232,19 @@ function SetPasswordFields() {
             placeholder={t("root.profile.password.new.placeholder")}
             aria-invalid={Boolean(form.formState.errors.newPassword)}
           />
-          {form.formState.errors.newPassword ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.profile.password.new.error")}
-            </p>
-          ) : (
-            <p className="mt-1.5 text-xs text-[var(--muted-foreground)]">
-              {t("root.profile.password.new.hint")}
-            </p>
-          )}
-        </div>
+        </Field>
 
-        <div>
-          <label
-            htmlFor="profile-set-confirm-password"
-            className="mb-1.5 block text-sm font-medium text-[var(--foreground)]"
-          >
-            {t("root.profile.password.confirm.label")}
-          </label>
+        <Field
+          htmlFor="profile-set-confirm-password"
+          label={t("root.profile.password.confirm.label")}
+          error={
+            form.formState.errors.confirmPassword
+              ? t("root.profile.password.confirm.error")
+              : undefined
+          }
+        >
           <Input
+            surface="muted"
             id="profile-set-confirm-password"
             type="password"
             autoComplete="new-password"
@@ -263,12 +252,7 @@ function SetPasswordFields() {
             placeholder={t("root.profile.password.confirm.placeholder")}
             aria-invalid={Boolean(form.formState.errors.confirmPassword)}
           />
-          {form.formState.errors.confirmPassword ? (
-            <p className="mt-1.5 text-xs text-[var(--destructive)]">
-              {t("root.profile.password.confirm.error")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
         <SubmitButton isBusy={isBusy} label={t("root.profile.password.set.submit")} />
       </form>

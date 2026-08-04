@@ -51,6 +51,7 @@ Verify package versions in `package.json` before making dependency-specific chan
 - `npm run build` — production build and output validation
 - `npm run start` — serve production build
 - `npm run lint` — ESLint through `eslint.config.mjs`
+- `npm run check:contrast` — WCAG gate over the `globals.css` token layer; must pass after any palette change
 
 There is no configured `npm test` script in the uploaded guidance. Validate changes with `npm run lint`, `npm run build`, and manual route testing.
 
@@ -78,8 +79,7 @@ Shared code:
 
 - `src/components/ui` — shadcn/ui primitives
 - `src/components/Custom` — custom reusable components
-- `src/lib` — helpers; `utils.ts` exports `cn`
-- `src/hooks` — hooks
+- `src/lib` — helpers; `utils.ts` exports `cn` and `getInitials`
 - `src/i18n` — translations and i18next setup
 - `public/images` — static assets
 
@@ -108,7 +108,7 @@ Before adding any UI element, check whether a component for it already exists, a
 - Drive shared values (colours, sizes, radii) from design-system tokens (`bg-primary`, `var(--primary)`, etc.), not hard-coded hex. Two call sites that hard-code different hexes for "the same" button is the bug this rule prevents.
 - Promote a component up the tree as its reach grows: route-local `_components` → `src/components/Custom` (or `ui`) once it is used across route groups.
 
-Reference examples: the brand action button `src/components/Custom/BrandButton.tsx` (primary/secondary, sized) is reused across the landing nav, hero, and CTA; the brand mark uses `src/components/Custom/DwelveLogo.tsx`.
+Reference examples: `src/components/ui/Button.tsx` is the only button in the product (variants cover primary, outline, ghost, destructive, and the landing `brand` treatment; `asChild` covers button-shaped links); `src/components/ui/Surface.tsx` is the only bordered container; the brand mark uses `src/components/Custom/DwelveLogo.tsx`. See `docs/design/design-system.md` §8 for the full primitive list.
 
 ---
 
@@ -196,4 +196,4 @@ PR notes should include:
 - Never commit secrets or local env files.
 - Keep `.next` and `node_modules` out of version control.
 - Set `SESSION_SECRET` in real environments.
-- Review global providers carefully. Existing guidance says `src/app/providers.tsx` disables the right-click context menu globally; verify whether this behavior is intentional before preserving or expanding it.
+- Review global providers carefully. `src/app/providers.tsx` sets up next-themes (class strategy, `dwelve-theme` storage key, `disableTransitionOnChange`), i18n language sync, and the query client. Older guidance claimed it disabled the right-click context menu globally — that behavior no longer exists.

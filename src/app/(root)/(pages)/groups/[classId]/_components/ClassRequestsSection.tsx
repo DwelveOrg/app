@@ -16,6 +16,7 @@ import {
 } from "@/app/(root)/_hooks/useEnrollment";
 import ClassJoinRequestRow from "./ClassJoinRequestRow";
 import RejectRequestDialog from "./RejectRequestDialog";
+import Badge from "@/components/ui/badge";
 
 type ClassRequestsSectionProps = {
   classId: string;
@@ -80,14 +81,14 @@ export default function ClassRequestsSection({ classId }: ClassRequestsSectionPr
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2
           id="class-requests-heading"
-          className="inline-flex items-center gap-2 text-base font-bold text-[var(--foreground)]"
+          className="inline-flex items-center gap-2 text-base font-bold text-foreground"
         >
-          <Inbox className="h-4 w-4 text-[var(--muted-foreground)]" />
+          <Inbox className="h-4 w-4 text-muted-foreground" />
           {t("root.classDetail.requests.title")}
           {total > 0 ? (
-            <span className="rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] px-2 py-0.5 text-xs font-semibold text-[var(--primary)]">
+            <Badge variant="primary" size="md">
               {total}
-            </span>
+            </Badge>
           ) : null}
         </h2>
 
@@ -102,12 +103,12 @@ export default function ClassRequestsSection({ classId }: ClassRequestsSectionPr
       {query.isLoading ? (
         <div aria-busy="true" className="space-y-3">
           {Array.from({ length: 2 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-2xl border border-[var(--border)]" />
+            <Skeleton key={index} className="h-24 rounded-2xl border border-border" />
           ))}
         </div>
       ) : query.isError ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] px-5 py-4">
-          <p className="text-sm text-[var(--muted-foreground)]">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-card px-5 py-4">
+          <p className="text-sm text-muted-foreground">
             {t("root.enrollment.classRequests.errorDescription")}
           </p>
           <Button type="button" size="sm" variant="outline" onClick={() => query.refetch()}>
@@ -116,7 +117,7 @@ export default function ClassRequestsSection({ classId }: ClassRequestsSectionPr
           </Button>
         </div>
       ) : requests.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-[var(--border)] bg-[var(--card)] px-5 py-6 text-sm text-[var(--muted-foreground)]">
+        <p className="rounded-2xl border border-dashed border-border bg-card px-5 py-6 text-sm text-muted-foreground">
           {t("root.enrollment.classRequests.emptyDescription")}
         </p>
       ) : (
@@ -136,7 +137,7 @@ export default function ClassRequestsSection({ classId }: ClassRequestsSectionPr
           {total > PREVIEW_LIMIT ? (
             <Link
               href={`/groups/${classId}/requests`}
-              className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-[var(--primary)] hover:underline"
+              className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-primary hover:underline"
             >
               {t("root.classDetail.requests.more", { count: total - PREVIEW_LIMIT })}
               <ArrowRight className="h-3.5 w-3.5" />

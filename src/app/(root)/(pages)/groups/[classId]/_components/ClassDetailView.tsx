@@ -4,20 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft,
-  CalendarDays,
-  DoorOpen,
-  FileText,
-  GraduationCap,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  UserPlus,
-  Users,
-  UserCog,
-} from "lucide-react";
+import { ArrowLeft, CalendarDays, DoorOpen, FileText, GraduationCap, MoreHorizontal, Pencil, Trash2, UserPlus, Users, UserCog } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -26,6 +13,9 @@ import type { ApiClass, ApiClassPerson } from "@/app/(root)/_lib/classes.schemas
 import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
 import { useRemoveStudentMutation } from "@/app/(root)/_hooks/useEnrollment";
 import { Button } from "@/components/ui/Button";
+import Avatar from "@/components/ui/Avatar";
+import Badge from "@/components/ui/badge";
+import EntityHeader from "@/app/(root)/_components/EntityHeader";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import {
   DropdownMenu,
@@ -41,6 +31,7 @@ import DeleteClassDialog from "../../_components/DeleteClassDialog";
 import AssignStudentDialog from "./AssignStudentDialog";
 import ClassRequestsSection from "./ClassRequestsSection";
 import RemoveClassStudentDialog from "./RemoveClassStudentDialog";
+import Surface from "@/components/ui/Surface";
 
 type ClassDetailViewProps = {
   classItem: ApiClass;
@@ -78,7 +69,6 @@ export default function ClassDetailView({
   const teacherCount = classItem.counts?.teachers ?? classItem.teachers.length;
   const studentCount = classItem.counts?.students ?? classItem.students.length;
   const leadTeacher = classItem.teachers[0]?.fullName ?? null;
-  const initial = classItem.name.charAt(0).toUpperCase();
   const accent = classAccent(classItem.id);
   const capacity = classItem.capacity ?? null;
 
@@ -114,72 +104,41 @@ export default function ClassDetailView({
     <section className="flex flex-col gap-6 py-6">
       <Link
         href="/groups"
-        className="inline-flex w-fit items-center gap-1.5 text-sm text-[var(--muted-foreground)] transition hover:text-[var(--foreground)]"
+        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         {t("root.classDetail.back")}
       </Link>
 
       {/* Identity + overview: what this class is, before any action. */}
-      <section
-        aria-labelledby="class-identity-heading"
-        className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 sm:p-6"
-      >
-        <div className="flex flex-wrap items-start gap-4">
-          {classItem.pictureUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={classItem.pictureUrl}
-              alt=""
-              className="h-16 w-16 shrink-0 rounded-2xl object-cover"
-            />
-          ) : (
-            <span
-              className={`inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-xl font-bold ${accent}`}
-            >
-              {initial}
-            </span>
-          )}
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <h1
-                id="class-identity-heading"
-                className="truncate text-xl font-bold text-[var(--foreground)] sm:text-2xl"
-              >
-                {classItem.name}
-              </h1>
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold ${
-                  classItem.isActive
-                    ? "bg-success/12 text-success-text"
-                    : "bg-[var(--muted)] text-[var(--muted-foreground)]"
-                }`}
-              >
-                {classItem.isActive
-                  ? t("root.classes.status.active")
-                  : t("root.classes.status.archived")}
-              </span>
-            </div>
-
-            <p className="mt-1 max-w-prose text-sm text-[var(--muted-foreground)]">
-              {classItem.description || t("root.classDetail.noDescription")}
-            </p>
-
-            {viewerRole ? (
-              <p className="mt-3 inline-flex rounded-full border border-[var(--border)] bg-[var(--background)] px-2.5 py-0.5 text-[11px] font-medium text-[var(--muted-foreground)]">
-                {t("root.schoolPage.viewingAs", {
-                  role: t(`root.schoolPage.roles.${viewerRole.toLowerCase()}`),
-                })}
-              </p>
-            ) : null}
-          </div>
-
-          {canManage ? (
-            <div className="flex flex-wrap items-center gap-2">
+      <EntityHeader
+        name={classItem.name}
+        imageUrl={classItem.pictureUrl}
+        tileClassName={accent}
+        tileSize="xl"
+        headingId="class-identity-heading"
+        status={{
+          active: classItem.isActive,
+          label: classItem.isActive
+            ? t("root.classes.status.active")
+            : t("root.classes.status.archived"),
+        }}
+        description={classItem.description || t("root.classDetail.noDescription")}
+        meta={
+          viewerRole ? (
+            <Badge variant="outline">
+              {t("root.schoolPage.viewingAs", {
+                role: t(`root.schoolPage.roles.${viewerRole.toLowerCase()}`),
+              })}
+            </Badge>
+          ) : null
+        }
+        actions={
+          canManage ? (
+            <>
               {isAdmin ? (
                 <Button variant="outline" size="lg" onClick={() => setEditOpen(true)}>
-                  <Pencil className="h-4 w-4" />
+                  <Pencil className="size-4" />
                   {t("root.classDetail.actions.edit")}
                 </Button>
               ) : null}
@@ -187,7 +146,7 @@ export default function ClassDetailView({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button size="lg">
-                    <MoreHorizontal className="h-4 w-4" />
+                    <MoreHorizontal className="size-4" />
                     {t("root.classDetail.actions.more")}
                   </Button>
                 </DropdownMenuTrigger>
@@ -196,7 +155,7 @@ export default function ClassDetailView({
                   <DropdownMenuItem
                     onSelect={() => router.push(`/groups/${classItem.id}/tests`)}
                   >
-                    <FileText className="h-4 w-4" />
+                    <FileText className="size-4" />
                     {t("root.classDetail.actions.addTest")}
                   </DropdownMenuItem>
                   {isAdmin ? (
@@ -204,24 +163,24 @@ export default function ClassDetailView({
                       <DropdownMenuItem
                         onSelect={() => notifySoon("root.classDetail.actions.addExam")}
                       >
-                        <GraduationCap className="h-4 w-4" />
+                        <GraduationCap className="size-4" />
                         {t("root.classDetail.actions.addExam")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onSelect={() => setDeleteOpen(true)}
-                        className="text-[var(--destructive)] focus:text-[var(--destructive)]"
+                        className="text-destructive focus:text-destructive"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="size-4" />
                         {t("root.classDetail.actions.delete")}
                       </DropdownMenuItem>
                     </>
                   ) : null}
                 </DropdownMenuContent>
               </DropdownMenu>
-            </div>
-          ) : null}
-        </div>
-
+            </>
+          ) : null
+        }
+      >
         <h2 id="class-overview-heading" className="sr-only">
           {t("root.classDetail.overview.title")}
         </h2>
@@ -268,7 +227,7 @@ export default function ClassDetailView({
             value={classItem.createdAt ? <RelativeTime date={classItem.createdAt} /> : "—"}
           />
         </dl>
-      </section>
+      </EntityHeader>
 
       <section aria-labelledby="class-people-heading" className="flex flex-col gap-4">
         <h2 id="class-people-heading" className="sr-only">
@@ -360,13 +319,13 @@ type FactProps = {
 /** One labelled class fact in the overview grid. */
 function Fact({ icon, label, value, hint }: FactProps) {
   return (
-    <div className="rounded-xl border border-[var(--border)] bg-[var(--background)] px-4 py-3">
-      <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-[var(--muted-foreground)]">
-        <span className="text-[var(--muted-foreground)]">{icon}</span>
+    <div className="rounded-xl border border-border bg-background px-4 py-3">
+      <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+        <span className="text-muted-foreground">{icon}</span>
         {label}
       </dt>
-      <dd className="mt-1 truncate text-sm font-semibold text-[var(--foreground)]">{value}</dd>
-      {hint ? <p className="mt-0.5 text-xs text-[var(--muted-foreground)]">{hint}</p> : null}
+      <dd className="mt-1 truncate text-sm font-semibold text-foreground">{value}</dd>
+      {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -398,29 +357,27 @@ function PeopleCard({
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)]">
-      <div className="flex items-center gap-2 border-b border-[var(--border)] px-5 py-3 text-sm font-semibold text-[var(--foreground)]">
-        <span className="text-[var(--muted-foreground)]">{icon}</span>
+    <Surface padding="none" className="flex flex-col overflow-hidden">
+      <div className="flex items-center gap-2 border-b border-border px-5 py-3 text-sm font-semibold text-foreground">
+        <span className="text-muted-foreground">{icon}</span>
         {title}
         {headerAction ? <div className="ml-auto">{headerAction}</div> : null}
       </div>
       {people.length === 0 ? (
-        <div className="px-5 py-6 text-sm text-[var(--muted-foreground)]">{emptyLabel}</div>
+        <div className="px-5 py-6 text-sm text-muted-foreground">{emptyLabel}</div>
       ) : (
-        <ul className="divide-y divide-[var(--border)]">
+        <ul className="divide-y divide-border">
           {people.map((person) => {
             const isRemoving = removingId === person.id;
             return (
               <li key={person.id} className="flex items-center gap-3 px-5 py-3">
-                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--primary)]/10 text-sm font-semibold text-[var(--primary)]">
-                  {person.fullName.trim().charAt(0).toUpperCase() || "?"}
-                </span>
+                <Avatar name={person.fullName} size="sm" tint="seeded" />
                 <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-[var(--foreground)]">
+                  <div className="truncate text-sm font-medium text-foreground">
                     {person.fullName}
                   </div>
                   {person.email ? (
-                    <div className="truncate text-xs text-[var(--muted-foreground)]">
+                    <div className="truncate text-xs text-muted-foreground">
                       {person.email}
                     </div>
                   ) : null}
@@ -429,17 +386,12 @@ function PeopleCard({
                   <Button
                     size="sm"
                     variant="ghost"
-                    className="shrink-0 text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
-                    disabled={isRemoving}
-                    aria-busy={isRemoving}
+                    className="shrink-0 text-muted-foreground hover:text-destructive"
+                    loading={isRemoving}
                     aria-label={`${removeLabel ?? t("root.enrollment.assign.remove")} ${person.fullName}`}
                     onClick={() => onRemove(person)}
                   >
-                    {isRemoving ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      (removeLabel ?? t("root.enrollment.assign.remove"))
-                    )}
+                    {removeLabel ?? t("root.enrollment.assign.remove")}
                   </Button>
                 ) : null}
               </li>
@@ -447,6 +399,6 @@ function PeopleCard({
           })}
         </ul>
       )}
-    </div>
+    </Surface>
   );
 }

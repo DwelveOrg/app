@@ -1,4 +1,4 @@
-import Skeleton from "@/components/ui/Skeleton";
+import Skeleton, { SkeletonPage } from "@/components/ui/Skeleton";
 
 /**
  * Streaming placeholder for the School page. The header, overview cards, and
@@ -7,7 +7,7 @@ import Skeleton from "@/components/ui/Skeleton";
  */
 export default function Loading() {
   return (
-    <section aria-busy="true" className="flex flex-col gap-6 py-6">
+    <SkeletonPage header="none">
       <Skeleton className="h-40 rounded-2xl" />
 
       <div className="grid gap-4 sm:grid-cols-3">
@@ -23,6 +23,6 @@ export default function Loading() {
           <Skeleton key={index} className="h-44 rounded-2xl" />
         ))}
       </div>
-    </section>
+    </SkeletonPage>
   );
 }

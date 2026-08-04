@@ -22,7 +22,7 @@ export default function NumericEditor({
 
   return (
     <div className="space-y-3">
-      <p className="text-xs font-medium text-[var(--foreground)]">
+      <p className="text-xs font-medium text-foreground">
         {t("root.tests.builder.numeric.title")}
       </p>
 
@@ -46,8 +46,8 @@ export default function NumericEditor({
         />
       </div>
 
-      <fieldset className="rounded-xl border border-[var(--border)] bg-[var(--background)] p-3">
-        <legend className="px-1 text-[11px] font-medium text-[var(--muted-foreground)]">
+      <fieldset className="rounded-xl border border-border bg-background p-3">
+        <legend className="px-1 text-2xs font-medium text-muted-foreground">
           {t("root.tests.builder.numeric.rangeTitle")}
         </legend>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -66,7 +66,7 @@ export default function NumericEditor({
             disabled={disabled}
           />
         </div>
-        <p className="mt-2 text-[11px] text-[var(--muted-foreground)]">
+        <p className="mt-2 text-2xs text-muted-foreground">
           {t("root.tests.builder.numeric.rangeHint")}
         </p>
       </fieldset>

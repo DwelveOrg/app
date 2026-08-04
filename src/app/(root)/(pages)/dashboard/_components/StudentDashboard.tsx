@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
 import StudentOverviewCards from "@/app/(root)/(pages)/school/_components/StudentOverviewCards";
+import Surface from "@/components/ui/Surface";
 
 type StudentClass = { id: string; name: string };
 
@@ -42,17 +43,17 @@ export default function StudentDashboard({
     <div className="space-y-6">
       <header>
         {schoolName ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--primary)]">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
             {t("root.dashboard.student.eyebrow", { school: schoolName })}
           </p>
         ) : null}
-        <h1 className="mt-2 text-2xl font-bold text-[var(--foreground)] md:text-3xl">
+        <h1 className="mt-2 type-title text-foreground">
           {firstName
             ? t("root.dashboard.student.welcomeTitle", { name: firstName })
             : t("root.dashboard.student.welcomeTitleGeneric")}
         </h1>
         {schoolName ? (
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("root.dashboard.student.subtitle", { school: schoolName })}
           </p>
         ) : null}
@@ -84,14 +85,14 @@ function FindYourClasses({ pendingRequests }: { pendingRequests: number }) {
   ];
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
-      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--primary)]">
+    <Surface as="section" className="p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.18em] text-primary">
         {t("root.dashboard.student.onboarding.eyebrow")}
       </p>
-      <h2 className="mt-2 text-lg font-semibold text-[var(--foreground)]">
+      <h2 className="mt-2 text-lg font-semibold text-foreground">
         {t("root.dashboard.student.onboarding.title")}
       </h2>
-      <p className="mt-1 max-w-xl text-sm leading-6 text-[var(--muted-foreground)]">
+      <p className="mt-1 max-w-xl text-sm leading-6 text-muted-foreground">
         {t("root.dashboard.student.onboarding.description")}
       </p>
 
@@ -101,8 +102,8 @@ function FindYourClasses({ pendingRequests }: { pendingRequests: number }) {
             <span
               className={
                 step.done
-                  ? "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--primary)] text-[var(--primary-foreground)]"
-                  : "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[var(--border)] text-xs font-semibold text-[var(--muted-foreground)]"
+                  ? "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground"
+                  : "inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-border text-xs font-semibold text-muted-foreground"
               }
             >
               {step.done ? <Check className="h-3.5 w-3.5" /> : index + 1}
@@ -110,8 +111,8 @@ function FindYourClasses({ pendingRequests }: { pendingRequests: number }) {
             <span
               className={
                 step.done
-                  ? "text-sm text-[var(--muted-foreground)] line-through"
-                  : "text-sm font-medium text-[var(--foreground)]"
+                  ? "text-sm text-muted-foreground line-through"
+                  : "text-sm font-medium text-foreground"
               }
             >
               {step.label}
@@ -138,7 +139,7 @@ function FindYourClasses({ pendingRequests }: { pendingRequests: number }) {
           </Button>
         ) : null}
       </div>
-    </section>
+    </Surface>
   );
 }
 
@@ -153,34 +154,34 @@ function EnrolledClasses({
   const { t } = useTranslation();
 
   return (
-    <section className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6">
+    <Surface as="section" className="p-6">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-[var(--foreground)]">
+        <h2 className="text-lg font-semibold text-foreground">
           {t("root.dashboard.student.myClasses.title")}
         </h2>
         <Link
           href="/groups"
-          className="inline-flex items-center gap-1 text-sm font-medium text-[var(--primary)] hover:underline"
+          className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           {t("root.dashboard.student.myClasses.viewAll")}
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>
 
-      <ul className="mt-4 divide-y divide-[var(--border)]">
+      <ul className="mt-4 divide-y divide-border">
         {classes.map((item) => (
           <li key={item.id}>
             <Link
               href={`/groups/${item.id}`}
-              className="flex items-center gap-3 py-3 transition-colors hover:text-[var(--primary)]"
+              className="flex items-center gap-3 py-3 transition-colors hover:text-primary"
             >
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--primary)]/10 text-sm font-bold text-[var(--primary)]">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
                 {item.name.charAt(0).toUpperCase()}
               </span>
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-[var(--foreground)]">
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
                 {item.name}
               </span>
-              <ArrowRight className="h-4 w-4 shrink-0 text-[var(--muted-foreground)]" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
           </li>
         ))}
@@ -189,12 +190,12 @@ function EnrolledClasses({
       {pendingRequests > 0 ? (
         <Link
           href="/groups/requests"
-          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+          className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
         >
           <Clock className="h-4 w-4" />
           {t("root.dashboard.student.onboarding.reviewRequests", { count: pendingRequests })}
         </Link>
       ) : null}
-    </section>
+    </Surface>
   );
 }

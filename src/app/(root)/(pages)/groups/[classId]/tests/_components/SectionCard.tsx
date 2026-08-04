@@ -15,6 +15,7 @@ import {
   type TestBuilderForm,
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import {
@@ -134,14 +135,17 @@ export default function SectionCard({
     <section
       id={sectionId ? sectionAnchorId(sectionId) : undefined}
       className={cn(
-        "scroll-mt-24 rounded-2xl border bg-[var(--card)] p-5",
+        // Depth ladder for the builder (design-system §4): the section is the only real card.
+        // Groups below are recessed wells and questions are flat rows divided by hairlines, because
+        // three bordered boxes nested at similar radii read as noise, not hierarchy.
+        "scroll-mt-24 rounded-2xl border bg-card p-5 shadow-elev-1",
         isFlagged
-          ? "border-[var(--destructive)] ring-2 ring-[color-mix(in_srgb,var(--destructive)_25%,transparent)]"
-          : "border-[var(--border)]",
+          ? "border-destructive ring-2 ring-destructive/25"
+          : "border-border",
       )}
     >
       <header className="flex flex-wrap items-start gap-3">
-        <span className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-[var(--primary)]">
+        <span className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
           <Layers className="h-4 w-4" />
         </span>
 
@@ -160,7 +164,7 @@ export default function SectionCard({
                   className="py-2 text-base font-semibold"
                 />
                 {fieldState.error ? (
-                  <p className="mt-1 text-[11px] text-[var(--destructive)]">
+                  <p className="mt-1 text-2xs text-destructive">
                     {t("root.tests.builder.section.titleRequired")}
                   </p>
                 ) : null}
@@ -196,7 +200,7 @@ export default function SectionCard({
             variant="ghost"
             disabled={disabled || count <= 1}
             aria-label={t("root.tests.builder.section.remove")}
-            className="text-[var(--muted-foreground)] hover:text-[var(--destructive)]"
+            className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(sectionIndex)}
           >
             <Trash2 className="h-3.5 w-3.5" />
@@ -210,10 +214,7 @@ export default function SectionCard({
             control={control}
             name={`${name}.kind`}
             render={({ field }) => (
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-[var(--foreground)]">
-                  {t("root.tests.builder.section.kind")}
-                </label>
+              <Field size="sm" label={t("root.tests.builder.section.kind")}>
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
@@ -232,7 +233,7 @@ export default function SectionCard({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             )}
           />
         ) : (
@@ -242,10 +243,10 @@ export default function SectionCard({
             name={`${name}.kind`}
             render={({ field }) => (
               <div>
-                <span className="mb-1.5 block text-xs font-medium text-[var(--foreground)]">
+                <span className="mb-1.5 block text-xs font-medium text-foreground">
                   {t("root.tests.builder.section.kind")}
                 </span>
-                <p className="rounded-xl border border-[var(--border)] bg-[var(--muted)] px-3 py-2.5 text-sm text-[var(--muted-foreground)]">
+                <p className="rounded-xl border border-border bg-muted px-3 py-2.5 text-sm text-muted-foreground">
                   {t(`root.tests.sectionKinds.${field.value}`, {
                     defaultValue: field.value,
                   })}
@@ -264,13 +265,11 @@ export default function SectionCard({
           disabled={disabled}
         />
 
-        <div>
-          <label
-            htmlFor={`section-${sectionIndex}-instructions`}
-            className="mb-1.5 block text-xs font-medium text-[var(--foreground)]"
-          >
-            {t("root.tests.builder.section.instructions")}
-          </label>
+        <Field
+          size="sm"
+          htmlFor={`section-${sectionIndex}-instructions`}
+          label={t("root.tests.builder.section.instructions")}
+        >
           <Textarea
             {...control.register(`${name}.instructions`)}
             id={`section-${sectionIndex}-instructions`}
@@ -279,7 +278,7 @@ export default function SectionCard({
             placeholder={t("root.tests.builder.section.instructionsPlaceholder")}
             className="py-2.5"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="mt-5 space-y-4">{groups}</div>
