@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle, School } from "lucide-react";
+import { School } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
@@ -14,6 +14,7 @@ import {
 } from "@/app/(authentication)/_types/_schemas";
 import ImagePicker from "@/components/Custom/ImagePicker";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import { useCreateSchoolMutation } from "../_hooks/useCreateSchoolMutation";
@@ -86,69 +87,53 @@ export default function CreateSchoolForm() {
         onSubmit={handleSubmit(onSubmit)}
         noValidate
       >
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("root.dashboard.schoolForm.fields.name.label")}
-            <span className="text-destructive"> *</span>
-          </label>
+        <Field
+          label={t("root.dashboard.schoolForm.fields.name.label")}
+          required
+          error={errors.name?.message}
+        >
           <Input
             {...register("name")}
             placeholder={t("root.dashboard.schoolForm.fields.name.placeholder")}
             aria-invalid={Boolean(errors.name)}
             autoFocus
           />
-          {errors.name && (
-            <p className="mt-1.5 text-xs text-destructive">{errors.name.message}</p>
-          )}
-        </div>
+        </Field>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("root.dashboard.schoolForm.fields.description.label")}
-          </label>
+        <Field
+          label={t("root.dashboard.schoolForm.fields.description.label")}
+          error={errors.description?.message}
+        >
           <Textarea
             {...register("description")}
             rows={3}
             placeholder={t("root.dashboard.schoolForm.fields.description.placeholder")}
             aria-invalid={Boolean(errors.description)}
           />
-          {errors.description && (
-            <p className="mt-1.5 text-xs text-destructive">
-              {errors.description.message}
-            </p>
-          )}
-        </div>
+        </Field>
 
         <div className="grid gap-5 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              {t("root.dashboard.schoolForm.fields.country.label")}
-            </label>
+          <Field
+            label={t("root.dashboard.schoolForm.fields.country.label")}
+            error={errors.country?.message}
+          >
             <Input
               {...register("country")}
               placeholder={t("root.dashboard.schoolForm.fields.country.placeholder")}
               aria-invalid={Boolean(errors.country)}
             />
-            {errors.country && (
-              <p className="mt-1.5 text-xs text-destructive">
-                {errors.country.message}
-              </p>
-            )}
-          </div>
+          </Field>
 
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              {t("root.dashboard.schoolForm.fields.city.label")}
-            </label>
+          <Field
+            label={t("root.dashboard.schoolForm.fields.city.label")}
+            error={errors.city?.message}
+          >
             <Input
               {...register("city")}
               placeholder={t("root.dashboard.schoolForm.fields.city.placeholder")}
               aria-invalid={Boolean(errors.city)}
             />
-            {errors.city && (
-              <p className="mt-1.5 text-xs text-destructive">{errors.city.message}</p>
-            )}
-          </div>
+          </Field>
         </div>
 
         <Controller
@@ -177,8 +162,7 @@ export default function CreateSchoolForm() {
           <Button asChild variant="outline" disabled={isBusy}>
             <Link href="/dashboard">{t("root.dashboard.schoolForm.cancel")}</Link>
           </Button>
-          <Button type="submit" disabled={isBusy}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy}>
             {t("root.dashboard.schoolForm.submit")}
           </Button>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -10,6 +9,7 @@ import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/Button";
 import CopyButton from "@/components/ui/CopyButton";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Dialog from "@/app/(root)/_components/Dialog";
 import { inviteTeacherSchema, type InviteTeacherInput } from "@/app/(root)/_lib/actions.schemas";
@@ -97,11 +97,11 @@ export default function InviteTeacherDialog({ open, onOpenChange }: InviteTeache
         </div>
       ) : (
         <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              {t("root.schoolPage.inviteTeacher.emailLabel")}
-              <span className="text-destructive"> *</span>
-            </label>
+          <Field
+            label={t("root.schoolPage.inviteTeacher.emailLabel")}
+            required
+            error={errors.email ? t("root.schoolPage.inviteTeacher.emailError") : undefined}
+          >
             <Input
               {...register("email")}
               type="email"
@@ -109,12 +109,7 @@ export default function InviteTeacherDialog({ open, onOpenChange }: InviteTeache
               aria-invalid={Boolean(errors.email)}
               autoFocus
             />
-            {errors.email && (
-              <p className="mt-1.5 text-xs text-destructive">
-                {t("root.schoolPage.inviteTeacher.emailError")}
-              </p>
-            )}
-          </div>
+          </Field>
           <p className="text-xs text-muted-foreground">
             {t("root.schoolPage.inviteTeacher.hint")}
           </p>
@@ -124,8 +119,7 @@ export default function InviteTeacherDialog({ open, onOpenChange }: InviteTeache
                 {t("root.schoolPage.inviteTeacher.cancel")}
               </Button>
             </DialogPrimitive.Close>
-            <Button type="submit" disabled={isBusy}>
-              {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+            <Button type="submit" loading={isBusy}>
               {t("root.schoolPage.inviteTeacher.submit")}
             </Button>
           </div>

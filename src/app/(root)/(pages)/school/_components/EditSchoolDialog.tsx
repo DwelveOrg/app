@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LoaderCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
@@ -13,6 +12,7 @@ import Dialog from "@/app/(root)/_components/Dialog";
 import { updateSchoolSchema, type UpdateSchoolInput } from "@/app/(root)/_lib/actions.schemas";
 import ImagePicker from "@/components/Custom/ImagePicker";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import { useUpdateSchoolMutation } from "../_hooks/useUpdateSchoolMutation";
@@ -101,57 +101,43 @@ export default function EditSchoolDialog({
       description={t("root.schoolPage.edit.description")}
     >
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("root.schoolPage.edit.nameLabel")}
-            <span className="text-destructive"> *</span>
-          </label>
+        <Field
+          label={t("root.schoolPage.edit.nameLabel")}
+          required
+          error={errors.name ? t("root.schoolPage.edit.nameError") : undefined}
+        >
           <Input
             {...register("name")}
             placeholder={t("root.schoolPage.edit.namePlaceholder")}
             aria-invalid={Boolean(errors.name)}
             autoFocus
           />
-          {errors.name ? (
-            <p className="mt-1.5 text-xs text-destructive">
-              {t("root.schoolPage.edit.nameError")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
-        <div>
-          <label className="mb-1.5 block text-sm font-medium text-foreground">
-            {t("root.schoolPage.edit.descLabel")}
-          </label>
+        <Field label={t("root.schoolPage.edit.descLabel")}>
           <Textarea
             {...register("description")}
             rows={3}
             placeholder={t("root.schoolPage.edit.descPlaceholder")}
             aria-invalid={Boolean(errors.description)}
           />
-        </div>
+        </Field>
 
         <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              {t("root.schoolPage.edit.cityLabel")}
-            </label>
+          <Field label={t("root.schoolPage.edit.cityLabel")}>
             <Input
               {...register("city")}
               placeholder={t("root.schoolPage.edit.cityPlaceholder")}
               aria-invalid={Boolean(errors.city)}
             />
-          </div>
-          <div>
-            <label className="mb-1.5 block text-sm font-medium text-foreground">
-              {t("root.schoolPage.edit.countryLabel")}
-            </label>
+          </Field>
+          <Field label={t("root.schoolPage.edit.countryLabel")}>
             <Input
               {...register("country")}
               placeholder={t("root.schoolPage.edit.countryPlaceholder")}
               aria-invalid={Boolean(errors.country)}
             />
-          </div>
+          </Field>
         </div>
 
         <Controller
@@ -187,8 +173,7 @@ export default function EditSchoolDialog({
               {t("root.schoolPage.edit.cancel")}
             </Button>
           </DialogPrimitive.Close>
-          <Button type="submit" disabled={isBusy}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy}>
             {t("root.schoolPage.edit.submit")}
           </Button>
         </div>

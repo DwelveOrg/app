@@ -8,6 +8,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, MailCheck } from "lucide-react";
 
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
@@ -108,22 +109,14 @@ export default function PasswordResetPage() {
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {t("auth.passwordReset.emailLabel")}
-                  </label>
+                <Field label={t("auth.passwordReset.emailLabel")} error={errors.email?.message}>
                   <Input
                     {...register("email")}
                     type="email"
                     placeholder={t("auth.passwordReset.emailPlaceholder")}
                     className={`w-full py-3 ${errors.email ? "border-destructive focus:border-destructive" : ""}`}
                   />
-                  {errors.email && (
-                    <p className="mt-1.5 text-xs text-destructive">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
                 {errors.root && (
                   <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">

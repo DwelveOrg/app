@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Loader2, Search, UserPlus } from "lucide-react";
+import { Search, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -125,15 +125,10 @@ export default function AssignStudentDialog({
                   <Button
                     size="sm"
                     variant="outline"
-                    disabled={isAssigning}
-                    aria-busy={isAssigning}
+                    loading={isAssigning}
                     onClick={() => handleAssign(student)}
                   >
-                    {isAssigning ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <UserPlus className="h-3.5 w-3.5" />
-                    )}
+                    <UserPlus className="h-3.5 w-3.5" />
                     {t("root.enrollment.assign.add")}
                   </Button>
                 </li>

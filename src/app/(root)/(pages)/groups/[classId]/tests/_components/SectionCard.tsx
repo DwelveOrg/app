@@ -15,6 +15,7 @@ import {
   type TestBuilderForm,
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import {
@@ -213,10 +214,7 @@ export default function SectionCard({
             control={control}
             name={`${name}.kind`}
             render={({ field }) => (
-              <div>
-                <label className="mb-1.5 block text-xs font-medium text-foreground">
-                  {t("root.tests.builder.section.kind")}
-                </label>
+              <Field size="sm" label={t("root.tests.builder.section.kind")}>
                 <Select
                   value={field.value}
                   onValueChange={field.onChange}
@@ -235,7 +233,7 @@ export default function SectionCard({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </Field>
             )}
           />
         ) : (
@@ -267,13 +265,11 @@ export default function SectionCard({
           disabled={disabled}
         />
 
-        <div>
-          <label
-            htmlFor={`section-${sectionIndex}-instructions`}
-            className="mb-1.5 block text-xs font-medium text-foreground"
-          >
-            {t("root.tests.builder.section.instructions")}
-          </label>
+        <Field
+          size="sm"
+          htmlFor={`section-${sectionIndex}-instructions`}
+          label={t("root.tests.builder.section.instructions")}
+        >
           <Textarea
             {...control.register(`${name}.instructions`)}
             id={`section-${sectionIndex}-instructions`}
@@ -282,7 +278,7 @@ export default function SectionCard({
             placeholder={t("root.tests.builder.section.instructionsPlaceholder")}
             className="py-2.5"
           />
-        </div>
+        </Field>
       </div>
 
       <div className="mt-5 space-y-4">{groups}</div>

@@ -9,6 +9,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft, ShieldAlert } from "lucide-react";
 
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
@@ -98,10 +99,10 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
               </div>
 
               <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {t("auth.resetPassword.passwordLabel")}
-                  </label>
+                <Field
+                  label={t("auth.resetPassword.passwordLabel")}
+                  error={errors.password?.message}
+                >
                   <Input
                     {...register("password")}
                     type="password"
@@ -110,17 +111,12 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
                     hideLabel={t("auth.resetPassword.hidePassword")}
                     aria-invalid={Boolean(errors.password)}
                   />
-                  {errors.password && (
-                    <p className="mt-1.5 text-xs text-destructive">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-foreground">
-                    {t("auth.resetPassword.confirmPasswordLabel")}
-                  </label>
+                <Field
+                  label={t("auth.resetPassword.confirmPasswordLabel")}
+                  error={errors.confirmPassword?.message}
+                >
                   <Input
                     {...register("confirmPassword")}
                     type="password"
@@ -129,12 +125,7 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
                     hideLabel={t("auth.resetPassword.hidePassword")}
                     aria-invalid={Boolean(errors.confirmPassword)}
                   />
-                  {errors.confirmPassword && (
-                    <p className="mt-1.5 text-xs text-destructive">
-                      {errors.confirmPassword.message}
-                    </p>
-                  )}
-                </div>
+                </Field>
 
                 {errors.root && (
                   <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">

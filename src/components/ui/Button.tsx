@@ -69,8 +69,13 @@ export type ButtonProps = React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
     /**
-     * Swaps the leading content for a spinner and blocks interaction. The label stays mounted so
+     * Swaps the button's icons for a spinner and blocks interaction. The label stays mounted so
      * the button keeps its width and the row it sits in never reflows mid-submit.
+     *
+     * Icons are hidden in CSS rather than by the caller, so a button with a leading icon is
+     * `loading={isPending}` with the icon left in place — no `{pending ? <Spinner/> : <Check/>}`
+     * ternary. That ternary was hand-written in 27 places precisely because the earlier version of
+     * this prop prepended a spinner instead of replacing what was already there.
      */
     loading?: boolean
   }
@@ -111,11 +116,20 @@ export default function Button({
       data-loading={loading || undefined}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(
+        buttonVariants({ variant, size, className }),
+        // The spinner stands in for whatever icons the caller passed, so they are hidden rather
+        // than unmounted — unmounting would change the button's width mid-submit.
+        loading && "[&>svg:not([data-slot=button-spinner])]:hidden",
+      )}
       {...props}
     >
       {loading ? (
-        <LoaderCircle aria-hidden className="animate-spin motion-reduce:animate-none" />
+        <LoaderCircle
+          data-slot="button-spinner"
+          aria-hidden
+          className="animate-spin motion-reduce:animate-none"
+        />
       ) : null}
       {children}
     </button>

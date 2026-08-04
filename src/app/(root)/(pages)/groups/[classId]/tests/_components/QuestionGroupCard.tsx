@@ -17,6 +17,7 @@ import {
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
@@ -241,13 +242,11 @@ export default function QuestionGroupCard({
       </header>
 
       <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
-        <div>
-          <label
-            htmlFor={`${sectionIndex}-${groupIndex}-passage`}
-            className="mb-1.5 block text-xs font-medium text-foreground"
-          >
-            {t("root.tests.builder.group.passage")}
-          </label>
+        <Field
+          size="sm"
+          htmlFor={`${sectionIndex}-${groupIndex}-passage`}
+          label={t("root.tests.builder.group.passage")}
+        >
           <Textarea
             {...control.register(`${name}.passage`)}
             id={`${sectionIndex}-${groupIndex}-passage`}
@@ -290,7 +289,7 @@ export default function QuestionGroupCard({
               </ul>
             </div>
           ) : null}
-        </div>
+        </Field>
 
         <div className="space-y-3">
           <Controller
@@ -308,13 +307,11 @@ export default function QuestionGroupCard({
             )}
           />
 
-          <div>
-            <label
-              htmlFor={`${sectionIndex}-${groupIndex}-instructions`}
-              className="mb-1.5 block text-xs font-medium text-foreground"
-            >
-              {t("root.tests.builder.group.instructions")}
-            </label>
+          <Field
+            size="sm"
+            htmlFor={`${sectionIndex}-${groupIndex}-instructions`}
+            label={t("root.tests.builder.group.instructions")}
+          >
             <Textarea
               {...control.register(`${name}.instructions`)}
               id={`${sectionIndex}-${groupIndex}-instructions`}
@@ -323,7 +320,7 @@ export default function QuestionGroupCard({
               placeholder={t("root.tests.builder.group.instructionsPlaceholder")}
               className="py-2.5"
             />
-          </div>
+          </Field>
 
           {missingStimulus ? (
             <p className="inline-flex items-start gap-1.5 text-2xs text-warning">

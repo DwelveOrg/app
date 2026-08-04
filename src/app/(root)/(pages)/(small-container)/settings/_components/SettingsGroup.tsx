@@ -18,7 +18,7 @@ export function SettingsGroup({
 }) {
   return (
     <section>
-      <h2 className="mb-2.5 px-1 text-[13px] font-semibold text-muted-foreground">
+      <h2 className="mb-2.5 px-1 text-13 font-semibold text-muted-foreground">
         {label}
       </h2>
       <Surface divided>{children}</Surface>

@@ -58,8 +58,8 @@ export default function DwelveLogo({ variant = "panel", className = "" }: Dwelve
           />
         </>
       )}
-      {/* Wordmark — DM Serif Display ("royalty" display serif), driven by brand constants */}
-      <span className={`text-[22px] ${BRAND_WORDMARK_CLASSES} ${textClass}`}>
+      {/* Wordmark — Manrope 700 to match the delivered mark; style and size from brand constants. */}
+      <span className={`${BRAND_WORDMARK_CLASSES} ${textClass}`}>
         {BRAND_NAME}
       </span>
     </div>

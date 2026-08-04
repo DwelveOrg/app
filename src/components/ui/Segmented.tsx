@@ -65,7 +65,7 @@ export default function Segmented<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(
               "interactive-flat relative flex cursor-pointer items-center justify-center gap-2",
-              "rounded-lg px-2.5 py-2 text-[13px] font-semibold",
+              "rounded-lg px-2.5 py-2 text-13 font-semibold",
               "outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}

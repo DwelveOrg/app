@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Clock, Loader2, Lock, Users, XCircle, type LucideIcon } from "lucide-react";
+import { Clock, Lock, Users, XCircle, type LucideIcon } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/badge";
@@ -63,7 +63,7 @@ export default function ClassEntityCard({
 
         <div className="min-w-0 flex-1">
           <div className="flex items-start justify-between gap-2">
-            <h3 className="truncate text-[15px] font-semibold text-foreground">{name}</h3>
+            <h3 className="truncate text-15 font-semibold text-foreground">{name}</h3>
             {badge ? (
               <Badge variant="primary" size="xs">
                 {badge}
@@ -136,11 +136,9 @@ export function ClassCardPendingAction({
       <Button
         variant="outline"
         className="w-full"
-        disabled={isCancelling}
-        aria-busy={isCancelling}
+        loading={isCancelling}
         onClick={onCancel}
       >
-        {isCancelling ? <Loader2 aria-hidden className="size-4 animate-spin" /> : null}
         {cancelLabel}
       </Button>
     </div>

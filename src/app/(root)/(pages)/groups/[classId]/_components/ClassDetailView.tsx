@@ -4,20 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import {
-  ArrowLeft,
-  CalendarDays,
-  DoorOpen,
-  FileText,
-  GraduationCap,
-  Loader2,
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  UserPlus,
-  Users,
-  UserCog,
-} from "lucide-react";
+import { ArrowLeft, CalendarDays, DoorOpen, FileText, GraduationCap, MoreHorizontal, Pencil, Trash2, UserPlus, Users, UserCog } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -400,16 +387,11 @@ function PeopleCard({
                     size="sm"
                     variant="ghost"
                     className="shrink-0 text-muted-foreground hover:text-destructive"
-                    disabled={isRemoving}
-                    aria-busy={isRemoving}
+                    loading={isRemoving}
                     aria-label={`${removeLabel ?? t("root.enrollment.assign.remove")} ${person.fullName}`}
                     onClick={() => onRemove(person)}
                   >
-                    {isRemoving ? (
-                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      (removeLabel ?? t("root.enrollment.assign.remove"))
-                    )}
+                    {removeLabel ?? t("root.enrollment.assign.remove")}
                   </Button>
                 ) : null}
               </li>

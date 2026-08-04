@@ -93,7 +93,7 @@ function Header({ ctx }: ModuleProps) {
           </p>
         ) : null}
         <h1 className={cn("type-title text-foreground", eyebrow && "mt-2")}>{title}</h1>
-        <p className="mt-1.5 text-[15px] text-muted-foreground">{subtitle}</p>
+        <p className="mt-1.5 text-15 text-muted-foreground">{subtitle}</p>
       </div>
 
       {ctx.role === "ADMIN" && ctx.studentJoinCode ? (
@@ -176,7 +176,7 @@ function KpiStrip({ ctx }: ModuleProps) {
             {tile.value}
           </p>
           {tile.cue ? (
-            <p className="mt-2 text-[13px] font-medium text-primary">{tile.cue}</p>
+            <p className="mt-2 text-13 font-medium text-primary">{tile.cue}</p>
           ) : null}
         </Surface>
       ))}
@@ -220,9 +220,9 @@ function SetupChecklist({ ctx }: ModuleProps) {
             >
               <span
                 className={cn(
-                  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[13px] font-bold",
+                  "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-13 font-bold",
                   step.done
-                    ? "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-success"
+                    ? "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-success"
                     : "bg-accent text-primary",
                 )}
               >
@@ -241,7 +241,7 @@ function SetupChecklist({ ctx }: ModuleProps) {
               </div>
 
               {step.done ? (
-                <span className="shrink-0 text-xs font-medium text-[color-mix(in_srgb,var(--success)_72%,#000)] dark:text-success">
+                <span className="shrink-0 text-xs font-medium text-success">
                   {t("root.dashboard.setup.doneLabel")}
                 </span>
               ) : step.kind === "link" ? (

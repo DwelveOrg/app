@@ -1,14 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Loader2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import { Button } from "@/components/ui/Button";
-import Avatar from "@/components/ui/Avatar";
+import PersonRequestRow from "@/app/(root)/_components/PersonRequestRow";
 import { SkeletonList } from "@/components/ui/Skeleton";
-import { RelativeTime } from "@/components/Custom/RelativeTime";
 import type { TeacherRequestItem } from "@/app/(root)/_lib/teacher-requests.schemas";
 import {
   useApproveTeacherRequestMutation,
@@ -17,7 +14,6 @@ import {
 } from "@/app/(root)/_hooks/useTeacherRequests";
 import Empty from "../../../_components/ui/Empty";
 import RejectTeacherRequestDialog from "./RejectTeacherRequestDialog";
-import Surface from "@/components/ui/Surface";
 
 type ClassTeacherRequestsListProps = {
   classId: string;
@@ -132,48 +128,24 @@ type RequestRowProps = {
   isRejecting: boolean;
 };
 
+/**
+ * Unwraps the teacher out of the request and supplies the teacher-side labels. Everything visual
+ * lives in `PersonRequestRow`, shared with the student join-request row.
+ */
 function RequestRow({ request, onApprove, onReject, isApproving, isRejecting }: RequestRowProps) {
   const { t } = useTranslation();
-  const { teacher } = request;
-  const busy = isApproving || isRejecting;
 
   return (
-    <Surface as="li" padding="sm" className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <Avatar name={teacher.fullName} tint="seeded" />
-
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-sm font-semibold text-foreground">
-          {teacher.fullName}
-        </p>
-        {teacher.email ? (
-          <p className="truncate text-xs text-muted-foreground">{teacher.email}</p>
-        ) : null}
-        {request.message ? (
-          <p className="mt-1.5 rounded-lg bg-muted px-3 py-1.5 text-xs text-foreground">
-            {request.message}
-          </p>
-        ) : null}
-        {request.requestedAt ? (
-          <p className="mt-1 text-2xs text-muted-foreground">
-            <RelativeTime date={request.requestedAt} />
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex shrink-0 items-center gap-2">
-        <Button size="lg" disabled={busy} aria-busy={isApproving} onClick={onApprove}>
-          {isApproving ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Check className="h-4 w-4" />
-          )}
-          {t("root.enrollment.teacherRequests.approve")}
-        </Button>
-        <Button size="lg" variant="destructive" disabled={busy} onClick={onReject}>
-          <X className="h-4 w-4" />
-          {t("root.enrollment.teacherRequests.reject")}
-        </Button>
-      </div>
-    </Surface>
+    <PersonRequestRow
+      person={request.teacher}
+      message={request.message}
+      requestedAt={request.requestedAt}
+      approveLabel={t("root.enrollment.teacherRequests.approve")}
+      rejectLabel={t("root.enrollment.teacherRequests.reject")}
+      onApprove={onApprove}
+      onReject={onReject}
+      isApproving={isApproving}
+      isRejecting={isRejecting}
+    />
   );
 }

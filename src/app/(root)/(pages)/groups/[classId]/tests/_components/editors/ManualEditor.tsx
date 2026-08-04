@@ -47,6 +47,7 @@ export default function ManualEditor({
       </div>
 
       <Field
+        size="sm"
         label={t("root.tests.builder.manual.rubric")}
         hint={t("root.tests.builder.manual.rubricHint")}
       >

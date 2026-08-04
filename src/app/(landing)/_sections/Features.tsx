@@ -122,7 +122,7 @@ export default function Features() {
             <h3 className="relative mt-6 text-2xl font-bold tracking-tight text-foreground">
               {spotlight.title}
             </h3>
-            <p className="relative mt-2.5 max-w-sm text-[15px] leading-relaxed text-muted-foreground">
+            <p className="relative mt-2.5 max-w-sm text-15 leading-relaxed text-muted-foreground">
               {spotlight.description}
             </p>
 

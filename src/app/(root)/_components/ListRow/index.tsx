@@ -76,7 +76,7 @@ export default function ListRow({
           {title}
         </p>
         {description ? (
-          <p className="mt-0.5 text-[13px] leading-5 text-muted-foreground">{description}</p>
+          <p className="mt-0.5 text-13 leading-5 text-muted-foreground">{description}</p>
         ) : null}
       </div>
 

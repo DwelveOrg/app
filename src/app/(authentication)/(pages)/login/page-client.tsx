@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import React from "react";
@@ -112,24 +113,23 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
           </div>
 
           <form className="mt-4 space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.login.loginLabel")}
-              </label>
+            <Field label={t("auth.login.loginLabel")} error={errors.identifier?.message}>
               <Input
                 {...register("identifier")}
                 type="text"
                 placeholder={t("auth.login.loginPlaceholder")}
                 className={`w-full py-3 ${errors.identifier ? "border-destructive focus:border-destructive" : ""}`}
               />
-              {errors.identifier && (
-                <p className="mt-1.5 text-xs text-destructive">{errors.identifier.message}</p>
-              )}
-            </div>
+            </Field>
 
-            <div>
+            {/*
+              No `label` prop: the reset link sits on the label row, and Field renders its label
+              inside a `<label>` element — a link nested there would steal the click that is
+              supposed to focus the input. The header stays hand-built; the error does not.
+            */}
+            <Field error={errors.password?.message}>
               <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-sm font-medium text-foreground">
+                <label htmlFor="login-password" className="text-sm font-medium text-foreground">
                   {t("auth.login.passwordLabel")}
                 </label>
                 <Link href="/password-reset" className="text-xs font-medium text-primary hover:text-primary-hover">
@@ -137,6 +137,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
                 </Link>
               </div>
               <Input
+                id="login-password"
                 {...register("password")}
                 type="password"
                 placeholder={t("auth.login.passwordPlaceholder")}
@@ -144,10 +145,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
                 hideLabel={t("auth.login.hidePassword")}
                 aria-invalid={Boolean(errors.password)}
               />
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-destructive">{errors.password.message}</p>
-              )}
-            </div>
+            </Field>
 
             {errors.root && (
               <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">

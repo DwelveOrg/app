@@ -39,7 +39,7 @@ const SIDEBAR_WIDTH = "w-[264px]";
  * switching tabs never shifts the layout.
  */
 const ROW_BASE =
-  "interactive-flat group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
+  "interactive-flat group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-15 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
 // Active is a soft action tint plus a left rail — the rail is what survives at a glance when the
 // tint sits on an already-tinted sidebar. A lift is deliberately absent: nav rows must never move.
 const ROW_ACTIVE =

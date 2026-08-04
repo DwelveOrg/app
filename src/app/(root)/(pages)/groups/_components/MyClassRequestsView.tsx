@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Clock, Loader2 } from "lucide-react";
+import { Clock } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -130,11 +130,9 @@ function RequestRow({ request, onCancel, isCancelling }: RequestRowProps) {
       <Button
         variant="outline"
         size="lg"
-        disabled={isCancelling}
-        aria-busy={isCancelling}
+        loading={isCancelling}
         onClick={onCancel}
       >
-        {isCancelling ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
         {t("root.enrollment.requests.cancel")}
       </Button>
     </Surface>

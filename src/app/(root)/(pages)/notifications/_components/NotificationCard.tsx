@@ -76,7 +76,7 @@ export function NotificationCard({
             <span aria-hidden className="size-2 shrink-0 rounded-full bg-primary" />
           ) : null}
         </div>
-        <p className="mt-1 line-clamp-2 text-[13px] leading-5 text-muted-foreground">
+        <p className="mt-1 line-clamp-2 text-13 leading-5 text-muted-foreground">
           {t(item.bodyKey)}
         </p>
 

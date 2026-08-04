@@ -1,13 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  AlertTriangle,
-  ArrowRight,
-  CheckCircle2,
-  LoaderCircle,
-  Send,
-} from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
@@ -201,13 +195,10 @@ export default function PublishDialog({
           <Button
             type="button"
             onClick={handlePublish}
-            disabled={publish.isPending || !isReady}
+            loading={publish.isPending}
+            disabled={!isReady}
           >
-            {publish.isPending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Send className="h-4 w-4" />
-            )}
+            <Send className="h-4 w-4" />
             {t("root.tests.publish.confirm")}
           </Button>
         </div>

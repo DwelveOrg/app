@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { Switch } from "@/components/ui/switch";
+import SwitchRow from "../SwitchRow";
 import type { QuestionEditorProps } from "../../_types";
 import { NumberField, RowControls } from "./fields";
 
@@ -93,16 +93,13 @@ export default function TextAnswerEditor({
             control={control}
             name={`${name}.config.caseSensitive`}
             render={({ field }) => (
-              <label className="flex cursor-pointer items-center gap-2.5 rounded-xl border border-border bg-background px-3 py-2.5">
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                  disabled={disabled}
-                />
-                <span className="text-xs font-medium text-foreground">
-                  {t("root.tests.builder.text.caseSensitive")}
-                </span>
-              </label>
+              <SwitchRow
+                size="sm"
+                checked={field.value}
+                onCheckedChange={field.onChange}
+                disabled={disabled}
+                label={t("root.tests.builder.text.caseSensitive")}
+              />
             )}
           />
         </div>

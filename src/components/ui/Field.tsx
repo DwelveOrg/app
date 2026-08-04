@@ -42,6 +42,9 @@ export default function Field({
   const id = htmlFor ?? generatedId;
   const messageId = `${id}-message`;
   const hasMessage = Boolean(error || hint);
+  // `size` drives the message as well as the label, so a dense field does not carry a
+  // standalone-form-sized hint under it.
+  const messageClassName = size === "md" ? "mt-1.5 text-xs" : "mt-1 text-2xs";
 
   return (
     <div className={cn("min-w-0", className)}>
@@ -71,11 +74,11 @@ export default function Field({
         : children}
 
       {error ? (
-        <p id={messageId} role="alert" className="mt-1.5 text-xs text-destructive">
+        <p id={messageId} role="alert" className={cn(messageClassName, "text-destructive")}>
           {error}
         </p>
       ) : hint ? (
-        <p id={messageId} className="mt-1.5 text-xs text-muted-foreground">
+        <p id={messageId} className={cn(messageClassName, "text-muted-foreground")}>
           {hint}
         </p>
       ) : null}

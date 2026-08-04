@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { useId } from "react";
 import { ArrowDown, ArrowUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import {
@@ -11,42 +11,19 @@ import {
 } from "react-hook-form";
 
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
 /**
  * Small shared building blocks for the answer-key editors, so six editors share
  * one look and one set of interaction rules instead of repeating inline markup.
+ *
+ * The label/hint wrapper that used to live here is now `@/components/ui/Field` — this file was
+ * where the good version was written, and it was promoted rather than copied. `size="sm"` is the
+ * density it had here. Re-exported so the editors' existing `from "./fields"` imports still work.
  */
-
-export function Field({
-  label,
-  hint,
-  htmlFor,
-  className,
-  children,
-}: {
-  label: string;
-  hint?: string;
-  htmlFor?: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className={cn("min-w-0", className)}>
-      <label
-        htmlFor={htmlFor}
-        className="mb-1.5 block text-xs font-medium text-foreground"
-      >
-        {label}
-      </label>
-      {children}
-      {hint ? (
-        <p className="mt-1 text-2xs text-muted-foreground">{hint}</p>
-      ) : null}
-    </div>
-  );
-}
+export { default as Field } from "@/components/ui/Field";
 
 /**
  * A numeric input backed by a `number | null` field. An empty box means "not
@@ -79,7 +56,7 @@ export function NumberField<TFieldValues extends FieldValues>({
   const id = useId();
 
   return (
-    <Field label={label} hint={hint} htmlFor={id} className={className}>
+    <Field label={label} hint={hint} htmlFor={id} className={className} size="sm">
       <Controller
         control={control}
         name={name}

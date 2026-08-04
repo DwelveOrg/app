@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useTransition } from "react";
-import { Camera, LoaderCircle, Trash2 } from "lucide-react";
+import { Camera, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { updateAvatarAction } from "@/app/(root)/_lib/profile-actions";
 import type { ProfileAccount } from "@/app/(root)/_lib/profile.schemas";
 import Avatar from "@/components/ui/Avatar";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import Surface from "@/components/ui/Surface";
 
@@ -88,24 +89,16 @@ export function ProfileSummaryCard({ account }: Readonly<ProfileSummaryCardProps
             className="ring-2 ring-card"
           />
 
-          <button
+          <Button
             type="button"
+            size="icon-sm"
             onClick={() => inputRef.current?.click()}
-            disabled={isPending}
+            loading={isPending}
             aria-label={t("root.profile.avatar.change")}
-            className={cn(
-              "absolute -bottom-0.5 -right-0.5 grid size-8 place-items-center rounded-full",
-              "bg-primary text-primary-foreground shadow-sm ring-2 ring-card",
-              "transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              "disabled:opacity-70",
-            )}
+            className="absolute -right-0.5 -bottom-0.5 rounded-full ring-2 ring-card"
           >
-            {isPending ? (
-              <LoaderCircle className="h-4 w-4 animate-spin" />
-            ) : (
-              <Camera className="h-4 w-4" />
-            )}
-          </button>
+            <Camera className="h-4 w-4" />
+          </Button>
 
           <input
             ref={inputRef}

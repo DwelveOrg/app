@@ -16,10 +16,12 @@ setup. `globals.css` is the canonical implementation; this file is the contract.
 > logo asset path that never existed, and a §7.3 top-bar contract for a component that had already
 > been removed from the shell.
 >
-> **The consolidation in §8 is not finished.** Four primitives are built but still have zero
-> consumers, and five more were never built, so some duplicates listed there still exist in parallel
-> with the component meant to replace them. Before adding UI, check
-> [redesign-remaining-work.md](./redesign-remaining-work.md) to see which primitive is canonical.
+> **The consolidation in §8 is complete**, including a sixth primitive the original plan listed and
+> the first pass missed (`PersonRequestRow`). Every primitive named there has consumers, and the
+> duplicates it replaced are deleted. What is still open is *visual* verification of the last round
+> of migrations, plus the dark-mode hero — see
+> [redesign-remaining-work.md](./redesign-remaining-work.md), which also carries the grep checks
+> that catch the kind of drift lint and `tsc` cannot.
 
 ---
 
@@ -77,12 +79,23 @@ in the product is one of these.** Raw `text-[Npx]` in a component is a bug.
 | `type-caption` | 0.75rem (12px) · 1.35 · 400 | Secondary meta |
 | `type-micro` | 0.6875rem (11px) · 1 · 600 · uppercase · +0.06em | Badges, eyebrows, table headers |
 
-Plus `text-3xs` (10px) and `text-2xs` (11px) in the Tailwind scale for the rare case where a utility
-is overkill.
+Plus four **size-only** steps in the Tailwind scale, for when a utility's weight and line-height
+would be wrong but the size is still needed: `text-3xs` (10px), `text-2xs` (11px), `text-13` (13px),
+`text-15` (15px). The last two fill the gaps Tailwind leaves between `text-xs` (12), `text-sm` (14)
+and `text-base` (16) — 13px for meta and dense labels, 15px for comfortable reading. Reach for a
+`type-*` utility first; these are the escape hatch, not the default.
 
 **`type-display` is the only fluid style, and only because the landing hero is marketing.** Product
 headings are a fixed rem scale: a clamped title that shrinks inside a narrow panel reads as broken,
 not responsive, and users sit at a steady DPI.
+
+**The two documented exceptions to "no raw sizes".** Both are outside the product type system by
+intent, and there are no others:
+
+- **Marketing display** — the auth panel headline (`AuthVisualParts`) and the closing CTA
+  (`CallToAction`) set their own display size. These are one-off compositions, not a scale.
+- **The wordmark** — 22px, set in `BRAND_WORDMARK_CLASSES` (`src/constants/brand.ts`), because it is
+  a lockup measurement against the 36px mark rather than a typographic choice.
 
 Cap body prose at 65–75ch. Tables and dense data may run wider.
 
@@ -312,10 +325,20 @@ the route-local `_components` — and prefer extending a primitive over restylin
 | `PageHeader` | Every page title + subtitle + actions row. |
 | `SectionHeader` | Every icon-chip + title + description block inside a panel. |
 | `ListRow` | Every icon + title + description + trailing-control row. |
-| `EmptyState` | Every empty, error, and not-found state. |
+| `PersonRequestRow` | Every pending request from a person, with approve and reject. |
+| `RowActionsMenu` | Every trailing overflow menu on a row or card. |
+| `EntityHeader` | Every school / class / test header. |
+| `CopyButton` | Every copy-to-clipboard control. |
+| `Skeleton` / `SkeletonList` / `SkeletonPage` | Every loading state. Never a bare spinner. |
+| `EmptyState` / `ResourceStateView` | Every empty, error, and not-found state. |
 
 If the same visual element appears in more than one place, it belongs in one of these. Two call
 sites that hard-code different values for "the same" thing is the bug this rule prevents.
+
+**Restyling a duplicate is not consolidating it.** Both request rows were migrated onto `Surface`,
+`Avatar`, and `Button` in the v2 pass and still stayed two identical components for a week, because
+they looked right — and looked right in the same way. When you touch a component, check whether its
+sibling exists before you improve it.
 
 ---
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useTransition } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { GraduationCap, LoaderCircle, Phone } from "lucide-react";
+import { GraduationCap, Phone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,8 @@ import {
   type UpdateSchoolProfileInput,
 } from "@/app/(root)/_lib/profile.schemas.forms";
 import type { ProfileSelectedSchool } from "@/app/(root)/_lib/profile.schemas";
+import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
 import Surface from "@/components/ui/Surface";
@@ -97,13 +99,7 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
       </header>
 
       <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <div>
-          <label
-            htmlFor="profile-phone"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            {t("root.profile.roleProfile.phone.label")}
-          </label>
+        <Field htmlFor="profile-phone" label={t("root.profile.roleProfile.phone.label")}>
           <div className="relative">
             <Phone className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
@@ -114,26 +110,21 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
               autoComplete="tel"
             />
           </div>
-        </div>
+        </Field>
 
         {!isStudent ? (
-          <div>
-            <label
-              htmlFor="profile-bio"
-              className="mb-1.5 block text-sm font-medium text-foreground"
-            >
-              {t("root.profile.roleProfile.bio.label")}
-            </label>
+          <Field
+            htmlFor="profile-bio"
+            label={t("root.profile.roleProfile.bio.label")}
+            hint={t("root.profile.roleProfile.bio.hint")}
+          >
             <Textarea
               id="profile-bio"
               rows={4}
               {...form.register("bio")}
               placeholder={t("root.profile.roleProfile.bio.placeholder")}
             />
-            <p className="mt-1.5 text-xs text-muted-foreground">
-              {t("root.profile.roleProfile.bio.hint")}
-            </p>
-          </div>
+          </Field>
         ) : null}
 
         {role.type !== "ADMIN" && role.classes.length > 0 ? (
@@ -155,14 +146,9 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
         ) : null}
 
         <div className="flex justify-end pt-1">
-          <button
-            type="submit"
-            disabled={isBusy || !isDirty}
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" size="lg" loading={isBusy} disabled={!isDirty}>
             {t("root.profile.form.save")}
-          </button>
+          </Button>
         </div>
       </form>
     </Surface>

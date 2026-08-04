@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { Laptop, LoaderCircle, LogOut, Smartphone } from "lucide-react";
+import { Laptop, LogOut, Smartphone } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -12,6 +12,8 @@ import {
 } from "@/app/(root)/_lib/profile-actions";
 import type { ProfileSession } from "@/app/(root)/_lib/profile.schemas";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
+import { Button } from "@/components/ui/Button";
+import { SkeletonList } from "@/components/ui/Skeleton";
 import { cn } from "@/lib/utils";
 import Surface from "@/components/ui/Surface";
 import Badge from "@/components/ui/badge";
@@ -109,9 +111,9 @@ export function SessionsPanel() {
       </header>
 
       {sessions === null ? (
-        <div className="grid place-items-center py-10 text-muted-foreground">
-          <LoaderCircle className="h-5 w-5 animate-spin" />
-        </div>
+        // A list is loading, so it gets the list skeleton — a bare spinner said nothing about
+        // what was coming and made this the one panel in the product that loaded differently.
+        <SkeletonList count={2} itemClassName="h-20" />
       ) : error && sessions.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border bg-muted px-4 py-6 text-center text-sm text-muted-foreground">
           {error}
@@ -166,28 +168,20 @@ export function SessionsPanel() {
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => handleRevoke(session.sessionId)}
-                  disabled={isRevoking}
-                  className={cn(
-                    "inline-flex h-9 items-center gap-1.5 self-start rounded-lg border border-border bg-card px-3 text-xs font-semibold shadow-elev-1",
-                    "text-muted-foreground transition hover:text-destructive hover:border-[color-mix(in_srgb,var(--destructive)_30%,transparent)]",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-70",
-                    "sm:self-auto",
-                  )}
+                  loading={isRevoking}
+                  className="self-start font-semibold text-muted-foreground hover:border-destructive/30 hover:text-destructive sm:self-auto"
                 >
-                  {isRevoking ? (
-                    <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-                  ) : (
-                    <LogOut className="h-3.5 w-3.5" />
-                  )}
+                  <LogOut className="h-3.5 w-3.5" />
                   {t(
                     session.isCurrent
                       ? "root.profile.sessions.signOut"
                       : "root.profile.sessions.revoke",
                   )}
-                </button>
+                </Button>
               </li>
             );
           })}

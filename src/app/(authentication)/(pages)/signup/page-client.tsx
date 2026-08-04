@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import React from "react";
@@ -107,44 +108,25 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
           </div>
 
           <form className="mt-4 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.fullName")}
-              </label>
+            <Field label={t("auth.signup.fullName")} error={errors.fullName?.message}>
               <Input
                 {...register("fullName")}
                 type="text"
                 placeholder={t("auth.signup.fullNamePlaceholder")}
                 className={`w-full py-3 ${errors.fullName ? "border-destructive" : ""}`}
               />
-              {errors.fullName && (
-                <p className="mt-1.5 text-xs text-destructive">
-                  {errors.fullName.message}
-                </p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.email")}
-              </label>
+            <Field label={t("auth.signup.email")} error={errors.email?.message}>
               <Input
                 {...register("email")}
                 type="email"
                 placeholder={t("auth.signup.emailPlaceholder")}
                 className={`w-full py-3 ${errors.email ? "border-destructive" : ""}`}
               />
-              {errors.email && (
-                <p className="mt-1.5 text-xs text-destructive">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            </Field>
 
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-foreground">
-                {t("auth.signup.password")}
-              </label>
+            <Field label={t("auth.signup.password")} error={errors.password?.message}>
               <Input
                 {...register("password")}
                 type="password"
@@ -153,12 +135,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
                 hideLabel={t("auth.signup.hidePassword")}
                 aria-invalid={Boolean(errors.password)}
               />
-              {errors.password && (
-                <p className="mt-1.5 text-xs text-destructive">
-                  {errors.password.message}
-                </p>
-              )}
-            </div>
+            </Field>
 
             {errors.root && (
               <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">

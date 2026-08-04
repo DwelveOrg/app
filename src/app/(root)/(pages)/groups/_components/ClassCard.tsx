@@ -55,7 +55,7 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-2 pr-8">
-              <h3 className="truncate text-[15px] font-semibold text-foreground">
+              <h3 className="truncate text-15 font-semibold text-foreground">
                 {item.name}
               </h3>
               {item.viewerRole ? (

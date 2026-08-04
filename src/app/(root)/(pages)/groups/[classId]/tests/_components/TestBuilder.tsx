@@ -4,17 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  ArrowLeft,
-  ListChecks,
-  LoaderCircle,
-  Plus,
-  Save,
-  Send,
-  Settings2,
-  Target,
-  Undo2,
-} from "lucide-react";
+import { ArrowLeft, ListChecks, Plus, Save, Send, Settings2, Target, Undo2 } from "lucide-react";
 import { type SubmitErrorHandler, type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -314,13 +304,9 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
               variant="outline"
               size="sm"
               onClick={handleUnpublish}
-              disabled={unpublish.isPending}
+              loading={unpublish.isPending}
             >
-              {unpublish.isPending ? (
-                <LoaderCircle className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Undo2 className="h-3.5 w-3.5" />
-              )}
+              <Undo2 className="h-3.5 w-3.5" />
               {t("root.tests.builder.unpublish")}
             </Button>
           ) : null}
@@ -370,12 +356,8 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
             : t("root.tests.builder.allSaved")}
         </p>
 
-        <Button type="submit" disabled={isBusy || !isDraft}>
-          {isBusy ? (
-            <LoaderCircle className="h-4 w-4 animate-spin" />
-          ) : (
-            <Save className="h-4 w-4" />
-          )}
+        <Button type="submit" loading={isBusy} disabled={!isDraft}>
+          <Save className="h-4 w-4" />
           {t("root.tests.actions.save")}
         </Button>
 

@@ -3,13 +3,14 @@
 import { useId } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Check, LoaderCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import { Controller, type SubmitHandler, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
 import { Button } from "@/components/ui/Button";
+import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import Dialog from "@/app/(root)/_components/Dialog";
@@ -92,14 +93,12 @@ export default function CreateTestDialog({
       description={t("root.tests.create.description")}
     >
       <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div>
-          <label
-            htmlFor={titleId}
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            {t("root.tests.create.titleLabel")}
-            <span className="text-destructive"> *</span>
-          </label>
+        <Field
+          htmlFor={titleId}
+          label={t("root.tests.create.titleLabel")}
+          required
+          error={errors.title ? t("root.tests.create.titleError") : undefined}
+        >
           <Input
             id={titleId}
             {...register("title")}
@@ -107,12 +106,7 @@ export default function CreateTestDialog({
             aria-invalid={Boolean(errors.title)}
             autoFocus
           />
-          {errors.title ? (
-            <p className="mt-1.5 text-xs text-destructive">
-              {t("root.tests.create.titleError")}
-            </p>
-          ) : null}
-        </div>
+        </Field>
 
         <Controller
           control={control}
@@ -188,8 +182,7 @@ export default function CreateTestDialog({
               {t("root.tests.actions.cancel")}
             </Button>
           </DialogPrimitive.Close>
-          <Button type="submit" disabled={isBusy || formatKeys.length === 0}>
-            {isBusy ? <LoaderCircle className="h-4 w-4 animate-spin" /> : null}
+          <Button type="submit" loading={isBusy} disabled={formatKeys.length === 0}>
             {t("root.tests.create.submit")}
           </Button>
         </div>

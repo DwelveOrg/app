@@ -273,6 +273,18 @@
   --text-2xs: 0.6875rem;
   --text-2xs--line-height: 1rem;
 
+  /*
+   * Half-steps inside the Tailwind scale, named for their px size because that is what they are:
+   * positions, not styles. Tailwind jumps xs(12) → sm(14) → base(16), and this product genuinely
+   * uses the two gaps — 13px for meta and dense labels, 15px for comfortable reading. They existed
+   * before as ~15 hand-written `text-[13px]` / `text-[15px]` literals; the type *utilities*
+   * (`type-label`, `type-body`, …) stay the answer whenever weight and line-height matter too.
+   */
+  --text-13: 0.8125rem;
+  --text-13--line-height: 1.25rem;
+  --text-15: 0.9375rem;
+  --text-15--line-height: 1.5rem;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

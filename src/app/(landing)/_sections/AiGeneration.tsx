@@ -175,7 +175,7 @@ function AiMock() {
               </span>
               <div className="relative min-h-[2.25rem] min-w-0 flex-1">
                 <p
-                  className="text-[13px] leading-snug text-muted-foreground transition-opacity duration-500"
+                  className="text-13 leading-snug text-muted-foreground transition-opacity duration-500"
                   style={{ opacity: ready ? 1 : 0, transitionDelay: ready ? `${i * 110}ms` : "0ms" }}
                 >
                   {q}

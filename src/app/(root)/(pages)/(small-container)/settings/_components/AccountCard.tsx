@@ -21,7 +21,7 @@ export function AccountCard({ account }: Readonly<{ account: SettingsAccountCont
       <Avatar name={name} src={account.avatarUrl} size="md" />
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-foreground">{name}</p>
-        <p className="truncate text-[13px] text-muted-foreground">
+        <p className="truncate text-13 text-muted-foreground">
           {account.email}
         </p>
         {roleKey || account.schoolName ? (
@@ -35,7 +35,7 @@ export function AccountCard({ account }: Readonly<{ account: SettingsAccountCont
       </div>
       <Link
         href="/profile"
-        className="flex shrink-0 items-center gap-0.5 text-[13px] font-medium text-primary transition-opacity hover:opacity-75"
+        className="flex shrink-0 items-center gap-0.5 text-13 font-medium text-primary transition-opacity hover:opacity-75"
       >
         {t("root.pages.profile")}
         <ChevronRight className="h-3.5 w-3.5" />
