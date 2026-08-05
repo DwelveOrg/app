@@ -47,47 +47,22 @@ export const examTabLabelKeys: Record<ExamTab, string> = {
   completed: "root.exams.tabs.completed",
 };
 
-export const examItems: ExamItem[] = [
-  {
-    id: "exam-01",
-    title: "root.exams.items.midterm.title",
-    subject: "root.exams.items.midterm.subject",
-    instructor: "root.exams.items.midterm.instructor",
-    date: "March 28, 2026",
-    time: "09:30 AM",
-    deadline: "March 27, 2026 • 11:59 PM",
-    durationMinutes: 75,
-    questions: 42,
-    totalMarks: 100,
-    passingScore: 65,
-    completed: false,
-  },
-  {
-    id: "exam-02",
-    title: "root.exams.items.codeSprint.title",
-    subject: "root.exams.items.codeSprint.subject",
-    instructor: "root.exams.items.codeSprint.instructor",
-    date: "March 20, 2026",
-    time: "02:00 PM",
-    deadline: "March 20, 2026 • 01:30 PM",
-    durationMinutes: 60,
-    questions: 30,
-    totalMarks: 80,
-    passingScore: 60,
-    completed: false,
-  },
-  {
-    id: "exam-03",
-    title: "root.exams.items.historyFinal.title",
-    subject: "root.exams.items.historyFinal.subject",
-    instructor: "root.exams.items.historyFinal.instructor",
-    date: "March 11, 2026",
-    time: "11:00 AM",
-    deadline: "March 10, 2026 • 11:59 PM",
-    durationMinutes: 90,
-    questions: 55,
-    totalMarks: 120,
-    passingScore: 70,
-    completed: true,
-  },
-];
+/**
+ * Empty until `/assignments` is wired to the backend.
+ *
+ * This previously held three hard-coded exams — "Midterm", "Code Sprint",
+ * "History Final" — with invented dates, durations, question counts and
+ * `passingScore` values. The route sits in `protectedRoutes` and is reachable
+ * by URL while the sidebar renders Assignments as a disabled "Coming soon", so
+ * a signed-in user who typed the URL was shown fabricated marks as if they were
+ * their own.
+ *
+ * That also contradicted the rule the dashboard already follows: see
+ * `dashboard/page.tsx`, which renders an em dash rather than a fake zero
+ * precisely so nothing on screen is a number the backend did not supply.
+ *
+ * `assignments/exams/page.tsx` already branches on `length === 0` and renders
+ * `<Empty />`, so this needs no call-site change. Populate it from the API when
+ * the feature lands — do not re-add literals here.
+ */
+export const examItems: ExamItem[] = [];
