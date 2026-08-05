@@ -89,9 +89,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     return (
       <div className="relative">
         {input}
+        {/*
+          Deliberately focusable. This carried `tabIndex={-1}`, which made
+          "show password" reachable by mouse only — a WCAG 2.1.1 failure on
+          every password field in the product (login, signup, reset, change).
+          A keyboard user could not verify what they had typed.
+        */}
         <button
           type="button"
-          tabIndex={-1}
           onClick={() => setRevealed((v) => !v)}
           aria-label={revealed ? hideLabel : revealLabel}
           aria-pressed={revealed}
