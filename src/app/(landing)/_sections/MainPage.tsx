@@ -106,11 +106,11 @@ function MainPage() {
                 sheet + chart. Also the graceful fallback when WebGL is unavailable. */}
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(92%_84%_at_50%_50%,rgba(123,97,255,0.12),transparent_74%)] dark:bg-[radial-gradient(92%_84%_at_50%_50%,rgba(155,128,255,0.15),transparent_74%)]"
+              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_12%,transparent),transparent_74%)] dark:bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_15%,transparent),transparent_74%)]"
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(54%_48%_at_50%_44%,rgba(123,97,255,0.30),transparent_66%)] dark:bg-[radial-gradient(54%_48%_at_50%_44%,rgba(155,128,255,0.28),transparent_66%)]"
+              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_30%,transparent),transparent_66%)] dark:bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_28%,transparent),transparent_66%)]"
             />
             {/* Labels are drawn onto the 3D surfaces themselves (see HeroScene),
                 so the narrative reads as part of the model, not as floating tags. */}

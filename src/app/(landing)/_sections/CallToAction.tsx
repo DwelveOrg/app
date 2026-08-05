@@ -24,7 +24,7 @@ export default function CallToAction() {
       >
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-64 w-[34rem] max-w-full rounded-full bg-[radial-gradient(closest-side,rgba(123,97,255,0.22),transparent)] blur-2xl"
+          className="pointer-events-none absolute inset-x-0 -top-24 mx-auto h-64 w-[34rem] max-w-full rounded-full bg-[radial-gradient(closest-side,color-mix(in_srgb,var(--brand)_22%,transparent),transparent)] blur-2xl"
         />
         <div className="relative">
           <h2 className={`mx-auto max-w-2xl ${LANDING_HEADING} lg:text-[2.75rem]`}>

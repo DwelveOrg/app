@@ -201,8 +201,8 @@ function ReviewMock() {
             animate={{
               scale: approved && !reduce ? [1, 1.06, 1] : 1,
               boxShadow: approved
-                ? "0 10px 26px -6px rgba(106,79,240,0.75)"
-                : "0 8px 20px -6px rgba(106,79,240,0.6)",
+                ? "0 10px 26px -6px color-mix(in srgb, var(--brand) 75%, transparent)"
+                : "0 8px 20px -6px color-mix(in srgb, var(--brand) 60%, transparent)",
             }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >
