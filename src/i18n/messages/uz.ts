@@ -1103,6 +1103,7 @@ translation: {
             teaching: "Oʻqitaman",
             enrolled: "Oʻqiyman",
             noTeacher: "Oʻqituvchi tayinlanmagan",
+            actionsLabel: "«{{name}}» uchun amallar",
           },
           empty: {
             title: "Bu yerda sinflar yoʻq",
@@ -1143,11 +1144,25 @@ translation: {
             subtitleEmpty: "Maktabingizdagi barcha sinflar — keraklisiga qoʻshiling.",
             searchPlaceholder: "Sinflarni qidirish",
             retry: "Qayta urinish",
-            filters: {
-              label: "Sinflarni filtrlash",
-              all: "Barchasi",
-              enrolled: "Aʼzo",
-              available: "Mavjud",
+            clearSearch: "Qidiruvni tozalash",
+            groups: {
+              enrolled: {
+                title: "Mening sinflarim · {{count}}",
+                description: "Testlar va materiallarni koʻrish uchun sinfni oching.",
+              },
+              pending: {
+                title: "Tasdiqlash kutilmoqda · {{count}}",
+                description:
+                  "Siz soʻrov yubordingiz. Qarorni oʻqituvchi yoki administrator qabul qiladi.",
+              },
+              available: {
+                title: "Qoʻshilish mumkin · {{count}}",
+                description: "Soʻrov yuboring — koʻrib chiqilgach xabar beramiz.",
+              },
+              unavailable: {
+                title: "Hozircha ochiq emas · {{count}}",
+                description: "Sinf toʻlgan yoki sizni oʻqituvchi biriktirishi kerak.",
+              },
             },
             requestToJoin: "Qoʻshilish soʻrovi",
             open: "Sinfni ochish",
@@ -1170,12 +1185,6 @@ translation: {
             empty: {
               allTitle: "Hozircha sinflar yoʻq",
               allDescription: "Maktabingizda hali sinflar yaratilmagan.",
-              enrolledTitle: "Siz hali birorta sinfga aʼzo emassiz",
-              enrolledDescription:
-                "Sinfga qoʻshilish soʻrovini yuboring yoki oʻqituvchi sizni biriktirishini kuting.",
-              availableTitle: "Qoʻshiladigan sinf qolmadi",
-              availableDescription: "Siz allaqachon barcha ochiq sinflarga aʼzosiz.",
-              showAll: "Barcha sinflarni koʻrsatish",
             },
           },
           requestDialog: {
@@ -1221,11 +1230,24 @@ translation: {
             description: "Maktab oʻquvchisini toʻgʻridan-toʻgʻri bu sinfga biriktiring.",
             searchPlaceholder: "Oʻquvchilarni qidirish",
             add: "Qoʻshish",
+            addStudent: "Oʻquvchi qoʻshish",
             remove: "Olib tashlash",
+            close: "Yopish",
             noResults: "Mos oʻquvchilar yoʻq.",
             allAssigned: "Barcha oʻquvchilar allaqachon bu sinfda.",
             assignedToast: "{{name}} sinfga qoʻshildi.",
             removedToast: "{{name}} sinfdan olib tashlandi.",
+            errorDescription: "Roʻyxatni yuklab boʻlmadi. Qayta urinib koʻring.",
+          },
+          assignTeacher: {
+            title: "Oʻqituvchi qoʻshish",
+            description: "Maktab oʻqituvchisini bu sinfga dars berishga biriktiring.",
+            searchPlaceholder: "Oʻqituvchilarni qidirish",
+            add: "Oʻqituvchi qoʻshish",
+            noResults: "Mos oʻqituvchilar yoʻq.",
+            allAssigned: "Barcha oʻqituvchilar allaqachon bu sinfga biriktirilgan.",
+            assignedToast: "{{name}} endi bu sinfga dars beradi.",
+            removedToast: "{{name}} endi bu sinfga dars bermaydi.",
           },
           classDetail: {
             requests: "Soʻrovlar",
@@ -1305,16 +1327,20 @@ translation: {
             title: "Sinf ishtirokchilari",
           },
           requests: {
-            title: "Qoʻshilish soʻrovlari",
-            viewAll: "Barchasini koʻrish",
-            more_one: "Yana {{count}} ta soʻrov",
-            more_other: "Yana {{count}} ta soʻrov",
+            title: "Soʻrovlar",
           },
           removeStudent: {
             title: "{{name}} sinfdan chiqarilsinmi?",
             description:
               "U sinf va uning testlariga kirish huquqini yoʻqotadi. Keyinroq qayta qoʻsha olasiz.",
             confirm: "Oʻquvchini chiqarish",
+            cancel: "Bekor qilish",
+          },
+          removeTeacher: {
+            title: "{{name}} sinfdan chiqarilsinmi?",
+            description:
+              "U bu sinfga dars berishni toʻxtatadi va uning soʻrovlari va testlariga kirish huquqini yoʻqotadi. Keyinroq qayta biriktira olasiz.",
+            confirm: "Oʻqituvchini chiqarish",
             cancel: "Bekor qilish",
           },
           states: {
@@ -1335,11 +1361,11 @@ translation: {
             },
           },
           teachers: {
-            title: "Oʻqituvchilar · {{count}}",
+            tab: "Oʻqituvchilar",
             empty: "Hali oʻqituvchilar tayinlanmagan.",
           },
           students: {
-            title: "Oʻquvchilar · {{count}}",
+            tab: "Oʻquvchilar",
             empty: "Hali oʻquvchilar qoʻshilmagan.",
           },
           edit: {

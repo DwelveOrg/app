@@ -9,22 +9,18 @@ import {
 
 import {
   approveEnrollmentAction,
-  assignStudentAction,
   cancelJoinRequestAction,
   getStudentClassesAction,
   getStudentOverviewAction,
   listClassJoinRequestsAction,
   listMyClassRequestsAction,
   rejectEnrollmentAction,
-  removeStudentAction,
   requestJoinClassAction,
 } from "@/app/(root)/_lib/enrollment-actions";
 import type {
   ApproveEnrollmentInput,
-  AssignStudentInput,
   CancelJoinRequestInput,
   RejectEnrollmentInput,
-  RemoveStudentInput,
   RequestJoinClassInput,
 } from "@/app/(root)/_lib/enrollment.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
@@ -140,13 +136,20 @@ export function useCancelJoinRequestMutation(schoolId: string | undefined) {
 /* Teacher / admin mutations                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** Invalidates the pending-requests list for a class after approve/reject. */
+/**
+ * Approving a request adds the student to the roster, so a review refreshes the
+ * pending-requests list *and* every class query — the class page shows both, and
+ * a stale roster next to a cleared request reads as a failed approval.
+ */
 function useInvalidateClassRequests(classId: string) {
   const queryClient = useQueryClient();
   return () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.enrollment.classRequestsAll(classId),
-    });
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.enrollment.classRequestsAll(classId),
+      }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+    ]);
 }
 
 export function useApproveEnrollmentMutation(classId: string) {
@@ -167,16 +170,6 @@ export function useRejectEnrollmentMutation(classId: string) {
   });
 }
 
-export function useAssignStudentMutation() {
-  return useMutation({
-    mutationFn: async (input: AssignStudentInput) =>
-      readSafeActionData(await assignStudentAction(input), MUTATION_FALLBACK),
-  });
-}
-
-export function useRemoveStudentMutation() {
-  return useMutation({
-    mutationFn: async (input: RemoveStudentInput) =>
-      readSafeActionData(await removeStudentAction(input), MUTATION_FALLBACK),
-  });
-}
+// Direct roster changes (add/remove a student or teacher) live in
+// `useClassRoster.ts` with the class-scoped member pickers they feed, so one
+// place owns which queries a roster change invalidates.

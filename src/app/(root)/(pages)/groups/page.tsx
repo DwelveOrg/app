@@ -2,6 +2,7 @@ import RoleEmptyState from "../_components/ui/RoleEmptyState";
 import { getUser } from "../../_utils/getUser";
 import { getClasses } from "../../_utils/getClasses";
 import ClassesView from "./_components/ClassesView";
+import StudentClassesView from "./_components/StudentClassesView";
 import { toClassCardItem } from "./_lib/mapClass";
 
 export default async function Page() {
@@ -16,9 +17,16 @@ export default async function Page() {
     );
   }
 
-  // `GET /classes` is the user's actual class list: active enrollments for
-  // students, teaching assignments for teachers, and the full directory for
-  // admins. Requestable classes live exclusively on the School page.
+  // A student's page is about decisions, not a directory: classes to enter,
+  // requests awaiting approval, and classes they may ask to join. Only
+  // `GET /schools/:schoolId/classes` carries those flags — `GET /classes`
+  // returns active enrolments alone, which cannot express the other states.
+  if (user.schoolRole === "STUDENT") {
+    return <StudentClassesView schoolId={user.schoolId} />;
+  }
+
+  // Staff: `GET /classes` is the caller's own class list — teaching assignments
+  // for teachers, the full directory for admins.
   const classes = await getClasses();
   const items = classes.map((item) => toClassCardItem(item, user.memberId));
 

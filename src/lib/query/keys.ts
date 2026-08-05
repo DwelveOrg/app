@@ -12,6 +12,15 @@ export const queryKeys = {
   classes: {
     all: ["classes"] as const,
     detail: (classId: string) => [...queryKeys.classes.all, "detail", classId] as const,
+    /** Every search variant of a class's student picker, for broad invalidation. */
+    assignableStudentsAll: (classId: string) =>
+      [...queryKeys.classes.all, "assignable-students", classId] as const,
+    assignableStudents: (classId: string, filters: { search: string; limit: number }) =>
+      [...queryKeys.classes.assignableStudentsAll(classId), filters] as const,
+    assignableTeachersAll: (classId: string) =>
+      [...queryKeys.classes.all, "assignable-teachers", classId] as const,
+    assignableTeachers: (classId: string, filters: { search: string; limit: number }) =>
+      [...queryKeys.classes.assignableTeachersAll(classId), filters] as const,
   },
   tests: {
     all: ["tests"] as const,

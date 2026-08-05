@@ -1,160 +1,48 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import Link from "next/link";
-import { ArrowRight, Inbox, RefreshCw } from "lucide-react";
+import { Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { toast } from "react-toastify";
 
-import { Button } from "@/components/ui/Button";
-import Skeleton from "@/components/ui/Skeleton";
-import type { ClassEnrollmentItem } from "@/app/(root)/_lib/enrollment.schemas";
-import {
-  useApproveEnrollmentMutation,
-  useClassJoinRequests,
-  useRejectEnrollmentMutation,
-} from "@/app/(root)/_hooks/useEnrollment";
-import ClassJoinRequestRow from "./ClassJoinRequestRow";
-import RejectRequestDialog from "./RejectRequestDialog";
-import Badge from "@/components/ui/badge";
+import ClassRequestsPanel from "./ClassRequestsPanel";
 
 type ClassRequestsSectionProps = {
   classId: string;
+  /** Admins also review requests to teach the class; teachers see students only. */
+  isAdmin: boolean;
+  /** Re-reads the server-rendered class after a request is approved/rejected. */
+  onReviewed?: () => void;
 };
 
-/** How many pending requests are triaged inline before linking to the queue. */
-const PREVIEW_LIMIT = 3;
-
 /**
- * Pending join requests inline on the class page, so approving someone does not
- * require a detour. Rendered only for viewers the backend lets manage the class
- * — and the backend still authorizes every approve/reject. The full queue
- * (including the admin-only teacher requests) stays at `/groups/:id/requests`.
+ * Requests, in full, on the class page itself.
+ *
+ * This used to be a three-row preview that linked out to the real queue, and the
+ * teacher-request queue existed only on that other page — so an admin who
+ * dismissed the notification had no path to a pending request from the class.
+ * Both queues are handled here now; the standalone page remains for deep links.
  */
-export default function ClassRequestsSection({ classId }: ClassRequestsSectionProps) {
+export default function ClassRequestsSection({
+  classId,
+  isAdmin,
+  onReviewed,
+}: ClassRequestsSectionProps) {
   const { t } = useTranslation();
-  const [rejecting, setRejecting] = useState<ClassEnrollmentItem | null>(null);
-
-  const query = useClassJoinRequests({ classId, search: "" });
-  const approve = useApproveEnrollmentMutation(classId);
-  const reject = useRejectEnrollmentMutation(classId);
-
-  const requests = useMemo(
-    () => query.data?.pages.flatMap((page) => page.enrollments) ?? [],
-    [query.data?.pages],
-  );
-  const total = query.data?.pages[0]?.meta.total ?? requests.length;
-
-  const handleApprove = (enrollmentId: string) => {
-    approve.mutate(
-      { enrollmentId },
-      {
-        onSuccess: () => toast.success(t("root.enrollment.classRequests.approvedToast")),
-        onError: (error) =>
-          toast.error(
-            error instanceof Error ? error.message : t("root.enrollment.errorGeneric"),
-          ),
-      },
-    );
-  };
-
-  const handleReject = (reason: string) => {
-    if (!rejecting) return;
-    const enrollmentId = rejecting.id;
-    reject.mutate(
-      { enrollmentId, reason: reason || undefined },
-      {
-        onSuccess: () => {
-          setRejecting(null);
-          toast.success(t("root.enrollment.classRequests.rejectedToast"));
-        },
-        onError: (error) =>
-          toast.error(
-            error instanceof Error ? error.message : t("root.enrollment.errorGeneric"),
-          ),
-      },
-    );
-  };
 
   return (
-    <section aria-labelledby="class-requests-heading" className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2
-          id="class-requests-heading"
-          className="inline-flex items-center gap-2 text-base font-bold text-foreground"
-        >
-          <Inbox className="h-4 w-4 text-muted-foreground" />
-          {t("root.classDetail.requests.title")}
-          {total > 0 ? (
-            <Badge variant="primary" size="md">
-              {total}
-            </Badge>
-          ) : null}
-        </h2>
+    <section
+      id="class-requests"
+      aria-labelledby="class-requests-heading"
+      className="flex scroll-mt-6 flex-col gap-4"
+    >
+      <h2
+        id="class-requests-heading"
+        className="inline-flex items-center gap-2 text-base font-bold text-foreground"
+      >
+        <Inbox className="h-4 w-4 text-muted-foreground" />
+        {t("root.classDetail.requests.title")}
+      </h2>
 
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/groups/${classId}/requests`}>
-            {t("root.classDetail.requests.viewAll")}
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </Button>
-      </div>
-
-      {query.isLoading ? (
-        <div aria-busy="true" className="space-y-3">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <Skeleton key={index} className="h-24 rounded-2xl border border-border" />
-          ))}
-        </div>
-      ) : query.isError ? (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-dashed border-border bg-card px-5 py-4">
-          <p className="text-sm text-muted-foreground">
-            {t("root.enrollment.classRequests.errorDescription")}
-          </p>
-          <Button type="button" size="sm" variant="outline" onClick={() => query.refetch()}>
-            <RefreshCw className="h-3.5 w-3.5" />
-            {t("root.classDetail.states.retry")}
-          </Button>
-        </div>
-      ) : requests.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-border bg-card px-5 py-6 text-sm text-muted-foreground">
-          {t("root.enrollment.classRequests.emptyDescription")}
-        </p>
-      ) : (
-        <>
-          <ul className="flex flex-col gap-3">
-            {requests.slice(0, PREVIEW_LIMIT).map((request) => (
-              <ClassJoinRequestRow
-                key={request.id}
-                request={request}
-                onApprove={() => handleApprove(request.id)}
-                onReject={() => setRejecting(request)}
-                isApproving={approve.isPending && approve.variables?.enrollmentId === request.id}
-                isRejecting={reject.isPending && reject.variables?.enrollmentId === request.id}
-              />
-            ))}
-          </ul>
-          {total > PREVIEW_LIMIT ? (
-            <Link
-              href={`/groups/${classId}/requests`}
-              className="inline-flex w-fit items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-            >
-              {t("root.classDetail.requests.more", { count: total - PREVIEW_LIMIT })}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </Link>
-          ) : null}
-        </>
-      )}
-
-      <RejectRequestDialog
-        open={rejecting !== null}
-        onOpenChange={(open) => {
-          if (!open) setRejecting(null);
-        }}
-        studentName={rejecting?.student.fullName ?? ""}
-        isSubmitting={reject.isPending}
-        onConfirm={handleReject}
-      />
+      <ClassRequestsPanel classId={classId} isAdmin={isAdmin} onReviewed={onReviewed} />
     </section>
   );
 }

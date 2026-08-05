@@ -3,7 +3,7 @@ import Surface from "@/components/ui/Surface";
 
 /**
  * Streaming placeholder for the class page: identity header, overview facts,
- * and the two people cards, all of which come from `GET /classes/:classId`.
+ * and the people panel, all of which come from `GET /classes/:classId`.
  */
 export default function Loading() {
   return (
@@ -25,8 +25,8 @@ export default function Loading() {
         </div>
       </Surface>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <Skeleton className="h-64 rounded-2xl" />
+      <div className="space-y-4">
+        <Skeleton className="h-9 w-56" />
         <Skeleton className="h-64 rounded-2xl" />
       </div>
     </SkeletonPage>

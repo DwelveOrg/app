@@ -101,7 +101,9 @@ export default function SchoolTabsSection({
 
       {activeTab === "classes" ? (
         role === "STUDENT" ? (
-          <StudentClassesView schoolId={schoolId} />
+          // The School page supplies its own title and tabs, so the directory
+          // renders without its page header here.
+          <StudentClassesView schoolId={schoolId} variant="embedded" />
         ) : role === "TEACHER" ? (
           <TeacherClassesView schoolId={schoolId} />
         ) : classItems.length > 0 ? (

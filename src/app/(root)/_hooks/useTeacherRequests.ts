@@ -43,14 +43,21 @@ export function useTeacherClasses({
   });
 }
 
+/**
+ * Pending requests to teach one class. Admin-only on the backend, so callers
+ * that render for teachers too must pass `enabled: false` for them rather than
+ * firing a request that can only come back 403.
+ */
 export function useTeacherRequests({
   classId,
   search,
   limit = 20,
+  enabled = true,
 }: {
   classId: string;
   search: string;
   limit?: number;
+  enabled?: boolean;
 }) {
   return useInfiniteQuery({
     queryKey: queryKeys.enrollment.teacherRequests(classId, { search, limit }),
@@ -59,6 +66,7 @@ export function useTeacherRequests({
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasMore ? lastPage.meta.page + 1 : undefined,
+    enabled,
   });
 }
 
