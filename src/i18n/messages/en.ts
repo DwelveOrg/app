@@ -8,6 +8,13 @@ translation: {
         uz: "Uzbek",
       },
       root: {
+        errorBoundary: {
+          title: "Something went wrong",
+          description:
+            "This page didn't load. Trying again often fixes it — if it keeps happening, the problem is on our side.",
+          retry: "Try again",
+          home: "Go to dashboard",
+        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Home",

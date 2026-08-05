@@ -8,6 +8,13 @@ translation: {
         uz: "Oʻzbekcha",
       },
       root: {
+        errorBoundary: {
+          title: "Nimadir notoʻgʻri ketdi",
+          description:
+            "Sahifa yuklanmadi. Koʻpincha qayta urinish yordam beradi — agar xato takrorlansa, muammo biz tomonda.",
+          retry: "Qayta urinish",
+          home: "Boshqaruv paneliga",
+        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Bosh sahifa",
