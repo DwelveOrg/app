@@ -278,15 +278,32 @@ passed on a tree that still had a never-built primitive, two `Field` implementat
 spinners, and two untokenised scrims. **Duplication is not a compile error.** The checks that would
 have caught these are greps, and they are cheap:
 
+> **These greps were themselves broken, and were rewritten on 4 August 2026.**
+> Three of the five filtered `--include='*.tsx'` while the things they watch live in `.ts`
+> files, so they could not fail. The `classAccents` check is the clearest case: `classAccents`
+> is defined in `groups/_constants/index.ts`, so the grep that exists solely to watch it
+> returned `0` every time it was run and would have returned `0` no matter how bad the drift
+> got. Running the corrected versions found **5** arbitrary-token classes and **2** surviving
+> `text-[13px]` in `settings/_constants/index.ts` — both categories §3.6 recorded as fully
+> migrated. Every grep below now scans `*.ts` as well as `*.tsx`.
+
 ```sh
 # no arbitrary token classes, no raw palette, no arbitrary sizes, no one-off shadows
-grep -rEn '\b(bg|text|border|ring)-\[var\(--[a-z0-9-]+\)\]' --include='*.tsx' src   # expect: only classAccents
-grep -rEn 'text-\[[0-9.]*(px|rem)\]' --include='*.tsx' src                          # expect: the 2 documented display sites
-grep -rn '<Loader2\|<LoaderCircle' --include='*.tsx' src                            # expect: 2 non-button placeholders
-grep -rn '<label' --include='*.tsx' src                                             # expect: only clickable cards + Field itself
+# NOTE: --include='*.ts' is load-bearing. classAccents lives in a .ts constants file.
+grep -rEn '\b(bg|text|border|ring)-\[var\(--[a-z0-9-]+\)\]' --include='*.tsx' --include='*.ts' src   # expect: only classAccents (5)
+grep -rEn 'text-\[[0-9.]*(px|rem)\]' --include='*.tsx' --include='*.ts' src                          # expect: the 2 display sites + BRAND_WORDMARK
+grep -rn '<label' --include='*.tsx' src                                                              # expect: only clickable cards + Field itself
 
-# every primitive should have consumers; a 0 here means it was built and abandoned
-for p in Surface Button Field Avatar CopyButton TabBar RowActionsMenu Skeleton; do
-  echo "$p: $(grep -rl "components/ui/$p\"" --include='*.tsx' src | wc -l)"
+# spinners: the icon-name grep alone is blind to hand-rolled CSS spinners, which is how
+# ConfirmDialog's border-spinner survived the "27 sites -> 2" migration in §3.5.
+grep -rn '<Loader2\|<LoaderCircle' --include='*.tsx' src                                             # expect: 2 non-button placeholders
+grep -rn 'animate-spin' --include='*.tsx' src                                                        # expect: only Button's own spinner
+
+# every primitive should have consumers; a 0 here means it was built and abandoned.
+# Enumerate the directory rather than hard-coding a list — the previous 8-name list
+# omitted both primitives that actually had 0 consumers (InputOTP, label).
+for f in src/components/ui/*.tsx; do
+  p=$(basename "$f" .tsx)
+  echo "$p: $(grep -rl "ui/$p\"" --include='*.tsx' --include='*.ts' src | wc -l)"
 done
 ```

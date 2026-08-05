@@ -222,7 +222,14 @@ Class Details -> Students -> Add Student
 Student Profile -> Assign to Class
 ```
 
-Fetch assignable students from the existing school/student APIs and send:
+Fetch candidates from the class-scoped picker — never the school-wide student
+API, which is admin-only and would break the picker for assigned teachers:
+
+```http
+GET /api/v1/classes/:classId/assignable-students?search=&page=1&limit=20
+```
+
+Then send:
 
 ```http
 POST /api/v1/classes/:classId/students

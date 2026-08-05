@@ -8,6 +8,13 @@ translation: {
         uz: "Узбекский",
       },
       root: {
+        errorBoundary: {
+          title: "Что-то пошло не так",
+          description:
+            "Страница не загрузилась. Часто помогает повторная попытка — если ошибка повторяется, проблема на нашей стороне.",
+          retry: "Повторить",
+          home: "На панель управления",
+        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Главная",
@@ -1106,6 +1113,7 @@ translation: {
             teaching: "Веду",
             enrolled: "Учусь",
             noTeacher: "Учитель не назначен",
+            actionsLabel: "Действия для «{{name}}»",
           },
           empty: {
             title: "Здесь нет классов",
@@ -1148,11 +1156,25 @@ translation: {
             subtitleEmpty: "Все классы вашей школы — вступите в нужные.",
             searchPlaceholder: "Поиск классов",
             retry: "Попробовать ещё раз",
-            filters: {
-              label: "Фильтр классов",
-              all: "Все",
-              enrolled: "Зачислен",
-              available: "Доступные",
+            clearSearch: "Очистить поиск",
+            groups: {
+              enrolled: {
+                title: "Мои классы · {{count}}",
+                description: "Откройте класс, чтобы увидеть тесты и материалы.",
+              },
+              pending: {
+                title: "Ожидают одобрения · {{count}}",
+                description:
+                  "Вы отправили заявки. Решение принимает преподаватель или администратор.",
+              },
+              available: {
+                title: "Можно вступить · {{count}}",
+                description: "Отправьте заявку — мы сообщим, когда её рассмотрят.",
+              },
+              unavailable: {
+                title: "Пока недоступны · {{count}}",
+                description: "Класс заполнен или вас должен добавить преподаватель.",
+              },
             },
             requestToJoin: "Подать заявку",
             open: "Открыть класс",
@@ -1177,12 +1199,6 @@ translation: {
             empty: {
               allTitle: "Классов пока нет",
               allDescription: "В вашей школе пока нет классов.",
-              enrolledTitle: "Вы пока не зачислены ни в один класс",
-              enrolledDescription:
-                "Подайте заявку в класс или дождитесь, пока преподаватель добавит вас.",
-              availableTitle: "Больше нечего добавить",
-              availableDescription: "Вы уже состоите во всех доступных вам классах.",
-              showAll: "Показать все классы",
             },
           },
           requestDialog: {
@@ -1228,11 +1244,24 @@ translation: {
             description: "Назначьте студента школы напрямую в этот класс.",
             searchPlaceholder: "Поиск студентов",
             add: "Добавить",
+            addStudent: "Добавить студента",
             remove: "Убрать",
+            close: "Закрыть",
             noResults: "Студенты не найдены.",
             allAssigned: "Все студенты уже в этом классе.",
             assignedToast: "{{name}} добавлен(а) в класс.",
             removedToast: "{{name}} убран(а) из класса.",
+            errorDescription: "Не удалось загрузить список. Попробуйте ещё раз.",
+          },
+          assignTeacher: {
+            title: "Добавить преподавателя",
+            description: "Назначьте преподавателя школы вести этот класс.",
+            searchPlaceholder: "Поиск преподавателей",
+            add: "Добавить преподавателя",
+            noResults: "Преподаватели не найдены.",
+            allAssigned: "Все преподаватели уже назначены на этот класс.",
+            assignedToast: "{{name}} теперь ведёт этот класс.",
+            removedToast: "{{name}} больше не ведёт этот класс.",
           },
           classDetail: {
             requests: "Заявки",
@@ -1314,18 +1343,20 @@ translation: {
             title: "Участники класса",
           },
           requests: {
-            title: "Заявки на вступление",
-            viewAll: "Смотреть все",
-            more_one: "Ещё {{count}} заявка",
-            more_few: "Ещё {{count}} заявки",
-            more_many: "Ещё {{count}} заявок",
-            more_other: "Ещё {{count}} заявок",
+            title: "Заявки",
           },
           removeStudent: {
             title: "Удалить {{name}} из класса?",
             description:
               "Ученик потеряет доступ к классу и его тестам. Позже вы сможете добавить его снова.",
             confirm: "Удалить ученика",
+            cancel: "Отмена",
+          },
+          removeTeacher: {
+            title: "Убрать {{name}} из класса?",
+            description:
+              "Преподаватель перестанет вести класс и потеряет доступ к его заявкам и тестам. Позже вы сможете назначить его снова.",
+            confirm: "Убрать преподавателя",
             cancel: "Отмена",
           },
           states: {
@@ -1346,11 +1377,11 @@ translation: {
             },
           },
           teachers: {
-            title: "Учителя · {{count}}",
+            tab: "Учителя",
             empty: "Учителя ещё не назначены.",
           },
           students: {
-            title: "Ученики · {{count}}",
+            tab: "Ученики",
             empty: "Ученики ещё не добавлены.",
           },
           edit: {

@@ -24,6 +24,12 @@ export type TabItem = {
   /** Present for navigation tabs; omit for local state tabs. */
   href?: string;
   count?: number;
+  /**
+   * Renders `count` even when it is zero. A roster of zero is a fact about the
+   * thing ("Students 0" — the class is empty); a pending count of zero is noise,
+   * which is why hiding it stays the default.
+   */
+  showZeroCount?: boolean;
   disabled?: boolean;
   /** Trailing pill for locked features ("Soon"). */
   note?: string;
@@ -68,7 +74,7 @@ export default function TabBar({
         const content = (
           <>
             <span className="truncate">{item.label}</span>
-            {typeof item.count === "number" && item.count > 0 ? (
+            {typeof item.count === "number" && (item.count > 0 || item.showZeroCount) ? (
               <Badge
                 variant={active ? "primary" : "neutral"}
                 size="xs"

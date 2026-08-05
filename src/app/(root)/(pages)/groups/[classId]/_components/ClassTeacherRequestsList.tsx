@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import PersonRequestRow from "@/app/(root)/_components/PersonRequestRow";
+import { Button } from "@/components/ui/Button";
 import { SkeletonList } from "@/components/ui/Skeleton";
 import type { TeacherRequestItem } from "@/app/(root)/_lib/teacher-requests.schemas";
 import {
@@ -17,6 +18,11 @@ import RejectTeacherRequestDialog from "./RejectTeacherRequestDialog";
 
 type ClassTeacherRequestsListProps = {
   classId: string;
+  /**
+   * Called after an approve or reject lands. Approving assigns the teacher, so
+   * the server-rendered class page uses this to re-read its roster.
+   */
+  onReviewed?: () => void;
 };
 
 /**
@@ -24,7 +30,10 @@ type ClassTeacherRequestsListProps = {
  * the teacher to the class; rejecting records an optional reason. The backend
  * restricts these actions to admins — this list is only reachable by them.
  */
-export default function ClassTeacherRequestsList({ classId }: ClassTeacherRequestsListProps) {
+export default function ClassTeacherRequestsList({
+  classId,
+  onReviewed,
+}: ClassTeacherRequestsListProps) {
   const { t } = useTranslation();
   const [rejecting, setRejecting] = useState<TeacherRequestItem | null>(null);
 
@@ -41,7 +50,10 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
     approve.mutate(
       { requestId },
       {
-        onSuccess: () => toast.success(t("root.enrollment.teacherRequests.approvedToast")),
+        onSuccess: () => {
+          toast.success(t("root.enrollment.teacherRequests.approvedToast"));
+          onReviewed?.();
+        },
         onError: (error) =>
           toast.error(
             error instanceof Error ? error.message : t("root.enrollment.errorGeneric"),
@@ -59,6 +71,7 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
         onSuccess: () => {
           setRejecting(null);
           toast.success(t("root.enrollment.teacherRequests.rejectedToast"));
+          onReviewed?.();
         },
         onError: (error) =>
           toast.error(
@@ -69,9 +82,7 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
   };
 
   if (query.isLoading) {
-    return (
-      <SkeletonList count={3} />
-    );
+    return <SkeletonList count={2} />;
   }
 
   if (query.isError) {
@@ -79,6 +90,11 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
       <Empty
         title={t("root.enrollment.teacherRequests.errorTitle")}
         description={t("root.enrollment.teacherRequests.errorDescription")}
+        action={
+          <Button type="button" className="w-full" onClick={() => query.refetch()}>
+            {t("root.classDetail.states.retry")}
+          </Button>
+        }
       />
     );
   }
@@ -106,6 +122,18 @@ export default function ClassTeacherRequestsList({ classId }: ClassTeacherReques
           />
         ))}
       </ul>
+
+      {query.hasNextPage ? (
+        <Button
+          type="button"
+          variant="outline"
+          className="mt-3 w-full"
+          loading={query.isFetchingNextPage}
+          onClick={() => query.fetchNextPage()}
+        >
+          {t("root.enrollment.loadMore")}
+        </Button>
+      ) : null}
 
       <RejectTeacherRequestDialog
         open={rejecting !== null}

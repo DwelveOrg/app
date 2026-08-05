@@ -64,40 +64,40 @@ type ScenePalette = {
 
 const PALETTES: Record<"light" | "dark", ScenePalette> = {
   light: {
-    VIOLET: 0x6a4ff0,
-    VIOLET_LIGHT: 0x8e78ff,
-    VIOLET_BRIGHT: 0x9b80ff,
-    VIOLET_DEEP: 0x5739d6,
-    SUCCESS: 0x25793a,
-    LINE: 0xd7dcf2,
-    SHEET_SURFACE: 0xffffff,
-    CARD_SURFACE: 0xf7f8ff,
-    CLASS_SURFACE: 0xeef0fb,
-    TILE_IDLE: 0xdfe3f4,
+    VIOLET: 0x5f40d5, // --brand / --primary
+    VIOLET_LIGHT: 0x8163ff, // --brand-gradient from
+    VIOLET_BRIGHT: 0x7b5ff0, // --ring
+    VIOLET_DEEP: 0x452ba5, // --brand-violet-800
+    SUCCESS: 0x25793a, // --success
+    LINE: 0xd9d7e6,
+    SHEET_SURFACE: 0xffffff, // --card
+    CARD_SURFACE: 0xf7f6ff,
+    CLASS_SURFACE: 0xededf7,
+    TILE_IDLE: 0xdedcec,
     WHITE_CSS: "#FFFFFF",
-    VIOLET_CSS: "#6A4FF0",
-    VIOLET_DEEP_CSS: "#4B36C9",
+    VIOLET_CSS: "#5F40D5",
+    VIOLET_DEEP_CSS: "#452BA5",
     SUCCESS_CSS: "#25793A",
-    GRADIENT_FROM: "#8E78FF",
-    INK_CSS: "#16151C",
+    GRADIENT_FROM: "#8163FF",
+    INK_CSS: "#15151B", // --foreground
   },
   dark: {
-    VIOLET: 0xa78bff,
-    VIOLET_LIGHT: 0xc9bcff,
+    VIOLET: 0xa191ff, // --brand / --primary
+    VIOLET_LIGHT: 0xc9bcff, // --brand-violet-300
     VIOLET_BRIGHT: 0xd8ceff,
-    VIOLET_DEEP: 0x8e72ff,
-    SUCCESS: 0x5fcb63,
-    LINE: 0x3a3752,
-    SHEET_SURFACE: 0x24222e,
-    CARD_SURFACE: 0x1d1b26,
-    CLASS_SURFACE: 0x191722,
-    TILE_IDLE: 0x2e2b3c,
-    WHITE_CSS: "#EDECF0",
-    VIOLET_CSS: "#A78BFF",
+    VIOLET_DEEP: 0x8e72ff, // --brand-violet-600
+    SUCCESS: 0x5fcb63, // --success
+    LINE: 0x37344a,
+    SHEET_SURFACE: 0x232130,
+    CARD_SURFACE: 0x1c1a28,
+    CLASS_SURFACE: 0x181624,
+    TILE_IDLE: 0x2c293c,
+    WHITE_CSS: "#EEEDF2",
+    VIOLET_CSS: "#A191FF",
     VIOLET_DEEP_CSS: "#C9BCFF",
     SUCCESS_CSS: "#5FCB63",
     GRADIENT_FROM: "#C9BCFF",
-    INK_CSS: "#EDECF0",
+    INK_CSS: "#EEEDF2", // --foreground
   },
 };
 

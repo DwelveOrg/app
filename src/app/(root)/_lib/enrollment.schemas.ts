@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { classItemSchema, enrollmentModeSchema } from "./classes.schemas";
+import {
+  classItemSchema,
+  enrollmentModeSchema,
+  paginationMetaSchema,
+} from "./classes.schemas";
 
 /**
  * Zod schemas for the V1 class-enrollment API (see
@@ -28,15 +32,13 @@ export type EnrollmentStatus = z.infer<typeof enrollmentStatusSchema>;
 export { enrollmentModeSchema };
 export type { EnrollmentMode } from "./classes.schemas";
 
-/** Pagination envelope returned by every paginated enrollment list. */
-export const paginationMetaSchema = z.object({
-  page: z.number(),
-  limit: z.number(),
-  total: z.number(),
-  totalPages: z.number(),
-  hasMore: z.boolean(),
-});
-export type PaginationMeta = z.infer<typeof paginationMetaSchema>;
+/**
+ * Pagination envelope returned by every paginated enrollment list. Declared with
+ * the class schemas (the class-scoped pickers share it) and re-exported here so
+ * the enrollment surfaces keep one import site.
+ */
+export { paginationMetaSchema };
+export type { PaginationMeta } from "./classes.schemas";
 
 /* -------------------------------------------------------------------------- */
 /* Student overview                                                            */

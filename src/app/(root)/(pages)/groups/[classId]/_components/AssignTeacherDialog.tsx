@@ -4,10 +4,10 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
-import { useAssignableStudents, useAddClassStudentMutation } from "@/app/(root)/_hooks/useClassRoster";
+import { useAddClassTeacherMutation, useAssignableTeachers } from "@/app/(root)/_hooks/useClassRoster";
 import AssignMemberDialog, { type PickerPerson } from "./AssignMemberDialog";
 
-type AssignStudentDialogProps = {
+type AssignTeacherDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   classId: string;
@@ -16,45 +16,41 @@ type AssignStudentDialogProps = {
 };
 
 /**
- * Adds a school student to this class (`POST /classes/:classId/students` with
- * the `StudentProfile.id`). Candidates come from the class-scoped
- * `assignable-students` picker, which admins and teachers assigned to the class
- * may both read — unlike the school-wide `GET /students`, which is admin-only.
+ * Assigns a school teacher to this class (`POST /classes/:classId/teachers`
+ * with the `TeacherProfile.id`). Admin-only on both ends: the picker endpoint
+ * and the assignment itself are refused for anyone else.
  */
-export default function AssignStudentDialog({
+export default function AssignTeacherDialog({
   open,
   onOpenChange,
   classId,
   onAssigned,
-}: AssignStudentDialogProps) {
+}: AssignTeacherDialogProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
 
-  // The picker only runs while the dialog is open, so opening a class page does
-  // not fetch a roster the user never asked for.
-  const query = useAssignableStudents({ classId, search, enabled: open });
-  const addStudent = useAddClassStudentMutation(classId);
+  const query = useAssignableTeachers({ classId, search, enabled: open });
+  const addTeacher = useAddClassTeacherMutation(classId);
 
   const people = useMemo<PickerPerson[]>(
     () =>
       query.data?.pages.flatMap((page) =>
-        page.students.map((student) => ({
-          id: student.id,
-          fullName: student.fullName,
-          email: student.email,
-          hint: student.studentCode,
+        page.teachers.map((teacher) => ({
+          id: teacher.id,
+          fullName: teacher.fullName,
+          email: teacher.email,
         })),
       ) ?? [],
     [query.data?.pages],
   );
 
   const handleAdd = (person: PickerPerson) => {
-    addStudent.mutate(
-      { classId, studentId: person.id },
+    addTeacher.mutate(
+      { classId, teacherId: person.id },
       {
         onSuccess: () => {
           toast.success(
-            t("root.enrollment.assign.assignedToast", { name: person.fullName }),
+            t("root.enrollment.assignTeacher.assignedToast", { name: person.fullName }),
           );
           onAssigned();
         },
@@ -70,12 +66,12 @@ export default function AssignStudentDialog({
     <AssignMemberDialog
       open={open}
       onOpenChange={onOpenChange}
-      title={t("root.enrollment.assign.title")}
-      description={t("root.enrollment.assign.description")}
-      searchPlaceholder={t("root.enrollment.assign.searchPlaceholder")}
+      title={t("root.enrollment.assignTeacher.title")}
+      description={t("root.enrollment.assignTeacher.description")}
+      searchPlaceholder={t("root.enrollment.assignTeacher.searchPlaceholder")}
       addLabel={t("root.enrollment.assign.add")}
-      noResultsLabel={t("root.enrollment.assign.noResults")}
-      emptyLabel={t("root.enrollment.assign.allAssigned")}
+      noResultsLabel={t("root.enrollment.assignTeacher.noResults")}
+      emptyLabel={t("root.enrollment.assignTeacher.allAssigned")}
       people={people}
       isLoading={query.isLoading}
       isError={query.isError}
@@ -85,7 +81,7 @@ export default function AssignStudentDialog({
       onRetry={() => query.refetch()}
       onSearchChange={setSearch}
       onAdd={handleAdd}
-      addingId={addStudent.isPending ? addStudent.variables?.studentId : undefined}
+      addingId={addTeacher.isPending ? addTeacher.variables?.teacherId : undefined}
     />
   );
 }
