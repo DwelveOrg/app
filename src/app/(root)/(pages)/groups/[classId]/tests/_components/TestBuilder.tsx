@@ -28,6 +28,7 @@ import {
   groupStartNumber,
 } from "../_lib/testForm";
 import { humanizeToken, translateKey } from "../_lib/labels";
+import { useUnsavedChangesWarning } from "@/app/(root)/_hooks/useUnsavedChangesWarning";
 import { useSaveTestStructureMutation } from "../_hooks/useSaveTestStructureMutation";
 import { useUnpublishTestMutation } from "../_hooks/usePublishTestMutation";
 import DeleteTestDialog from "./DeleteTestDialog";
@@ -96,6 +97,10 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
     mode: "onSubmit",
     defaultValues,
   });
+
+  // A forty-question test is a long authoring session; without this, reload or
+  // tab-close discarded it silently. See the hook for what this does not cover.
+  useUnsavedChangesWarning(isDirty);
 
   const {
     fields: sectionFields,
