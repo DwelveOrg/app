@@ -5,85 +5,99 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================================
-   Dwelve design tokens — v2
+   Dwelve design tokens — v3 · violet monobrand
 
-   Two accents, one system:
-   - VIOLET is identity. It belongs to the logo, the wordmark, the auth panel and
-     the landing bloom. It never marks an action.
-   - TEAL is action. Buttons, selection, focus, active nav, primary data. If a
-     thing can be clicked or is currently chosen, it is teal.
+   ONE hue does everything. Violet is identity *and* action: the logo, the
+   wordmark, the auth panel, and every button, focus ring, selection and active
+   nav row. Separation comes from luminance and surface, not from a second
+   accent.
 
-   The two themes are deliberately *different characters*, not inversions:
-   light is warm paper under cool ink; dark is a cool near-black under warmer
-   accents. Depth is real — surfaces sit above the canvas and carry elevation —
-   so `--card` is lighter than `--background` in light mode, which is the
-   opposite of the old flat shell.
+   Why the two-accent system was retired: v2 spent a documented rule policing a
+   violet/teal split ("if a violet element is clickable, it is wrong") that the
+   assets themselves never honoured. The logo is a raster with violet baked in
+   and cannot be recoloured by CSS; the hero scene is entirely violet; the auth
+   panel is a violet gradient. The split existed in the token file and nowhere
+   else, so the rule is deleted rather than restated.
+
+   Consequences that are load-bearing:
+   - --brand and --primary are the same value. Do not re-fork them.
+   - --info moved off blue to CYAN. A violet action beside a blue "info" badge
+     is confusable; the hue guard in scripts/check-contrast.mjs enforces the gap.
+   - The chart ramp keeps violet at slot 1 and demotes teal to slot 2, so teal
+     survives as *data* while no longer implying "clickable".
+
+   The two themes are different characters, not inversions. Light is a cool
+   near-white under near-black ink; dark is a violet-leaning near-black. Surfaces
+   step *up* toward the content, and unlike v2 the step is actually visible:
+   --background → --card is 1.07:1 here, against v2's 1.027:1 — roughly a third
+   of a just-noticeable difference, which is why v2's light depth was carried
+   entirely by border and shadow.
    ========================================================================= */
 
 :root {
   --radius: 0.75rem;
 
-  /* --- Brand (identity only — never an action colour) -------------------- */
-  --brand: #6A4FF0;
-  --brand-ink: #17122E;
-  --brand-violet: #7B61FF;
+  /* --- Brand === action. One hue, one token pair. ------------------------ */
+  --brand: #5F40D5;
+  --brand-ink: #14102E;
+  --brand-violet: #7B5FF0;
   --brand-violet-300: #A996FF;
-  --brand-violet-600: #6A4FF0;
-  --brand-violet-800: #4B36C9;
-  --brand-violet-900: #2A1E63;
-  --brand-mist: #F1EEFF;
-  --brand-gradient: linear-gradient(135deg, #8E78FF 0%, #6A4FF0 100%);
+  --brand-violet-600: #5F40D5;
+  --brand-violet-800: #452BA5;
+  --brand-violet-900: #241757;
+  --brand-gradient: linear-gradient(135deg, #8163FF 0%, #5F40D5 100%);
 
-  /* --- Surfaces: warm paper, stepping *up* toward the content ------------ */
-  --background: #FCFCFA;
-  --foreground: #16151C;
+  /* --- Surfaces: cool near-white, stepping *up* toward the content -------
+     Neutrals sit on the same hue axis as the ink (~295) rather than v2's yellow
+     axis (~100). A warm neutral beside a cool accent is what made v2's
+     near-white surfaces read faintly dingy next to the violet. */
+  --background: #FAFAFB;
+  --foreground: #15151B;
   --card: #FFFFFF;
-  --card-foreground: #16151C;
+  --card-foreground: #15151B;
   --popover: #FFFFFF;
-  --popover-foreground: #16151C;
-  --sidebar: #F7F6F2;
-  --sidebar-foreground: #16151C;
-  --muted: #F4F3EF;
-  --muted-foreground: #56545F;
-  --secondary: #F1EFE9;
-  --secondary-foreground: #2E2C36;
-  --border: #E7E5DF;
-  --input: #E7E5DF;
+  --popover-foreground: #15151B;
+  --sidebar: #F5F5F8;
+  --sidebar-foreground: #15151B;
+  --muted: #F1F1F5;
+  --muted-foreground: #61616A;
+  --secondary: #EFEFF3;
+  --secondary-foreground: #2C2C36;
+  --border: #E2E2E7;
+  --input: #E2E2E7;
 
-  /* --- Action: deep teal -------------------------------------------------
-     #0A7268 carries white at 5.8:1, so a 14px semibold button label clears AA
-     as *normal* text (large-text rules start at 18.66px bold). The brighter
-     --ring is for focus only, where 3:1 against the adjacent surface is the bar. */
-  --primary: #0A7268;
-  --primary-hover: #075E56;
+  /* --- Action: violet ----------------------------------------------------
+     #5F40D5 carries white at ~6.6:1 — more headroom than v2's teal managed
+     (5.8:1), so a 14px semibold label clears AA as *normal* text with room to
+     spare. The brighter --ring is for focus only, where 3:1 against the
+     adjacent surface is the bar. */
+  --primary: #5F40D5;
+  --primary-hover: #4F32BE;
   --primary-foreground: #FFFFFF;
-  --ring: #0E8C7A;
-  --accent: #E6F2EF;
-  --accent-foreground: #075243;
+  --ring: #7B5FF0;
+  --accent: #EDEEFF;
+  --accent-foreground: #4A34AD;
 
   /* --- Semantic ----------------------------------------------------------
      Each is dark enough to work BOTH as a fill under white text and as text on
-     the canvas (all ≥5:1), which is why the `-text` variants below are plain
-     aliases rather than separate colours.
-     --success sits ~132° (leaf green), 43° off the teal primary, so "correct"
-     can never be misread as "actionable" on a graded answer. */
+     the canvas, so no separate `-text` variant is needed — the v2 aliases had
+     zero consumers and are gone.
+     --info is CYAN, not blue: violet-as-action and blue-as-informational sit
+     ~24° apart in OKLCH, which is close enough to confuse a "Submit" with a
+     notice. Cyan opens that to ~75°. */
   --success: #25793A;
   --success-foreground: #FFFFFF;
   --warning: #B45309;
   --warning-foreground: #FFFFFF;
   --destructive: #BE2E22;
   --destructive-foreground: #FFFFFF;
-  --info: #1D5FD1;
+  --info: #00728F;
   --info-foreground: #FFFFFF;
 
-  --success-text: var(--success);
-  --warning-text: var(--warning);
-  --destructive-text: var(--destructive);
-  --info-text: var(--info);
-
-  /* --- Charts: five separable hues, none of them the success green -------- */
-  --chart-1: #0A7268;
-  --chart-2: #6A4FF0;
+  /* --- Charts: five separable hues, none of them the success green --------
+     Slot 1 is the brand violet; teal keeps a home at slot 2 as pure data. */
+  --chart-1: #5F40D5;
+  --chart-2: #0E7C86;
   --chart-3: #B45309;
   --chart-4: #C2317A;
   --chart-5: #1D5FD1;
@@ -95,34 +109,28 @@
      at 4.0-4.2:1. `-tint` is the resolved wash and `-ink` is the same hue
      deepened only as far as AA needs, so the pairing clears 4.5:1 in both
      themes. Both are literal so `check:contrast` can assert the pair. */
-  --chart-1-tint: #D8E8E7;
-  --chart-2-tint: #E7E3FD;
+  --chart-1-tint: #E7E3FB;
+  --chart-2-tint: #D7E9EA;
   --chart-3-tint: #F3E3D8;
   --chart-4-tint: #F5DEEA;
   --chart-5-tint: #DBE5F8;
-  --chart-1-ink: #0A7268;
-  --chart-2-ink: #644AE2;
+  --chart-1-ink: #5638C9;
+  --chart-2-ink: #0A6A73;
   --chart-3-ink: #A64C08;
   --chart-4-ink: #B42E71;
   --chart-5-ink: #1D5FD1;
 
-  --sidebar-primary: #0A7268;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #E6F2EF;
-  --sidebar-accent-foreground: #075243;
-  --sidebar-border: #E7E5DF;
-  --sidebar-ring: #0E8C7A;
-
-  --selection: #CFE8E2;
-  --selection-foreground: #16151C;
+  --selection: #DDD8FB;
+  --selection-foreground: #15151B;
 
   /* --- Scrim shared by every dialog, sheet and popover backdrop ----------- */
-  --overlay: rgb(28 24 20 / 0.32);
+  --overlay: rgb(20 18 30 / 0.34);
 
   /* --- Elevation ---------------------------------------------------------
-     Tinted with the warm ink, not a neutral slate — a shadow that disagrees
-     with its surface temperature is what makes "soft depth" read as grime. */
-  --shadow-tint: 28 24 20;
+     Tinted with the violet-leaning ink, not a neutral slate — a shadow that
+     disagrees with its surface temperature is what makes "soft depth" read as
+     grime. */
+  --shadow-tint: 20 18 30;
   --elev-1:
     0 1px 2px rgb(var(--shadow-tint) / 0.05),
     0 1px 1px rgb(var(--shadow-tint) / 0.04);
@@ -135,7 +143,8 @@
   --elev-4:
     0 12px 24px -8px rgb(var(--shadow-tint) / 0.10),
     0 28px 56px -16px rgb(var(--shadow-tint) / 0.14);
-  --elev-primary: 0 8px 24px -8px color-mix(in srgb, var(--primary) 55%, transparent);
+  /* --brand === --primary under the monobrand, so the v2 --elev-primary (which
+     had zero consumers) and --elev-brand were the same shadow. One token now. */
   --elev-brand: 0 8px 24px -8px color-mix(in srgb, var(--brand) 55%, transparent);
 
   /* --- Motion ------------------------------------------------------------ */
@@ -157,37 +166,38 @@
    from what is behind.
    ========================================================================= */
 .dark {
-  --brand: #A78BFF;
+  --brand: #A191FF;
   --brand-ink: #0A0A0C;
-  --brand-violet: #A78BFF;
+  --brand-violet: #A191FF;
   --brand-violet-300: #C9BCFF;
   --brand-violet-600: #8E72FF;
   --brand-violet-800: #6A4FF0;
-  --brand-violet-900: #34277A;
-  --brand-mist: #1D1930;
+  --brand-violet-900: #2E2270;
   --brand-gradient: linear-gradient(135deg, #C9BCFF 0%, #8E72FF 100%);
 
-  --background: #0A0A0C;
-  --foreground: #EDECF0;
-  --card: #141419;
-  --card-foreground: #EDECF0;
-  --popover: #1B1B22;
-  --popover-foreground: #EDECF0;
+  --background: #0B0B0E;
+  --foreground: #EEEDF2;
+  --card: #15151A;
+  --card-foreground: #EEEDF2;
+  --popover: #1C1C23;
+  --popover-foreground: #EEEDF2;
   --sidebar: #0F0F13;
-  --sidebar-foreground: #EDECF0;
+  --sidebar-foreground: #EEEDF2;
   --muted: #212129;
-  --muted-foreground: #9C9AA6;
+  --muted-foreground: #9D9BA8;
   --secondary: #212129;
-  --secondary-foreground: #EDECF0;
-  --border: #2A2A33;
-  --input: #2A2A33;
+  --secondary-foreground: #EEEDF2;
+  --border: #2D2C35;
+  --input: #2D2C35;
 
-  --primary: #3DD1B8;
-  --primary-hover: #63E0CB;
-  --primary-foreground: #062622;
-  --ring: #3DD1B8;
-  --accent: #16302C;
-  --accent-foreground: #7FE7D3;
+  /* Dark keeps the bright-fill / deep-ink logic v2 already had right — a
+     luminous violet under near-black type, not white-on-mid-violet. */
+  --primary: #A191FF;
+  --primary-hover: #B9ADFF;
+  --primary-foreground: #15102F;
+  --ring: #A191FF;
+  --accent: #2D2948;
+  --accent-foreground: #C3B8FF;
 
   --success: #5FCB63;
   --success-foreground: #08210F;
@@ -195,24 +205,19 @@
   --warning-foreground: #2A1B05;
   --destructive: #FF7A70;
   --destructive-foreground: #2A0C0A;
-  --info: #79A9FF;
-  --info-foreground: #06152E;
+  --info: #4FC4E0;
+  --info-foreground: #05222B;
 
-  --success-text: var(--success);
-  --warning-text: var(--warning);
-  --destructive-text: var(--destructive);
-  --info-text: var(--info);
-
-  --chart-1: #3DD1B8;
-  --chart-2: #A78BFF;
+  --chart-1: #A191FF;
+  --chart-2: #3DD1B8;
   --chart-3: #F0B23C;
   --chart-4: #F2789F;
   --chart-5: #79A9FF;
 
   /* Dark inverts the problem: the ramp is already bright against a near-black
      wash, so every slot clears AA on its own tint untouched. */
-  --chart-1-tint: #1B3232;
-  --chart-2-tint: #2C273E;
+  --chart-1-tint: #272040;
+  --chart-2-tint: #1B3232;
   --chart-3-tint: #372D1F;
   --chart-4-tint: #38242E;
   --chart-5-tint: #242C3E;
@@ -222,15 +227,8 @@
   --chart-4-ink: var(--chart-4);
   --chart-5-ink: var(--chart-5);
 
-  --sidebar-primary: #3DD1B8;
-  --sidebar-primary-foreground: #062622;
-  --sidebar-accent: #16302C;
-  --sidebar-accent-foreground: #7FE7D3;
-  --sidebar-border: #2A2A33;
-  --sidebar-ring: #3DD1B8;
-
-  --selection: #14453E;
-  --selection-foreground: #EDECF0;
+  --selection: #34275E;
+  --selection-foreground: #EEEDF2;
 
   --overlay: rgb(0 0 0 / 0.6);
 
@@ -250,7 +248,6 @@
     0 16px 32px -10px rgb(0 0 0 / 0.75),
     0 36px 72px -20px rgb(0 0 0 / 0.65),
     inset 0 1px 0 rgb(255 255 255 / 0.07);
-  --elev-primary: 0 8px 26px -8px color-mix(in srgb, var(--primary) 45%, transparent);
   --elev-brand: 0 8px 26px -8px color-mix(in srgb, var(--brand) 50%, transparent);
 }
 
@@ -314,12 +311,10 @@
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
-  /* Kept as aliases so existing `text-success-text` call sites keep resolving.
-     New code should use the plain semantic token — the fills are AA as text. */
-  --color-destructive-text: var(--destructive-text);
-  --color-success-text: var(--success-text);
-  --color-warning-text: var(--warning-text);
-  --color-info-text: var(--info-text);
+  /* The v2 `-text` aliases (--color-success-text and friends) are gone: they
+     existed so old call sites kept resolving, and a repo-wide grep found zero
+     of those call sites. The semantic fills are all AA as text on the canvas,
+     so `text-success` is the answer. */
 
   --color-brand: var(--brand);
   --color-brand-ink: var(--brand-ink);
@@ -328,7 +323,6 @@
   --color-brand-violet-600: var(--brand-violet-600);
   --color-brand-violet-800: var(--brand-violet-800);
   --color-brand-violet-900: var(--brand-violet-900);
-  --color-brand-mist: var(--brand-mist);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
@@ -336,26 +330,38 @@
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
 
+  /* Only --sidebar and --sidebar-foreground survive; the other six
+     --sidebar-* tokens (primary / accent / border / ring) had zero consumers in
+     src and were shadowing the plain tokens the sidebar actually uses. */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Elevation as real utilities: shadow-elev-2, shadow-elev-primary, ... */
+  /* Elevation as real utilities: shadow-elev-2, shadow-elev-brand, ... */
   --shadow-elev-1: var(--elev-1);
   --shadow-elev-2: var(--elev-2);
   --shadow-elev-3: var(--elev-3);
   --shadow-elev-4: var(--elev-4);
-  --shadow-elev-primary: var(--elev-primary);
   --shadow-elev-brand: var(--elev-brand);
 
   /* Easing as real utilities: ease-out-quint, ease-out-expo. */
   --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /*
+   * The defaults every bare `transition` / `transition-colors` utility inherits.
+   *
+   * Tailwind ships 150ms on Material's cubic-bezier(0.4, 0, 0.2, 1). This file
+   * never overrode either, so of ~115 transition utilities in the product only
+   * 8 read a --dur-* token and 19 hard-coded a value — the remaining ~88 ran on
+   * a duration and a curve that appear nowhere in this design system, while
+   * --dur-1 and --ease-out-quint sat here unused.
+   *
+   * Setting them retunes every one of those call sites at once, with no JSX
+   * edits. A call site that genuinely needs a different duration still says so
+   * with `duration-[var(--dur-3)]`.
+   */
+  --default-transition-duration: var(--dur-1);
+  --default-transition-timing-function: var(--ease-out-quint);
 }
 
 @layer base {

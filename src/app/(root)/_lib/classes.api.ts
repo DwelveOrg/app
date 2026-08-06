@@ -4,7 +4,13 @@ import type { z } from "zod";
 
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
-import { classDetailResponseSchema, classesResponseSchema } from "./classes.schemas";
+import {
+  assignableStudentsResponseSchema,
+  assignableTeachersResponseSchema,
+  classDetailResponseSchema,
+  classTeacherMutationResponseSchema,
+  classesResponseSchema,
+} from "./classes.schemas";
 
 /**
  * Named endpoint functions for the classes API. Every call goes through
@@ -63,6 +69,64 @@ export function deleteClassRequest(
   requestJson: BackendRequester = authedBackendJson,
 ) {
   return requestJson(`/classes/${classId}`, {
+    method: "DELETE",
+  });
+}
+
+type PickerQuery = {
+  search?: string;
+  page?: number;
+  limit?: number;
+};
+
+/**
+ * `GET /classes/:classId/assignable-students` - ADMIN and teachers assigned to
+ * the class. Returns active school students not already on this roster, with
+ * server-side search and pagination.
+ */
+export function listAssignableStudentsRequest(
+  classId: string,
+  query: PickerQuery,
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/assignable-students`, {
+    query,
+    responseSchema: assignableStudentsResponseSchema,
+  });
+}
+
+/** `GET /classes/:classId/assignable-teachers` - ADMIN only. */
+export function listAssignableTeachersRequest(
+  classId: string,
+  query: PickerQuery,
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/assignable-teachers`, {
+    query,
+    responseSchema: assignableTeachersResponseSchema,
+  });
+}
+
+/** `POST /classes/:classId/teachers` - ADMIN assigns a teacher to the class. */
+export function addClassTeacherRequest(
+  classId: string,
+  body: { teacherId: string },
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/teachers`, {
+    method: "POST",
+    body,
+    responseSchema: classTeacherMutationResponseSchema,
+  });
+}
+
+/** `DELETE /classes/:classId/teachers/:teacherId` - ADMIN unassigns a teacher. */
+export function removeClassTeacherRequest(
+  classId: string,
+  teacherId: string,
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/teachers/${teacherId}`, {
     method: "DELETE",
   });
 }

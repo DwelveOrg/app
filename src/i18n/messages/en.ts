@@ -8,6 +8,13 @@ translation: {
         uz: "Uzbek",
       },
       root: {
+        errorBoundary: {
+          title: "Something went wrong",
+          description:
+            "This page didn't load. Trying again often fixes it — if it keeps happening, the problem is on our side.",
+          retry: "Try again",
+          home: "Go to dashboard",
+        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Home",
@@ -1102,6 +1109,7 @@ translation: {
             teaching: "Teaching",
             enrolled: "Enrolled",
             noTeacher: "No teacher assigned",
+            actionsLabel: "Actions for {{name}}",
           },
           empty: {
             title: "No classes here",
@@ -1142,11 +1150,24 @@ translation: {
             subtitleEmpty: "Every class at your school — join the ones you need.",
             searchPlaceholder: "Search classes",
             retry: "Try again",
-            filters: {
-              label: "Filter classes",
-              all: "All",
-              enrolled: "Enrolled",
-              available: "Available",
+            clearSearch: "Clear search",
+            groups: {
+              enrolled: {
+                title: "My classes · {{count}}",
+                description: "Open a class to see its tests and materials.",
+              },
+              pending: {
+                title: "Awaiting approval · {{count}}",
+                description: "You've asked to join these. A teacher or admin decides.",
+              },
+              available: {
+                title: "Available to join · {{count}}",
+                description: "Send a request and you'll be told once it's reviewed.",
+              },
+              unavailable: {
+                title: "Not open to you · {{count}}",
+                description: "These are full, or a teacher has to add you.",
+              },
             },
             requestToJoin: "Request to join",
             open: "Open class",
@@ -1169,12 +1190,6 @@ translation: {
             empty: {
               allTitle: "No classes yet",
               allDescription: "There are no classes in your school yet.",
-              enrolledTitle: "You are not enrolled in any classes yet",
-              enrolledDescription:
-                "Request to join a class, or wait for a teacher to assign you.",
-              availableTitle: "Nothing left to join",
-              availableDescription: "You are already in every class open to you.",
-              showAll: "Show all classes",
             },
           },
           requestDialog: {
@@ -1220,11 +1235,24 @@ translation: {
             description: "Assign a school student directly to this class.",
             searchPlaceholder: "Search students",
             add: "Add",
+            addStudent: "Add student",
             remove: "Remove",
+            close: "Close",
             noResults: "No matching students.",
             allAssigned: "All students are already in this class.",
             assignedToast: "{{name}} added to the class.",
             removedToast: "{{name}} removed from the class.",
+            errorDescription: "Couldn't load the list. Please try again.",
+          },
+          assignTeacher: {
+            title: "Add a teacher",
+            description: "Assign a school teacher to teach this class.",
+            searchPlaceholder: "Search teachers",
+            add: "Add teacher",
+            noResults: "No matching teachers.",
+            allAssigned: "All teachers are already assigned to this class.",
+            assignedToast: "{{name}} now teaches this class.",
+            removedToast: "{{name}} no longer teaches this class.",
           },
           classDetail: {
             requests: "Requests",
@@ -1304,16 +1332,20 @@ translation: {
             title: "People in this class",
           },
           requests: {
-            title: "Join requests",
-            viewAll: "View all",
-            more_one: "{{count}} more request",
-            more_other: "{{count}} more requests",
+            title: "Requests",
           },
           removeStudent: {
             title: "Remove {{name}} from this class?",
             description:
               "They lose access to the class and its tests. You can add them back later.",
             confirm: "Remove student",
+            cancel: "Cancel",
+          },
+          removeTeacher: {
+            title: "Remove {{name}} from this class?",
+            description:
+              "They stop teaching it and lose access to its requests and tests. You can add them back later.",
+            confirm: "Remove teacher",
             cancel: "Cancel",
           },
           states: {
@@ -1335,11 +1367,11 @@ translation: {
             },
           },
           teachers: {
-            title: "Teachers · {{count}}",
+            tab: "Teachers",
             empty: "No teachers assigned yet.",
           },
           students: {
-            title: "Students · {{count}}",
+            tab: "Students",
             empty: "No students enrolled yet.",
           },
           edit: {

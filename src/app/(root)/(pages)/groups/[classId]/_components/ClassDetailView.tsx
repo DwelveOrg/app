@@ -4,16 +4,24 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, CalendarDays, DoorOpen, FileText, GraduationCap, MoreHorizontal, Pencil, Trash2, UserPlus, Users, UserCog } from "lucide-react";
+import {
+  ArrowLeft,
+  CalendarDays,
+  DoorOpen,
+  FileText,
+  GraduationCap,
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Users,
+  UserCog,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
-import type { ApiClass, ApiClassPerson } from "@/app/(root)/_lib/classes.schemas";
-import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
-import { useRemoveStudentMutation } from "@/app/(root)/_hooks/useEnrollment";
+import type { ApiClass } from "@/app/(root)/_lib/classes.schemas";
 import { Button } from "@/components/ui/Button";
-import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/badge";
 import EntityHeader from "@/app/(root)/_components/EntityHeader";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
@@ -28,42 +36,35 @@ import { classAccent } from "../../_constants";
 import { enrollmentModeLabelKeys } from "../../_lib/enrollmentLabels";
 import EditClassDialog from "../../_components/EditClassDialog";
 import DeleteClassDialog from "../../_components/DeleteClassDialog";
-import AssignStudentDialog from "./AssignStudentDialog";
+import ClassRequestsButton from "./ClassRequestsButton";
 import ClassRequestsSection from "./ClassRequestsSection";
-import RemoveClassStudentDialog from "./RemoveClassStudentDialog";
-import Surface from "@/components/ui/Surface";
+import ClassRosterSection from "./ClassRosterSection";
 
 type ClassDetailViewProps = {
   classItem: ApiClass;
   isAdmin: boolean;
   viewerRole: SchoolRole | null;
-  /** Assignable school students, admin-only; empty for teachers/students. */
-  students: StudentItem[];
 };
 
 /**
- * The class page: identity first, then an overview of the class facts, the
- * people in it, and (for staff) the pending join requests. Which controls
- * render follows the viewer's role, but the backend remains the authorization
- * boundary — every mutation is enforced there.
+ * The class page: identity first, then an overview of the class facts, who is
+ * in it, and — for staff — the requests waiting on a decision. Every action the
+ * viewer is allowed is reachable from here; nothing that matters hides behind a
+ * single-item overflow menu, and the backend still authorizes every mutation.
  */
 export default function ClassDetailView({
   classItem,
   isAdmin,
   viewerRole,
-  students,
 }: ClassDetailViewProps) {
   const { t } = useTranslation();
   const router = useRouter();
   const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const [removeTarget, setRemoveTarget] = useState<ApiClassPerson | null>(null);
-  const removeStudent = useRemoveStudentMutation();
 
-  // Teachers may manage rosters/requests for their assigned classes too, but
-  // the school-wide student picker relies on the admin-only `GET /students`.
+  // Only teachers assigned to this class can load it at all (the backend 404s
+  // for the rest), so a teacher here manages its roster and student requests.
   const canManage = isAdmin || viewerRole === "TEACHER";
 
   const teacherCount = classItem.counts?.teachers ?? classItem.teachers.length;
@@ -75,29 +76,10 @@ export default function ClassDetailView({
   const notifySoon = (labelKey: string) =>
     toast.info(t("root.classDetail.actions.comingSoon", { action: t(labelKey) }));
 
-  /** Roster changes affect the server-rendered class and the cached lists. */
+  /** Roster and request changes affect this server-rendered page and the caches. */
   const refreshClassData = () => {
     router.refresh();
     void queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all });
-  };
-
-  const handleRemoveStudent = () => {
-    if (!removeTarget) return;
-    const { id: studentProfileId, fullName } = removeTarget;
-    removeStudent.mutate(
-      { classId: classItem.id, studentId: studentProfileId },
-      {
-        onSuccess: () => {
-          setRemoveTarget(null);
-          toast.success(t("root.enrollment.assign.removedToast", { name: fullName }));
-          refreshClassData();
-        },
-        onError: (error) =>
-          toast.error(
-            error instanceof Error ? error.message : t("root.enrollment.errorGeneric"),
-          ),
-      },
-    );
   };
 
   return (
@@ -136,30 +118,31 @@ export default function ClassDetailView({
         actions={
           canManage ? (
             <>
-              {isAdmin ? (
-                <Button variant="outline" size="lg" onClick={() => setEditOpen(true)}>
-                  <Pencil className="size-4" />
-                  {t("root.classDetail.actions.edit")}
-                </Button>
-              ) : null}
+              <ClassRequestsButton classId={classItem.id} isAdmin={isAdmin} />
 
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="lg">
-                    <MoreHorizontal className="size-4" />
-                    {t("root.classDetail.actions.more")}
+              {/* Teachers author tests too, so this is not admin-only. */}
+              <Button variant="outline" size="lg" asChild>
+                <Link href={`/groups/${classItem.id}/tests`}>
+                  <FileText className="size-4" />
+                  {t("root.classDetail.actions.addTest")}
+                </Link>
+              </Button>
+
+              {isAdmin ? (
+                <>
+                  <Button variant="outline" size="lg" onClick={() => setEditOpen(true)}>
+                    <Pencil className="size-4" />
+                    {t("root.classDetail.actions.edit")}
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-44">
-                  {/* Teachers author tests too, so this is not admin-only. */}
-                  <DropdownMenuItem
-                    onSelect={() => router.push(`/groups/${classItem.id}/tests`)}
-                  >
-                    <FileText className="size-4" />
-                    {t("root.classDetail.actions.addTest")}
-                  </DropdownMenuItem>
-                  {isAdmin ? (
-                    <>
+
+                  {/* Two independent actions, so the menu earns its place. */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="lg" variant="ghost" aria-label={t("root.classDetail.actions.more")}>
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
                       <DropdownMenuItem
                         onSelect={() => notifySoon("root.classDetail.actions.addExam")}
                       >
@@ -173,10 +156,10 @@ export default function ClassDetailView({
                         <Trash2 className="size-4" />
                         {t("root.classDetail.actions.delete")}
                       </DropdownMenuItem>
-                    </>
-                  ) : null}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              ) : null}
             </>
           ) : null
         }
@@ -229,63 +212,27 @@ export default function ClassDetailView({
         </dl>
       </EntityHeader>
 
-      <section aria-labelledby="class-people-heading" className="flex flex-col gap-4">
-        <h2 id="class-people-heading" className="sr-only">
-          {t("root.classDetail.people.title")}
-        </h2>
-        <div className="grid gap-4 md:grid-cols-2">
-          <PeopleCard
-            title={t("root.classDetail.teachers.title", { count: teacherCount })}
-            emptyLabel={t("root.classDetail.teachers.empty")}
-            icon={<UserCog className="h-4 w-4" />}
-            people={classItem.teachers}
-          />
-          <PeopleCard
-            title={t("root.classDetail.students.title", { count: studentCount })}
-            emptyLabel={t("root.classDetail.students.empty")}
-            icon={<Users className="h-4 w-4" />}
-            people={classItem.students}
-            headerAction={
-              isAdmin ? (
-                <Button size="sm" variant="outline" onClick={() => setAssignOpen(true)}>
-                  <UserPlus className="h-3.5 w-3.5" />
-                  {t("root.enrollment.assign.add")}
-                </Button>
-              ) : null
-            }
-            onRemove={canManage ? (person) => setRemoveTarget(person) : undefined}
-            removingId={
-              removeStudent.isPending ? removeStudent.variables?.studentId : undefined
-            }
-            removeLabel={t("root.enrollment.assign.remove")}
-          />
-        </div>
-      </section>
-
-      {canManage ? <ClassRequestsSection classId={classItem.id} /> : null}
+      <ClassRosterSection
+        classId={classItem.id}
+        teachers={classItem.teachers}
+        students={classItem.students}
+        teacherCount={teacherCount}
+        studentCount={studentCount}
+        canManageTeachers={isAdmin}
+        canManageStudents={canManage}
+        onRosterChange={refreshClassData}
+      />
 
       {canManage ? (
-        <RemoveClassStudentDialog
-          open={removeTarget !== null}
-          onOpenChange={(open) => {
-            if (!open) setRemoveTarget(null);
-          }}
-          studentName={removeTarget?.fullName ?? ""}
-          isSubmitting={removeStudent.isPending}
-          onConfirm={handleRemoveStudent}
+        <ClassRequestsSection
+          classId={classItem.id}
+          isAdmin={isAdmin}
+          onReviewed={refreshClassData}
         />
       ) : null}
 
       {isAdmin ? (
         <>
-          <AssignStudentDialog
-            open={assignOpen}
-            onOpenChange={setAssignOpen}
-            classId={classItem.id}
-            students={students}
-            enrolledStudentIds={classItem.students.map((person) => person.id)}
-            onAssigned={refreshClassData}
-          />
           <EditClassDialog
             open={editOpen}
             onOpenChange={setEditOpen}
@@ -327,78 +274,5 @@ function Fact({ icon, label, value, hint }: FactProps) {
       <dd className="mt-1 truncate text-sm font-semibold text-foreground">{value}</dd>
       {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
-  );
-}
-
-type PeopleCardProps = {
-  title: string;
-  emptyLabel: string;
-  icon: React.ReactNode;
-  people: ApiClassPerson[];
-  /** Optional control rendered on the right of the card header (e.g. Add). */
-  headerAction?: React.ReactNode;
-  /** When provided, each row gets a Remove button that calls this. */
-  onRemove?: (person: ApiClassPerson) => void;
-  /** `StudentProfile.id` currently being removed, for the row spinner. */
-  removingId?: string;
-  removeLabel?: string;
-};
-
-function PeopleCard({
-  title,
-  emptyLabel,
-  icon,
-  people,
-  headerAction,
-  onRemove,
-  removingId,
-  removeLabel,
-}: PeopleCardProps) {
-  const { t } = useTranslation();
-
-  return (
-    <Surface padding="none" className="flex flex-col overflow-hidden">
-      <div className="flex items-center gap-2 border-b border-border px-5 py-3 text-sm font-semibold text-foreground">
-        <span className="text-muted-foreground">{icon}</span>
-        {title}
-        {headerAction ? <div className="ml-auto">{headerAction}</div> : null}
-      </div>
-      {people.length === 0 ? (
-        <div className="px-5 py-6 text-sm text-muted-foreground">{emptyLabel}</div>
-      ) : (
-        <ul className="divide-y divide-border">
-          {people.map((person) => {
-            const isRemoving = removingId === person.id;
-            return (
-              <li key={person.id} className="flex items-center gap-3 px-5 py-3">
-                <Avatar name={person.fullName} size="sm" tint="seeded" />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-medium text-foreground">
-                    {person.fullName}
-                  </div>
-                  {person.email ? (
-                    <div className="truncate text-xs text-muted-foreground">
-                      {person.email}
-                    </div>
-                  ) : null}
-                </div>
-                {onRemove ? (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="shrink-0 text-muted-foreground hover:text-destructive"
-                    loading={isRemoving}
-                    aria-label={`${removeLabel ?? t("root.enrollment.assign.remove")} ${person.fullName}`}
-                    onClick={() => onRemove(person)}
-                  >
-                    {removeLabel ?? t("root.enrollment.assign.remove")}
-                  </Button>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      )}
-    </Surface>
   );
 }

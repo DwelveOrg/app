@@ -34,12 +34,22 @@ POST   /classes/:classId/students
 DELETE /classes/:classId/students/:studentId
 POST   /classes/:classId/teachers
 DELETE /classes/:classId/teachers/:teacherId
+GET    /classes/:classId/assignable-students
+GET    /classes/:classId/assignable-teachers
 GET    /schools/:schoolId/members
 ```
 
-`GET /schools/:schoolId/members` is used for School page counts and admin class
-assignment pickers. Counts are visible to active school members. Roster rows,
-including `email`, `teacherProfileId`, and `studentProfileId`, are admin-only.
+The add-to-class pickers are the two class-scoped `assignable-*` routes: they
+return active school members not already on that class's roster, with
+server-side `search`, `page`, and `limit`. `assignable-students` is open to
+admins and to teachers assigned to the class; `assignable-teachers` is
+admin-only. Do not use `GET /schools/:schoolId/members` or `GET /students` for a
+teacher's picker — those deliberately withhold the school roster from
+non-admins.
+
+`GET /schools/:schoolId/members` remains the School page roster and counts.
+Counts are visible to active school members. Roster rows, including `email`,
+`teacherProfileId`, and `studentProfileId`, are admin-only.
 
 ## Frontend Rules
 
@@ -60,12 +70,19 @@ including `email`, `teacherProfileId`, and `studentProfileId`, are admin-only.
 
 ## UI Surfaces
 
-- `/groups` is the class directory.
-- `/groups/[classId]` is the class detail page.
+- `/groups` is the class directory. For students it is grouped by the decision
+  each class is waiting on: enter, awaiting approval, requestable, unavailable.
+- `/groups/[classId]` is the class detail page. Its people are one tabbed panel,
+  Teachers and Students, labelled with `class.counts`.
+- Requests are handled on the class page itself — students for assigned
+  teachers, students and teachers for admins. `/groups/[classId]/requests`
+  remains as the notification deep-link target.
 - Admins can see create, edit, delete, teacher assignment, and student
   assignment controls.
-- Teachers and students see read-only class surfaces unless a later backend
-  contract grants mutation permissions.
+- Teachers assigned to a class may add and remove its students; only admins may
+  change the teaching roster. Students see read-only class surfaces.
+- Every action a viewer is permitted is rendered directly. Keep an overflow menu
+  only where it holds two or more independent actions.
 - Add test/add exam controls must stay coming-soon until exam frontend
   mutations are wired.
 

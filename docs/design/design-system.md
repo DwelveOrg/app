@@ -109,59 +109,74 @@ Cap body prose at 65–75ch. Tables and dense data may run wider.
 
 ## 3. Colour system
 
-Two accents, one system.
+**One hue, one system.** Violet is identity *and* action: the logo, the wordmark, the auth panel and
+the landing bloom, and also every button, focus ring, selection and active nav row. Separation comes
+from luminance and surface, not from a second accent.
 
-- **Violet is identity.** The logo, the wordmark, the auth visual panel, the landing bloom. It marks
-  *what this product is*. It never marks an action.
-- **Teal is action.** Buttons, current selection, focus rings, active navigation, primary data
-  series. If a thing can be clicked or is currently chosen, it is teal.
+> **Changed 4 August 2026 (v3).** This section previously described two accents — violet for identity,
+> teal for action — enforced by the rule *"if a violet element is clickable, it is wrong."* That rule
+> is **deleted**, not restated. It was policing a split the product's own assets never honoured: the
+> logo is a raster with violet baked in and cannot be recoloured by CSS, `HeroScene` was entirely
+> violet, and the auth panel is a violet gradient. The split existed in the token file and nowhere
+> else. Violet is now both, and there is no rule left to break.
+>
+> Two consequences are load-bearing:
+> - `--brand` and `--primary` are the same value. **Do not re-fork them.**
+> - `--info` moved off blue to **cyan**. Violet-as-action and blue-as-informational sit ~24° apart in
+>   OKLCH, close enough to confuse a "Submit" with a notice. The hue guard in
+>   `scripts/check-contrast.mjs` enforces the gap and will fail the build if it closes again.
+>
+> Teal is not gone — it was demoted to `--chart-2`, where it survives as data without implying
+> "clickable".
 
-If a violet element is clickable, it is wrong. That single rule is what keeps the brand legible
-while the interface stays obvious.
+### 3.1 Light — cool near-white, near-black ink
 
-### 3.1 Light — warm paper, cool ink
+Surfaces step **upward** toward the content: the canvas is a cool off-white and cards sit above it in
+pure white carrying elevation.
 
-Surfaces step **upward** toward the content: the canvas is warm off-white, and cards sit above it in
-pure white carrying elevation. This is the inverse of the old flat shell and it is what makes soft
-depth read.
+v2 claimed this too, but its step was `#FCFCFA` → `#FFFFFF` = **1.027:1**, roughly a third of a
+just-noticeable difference — so the light depth model was carried entirely by border and shadow while
+the fill step did nothing. It is **1.071:1** here, close to dark's 1.093:1. The neutrals also moved off
+v2's yellow axis (~100°) onto the same hue as the ink (~295°); a warm neutral beside a cool accent is
+what made the old near-whites read faintly dingy next to the violet.
 
 | Token | Hex | Role |
 |---|---|---|
-| `--background` | `#FCFCFA` | Canvas |
+| `--background` | `#FAFAFB` | Canvas |
 | `--card` / `--popover` | `#FFFFFF` | Surfaces above the canvas |
-| `--sidebar` | `#F7F6F2` | Second neutral layer |
-| `--muted` | `#F4F3EF` | Fills, hover, inputs |
-| `--secondary` | `#F1EFE9` | Deeper warm fill |
-| `--foreground` | `#16151C` | Primary text (17.7:1 on canvas) |
-| `--muted-foreground` | `#56545F` | Secondary text (7.2:1 on canvas) |
-| `--border` / `--input` | `#E7E5DF` | Hairlines |
-| `--primary` | `#0A7268` | Action teal (5.8:1 with white) |
-| `--primary-hover` | `#075E56` | |
-| `--ring` | `#0E8C7A` | Focus only |
-| `--accent` | `#E6F2EF` | Selected / active tint |
-| `--accent-foreground` | `#075243` | Text on accent (8.0:1) |
-| `--brand` | `#6A4FF0` | Identity violet |
+| `--sidebar` | `#F5F5F8` | Second neutral layer |
+| `--muted` | `#F1F1F5` | Fills, hover, inputs |
+| `--secondary` | `#EFEFF3` | Deeper fill |
+| `--foreground` | `#15151B` | Primary text (17.4:1 on canvas) |
+| `--muted-foreground` | `#61616A` | Secondary text (5.9:1 on canvas) |
+| `--border` / `--input` | `#E2E2E7` | Hairlines |
+| `--primary` / `--brand` | `#5F40D5` | Action **and** identity (6.6:1 with white) |
+| `--primary-hover` | `#4F32BE` | |
+| `--ring` | `#7B5FF0` | Focus only (4.3:1 on canvas) |
+| `--accent` | `#EDEEFF` | Selected / active tint |
+| `--accent-foreground` | `#4A34AD` | Text on accent |
 
-### 3.2 Dark — cool near-black, warmer accents
+### 3.2 Dark — violet-leaning near-black
 
 | Token | Hex | Role |
 |---|---|---|
-| `--background` | `#0A0A0C` | Canvas |
+| `--background` | `#0B0B0E` | Canvas |
 | `--sidebar` | `#0F0F13` | Second neutral layer |
-| `--card` | `#141419` | Surfaces |
-| `--popover` | `#1B1B22` | Floating elevation |
+| `--card` | `#15151A` | Surfaces |
+| `--popover` | `#1C1C23` | Floating elevation |
 | `--muted` / `--secondary` | `#212129` | Fills, hover, inputs |
-| `--border` / `--input` | `#2A2A33` | Hairlines |
-| `--foreground` | `#EDECF0` | Primary text (16.8:1) |
-| `--muted-foreground` | `#9C9AA6` | Secondary text (7.2:1) |
-| `--primary` | `#3DD1B8` | Action teal |
-| `--primary-foreground` | `#062622` | |
-| `--accent` | `#16302C` | Selected / active tint |
-| `--accent-foreground` | `#7FE7D3` | |
-| `--brand` | `#A78BFF` | Identity violet |
+| `--border` / `--input` | `#2D2C35` | Hairlines |
+| `--foreground` | `#EEEDF2` | Primary text (16.9:1) |
+| `--muted-foreground` | `#9D9BA8` | Secondary text (7.2:1) |
+| `--primary` / `--brand` | `#A191FF` | Action **and** identity (7.5:1 on canvas) |
+| `--primary-foreground` | `#15102F` | Deep ink on a luminous fill (7.0:1) |
+| `--accent` | `#2D2948` | Selected / active tint |
+| `--accent-foreground` | `#C3B8FF` | |
 
-The two themes are **different characters, not inversions**. Light is warm paper under cool ink;
-dark is a cool near-black under warmer accents. Do not "fix" one to match the other.
+The two themes are **different characters, not inversions**. Light is a cool near-white under
+near-black ink; dark is a violet-leaning near-black under a luminous accent. Note the primary inverts
+its treatment deliberately — light puts white on a mid violet, dark puts deep ink on a bright one.
+Do not "fix" one to match the other.
 
 ### 3.3 Semantic
 
@@ -170,33 +185,39 @@ dark is a cool near-black under warmer accents. Do not "fix" one to match the ot
 | `--success` | `#25793A` | `#5FCB63` | Correct, passed, positive trend |
 | `--warning` | `#B45309` | `#F0B23C` | Caution, due soon, needs review |
 | `--destructive` | `#BE2E22` | `#FF7A70` | Incorrect, failed, destructive action |
-| `--info` | `#1D5FD1` | `#79A9FF` | Neutral information, integrity notices |
+| `--info` | `#00728F` | `#4FC4E0` | Neutral information, integrity notices |
 
 Every light semantic is dark enough to work **both** as a fill under white text and as text on the
-canvas (all ≥5:1). `--success-text` / `--warning-text` / `--destructive-text` / `--info-text` are
-therefore plain aliases of the fills, kept only so existing call sites keep resolving. New code
-should use the plain token.
+canvas (all ≥5:1).
 
-**Success sits ~39° off the action teal in hue** (light) and ~48° (dark). That separation is
-deliberate: in a product that grades answers, "correct" must never be misread as "clickable". The
-contrast gate enforces it.
+`--success-text` / `--warning-text` / `--destructive-text` / `--info-text` **no longer exist.** They
+were plain aliases of the fills kept "so existing call sites keep resolving", and a repo-wide grep
+found zero such call sites — 12 lines of token plus 4 gate rows for something nothing referenced.
+Use the plain semantic token; it is AA as text.
+
+**Success sits ~150° off the action violet in hue.** That separation is deliberate: in a product that
+grades answers, "correct" must never be misread as "clickable". The contrast gate enforces it, and
+the violet primary widens the gap that the old teal made narrow (teal→green was ~39°).
 
 Never signal correct/incorrect by colour alone. Pair success/danger with an icon or label — for
 colour-blind users and for printed reports.
 
 ### 3.4 Charts
 
-Five separable hues, none of them the success green, all ≥3:1 on the card surface.
+Five separable hues, none of them the success green, all ≥3:1 on the card surface. Slot 1 is the
+brand violet; teal keeps a home at slot 2 as pure data, which is where it landed when it stopped
+being the action colour.
 
 | | Light | Dark |
 |---|---|---|
-| `--chart-1` | `#0A7268` teal | `#3DD1B8` |
-| `--chart-2` | `#6A4FF0` violet | `#A78BFF` |
+| `--chart-1` | `#5F40D5` violet | `#A191FF` |
+| `--chart-2` | `#0E7C86` teal | `#3DD1B8` |
 | `--chart-3` | `#B45309` amber | `#F0B23C` |
 | `--chart-4` | `#C2317A` rose | `#F2789F` |
 | `--chart-5` | `#1D5FD1` blue | `#79A9FF` |
 
-Never place chart-2 (violet) directly next to chart-5 (blue) in a legend or stacked series.
+Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — under
+the monobrand this is the pairing to watch, not chart-2/chart-5 as in v2.
 
 ### 3.5 Accessibility gate
 

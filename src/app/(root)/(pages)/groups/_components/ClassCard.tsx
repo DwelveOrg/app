@@ -20,6 +20,12 @@ type ClassCardProps = {
   isAdmin: boolean;
 };
 
+/**
+ * One class in the staff directory. The whole card opens the class: a single
+ * stretched link covers it, so there is one target and one tab stop for
+ * "go here", and the admin actions sit above it as siblings rather than nested
+ * controls inside a link.
+ */
 export default function ClassCard({ item, isAdmin }: ClassCardProps) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -36,7 +42,14 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
 
   return (
     <Surface interactive className="group flex h-full flex-col">
-      <Link href={detailHref} className="flex flex-1 flex-col" aria-label={item.name}>
+      {/* Stretched link: covers the card, but stops short of the actions above it. */}
+      <Link
+        href={detailHref}
+        aria-label={item.name}
+        className="absolute inset-0 z-0 rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
+      />
+
+      <div className="pointer-events-none flex flex-1 flex-col">
         <div className="flex items-start gap-3">
           {item.pictureUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -82,34 +95,29 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
           </p>
         )}
 
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex flex-1 items-end justify-between">
           <span className="inline-flex items-center rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
             {t("root.classes.card.students", { count: item.studentCount })}
           </span>
           <span
             className={`text-xs font-semibold ${
-              isActive
-                ? "text-success"
-                : "text-muted-foreground"
+              isActive ? "text-success" : "text-muted-foreground"
             }`}
           >
             {isActive ? t("root.classes.status.active") : t("root.classes.status.archived")}
           </span>
         </div>
-      </Link>
+      </div>
 
+      {/* Above the stretched link, and a sibling of it: managing the class never
+          also opens it (the trigger stops the click either way). */}
       {isAdmin ? (
-        <div className="absolute right-3 top-3">
+        <div className="absolute right-3 top-3 z-10">
           <RowActionsMenu
             variant="floating"
-            label={t("root.classDetail.actions.more")}
+            label={t("root.classes.card.actionsLabel", { name: item.name })}
             contentClassName="w-44"
             actions={[
-              {
-                label: t("root.classDetail.actions.open"),
-                keepOpen: true,
-                onSelect: () => router.push(detailHref),
-              },
               {
                 label: t("root.classDetail.actions.edit"),
                 icon: Pencil,
@@ -119,8 +127,7 @@ export default function ClassCard({ item, isAdmin }: ClassCardProps) {
               {
                 label: t("root.classDetail.actions.addTest"),
                 icon: FileText,
-                keepOpen: true,
-                onSelect: () => notifySoon("root.classDetail.actions.addTest"),
+                onSelect: () => router.push(`${detailHref}/tests`),
               },
               {
                 label: t("root.classDetail.actions.addExam"),

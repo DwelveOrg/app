@@ -110,6 +110,8 @@ export default function StudentClassCard({ item, schoolId }: StudentClassCardPro
     </ClassEntityCard>
   );
 
+  // The four states a class can be in for this student, in the order they are
+  // decided: enter it, wait on it, ask for it, or be told why not.
   function renderAction() {
     // `canEnter` is the backend's authority for entry, so enrolled classes lead
     // straight into the class instead of offering a request.
@@ -124,14 +126,6 @@ export default function StudentClassCard({ item, schoolId }: StudentClassCardPro
       );
     }
 
-    if (item.canRequest) {
-      return (
-        <Button className="w-full" onClick={() => setDialogOpen(true)}>
-          {t("root.enrollment.directory.requestToJoin")}
-        </Button>
-      );
-    }
-
     if (isPending) {
       return (
         <ClassCardPendingAction
@@ -140,6 +134,14 @@ export default function StudentClassCard({ item, schoolId }: StudentClassCardPro
           isCancelling={cancelRequest.isPending}
           onCancel={handleCancel}
         />
+      );
+    }
+
+    if (item.canRequest) {
+      return (
+        <Button className="w-full" onClick={() => setDialogOpen(true)}>
+          {t("root.enrollment.directory.requestToJoin")}
+        </Button>
       );
     }
 
