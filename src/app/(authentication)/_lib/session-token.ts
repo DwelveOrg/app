@@ -28,7 +28,7 @@ export async function encryptSession(payload: SessionPayload) {
   return new EncryptJWT({ ...payload })
     .setProtectedHeader({ alg: "dir", enc: "A256GCM" })
     .setIssuedAt()
-    .setExpirationTime(`${SESSION_DURATION_SECONDS}s`)
+    .setExpirationTime(getExpirationTime(payload.expiresAt))
     .encrypt(await getSessionKey());
 }
 
@@ -47,4 +47,13 @@ export async function decryptSession(session: string | undefined = "") {
 
     return null;
   }
+}
+
+function getExpirationTime(expiresAt: string) {
+  const timestamp = Date.parse(expiresAt);
+
+  // Keep the previous one-hour limit if a caller provides an invalid timestamp.
+  return Number.isFinite(timestamp)
+    ? Math.floor(timestamp / 1000)
+    : `${SESSION_DURATION_SECONDS}s`;
 }
