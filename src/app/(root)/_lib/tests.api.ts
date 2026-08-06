@@ -8,6 +8,7 @@ import {
   testDetailResponseSchema,
   testFormatsResponseSchema,
   testMediaResponseSchema,
+  testSuccessResponseSchema,
   testSummaryResponseSchema,
   testsListResponseSchema,
   testValidationResponseSchema,
@@ -138,7 +139,7 @@ export function unpublishTestRequest(
 ) {
   return requestJson(`/tests/${testId}/unpublish`, {
     method: "POST",
-    responseSchema: testSummaryResponseSchema,
+    responseSchema: testSuccessResponseSchema,
   });
 }
 
