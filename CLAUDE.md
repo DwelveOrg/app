@@ -127,6 +127,7 @@ Existing guidance says:
 - Auth currently uses hard-coded `testUsers` in `src/app/(authentication)/_constants/index.ts`.
 - The local NestJS backend is expected at `D:\IT\projects\Dwelve\backend_nestJS` and `DWELVE_API_BASE_URL=http://localhost:5000/api/v1`.
 - `protectedRoutes` and `publicRoutes` live in `_constants/routes.ts`. Route protection runs in `src/proxy.ts` — the Next 16 replacement for `middleware.ts` (shown as "Proxy (Middleware)" in build output); it redirects unauthenticated users off protected routes and authenticated users off public ones.
+- The proxy also **refreshes an expiring access token** before the render that needs it. This is not an optimisation: Next only permits cookie writes during the action phase, so a Server Component render that refreshed would spend the single-use refresh token and then be unable to save its replacement, ending the session permanently. Rotation logic is shared with `authedBackendJson` through `_lib/token-refresh.ts`; the cookie itself is built by `_lib/session-cookie.ts` so both runtimes write identical attributes. Before refreshing reactively, `authedBackendJson` calls `canPersistSession` and declines rather than spending a token it cannot save.
 
 Treat auth/session changes as high-risk. Verify the current code before editing.
 

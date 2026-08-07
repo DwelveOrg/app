@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE_NAME } from "./app/(authentication)/_constants/session";
 import { protectedRoutes, publicRoutes} from "./app/(authentication)/_constants/routes";
+import { buildSessionCookie } from './app/(authentication)/_lib/session-cookie';
 import { decryptSession } from './app/(authentication)/_lib/session-token';
+import {
+    isAccessTokenExpiring,
+    refreshTokensOnce,
+    rotatedSessionProfile,
+} from './app/(authentication)/_lib/token-refresh';
+import type { SessionPayload } from './app/(authentication)/_types/auth';
 
 function isRouteMatch(path: string, routes: readonly string[]) {
     return routes.some((route) => path === route || path.startsWith(`${route}/`));
@@ -23,7 +30,50 @@ export default async function proxy(req: NextRequest){
         return NextResponse.redirect(new URL('/dashboard', req.url))
     }
 
-    return NextResponse.next();
+    return withRefreshedSession(req, session);
+}
+
+/**
+ * Rotates an expiring access token before the render that needs it runs.
+ *
+ * This has to happen here rather than in `authedBackendJson`, because Next only
+ * allows cookie writes during the action phase: a Server Component render that
+ * refreshed would spend the single-use refresh token and then be unable to save
+ * its replacement, ending the session for good. Access tokens live 15 minutes
+ * while the session cookie lives as long as the refresh token, so that is the
+ * ordinary path for any session more than a few minutes old — not an edge case.
+ */
+async function withRefreshedSession(req: NextRequest, session: SessionPayload | null) {
+    if (!session?.refreshToken || !isAccessTokenExpiring(session.accessToken)) {
+        return NextResponse.next();
+    }
+
+    // Prefetches and `router.refresh()` rotate the token here too, rather than
+    // being skipped. Next strips its own `next-router-prefetch` / `rsc` headers
+    // before the proxy runs, so a prefetch is not distinguishable from a real
+    // navigation — and it does not need to be: RSC requests are fetched with
+    // `credentials: 'same-origin'`, so the rotated cookie is stored just the
+    // same. `refreshTokensOnce` keeps a burst of them to one rotation.
+    let cookie;
+
+    try {
+        const tokens = await refreshTokensOnce(session.refreshToken);
+        cookie = await buildSessionCookie(rotatedSessionProfile(session, tokens));
+    } catch {
+        // Leave the existing cookie alone. A revoked or expired refresh token
+        // surfaces as SessionExpiredError from the read that follows, and a
+        // transient failure costs nothing more than one unrefreshed navigation.
+        return NextResponse.next();
+    }
+
+    // Written onto the request as well as the response: the response cookie is
+    // what the browser sends next time, while this render reads the request.
+    req.cookies.set(cookie.name, cookie.value);
+
+    const response = NextResponse.next({ request: { headers: req.headers } });
+    response.cookies.set(cookie.name, cookie.value, cookie.options);
+
+    return response;
 }
 
 /**
