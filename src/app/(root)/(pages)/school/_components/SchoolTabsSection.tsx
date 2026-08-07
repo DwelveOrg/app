@@ -17,6 +17,8 @@ import SchoolTeachersTab from "./SchoolTeachersTab";
 import StudentClassesView from "../../groups/_components/StudentClassesView";
 import TeacherClassesView from "../../groups/_components/TeacherClassesView";
 import TabBar from "@/components/ui/TabBar";
+import { queryKeys } from "@/lib/query/keys";
+import type { TabRefresh } from "@/lib/query/useTabRefresh";
 
 type TabKey = "classes" | "teachers" | "students";
 
@@ -57,6 +59,18 @@ export default function SchoolTabsSection({
     { key: "groups", label: t("root.schoolPage.tabs.groups") },
   ];
 
+  /**
+   * The Classes tab renders a different source per role — students and teachers
+   * get a React Query directory (whose cards carry the request/pending state),
+   * admins get the server-rendered list — so what "refresh" means differs too.
+   */
+  const classesRefresh: TabRefresh =
+    role === "STUDENT"
+      ? { queryKeys: [queryKeys.enrollment.studentClassesAll(schoolId ?? "")] }
+      : role === "TEACHER"
+        ? { queryKeys: [queryKeys.enrollment.teacherClassesAll(schoolId ?? "")] }
+        : { router: true };
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border">
@@ -67,18 +81,26 @@ export default function SchoolTabsSection({
           onSelect={(next) => setActiveTab(next as typeof activeTab)}
           className="border-b-0"
           items={[
-            { value: "classes", label: t("root.schoolPage.tabs.classes") },
+            {
+              value: "classes",
+              label: t("root.schoolPage.tabs.classes"),
+              refresh: classesRefresh,
+            },
             ...(isAdmin
               ? [
+                  // Both rosters arrive as server props, so only a new RSC
+                  // render can pick up a member who joined since page load.
                   {
                     value: "teachers",
                     label: t("root.schoolPage.tabs.teachers"),
                     count: teachersError ? undefined : teachers.length,
+                    refresh: { router: true },
                   },
                   {
                     value: "students",
                     label: t("root.schoolPage.tabs.students"),
                     count: students.length,
+                    refresh: { router: true },
                   },
                 ]
               : []),
