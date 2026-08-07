@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
+import Surface from "@/components/ui/Surface";
 import Textarea from "@/components/ui/textarea";
 import {
   Select,
@@ -132,21 +133,28 @@ export default function SectionCard({
   const isFlagged = Boolean(sectionId) && flaggedIds.has(sectionId);
 
   return (
-    <section
+    /*
+     * Depth ladder for the builder (design-system §4): **the section is the only card.** Its groups
+     * are full-bleed bands separated by hairlines and its questions are flat rows — not a box in a
+     * box in a box, which is the nesting the design system rules out outright. The card edge, the
+     * band rule, and the row rule are three different weights of the same idea, so hierarchy comes
+     * from rhythm rather than from three competing borders at three competing radii.
+     */
+    <Surface
+      as="section"
+      padding="lg"
       id={sectionId ? sectionAnchorId(sectionId) : undefined}
       className={cn(
-        // Depth ladder for the builder (design-system §4): the section is the only real card.
-        // Groups below are recessed wells and questions are flat rows divided by hairlines, because
-        // three bordered boxes nested at similar radii read as noise, not hierarchy.
-        "scroll-mt-24 rounded-2xl border bg-card p-5 shadow-elev-1",
-        isFlagged
-          ? "border-destructive ring-2 ring-destructive/25"
-          : "border-border",
+        "scroll-mt-24",
+        isFlagged ? "border-destructive ring-2 ring-destructive/25" : undefined,
       )}
     >
       <header className="flex flex-wrap items-start gap-3">
-        <span className="mt-1 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
-          <Layers className="h-4 w-4" />
+        <span
+          aria-hidden="true"
+          className="mt-1 grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary"
+        >
+          <Layers className="size-[18px]" />
         </span>
 
         <div className="min-w-0 flex-1">
@@ -182,7 +190,7 @@ export default function SectionCard({
             aria-label={t("root.tests.builder.section.moveUp")}
             onClick={() => onMove(sectionIndex, sectionIndex - 1)}
           >
-            <ArrowUp className="h-3.5 w-3.5" />
+            <ArrowUp className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -192,7 +200,7 @@ export default function SectionCard({
             aria-label={t("root.tests.builder.section.moveDown")}
             onClick={() => onMove(sectionIndex, sectionIndex + 1)}
           >
-            <ArrowDown className="h-3.5 w-3.5" />
+            <ArrowDown className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -203,7 +211,7 @@ export default function SectionCard({
             className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(sectionIndex)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="size-3.5" />
           </Button>
         </div>
       </header>
@@ -281,19 +289,24 @@ export default function SectionCard({
         </Field>
       </div>
 
-      <div className="mt-5 space-y-4">{groups}</div>
+      {/*
+        Bands run full-bleed to the card edge (`-mx-5`/`-mx-6` cancels the Surface's own padding),
+        so the rule between two groups reads as a division of the section rather than as the top
+        of yet another box.
+      */}
+      <div className="mt-6 -mx-5 sm:-mx-6">{groups}</div>
 
       <Button
         type="button"
         variant="outline"
         size="sm"
-        className="mt-4"
+        className="mt-5"
         disabled={disabled || fields.length >= TEST_LIMITS.groupsPerSection}
         onClick={addGroup}
       >
-        <Plus className="h-3.5 w-3.5" />
+        <Plus className="size-3.5" />
         {t("root.tests.builder.section.addGroup")}
       </Button>
-    </section>
+    </Surface>
   );
 }

@@ -1,14 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  FilePlus2,
-  RefreshCw,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, FilePlus2, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -19,8 +12,11 @@ import type {
 } from "@/app/(root)/_lib/tests.schemas";
 import { Button } from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import TabBar from "@/components/ui/TabBar";
+import BackLink from "@/app/(root)/_components/BackLink";
+import PageHeader from "@/app/(root)/_components/PageHeader";
 import Empty from "@/app/(root)/(pages)/_components/ui/Empty";
+import { queryKeys } from "@/lib/query/keys";
 import { DEFAULT_TEST_STATUS, TEST_STATUS_TABS } from "../_constants";
 import { useTestsQuery } from "../_hooks/useTestsQuery";
 import CreateTestDialog from "./CreateTestDialog";
@@ -55,57 +51,79 @@ export default function TestsListView({
   const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiTestSummary | null>(null);
 
+  /**
+   * The server-rendered seed describes this page load, so it is spent once.
+   *
+   * Left in place it is re-supplied every time the default tab comes back into
+   * view, and seeding counts as a fresh fetch — so once the cache entry has been
+   * garbage-collected (five idle minutes), returning to the tab would re-seed
+   * the render-time list and suppress the very request the tab switch is
+   * supposed to guarantee. `keepPreviousData` covers the gap without it.
+   *
+   * State rather than a ref: it decides what this render passes to the query.
+   */
+  const [seed, setSeed] = useState(initialTests);
+
   const isDefaultView = status === DEFAULT_TEST_STATUS && page === 1;
   const { data, isPending, isError, isFetching, refetch } = useTestsQuery({
     classId,
     status,
     page,
-    initialData: isDefaultView ? (initialTests ?? undefined) : undefined,
+    initialData: isDefaultView ? (seed ?? undefined) : undefined,
   });
 
   const tests = data?.tests ?? [];
   const meta = data?.meta;
 
+  /** Any move away from the first render spends the seed — see `seed` above. */
+  const goToPage = (next: number) => {
+    setSeed(null);
+    setPage(next);
+  };
+
   const selectTab = (next: string) => {
     setStatus(next as TestStatus);
-    setPage(1);
+    goToPage(1);
   };
 
   return (
     <section className="flex flex-col gap-6 py-6">
-      <Link
-        href={`/groups/${classId}`}
-        className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        {t("root.tests.list.backToClass")}
-      </Link>
+      <BackLink href={`/groups/${classId}`}>{t("root.tests.list.backToClass")}</BackLink>
 
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="type-section text-foreground">
-            {t("root.tests.list.title")}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("root.tests.list.subtitle", { name: className })}
-          </p>
-        </div>
+      <PageHeader
+        title={t("root.tests.list.title")}
+        subtitle={t("root.tests.list.subtitle", { name: className })}
+        actions={
+          <Button size="lg" onClick={() => setCreateOpen(true)}>
+            <FilePlus2 className="size-4" />
+            {t("root.tests.list.create")}
+          </Button>
+        }
+      />
 
-        <Button size="lg" onClick={() => setCreateOpen(true)}>
-          <FilePlus2 className="h-4 w-4" />
-          {t("root.tests.list.create")}
-        </Button>
-      </header>
-
-      <Tabs value={status} onValueChange={selectTab}>
-        <TabsList aria-label={t("root.tests.list.tabsLabel")}>
-          {TEST_STATUS_TABS.map((tab) => (
-            <TabsTrigger key={tab} value={tab}>
-              {t(`root.tests.status.${tab}`)}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-      </Tabs>
+      {/*
+        `TabBar` rather than a local tab row: the sliding indicator, height, and weight are the
+        same control the school, class, and notification pages use. The count is only shown for
+        the tab in view — the list endpoint returns a total per status, not all three at once,
+        and a "0" beside the two tabs we have not fetched would be a wrong fact, not a quiet one.
+      */}
+      <TabBar
+        layoutId="tests-status-tabs"
+        ariaLabel={t("root.tests.list.tabsLabel")}
+        value={status}
+        onSelect={selectTab}
+        // Each tab is its own cache entry, so a first visit fetches on its own —
+        // but a return visit, and the default tab seeded with `initialData`,
+        // would both replay what was already there. The key is page 1 because
+        // `selectTab` resets paging.
+        items={TEST_STATUS_TABS.map((tab) => ({
+          value: tab,
+          label: t(`root.tests.status.${tab}`),
+          count: tab === status ? meta?.total : undefined,
+          showZeroCount: true,
+          refresh: { queryKeys: [queryKeys.tests.list(classId, { status: tab, page: 1 })] },
+        }))}
+      />
 
       {isPending ? (
         <div className="grid gap-3" aria-busy="true">
@@ -119,19 +137,22 @@ export default function TestsListView({
           description={t("root.tests.list.errorDescription")}
           action={
             <Button type="button" className="w-full" onClick={() => void refetch()}>
-              <RefreshCw className="h-4 w-4" />
+              <RefreshCw className="size-4" />
               {t("root.tests.actions.retry")}
             </Button>
           }
         />
       ) : tests.length === 0 ? (
         <Empty
+          // A draft tab with nothing in it is a first-run state the teacher is meant to act on;
+          // an empty Published tab is simply a fact, so only the former reads as an open slot.
+          variant={status === "DRAFT" ? "dashed" : "card"}
           title={t(`root.tests.list.empty.${status}.title`)}
           description={t(`root.tests.list.empty.${status}.description`)}
           action={
             status === "DRAFT" ? (
               <Button type="button" className="w-full" onClick={() => setCreateOpen(true)}>
-                <FilePlus2 className="h-4 w-4" />
+                <FilePlus2 className="size-4" />
                 {t("root.tests.list.create")}
               </Button>
             ) : null
@@ -139,7 +160,7 @@ export default function TestsListView({
         />
       ) : (
         <div
-          className="grid gap-3"
+          className="grid gap-3 transition-opacity duration-[var(--dur-2)] data-pending:opacity-60"
           aria-busy={isFetching}
           data-pending={isFetching ? "true" : undefined}
         >
@@ -164,22 +185,22 @@ export default function TestsListView({
             variant="outline"
             size="sm"
             disabled={page <= 1 || isFetching}
-            onClick={() => setPage((current) => Math.max(1, current - 1))}
+            onClick={() => goToPage(Math.max(1, page - 1))}
           >
-            <ChevronLeft className="h-3.5 w-3.5" />
+            <ChevronLeft className="size-3.5" />
             {t("root.tests.list.previous")}
           </Button>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-xs text-muted-foreground tabular-nums">
             {t("root.tests.list.pageOf", { page: meta.page, total: meta.totalPages })}
           </span>
           <Button
             variant="outline"
             size="sm"
             disabled={!meta.hasMore || isFetching}
-            onClick={() => setPage((current) => current + 1)}
+            onClick={() => goToPage(page + 1)}
           >
             {t("root.tests.list.next")}
-            <ChevronRight className="h-3.5 w-3.5" />
+            <ChevronRight className="size-3.5" />
           </Button>
         </nav>
       ) : null}

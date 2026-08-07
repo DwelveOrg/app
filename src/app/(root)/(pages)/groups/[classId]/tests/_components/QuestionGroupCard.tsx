@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { AlertTriangle, ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, FileText, Plus, Trash2 } from "lucide-react";
 import {
   Controller,
   useFieldArray,
@@ -16,6 +16,7 @@ import {
   type TestBuilderForm,
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
+import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
@@ -126,32 +127,40 @@ export default function QuestionGroupCard({
   const atQuestionLimit = fields.length >= TEST_LIMITS.questionsPerGroup;
 
   const questionList = (
-    <div className="space-y-3">
-      {fields.map((field, index) => (
-        <QuestionCard
-          key={field.id}
-          control={control}
-          setValue={setValue}
-          name={`${name}.questions.${index}` as QuestionFieldName}
-          index={index}
-          count={fields.length}
-          questionNumber={startNumber + index}
-          questionId={field.serverId}
-          type={field.type}
-          spec={catalog.questionTypes[field.type] ?? null}
-          testId={testId}
-          disabled={disabled}
-          flagged={Boolean(field.serverId) && flaggedIds.has(field.serverId)}
-          onMove={handleMoveQuestion}
-          onRemove={handleRemoveQuestion}
-        />
-      ))}
-
-      {fields.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
+    <div className="space-y-4">
+      {/*
+        Questions are a divided list, not a stack of cards. Forty of them inside a section card
+        would otherwise be forty bordered boxes inside a bordered box; a hairline between rows
+        separates them at a fraction of the visual cost.
+      */}
+      {fields.length > 0 ? (
+        <div className="divide-y divide-border border-y border-border">
+          {fields.map((field, index) => (
+            <QuestionCard
+              key={field.id}
+              control={control}
+              setValue={setValue}
+              name={`${name}.questions.${index}` as QuestionFieldName}
+              index={index}
+              count={fields.length}
+              questionNumber={startNumber + index}
+              questionId={field.serverId}
+              type={field.type}
+              spec={catalog.questionTypes[field.type] ?? null}
+              testId={testId}
+              disabled={disabled}
+              flagged={Boolean(field.serverId) && flaggedIds.has(field.serverId)}
+              onMove={handleMoveQuestion}
+              onRemove={handleRemoveQuestion}
+            />
+          ))}
+        </div>
+      ) : (
+        /* A slot waiting to be filled, per the `dashed` surface variant's meaning. */
+        <p className="rounded-xl border border-dashed border-border px-4 py-8 text-center text-sm text-muted-foreground">
           {t("root.tests.builder.group.noQuestions")}
         </p>
-      ) : null}
+      )}
 
       <Button
         type="button"
@@ -160,7 +169,7 @@ export default function QuestionGroupCard({
         disabled={disabled || atQuestionLimit}
         onClick={() => setPickerOpen(true)}
       >
-        <Plus className="h-3.5 w-3.5" />
+        <Plus className="size-3.5" />
         {t("root.tests.builder.group.addQuestion")}
       </Button>
 
@@ -181,17 +190,31 @@ export default function QuestionGroupCard({
   }
 
   return (
+    /*
+     * A band inside the section card, not a second card: the rule above it and its own header
+     * carry the division, so the builder stays one card deep however many groups a section holds.
+     * Only the "needs a passage or image" state draws an edge — and it draws it as a tinted band
+     * rather than a ring, so the one thing on screen that is boxed is the one thing that is wrong.
+     */
     <section
       id={groupId ? groupAnchorId(groupId) : undefined}
       className={cn(
-        // Level 2: recessed into the section rather than stacked on it.
-        "scroll-mt-24 rounded-xl bg-muted/60 p-4",
+        // Every band keeps its top rule, including the first: that one divides the section's own
+        // settings from its content, which is a division worth drawing.
+        "scroll-mt-24 border-t border-border px-5 py-5 sm:px-6",
         missingStimulus
-          ? "ring-1 ring-warning/45"
-          : "ring-1 ring-border/70",
+          ? "bg-[color-mix(in_srgb,var(--warning)_6%,transparent)]"
+          : undefined,
       )}
     >
       <header className="flex flex-wrap items-center gap-2">
+        <span
+          aria-hidden="true"
+          className="grid size-8 shrink-0 place-items-center rounded-lg bg-muted text-muted-foreground"
+        >
+          <FileText className="size-4" />
+        </span>
+
         <Input
           {...control.register(`${name}.title`)}
           disabled={disabled}
@@ -199,12 +222,15 @@ export default function QuestionGroupCard({
           aria-label={t("root.tests.builder.group.title")}
           className="max-w-xs py-2 font-semibold"
         />
-        <span className="text-2xs text-muted-foreground">
-          {t("root.tests.builder.group.questionRange", {
-            from: startNumber,
-            to: startNumber + Math.max(fields.length, 1) - 1,
-          })}
-        </span>
+
+        {fields.length > 0 ? (
+          <Badge variant="neutral" size="sm" className="tabular-nums">
+            {t("root.tests.builder.group.questionRange", {
+              from: startNumber,
+              to: startNumber + fields.length - 1,
+            })}
+          </Badge>
+        ) : null}
 
         <div className="ml-auto flex items-center gap-1">
           <Button
@@ -215,7 +241,7 @@ export default function QuestionGroupCard({
             aria-label={t("root.tests.builder.group.moveUp")}
             onClick={() => onMove(groupIndex, groupIndex - 1)}
           >
-            <ArrowUp className="h-3.5 w-3.5" />
+            <ArrowUp className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -225,7 +251,7 @@ export default function QuestionGroupCard({
             aria-label={t("root.tests.builder.group.moveDown")}
             onClick={() => onMove(groupIndex, groupIndex + 1)}
           >
-            <ArrowDown className="h-3.5 w-3.5" />
+            <ArrowDown className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -236,12 +262,12 @@ export default function QuestionGroupCard({
             className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(groupIndex)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="size-3.5" />
           </Button>
         </div>
       </header>
 
-      <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1fr)_18rem]">
         <Field
           size="sm"
           htmlFor={`${sectionIndex}-${groupIndex}-passage`}
@@ -269,8 +295,9 @@ export default function QuestionGroupCard({
             })}
           </p>
 
+          {/* An inset, not a box: a fill without a border, per the depth model. */}
           {paragraphs.length > 1 ? (
-            <div className="mt-2 rounded-xl border border-border bg-muted px-3 py-2">
+            <div className="mt-2 rounded-xl bg-muted px-3 py-2">
               <p className="text-2xs font-medium text-foreground">
                 {t("root.tests.builder.group.paragraphLabels")}
               </p>
@@ -324,14 +351,14 @@ export default function QuestionGroupCard({
 
           {missingStimulus ? (
             <p className="inline-flex items-start gap-1.5 text-2xs text-warning">
-              <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+              <AlertTriangle className="mt-px size-3.5 shrink-0" aria-hidden="true" />
               {t("root.tests.builder.group.stimulusRequired")}
             </p>
           ) : null}
         </div>
       </div>
 
-      <div className="mt-4 border-t border-border pt-4">{questionList}</div>
+      <div className="mt-5">{questionList}</div>
     </section>
   );
 }

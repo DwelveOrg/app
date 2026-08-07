@@ -1,3 +1,12 @@
+import {
+  BookOpenText,
+  Blocks,
+  FileText,
+  ListChecks,
+  Sigma,
+  type LucideIcon,
+} from "lucide-react";
+
 import type { TestStatus } from "@/app/(root)/_lib/tests.schemas";
 import type { BadgeVariant } from "@/components/ui/badge";
 
@@ -31,6 +40,24 @@ export const TEST_STATUS_TONE: Record<TestStatus, BadgeVariant> = {
   PUBLISHED: "success",
   ARCHIVED: "warning",
 };
+
+/**
+ * The mark on a test's identity tile and its format card.
+ *
+ * Presentation only, and deliberately keyed with a fallback: formats come from
+ * `GET /tests/formats`, so one the backend adds tomorrow must still render —
+ * with the generic document mark rather than a hole in the header.
+ */
+const FORMAT_ICONS: Record<string, LucideIcon> = {
+  SIMPLE_QUIZ: ListChecks,
+  IELTS: BookOpenText,
+  SAT: Sigma,
+  CUSTOM: Blocks,
+};
+
+export function formatIcon(format: string): LucideIcon {
+  return FORMAT_ICONS[format] ?? FileText;
+}
 
 /* -------------------------------------------------------------------------- */
 /* Deep-link anchors                                                           */

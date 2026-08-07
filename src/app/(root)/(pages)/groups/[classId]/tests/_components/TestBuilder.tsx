@@ -4,7 +4,18 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ArrowLeft, ListChecks, Plus, Save, Send, Settings2, Target, Undo2 } from "lucide-react";
+import {
+  Clock3,
+  Layers,
+  ListChecks,
+  Lock,
+  Plus,
+  Save,
+  Send,
+  Settings2,
+  Target,
+  Undo2,
+} from "lucide-react";
 import { type SubmitErrorHandler, type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -16,9 +27,14 @@ import {
   type TestBuilderForm,
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import { Button } from "@/components/ui/Button";
+import Surface from "@/components/ui/Surface";
+import { cn } from "@/lib/utils";
+import BackLink from "@/app/(root)/_components/BackLink";
+import EntityHeader from "@/app/(root)/_components/EntityHeader";
+import FactGrid, { Fact } from "@/app/(root)/_components/FactGrid";
 import Empty from "@/app/(root)/(pages)/_components/ui/Empty";
 import type { BuilderCatalog, SectionFieldName } from "../_types";
-import { SECTION_KINDS } from "../_constants";
+import { formatIcon, SECTION_KINDS } from "../_constants";
 import {
   buildFormDefaults,
   buildStructurePayload,
@@ -32,6 +48,7 @@ import { useUnsavedChangesWarning } from "@/app/(root)/_hooks/useUnsavedChangesW
 import { useSaveTestStructureMutation } from "../_hooks/useSaveTestStructureMutation";
 import { useUnpublishTestMutation } from "../_hooks/usePublishTestMutation";
 import DeleteTestDialog from "./DeleteTestDialog";
+import FormatMark from "./FormatMark";
 import DuplicateTestButton from "./DuplicateTestButton";
 import PublishDialog from "./PublishDialog";
 import SectionCard from "./SectionCard";
@@ -220,7 +237,9 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
   if (!builderCatalog) {
     return (
       <section className="flex flex-col gap-6 py-6">
-        <BackLink classId={classId} />
+        <BackLink href={`/groups/${classId}/tests`}>
+          {t("root.tests.builder.backToTests")}
+        </BackLink>
         <Empty
           title={t("root.tests.builder.noBlueprintTitle")}
           description={t("root.tests.builder.noBlueprintDescription", {
@@ -251,53 +270,89 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
       onSubmit={handleSubmit(onSubmit, onInvalid)}
       noValidate
     >
-      <BackLink classId={classId} />
+      <BackLink href={`/groups/${classId}/tests`}>
+        {t("root.tests.builder.backToTests")}
+      </BackLink>
 
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <h1 className="type-section text-foreground">
-              {test.title}
-            </h1>
+      {/*
+        A test is an entity page like a school or a class, so it gets the same identity block
+        (`docs/design/design-system.md` §8) — the tile is its format mark rather than initials,
+        because "IELTS Practice 1" has no meaningful pair of letters.
+      */}
+      <EntityHeader
+        name={test.title}
+        headingId="test-identity-heading"
+        tile={
+          <FormatMark
+            icon={formatIcon(test.format)}
+            className="size-16 bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary"
+            iconClassName="size-7"
+          />
+        }
+        badges={
+          <>
             <TestStatusBadge status={test.status} />
             <Badge variant="outline">
               {translateKey(t, blueprint?.labelKey, humanizeToken(test.format))}
             </Badge>
-          </div>
-
-          <dl className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-xs text-muted-foreground">
-            <div className="flex items-center gap-1.5">
-              <dt className="inline-flex items-center gap-1">
-                <ListChecks className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="sr-only">{t("root.tests.list.meta.questions")}</span>
-              </dt>
-              <dd className="font-medium text-foreground">
-                {t("root.tests.list.meta.questionCount", { count: questionCount })}
-              </dd>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <dt className="inline-flex items-center gap-1">
-                <Target className="h-3.5 w-3.5" aria-hidden="true" />
-                <span className="sr-only">{t("root.tests.list.meta.points")}</span>
-              </dt>
-              <dd className="font-medium text-foreground">
-                {t("root.tests.list.meta.pointCount", { count: totalPoints })}
-              </dd>
-            </div>
-          </dl>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button type="button" variant="outline" onClick={() => setSettingsOpen(true)}>
-            <Settings2 className="h-4 w-4" />
-            {t("root.tests.builder.settings")}
-          </Button>
-          <DuplicateTestButton testId={test.id} classId={classId} />
-        </div>
-      </header>
+          </>
+        }
+        description={test.description || t("root.tests.list.noDescription")}
+        actions={
+          <>
+            <Button type="button" variant="outline" size="lg" onClick={() => setSettingsOpen(true)}>
+              <Settings2 className="size-4" />
+              {t("root.tests.builder.settings")}
+            </Button>
+            <DuplicateTestButton testId={test.id} classId={classId} />
+          </>
+        }
+      >
+        <FactGrid className="mt-6">
+          <Fact
+            icon={<ListChecks className="size-4" />}
+            label={t("root.tests.list.meta.questions")}
+            value={t("root.tests.list.meta.questionCount", { count: questionCount })}
+          />
+          <Fact
+            icon={<Target className="size-4" />}
+            label={t("root.tests.list.meta.points")}
+            value={t("root.tests.list.meta.pointCount", { count: totalPoints })}
+            hint={
+              test.passingScore != null
+                ? t("root.tests.builder.facts.passingScore", { score: test.passingScore })
+                : undefined
+            }
+          />
+          <Fact
+            icon={<Clock3 className="size-4" />}
+            label={t("root.tests.list.meta.duration")}
+            value={
+              test.durationMinutes
+                ? t("root.tests.list.meta.minutes", { count: test.durationMinutes })
+                : t("root.tests.builder.facts.noDuration")
+            }
+          />
+          <Fact
+            icon={<Layers className="size-4" />}
+            label={t("root.tests.builder.facts.sections")}
+            value={t("root.tests.builder.facts.sectionCount", {
+              count: sectionFields.length,
+            })}
+          />
+        </FactGrid>
+      </EntityHeader>
 
       {isDraft ? null : (
-        <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-4 py-3">
+        <Surface
+          variant="muted"
+          padding="none"
+          radius="lg"
+          elevation={0}
+          className="flex flex-wrap items-center gap-3 border-[color-mix(in_srgb,var(--warning)_40%,transparent)] bg-[color-mix(in_srgb,var(--warning)_10%,transparent)] px-4 py-3"
+        >
+          {/* Icon plus text: the state is never carried by the amber wash alone. */}
+          <Lock className="size-4 shrink-0 text-warning" aria-hidden="true" />
           <p className="min-w-0 flex-1 text-sm text-foreground">
             {test.status === "PUBLISHED"
               ? t("root.tests.builder.publishedLock")
@@ -311,14 +366,14 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
               onClick={handleUnpublish}
               loading={unpublish.isPending}
             >
-              <Undo2 className="h-3.5 w-3.5" />
+              <Undo2 className="size-3.5" />
               {t("root.tests.builder.unpublish")}
             </Button>
           ) : null}
-        </div>
+        </Surface>
       )}
 
-      <div className="space-y-4">
+      <div className="space-y-5">
         {sectionFields.map((field, sectionIndex) => (
           <SectionCard
             key={field.id}
@@ -348,27 +403,50 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
           disabled={sectionFields.length >= TEST_LIMITS.sectionsPerTest}
           onClick={addSection}
         >
-          <Plus className="h-4 w-4" />
+          <Plus className="size-4" />
           {t("root.tests.builder.addSection")}
         </Button>
       ) : null}
 
-      {/* Sticky action bar: save is one request, publish opens the checklist. */}
-      <div className="sticky bottom-4 z-30 flex flex-wrap items-center gap-3 rounded-2xl border border-border bg-[color-mix(in_srgb,var(--card)_92%,transparent)] px-4 py-3 shadow-elev-3 backdrop-blur">
-        <p className="min-w-0 flex-1 text-xs text-muted-foreground">
-          {isDirty
-            ? t("root.tests.builder.unsavedChanges")
-            : t("root.tests.builder.allSaved")}
+      {/*
+        Sticky action bar: save is one request, publish opens the checklist. `glass` is the one
+        sanctioned use of blur in the product — genuinely floating chrome over scrolling content,
+        never an ordinary panel (design-system §4). z-40 sits above page content (z-10) and below
+        dialogs and the toaster (z-50).
+      */}
+      <Surface
+        variant="glass"
+        elevation={3}
+        padding="none"
+        className="sticky bottom-4 z-40 flex flex-wrap items-center gap-3 px-4 py-3"
+      >
+        <p className="min-w-0 flex-1 text-xs">
+          {/*
+            A dot plus its own wording, not a bare tint: "unsaved" has to survive a greyscale
+            screenshot and a colour-blind reader.
+          */}
+          <span
+            aria-hidden="true"
+            className={cn(
+              "mr-2 inline-block size-1.5 rounded-full align-middle",
+              isDirty ? "bg-warning" : "bg-success",
+            )}
+          />
+          <span className={isDirty ? "font-medium text-foreground" : "text-muted-foreground"}>
+            {isDirty
+              ? t("root.tests.builder.unsavedChanges")
+              : t("root.tests.builder.allSaved")}
+          </span>
         </p>
 
         <Button type="submit" loading={isBusy} disabled={!isDraft}>
-          <Save className="h-4 w-4" />
+          <Save className="size-4" />
           {t("root.tests.actions.save")}
         </Button>
 
         {isDraft ? (
           <Button type="button" variant="outline" onClick={() => setPublishOpen(true)}>
-            <Send className="h-4 w-4" />
+            <Send className="size-4" />
             {t("root.tests.publish.action")}
           </Button>
         ) : null}
@@ -381,7 +459,7 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
         >
           {isDraft ? t("root.tests.list.actions.delete") : t("root.tests.list.actions.archive")}
         </Button>
-      </div>
+      </Surface>
 
       <PublishDialog
         open={publishOpen}
@@ -408,19 +486,5 @@ export default function TestBuilder({ test, classId, catalog }: TestBuilderProps
         redirectOnSuccess={`/groups/${classId}/tests`}
       />
     </form>
-  );
-}
-
-function BackLink({ classId }: { classId: string }) {
-  const { t } = useTranslation();
-
-  return (
-    <Link
-      href={`/groups/${classId}/tests`}
-      className="inline-flex w-fit items-center gap-1.5 text-sm text-muted-foreground transition hover:text-foreground"
-    >
-      <ArrowLeft className="h-4 w-4" />
-      {t("root.tests.builder.backToTests")}
-    </Link>
   );
 }
