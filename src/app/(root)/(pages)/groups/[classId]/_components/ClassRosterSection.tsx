@@ -14,6 +14,7 @@ import Avatar from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
 import TabBar from "@/components/ui/TabBar";
+import { queryKeys } from "@/lib/query/keys";
 import AssignStudentDialog from "./AssignStudentDialog";
 import AssignTeacherDialog from "./AssignTeacherDialog";
 import RemoveClassStudentDialog from "./RemoveClassStudentDialog";
@@ -118,18 +119,31 @@ export default function ClassRosterSection({
           value={tab}
           onSelect={(next) => setTab(next as RosterTab)}
           className="flex-1"
+          /*
+            Both rosters and their counts come from the server-rendered class, so
+            re-reading them means a new RSC render rather than a query
+            invalidation — paired here with the enrollment caches exactly as
+            `refreshClassData` pairs them after a roster change, because the two
+            are one piece of membership state and this page shows both at once.
+
+            That pairing is also what covers teachers. The request queues below
+            carry a tab row only for admins, so this is the sole tab a teacher
+            can switch — and student join requests are theirs to review too.
+          */
           items={[
             {
               value: "teachers",
               label: t("root.classDetail.teachers.tab"),
               count: teacherCount,
               showZeroCount: true,
+              refresh: { router: true, queryKeys: [queryKeys.enrollment.all] },
             },
             {
               value: "students",
               label: t("root.classDetail.students.tab"),
               count: studentCount,
               showZeroCount: true,
+              refresh: { router: true, queryKeys: [queryKeys.enrollment.all] },
             },
           ]}
         />

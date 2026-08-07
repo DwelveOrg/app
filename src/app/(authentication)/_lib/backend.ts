@@ -10,7 +10,7 @@ import {
   refreshTokensRequest,
   type AuthTokens,
 } from "./api";
-import { createSession, getSession } from "./session";
+import { createSession, deleteSession, getSession } from "./session";
 import type { SchoolRole, SessionPayload } from "../_types/auth";
 
 /**
@@ -21,11 +21,27 @@ import type { SchoolRole, SessionPayload } from "../_types/auth";
 const pendingRefreshes = new Map<string, Promise<AuthTokens>>();
 
 /** Thrown when an authenticated request has no usable session / access token. */
-export class SessionExpiredError extends Error {
+export class SessionExpiredError extends BackendApiError {
   constructor(message = "Your session expired. Please log in again.") {
-    super(message);
+    // Session expiry is an authentication failure. Extending BackendApiError
+    // lets every existing server-action error mapper present this safe message
+    // instead of falling back to a feature-specific error or exposing the
+    // backend's "Invalid refresh token" response.
+    super(message, 401);
     this.name = "SessionExpiredError";
   }
+}
+
+/**
+ * Drops a session once its credentials can no longer be refreshed. This helper
+ * is also used by server-rendered reads, where Next.js does not allow cookie
+ * mutation, so clearing the cookie is deliberately best-effort there. Server
+ * actions—the usual source of a user-triggered error—will clear it and let the
+ * user open the login page immediately.
+ */
+async function throwSessionExpired(): Promise<never> {
+  await deleteSession().catch(() => undefined);
+  throw new SessionExpiredError();
 }
 
 /**
@@ -142,7 +158,7 @@ export async function authedBackendJson(
   const session = await getSession();
 
   if (!session?.accessToken) {
-    throw new SessionExpiredError();
+    return throwSessionExpired();
   }
 
   try {
@@ -150,11 +166,29 @@ export async function authedBackendJson(
   } catch (error) {
     const isUnauthorized = error instanceof BackendApiError && error.status === 401;
 
-    if (!isUnauthorized || !session.refreshToken) {
+    if (!isUnauthorized) {
       throw error;
     }
 
-    const newAccessToken = await refreshAccessToken(session);
+    if (!session.refreshToken) {
+      return throwSessionExpired();
+    }
+
+    let newAccessToken: string;
+
+    try {
+      newAccessToken = await refreshAccessToken(session);
+    } catch (refreshError) {
+      // A refresh token can legitimately expire or be revoked while a user is
+      // away. That is not actionable as "Invalid refresh token"; tell the
+      // user exactly how to continue instead. Other failures (for example a
+      // timeout or rate limit) retain their original messages.
+      if (refreshError instanceof BackendApiError && refreshError.status === 401) {
+        return throwSessionExpired();
+      }
+
+      throw refreshError;
+    }
 
     return backendJson(path, withAuthHeader(init, newAccessToken));
   }

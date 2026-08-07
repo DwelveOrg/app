@@ -26,10 +26,22 @@ export type EntityHeaderProps = {
   tileClassName?: string;
   /** `lg` for a school, `xl` for a class page. */
   tileSize?: "lg" | "xl";
+  /**
+   * Replaces the initials tile. A school and a class are named things whose initials mean
+   * something; a test is identified by its *format*, so the builder passes an icon tile instead of
+   * turning "IELTS Practice 1" into "IP".
+   */
+  tile?: ReactNode;
   title?: ReactNode;
   headingId?: string;
   /** Active / archived. Rendered as a badge so every status pill in the product matches. */
   status?: { label: string; active: boolean };
+  /**
+   * Extra pills on the title row, for entities whose state is not a two-way active/archived —
+   * a test carries a three-state lifecycle badge plus its format. Supply `<Badge>`s, so the
+   * title row keeps one pill vocabulary.
+   */
+  badges?: ReactNode;
   description?: ReactNode;
   /** The facts row — stat dots, a location, a "viewing as" chip. */
   meta?: ReactNode;
@@ -44,9 +56,11 @@ export default function EntityHeader({
   imageUrl,
   tileClassName,
   tileSize = "lg",
+  tile,
   title,
   headingId,
   status,
+  badges,
   description,
   meta,
   actions,
@@ -61,13 +75,15 @@ export default function EntityHeader({
       className={cn(className)}
     >
       <div className="flex flex-wrap items-start gap-4">
-        <Avatar
-          name={name}
-          src={imageUrl}
-          size={tileSize}
-          shape="rounded"
-          className={tileClassName}
-        />
+        {tile ?? (
+          <Avatar
+            name={name}
+            src={imageUrl}
+            size={tileSize}
+            shape="rounded"
+            className={tileClassName}
+          />
+        )}
 
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
@@ -77,6 +93,7 @@ export default function EntityHeader({
             {status ? (
               <Badge variant={status.active ? "success" : "neutral"}>{status.label}</Badge>
             ) : null}
+            {badges}
           </div>
 
           {description ? (

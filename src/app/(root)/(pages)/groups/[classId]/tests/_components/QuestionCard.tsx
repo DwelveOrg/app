@@ -1,12 +1,13 @@
 "use client";
 
 import React from "react";
-import { AlertTriangle, ArrowDown, ArrowUp, Trash2, Zap } from "lucide-react";
+import { AlertTriangle, ArrowDown, ArrowUp, PenLine, Trash2, Zap } from "lucide-react";
 import { Controller, type Control, type UseFormSetValue } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
 import type { TestBuilderForm } from "@/app/(root)/_lib/tests.actions.schemas";
+import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/textarea";
@@ -102,37 +103,42 @@ function QuestionCard({
       id={questionId ? questionAnchorId(questionId) : undefined}
       tabIndex={-1}
       className={cn(
-        // Level 3: a flat row, not a third card. Only the invalid state draws an edge, so a
-        // flagged question is the one thing on screen that reads as boxed.
-        "interactive-flat scroll-mt-24 rounded-lg bg-card p-4",
+        // Level 3: a flat row in a divided list, not a third card — and no `interactive` lift,
+        // because a row full of inputs is not itself clickable and must not pretend to be.
+        // Only the invalid state draws an edge, so a flagged question is the one thing on
+        // screen that reads as boxed.
+        "scroll-mt-24 py-5 outline-none",
         flagged
-          ? "ring-2 ring-destructive/45"
-          : "ring-1 ring-border/60 hover:ring-border",
+          ? "-mx-3 rounded-xl bg-[color-mix(in_srgb,var(--destructive)_5%,transparent)] px-3 ring-2 ring-destructive/45"
+          : undefined,
       )}
     >
       <header className="flex flex-wrap items-center gap-2">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-xs font-bold text-primary">
+        <Badge variant="primary" size="md" shape="count" aria-hidden="true">
           {questionNumber}
+        </Badge>
+        <span className="sr-only">
+          {t("root.tests.builder.question.numberLabel", { number: questionNumber })}
         </span>
 
-        <span className="rounded-full border border-border bg-background px-2 py-0.5 text-2xs font-medium text-muted-foreground">
-          {typeLabel}
-        </span>
+        <Badge variant="outline">{typeLabel}</Badge>
 
-        {spec && !spec.autoGradable ? (
-          <span className="text-2xs text-muted-foreground">
-            {t("root.tests.builder.question.manualGrading")}
-          </span>
-        ) : null}
-
-        {spec?.autoGradable ? (
-          <span
-            className="inline-flex items-center gap-1 text-2xs text-muted-foreground"
-            title={t("root.tests.builder.question.autoGraded")}
-          >
-            <Zap className="h-3 w-3" aria-hidden="true" />
-            {t("root.tests.builder.question.autoGraded")}
-          </span>
+        {/*
+          Grading mode is a fact about the question, so it reads as a pill like every other
+          fact — and always as icon plus words, never as a tint on its own.
+        */}
+        {spec ? (
+          spec.autoGradable ? (
+            <Badge variant="success" size="sm">
+              <Zap aria-hidden="true" />
+              {t("root.tests.builder.question.autoGraded")}
+            </Badge>
+          ) : (
+            <Badge variant="neutral" size="sm">
+              <PenLine aria-hidden="true" />
+              {t("root.tests.builder.question.manualGrading")}
+            </Badge>
+          )
         ) : null}
 
         <div className="ml-auto flex items-center gap-2">
@@ -175,7 +181,7 @@ function QuestionCard({
             aria-label={t("root.tests.builder.question.moveUp")}
             onClick={() => onMove(index, index - 1)}
           >
-            <ArrowUp className="h-3.5 w-3.5" />
+            <ArrowUp className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -185,7 +191,7 @@ function QuestionCard({
             aria-label={t("root.tests.builder.question.moveDown")}
             onClick={() => onMove(index, index + 1)}
           >
-            <ArrowDown className="h-3.5 w-3.5" />
+            <ArrowDown className="size-3.5" />
           </Button>
           <Button
             type="button"
@@ -196,14 +202,14 @@ function QuestionCard({
             className="text-muted-foreground hover:text-destructive"
             onClick={() => onRemove(index)}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <Trash2 className="size-3.5" />
           </Button>
         </div>
       </header>
 
       {spec ? null : (
         <p className="mt-3 inline-flex items-start gap-1.5 rounded-lg bg-[color-mix(in_srgb,var(--warning)_12%,transparent)] px-3 py-2 text-2xs text-warning">
-          <AlertTriangle className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <AlertTriangle className="mt-px size-3.5 shrink-0" aria-hidden="true" />
           {t("root.tests.builder.question.unknownType", { type })}
         </p>
       )}

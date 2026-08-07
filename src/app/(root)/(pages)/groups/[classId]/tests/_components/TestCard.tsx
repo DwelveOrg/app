@@ -49,10 +49,15 @@ export default function TestCard({
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="min-w-0 text-base font-semibold text-foreground">
+            <h3 className="type-heading min-w-0 text-foreground">
+              {/*
+                The link stretches over the whole card so the card body is the click target that
+                `Surface interactive` promises, while the controls in the footer sit above it in
+                the stacking order and stay independently clickable.
+              */}
               <Link
                 href={`/groups/${classId}/tests/${test.id}`}
-                className="block truncate rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
+                className="block truncate rounded-sm outline-none before:absolute before:inset-0 before:rounded-2xl hover:underline focus-visible:ring-2 focus-visible:ring-ring/40"
               >
                 {test.title}
               </Link>
@@ -103,7 +108,8 @@ export default function TestCard({
         ) : null}
       </dl>
 
-      <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
+      {/* `relative` lifts the controls above the title link's stretched hit area. */}
+      <div className="relative flex flex-wrap items-center gap-2 border-t border-border pt-3">
         <Button asChild size="sm">
           <Link href={`/groups/${classId}/tests/${test.id}`}>
             {test.status === "DRAFT"

@@ -16,6 +16,7 @@ docs/
     SECURITY.md
   api/
     API_ROUTES.md
+    test-creation.md
   features/
     school-membership.md
     notifications.md

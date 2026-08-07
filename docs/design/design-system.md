@@ -254,6 +254,23 @@ Rules:
   for the outer container and dividers or insets inside it.
 - Raw `shadow-[…]` in a component is a bug.
 
+### Worked example: a three-level tree
+
+The test builder is the deepest hierarchy in the product — section → question group → question — and
+it is the reference for how to render one **without** three nested boxes:
+
+- The **section** is the only card: one `Surface` at elevation 1.
+- A **group** is a full-bleed band inside that card. It cancels the surface padding
+  (`-mx-5 sm:-mx-6`) and separates itself with a `border-t` hairline, so the rule reads as a
+  division of the section rather than the top of another box.
+- A **question** is a flat row in a `divide-y` list. It carries no border, no ring, and no
+  `interactive` lift — a row of form inputs is not clickable and must not look it.
+- **Only the invalid state draws an edge.** A question a publish check flagged gets the ring, which
+  is what makes it findable; if everything is boxed, nothing is.
+
+The three levels are three weights of the same idea — card edge, band rule, row rule — so hierarchy
+comes from rhythm instead of from three competing borders at three competing radii.
+
 ---
 
 ## 5. Motion
@@ -344,7 +361,9 @@ the route-local `_components` — and prefer extending a primitive over restylin
 | `ConfirmDialog` | Every destructive confirmation. |
 | `MessagePromptDialog` | Every "give a reason" prompt. |
 | `PageHeader` | Every page title + subtitle + actions row. |
+| `BackLink` | Every "up one level" link above a detail page's header. |
 | `SectionHeader` | Every icon-chip + title + description block inside a panel. |
+| `FactGrid` / `Fact` | Every labelled facts row under an entity header. |
 | `ListRow` | Every icon + title + description + trailing-control row. |
 | `PersonRequestRow` | Every pending request from a person, with approve and reject. |
 | `RowActionsMenu` | Every trailing overflow menu on a row or card. |

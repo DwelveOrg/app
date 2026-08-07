@@ -27,9 +27,29 @@ import { NotificationTabs } from "./_components/NotificationTabs";
 import { NotificationsHeader } from "./_components/NotificationsHeader";
 import { groupNotificationsByDate, resolveNotificationHref } from "./_lib/notifications";
 import Surface from "@/components/ui/Surface";
+import { queryKeys } from "@/lib/query/keys";
+import { useTabRefresh } from "@/lib/query/useTabRefresh";
 
 const PAGE_SIZE = 10;
 const CATEGORY_FILTERS: NotificationCategory[] = ["system", "payments", "invitations"];
+
+/**
+ * The backend params one filter pill maps to: `all`/`unread` are the `tab`, the
+ * rest are `category` (both filtered server-side, so each is its own cache
+ * entry). Shared with the tab-switch refresh so the key it invalidates is the
+ * same key the query will read — deriving them separately is how they drift.
+ */
+function filterParams(filter: NotificationFilter): {
+  tab: NotificationTab;
+  category?: NotificationCategory;
+} {
+  return {
+    tab: filter === "unread" ? "unread" : "all",
+    category: CATEGORY_FILTERS.includes(filter as NotificationCategory)
+      ? (filter as NotificationCategory)
+      : undefined,
+  };
+}
 
 const Page = () => {
   const { i18n, t } = useTranslation();
@@ -39,12 +59,7 @@ const Page = () => {
   const [activeFilter, setActiveFilter] = useState<NotificationFilter>("all");
   const [selectedNotification, setSelectedNotification] = useState<NotificationItem | null>(null);
 
-  // `all`/`unread` map to the backend `tab`; the category pills map to the
-  // backend `category` param (server-side filtering) — each its own query cache.
-  const tab: NotificationTab = activeFilter === "unread" ? "unread" : "all";
-  const category = CATEGORY_FILTERS.includes(activeFilter as NotificationCategory)
-    ? (activeFilter as NotificationCategory)
-    : undefined;
+  const { tab, category } = filterParams(activeFilter);
   const notificationsQuery = useNotificationsList({ tab, category, limit: PAGE_SIZE });
   const statusQuery = useNotificationStatus();
 
@@ -134,6 +149,29 @@ const Page = () => {
     if (unreadCount > 0) markAllReadMutation.mutate();
   }, [markAllReadMutation, unreadCount]);
 
+  // These pills predate `TabBar` and still carry their own markup, so the
+  // re-read that `TabBar` gives every other tab row is wired by hand here. Each
+  // filter is its own cache entry, so returning to one would otherwise replay
+  // the previous visit, with whatever arrived in between missing.
+  //
+  // Only the filter being opened is invalidated: the broad `lists()` key also
+  // matches the filter being left, which is still mounted at this point and
+  // would refetch a list the user is on their way out of.
+  const refreshTab = useTabRefresh();
+  const handleFilterChange = useCallback(
+    (filter: NotificationFilter) => {
+      const next = filterParams(filter);
+      refreshTab({
+        queryKeys: [
+          queryKeys.notifications.list(next.tab, PAGE_SIZE, next.category),
+          queryKeys.notifications.status(),
+        ],
+      });
+      setActiveFilter(filter);
+    },
+    [refreshTab],
+  );
+
   const hasItems = visibleItems.length > 0;
 
   const loadMore = notificationsQuery.hasNextPage ? (
@@ -164,7 +202,11 @@ const Page = () => {
         isMarkingAll={markAllReadMutation.isPending}
       />
 
-      <NotificationTabs active={activeFilter} onChange={setActiveFilter} unreadCount={unreadCount} />
+      <NotificationTabs
+        active={activeFilter}
+        onChange={handleFilterChange}
+        unreadCount={unreadCount}
+      />
 
       <AnimatePresence mode="wait">
         {notificationsQuery.isLoading ? (

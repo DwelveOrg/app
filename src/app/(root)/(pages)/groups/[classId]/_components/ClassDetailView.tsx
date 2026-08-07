@@ -24,6 +24,7 @@ import type { ApiClass } from "@/app/(root)/_lib/classes.schemas";
 import { Button } from "@/components/ui/Button";
 import Badge from "@/components/ui/badge";
 import EntityHeader from "@/app/(root)/_components/EntityHeader";
+import FactGrid, { Fact } from "@/app/(root)/_components/FactGrid";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import {
   DropdownMenu,
@@ -167,7 +168,7 @@ export default function ClassDetailView({
         <h2 id="class-overview-heading" className="sr-only">
           {t("root.classDetail.overview.title")}
         </h2>
-        <dl className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <FactGrid className="mt-6">
           <Fact
             icon={<UserCog className="h-4 w-4" />}
             label={t("root.classDetail.overview.teacher")}
@@ -209,7 +210,7 @@ export default function ClassDetailView({
             label={t("root.classDetail.overview.created")}
             value={classItem.createdAt ? <RelativeTime date={classItem.createdAt} /> : "—"}
           />
-        </dl>
+        </FactGrid>
       </EntityHeader>
 
       <ClassRosterSection
@@ -253,26 +254,5 @@ export default function ClassDetailView({
         </>
       ) : null}
     </section>
-  );
-}
-
-type FactProps = {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-  hint?: string;
-};
-
-/** One labelled class fact in the overview grid. */
-function Fact({ icon, label, value, hint }: FactProps) {
-  return (
-    <div className="rounded-xl border border-border bg-background px-4 py-3">
-      <dt className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-        <span className="text-muted-foreground">{icon}</span>
-        {label}
-      </dt>
-      <dd className="mt-1 truncate text-sm font-semibold text-foreground">{value}</dd>
-      {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
-    </div>
   );
 }

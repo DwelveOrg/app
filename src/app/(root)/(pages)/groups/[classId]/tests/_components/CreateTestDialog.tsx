@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import { Dialog as DialogPrimitive } from "radix-ui";
 
+import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
@@ -20,6 +21,8 @@ import {
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import type { FormatBlueprintRegistry } from "@/app/(root)/_lib/tests.schemas";
 import { cn } from "@/lib/utils";
+import { formatIcon } from "../_constants";
+import FormatMark from "./FormatMark";
 import { useCreateTestMutation } from "../_hooks/useCreateTestMutation";
 import { humanizeToken, translateKey } from "../_lib/labels";
 
@@ -34,10 +37,13 @@ type CreateTestDialogProps = {
 /**
  * Creates a draft and drops the teacher straight into the builder.
  *
- * The format is picked as cards rather than a `<select>`: it decides which
- * question types and sections the whole test may use and cannot be changed
- * afterwards, so it deserves to be readable at a glance rather than hidden
- * behind a closed menu.
+ * The format is picked as cards rather than a `<select>`: it decides the sections the draft
+ * starts with, it cannot be changed afterwards, and each option needs a line of explanation — all
+ * of which a closed menu hides.
+ *
+ * It no longer decides which *question types* the test may hold. Every format now returns the
+ * complete catalogue (`docs/api/test-creation.md`), so the cards describe their section layout
+ * instead — the only thing the choice still determines.
  */
 export default function CreateTestDialog({
   open,
@@ -135,21 +141,31 @@ export default function CreateTestDialog({
                       <label
                         key={format}
                         className={cn(
-                          "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition",
+                          "interactive-flat flex cursor-pointer items-start gap-3 rounded-xl border p-3",
+                          "has-focus-visible:ring-2 has-focus-visible:ring-ring/40",
                           isSelected
                             ? "border-primary bg-[color-mix(in_srgb,var(--primary)_8%,transparent)]"
                             : "border-border bg-background hover:border-[color-mix(in_srgb,var(--primary)_40%,var(--border))]",
                         )}
                       >
-                        <RadioGroupItem value={format} className="mt-0.5" />
+                        <RadioGroupItem value={format} className="mt-1" />
+
+                        <FormatMark
+                          icon={formatIcon(format)}
+                          className={cn(
+                            "size-9 rounded-lg transition-colors duration-[var(--dur-1)]",
+                            isSelected
+                              ? "bg-[color-mix(in_srgb,var(--primary)_14%,transparent)] text-primary"
+                              : "bg-muted text-muted-foreground",
+                          )}
+                        />
+
                         <span className="min-w-0 flex-1">
                           <span className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
                             {translateKey(t, blueprint.labelKey, humanizeToken(format))}
+                            {/* Selection is the tint, the ring, *and* this check — never colour alone. */}
                             {isSelected ? (
-                              <Check
-                                className="h-3.5 w-3.5 text-primary"
-                                aria-hidden="true"
-                              />
+                              <Check className="size-3.5 text-primary" aria-hidden="true" />
                             ) : null}
                           </span>
                           {/*
@@ -166,6 +182,28 @@ export default function CreateTestDialog({
                               }),
                             })}
                           </span>
+
+                          {/*
+                            What the format actually decides, now that it no longer restricts
+                            question types: the sections a new draft starts with.
+                          */}
+                          {blueprint.sectionPresets.length > 0 ? (
+                            <span className="mt-2 flex flex-wrap gap-1">
+                              {blueprint.sectionPresets.map((preset, index) => (
+                                <Badge
+                                  key={`${preset.kind}-${index}`}
+                                  variant={isSelected ? "primary" : "neutral"}
+                                  size="xs"
+                                >
+                                  {translateKey(
+                                    t,
+                                    preset.titleKey,
+                                    humanizeToken(preset.kind),
+                                  )}
+                                </Badge>
+                              ))}
+                            </span>
+                          ) : null}
                         </span>
                       </label>
                     );
