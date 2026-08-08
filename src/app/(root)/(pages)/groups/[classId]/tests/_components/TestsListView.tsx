@@ -21,9 +21,12 @@ import { Button } from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Empty from "@/app/(root)/(pages)/_components/ui/Empty";
-import { DEFAULT_TEST_STATUS, TEST_STATUS_TABS } from "../_constants";
-import { useTestsQuery } from "../_hooks/useTestsQuery";
-import CreateTestDialog from "./CreateTestDialog";
+import {
+  DEFAULT_TEST_STATUS,
+  TEST_STATUS_TABS,
+  studioRoutes,
+} from "@/app/(root)/_constants/tests";
+import { useTestsQuery } from "@/app/(root)/_hooks/useTests";
 import DeleteTestDialog from "./DeleteTestDialog";
 import TestCard from "./TestCard";
 
@@ -52,7 +55,6 @@ export default function TestsListView({
   const { t } = useTranslation();
   const [status, setStatus] = useState<TestStatus>(DEFAULT_TEST_STATUS);
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiTestSummary | null>(null);
 
   const isDefaultView = status === DEFAULT_TEST_STATUS && page === 1;
@@ -91,9 +93,16 @@ export default function TestsListView({
           </p>
         </div>
 
-        <Button size="lg" onClick={() => setCreateOpen(true)}>
-          <FilePlus2 className="h-4 w-4" />
-          {t("root.tests.list.create")}
+        {/*
+          Authoring happens in the studio, a different environment with its own
+          chrome, so this is a navigation rather than a dialog. The class comes
+          along as a query parameter because the draft does not exist yet.
+        */}
+        <Button asChild size="lg">
+          <Link href={studioRoutes.newTest(classId)}>
+            <FilePlus2 className="h-4 w-4" />
+            {t("root.tests.list.create")}
+          </Link>
         </Button>
       </header>
 
@@ -130,9 +139,11 @@ export default function TestsListView({
           description={t(`root.tests.list.empty.${status}.description`)}
           action={
             status === "DRAFT" ? (
-              <Button type="button" className="w-full" onClick={() => setCreateOpen(true)}>
-                <FilePlus2 className="h-4 w-4" />
-                {t("root.tests.list.create")}
+              <Button asChild className="w-full">
+                <Link href={studioRoutes.newTest(classId)}>
+                  <FilePlus2 className="h-4 w-4" />
+                  {t("root.tests.list.create")}
+                </Link>
               </Button>
             ) : null
           }
@@ -147,7 +158,6 @@ export default function TestsListView({
             <TestCard
               key={test.id}
               test={test}
-              classId={classId}
               formats={formats}
               onRequestDelete={setDeleteTarget}
             />
@@ -183,13 +193,6 @@ export default function TestsListView({
           </Button>
         </nav>
       ) : null}
-
-      <CreateTestDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        classId={classId}
-        formats={formats}
-      />
 
       <DeleteTestDialog
         open={deleteTarget !== null}

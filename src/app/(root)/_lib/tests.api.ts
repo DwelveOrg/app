@@ -14,6 +14,7 @@ import {
   testValidationResponseSchema,
 } from "./tests.schemas";
 import type { SaveSectionInput } from "./tests.actions.schemas";
+import type { TestDelivery } from "./test-delivery";
 
 /**
  * Named endpoint functions for the tests authoring API. Every call goes through
@@ -106,6 +107,31 @@ export function updateTestRequest(
 ) {
   return requestJson(`/tests/${testId}`, {
     method: "PATCH",
+    body,
+    responseSchema: testSummaryResponseSchema,
+  });
+}
+
+/**
+ * `PUT /tests/:testId/delivery` - the delivery and integrity rules collected by
+ * the publish wizard.
+ *
+ * Deliberately its own endpoint rather than more fields on `PATCH /tests/:testId`:
+ * the wizard replaces the whole object every time it saves, and a partial patch
+ * of eighteen interdependent switches ("fullscreen off but exit action still
+ * SUBMIT") is a state the backend would have to reason about on every write.
+ *
+ * Not implemented server-side yet — see
+ * `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md`. Callers
+ * must treat a 404 as "not shipped", not as "test missing".
+ */
+export function saveTestDeliveryRequest(
+  testId: string,
+  body: { delivery: TestDelivery },
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/tests/${testId}/delivery`, {
+    method: "PUT",
     body,
     responseSchema: testSummaryResponseSchema,
   });

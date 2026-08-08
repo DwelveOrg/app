@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { imageFileSchema } from "./actions.schemas";
+import { testDeliveryInputSchema } from "./test-delivery";
 
 /**
  * Input schemas for the tests server actions **and** the builder form.
@@ -138,6 +139,37 @@ export const updateTestSchema = z.object({
   availableUntil: z.string().nullable().optional(),
 });
 export type UpdateTestInput = z.infer<typeof updateTestSchema>;
+
+/**
+ * `PUT /tests/:testId/delivery` - the whole delivery object, never a patch.
+ *
+ * The wizard always holds a complete set of values (missing ones fall back to
+ * `DEFAULT_TEST_DELIVERY` at read time), so sending all of them keeps the
+ * backend free of "which half of this rule pair changed" reasoning.
+ */
+export const saveTestDeliverySchema = z.object({
+  testId: z.string().min(1),
+  delivery: testDeliveryInputSchema,
+});
+export type SaveTestDeliveryInput = z.infer<typeof saveTestDeliverySchema>;
+
+/**
+ * The wizard's terminal action: save the metadata it edited, save the delivery
+ * rules, then publish — in that order, because a test must not go live under
+ * rules that failed to persist.
+ *
+ * `force` is the teacher's explicit override for the one case where that order
+ * cannot be honoured: a backend that has not shipped the delivery endpoint. It
+ * publishes with today's semantics and reports plainly that the integrity rules
+ * were not stored.
+ */
+export const publishTestWithDeliverySchema = z.object({
+  testId: z.string().min(1),
+  delivery: testDeliveryInputSchema,
+  settings: updateTestSchema.omit({ testId: true }),
+  force: z.boolean().default(false),
+});
+export type PublishTestWithDeliveryInput = z.infer<typeof publishTestWithDeliverySchema>;
 
 /** Every single-test action shares this shape. */
 export const testIdSchema = z.object({ testId: z.string().min(1) });

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import type { TestStatus } from "@/app/(root)/_lib/tests.schemas";
-import { useDeleteTestMutation } from "../_hooks/useDeleteTestMutation";
+import { useDeleteTestMutation } from "@/app/(root)/_hooks/useTests";
 
 type DeleteTestDialogProps = {
   open: boolean;

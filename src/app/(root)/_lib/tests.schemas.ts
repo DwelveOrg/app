@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { DEFAULT_TEST_DELIVERY, testDeliverySchema } from "./test-delivery";
+
 /**
  * Zod schemas for the tests authoring API. Shapes mirror the NestJS
  * `TestsService` sanitizers exactly (see `backend_nestJS/docs/features/tests.md`).
@@ -188,6 +190,16 @@ const testBaseShape = {
   archivedAt: z.string().nullable().optional(),
   createdAt: z.union([z.string(), z.date()]).optional(),
   updatedAt: z.union([z.string(), z.date()]).optional(),
+  /**
+   * Delivery and exam-integrity rules, collected by the publish wizard.
+   *
+   * Defaulted rather than optional: the backend does not serve this object yet
+   * (see `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md`),
+   * and a wizard opening onto `undefined` would have nothing to render. A test
+   * that has never been through the wizard behaves exactly as it does today,
+   * because `DEFAULT_TEST_DELIVERY` locks nothing down.
+   */
+  delivery: testDeliverySchema.default(DEFAULT_TEST_DELIVERY),
   /**
    * Roll-ups for the list card. The contract does not promise them, so the card
    * falls back to a dash rather than inventing a number.

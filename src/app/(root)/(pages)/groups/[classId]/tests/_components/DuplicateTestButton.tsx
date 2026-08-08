@@ -6,20 +6,15 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import { Button } from "@/components/ui/Button";
-import { useDuplicateTestMutation } from "../_hooks/useDuplicateTestMutation";
+import { useDuplicateTestMutation } from "@/app/(root)/_hooks/useTests";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 
 /**
- * Deep-clones a test as a fresh draft and opens the copy. This is the intended
- * route for reusing last term's paper, and the only way to change a published
- * test without unpublishing it.
+ * Deep-clones a test as a fresh draft and opens the copy in the studio. This is
+ * the intended route for reusing last term's paper, and the only way to change
+ * a published test without unpublishing it.
  */
-export default function DuplicateTestButton({
-  testId,
-  classId,
-}: {
-  testId: string;
-  classId: string;
-}) {
+export default function DuplicateTestButton({ testId }: { testId: string }) {
   const { t } = useTranslation();
   const router = useRouter();
   const duplicate = useDuplicateTestMutation();
@@ -30,7 +25,7 @@ export default function DuplicateTestButton({
       {
         onSuccess: (created) => {
           toast.success(t("root.tests.list.duplicate.success", { title: created.title }));
-          router.push(`/groups/${classId}/tests/${created.id}`);
+          router.push(studioRoutes.builder(created.id));
           router.refresh();
         },
         onError: (error) =>

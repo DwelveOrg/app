@@ -10,15 +10,16 @@ import type {
 } from "@/app/(root)/_lib/tests.schemas";
 import { Button } from "@/components/ui/Button";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
-import TestStatusBadge from "./TestStatusBadge";
+import TestStatusBadge from "@/components/tests/TestStatusBadge";
+import FormatMark from "@/components/tests/FormatMark";
 import DuplicateTestButton from "./DuplicateTestButton";
-import { humanizeToken, translateKey } from "../_lib/labels";
+import { humanizeToken, translateKey } from "@/app/(root)/_lib/test-labels";
+import { formatIcon, studioRoutes } from "@/app/(root)/_constants/tests";
 import Surface from "@/components/ui/Surface";
 import Badge from "@/components/ui/badge";
 
 type TestCardProps = {
   test: ApiTestSummary;
-  classId: string;
   /** The blueprint registry, so the format badge reads as its own label. */
   formats: FormatBlueprintRegistry;
   onRequestDelete: (test: ApiTestSummary) => void;
@@ -31,7 +32,6 @@ type TestCardProps = {
  */
 export default function TestCard({
   test,
-  classId,
   formats,
   onRequestDelete,
 }: TestCardProps) {
@@ -47,11 +47,13 @@ export default function TestCard({
   return (
     <Surface as="article" interactive className="flex flex-col gap-3">
       <div className="flex flex-wrap items-start gap-3">
+        <FormatMark icon={formatIcon(test.format)} size="sm" />
+
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="min-w-0 text-base font-semibold text-foreground">
               <Link
-                href={`/groups/${classId}/tests/${test.id}`}
+                href={studioRoutes.builder(test.id)}
                 className="block truncate rounded-sm outline-none hover:underline focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 {test.title}
@@ -105,14 +107,14 @@ export default function TestCard({
 
       <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
         <Button asChild size="sm">
-          <Link href={`/groups/${classId}/tests/${test.id}`}>
+          <Link href={studioRoutes.builder(test.id)}>
             {test.status === "DRAFT"
               ? t("root.tests.list.actions.edit")
               : t("root.tests.list.actions.open")}
           </Link>
         </Button>
 
-        <DuplicateTestButton testId={test.id} classId={classId} />
+        <DuplicateTestButton testId={test.id} />
 
         <Button
           size="sm"
