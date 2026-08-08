@@ -6,6 +6,7 @@ import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
   enrollmentMutationResponseSchema,
+  leaveClassResponseSchema,
   listEnrollmentsResponseSchema,
   myClassesResponseSchema,
   studentClassesResponseSchema,
@@ -109,6 +110,26 @@ export function cancelJoinRequestRequest(
   return requestJson(`/classes/${classId}/join-request`, {
     method: "DELETE",
     responseSchema: enrollmentMutationResponseSchema,
+  });
+}
+
+/**
+ * `DELETE /classes/:classId/membership` - the caller leaves this class itself.
+ *
+ * STUDENT and TEACHER only, and it always acts on the session's own membership:
+ * a student's roster row is dropped and their active enrollment becomes
+ * `REMOVED`, a teacher's class assignment is deleted. School membership is
+ * untouched either way, so — unlike leaving a school — no session token has to
+ * be rotated afterwards. Removing *somebody else* stays on the admin roster
+ * routes below.
+ */
+export function leaveClassRequest(
+  classId: string,
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/membership`, {
+    method: "DELETE",
+    responseSchema: leaveClassResponseSchema,
   });
 }
 

@@ -80,7 +80,7 @@ export default function ClassesView({ items, role }: ClassesViewProps) {
           />
 
           {visible.length > 0 ? (
-            <ClassGrid key={filter} items={visible} isAdmin={isAdmin} />
+            <ClassGrid key={filter} items={visible} />
           ) : (
             <Empty
               title={t("root.classes.empty.title")}

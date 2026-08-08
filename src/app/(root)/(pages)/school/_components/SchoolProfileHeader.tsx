@@ -5,7 +5,6 @@ import { ChevronDown, LogOut, MapPin, Pencil, Trash2, UserPlus } from "lucide-re
 import { useTranslation } from "react-i18next";
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import { Button } from "@/components/ui/Button";
-import Badge from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,12 +32,6 @@ type SchoolProfileHeaderProps = {
   isAdmin: boolean;
   role: SchoolRole | null;
   studentJoinCode?: string | null;
-};
-
-const ROLE_LABEL_KEYS: Record<SchoolRole, string> = {
-  ADMIN: "root.schoolPage.roles.admin",
-  TEACHER: "root.schoolPage.roles.teacher",
-  STUDENT: "root.schoolPage.roles.student",
 };
 
 export default function SchoolProfileHeader({
@@ -103,7 +96,9 @@ export default function SchoolProfileHeader({
         </>
       }
       actions={
-        /* Admins get management controls; everyone else sees a read-only chip. */
+        /* Admins get management controls; a teacher or student gets the one
+           action they actually have here. The role is not announced back to the
+           user — the controls on the page already say what they can do. */
         isAdmin ? (
           <>
             <Button type="button" variant="outline" size="lg" onClick={() => setEditOpen(true)}>
@@ -142,21 +137,16 @@ export default function SchoolProfileHeader({
             </Button>
           </>
         ) : role ? (
-          <>
-            <Badge variant="outline" size="md" className="py-1.5">
-              {t("root.schoolPage.viewingAs", { role: t(ROLE_LABEL_KEYS[role]) })}
-            </Badge>
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              onClick={() => setLeaveOpen(true)}
-              className="text-muted-foreground hover:border-[color-mix(in_srgb,var(--destructive)_35%,transparent)] hover:text-destructive"
-            >
-              <LogOut className="size-4" />
-              {t("root.schoolPage.actions.leave")}
-            </Button>
-          </>
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            onClick={() => setLeaveOpen(true)}
+            className="text-muted-foreground hover:border-[color-mix(in_srgb,var(--destructive)_35%,transparent)] hover:text-destructive"
+          >
+            <LogOut className="size-4" />
+            {t("root.schoolPage.actions.leave")}
+          </Button>
         ) : null
       }
     >

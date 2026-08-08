@@ -918,14 +918,6 @@ translation: {
           active: "Active",
           inactive: "Inactive",
           soon: "Soon",
-          viewingAs: "Viewing as {{role}} — read only",
-          roles: {
-            owner: "Owner",
-            director: "Director",
-            admin: "Admin",
-            teacher: "Teacher",
-            student: "Student",
-          },
           tabs: {
             classes: "Classes",
             teachers: "Teachers",
@@ -937,13 +929,8 @@ translation: {
             columns: {
               teacher: "Teacher",
               email: "Email",
-              status: "Status",
               joined: "Joined",
               actions: "Actions",
-            },
-            status: {
-              ready: "Ready",
-              pending: "Profile pending",
             },
             emptyTitle: "No teachers yet",
             emptyDescription:
@@ -1325,10 +1312,8 @@ translation: {
             open: "Open class",
             edit: "Edit",
             delete: "Delete",
-            more: "More",
             addTest: "Add test",
-            addExam: "Add exam",
-            comingSoon: "{{action}} — coming soon",
+            leave: "Leave class",
           },
           overview: {
             title: "Class overview",
@@ -1400,6 +1385,18 @@ translation: {
             cancel: "Cancel",
             success: "\"{{name}}\" deleted",
             error: "Could not delete the class. Please try again.",
+          },
+          leave: {
+            title: "Leave \"{{name}}\"?",
+            descriptionStudent:
+              "You'll be taken off the roster and lose access to this class and its tests. You stay in the school, and you can ask to join again if the class accepts requests.",
+            descriptionTeacher:
+              "You'll stop teaching this class and lose access to its roster, requests, and tests. You stay in the school, and you can ask to teach it again.",
+            confirm: "Leave class",
+            cancel: "Cancel",
+            success: "You left \"{{name}}\"",
+            alreadyLeft: "You were no longer in \"{{name}}\"",
+            error: "Could not leave the class. Please try again.",
           },
         },
         profile: {

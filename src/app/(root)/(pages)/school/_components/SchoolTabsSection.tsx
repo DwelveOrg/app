@@ -129,7 +129,7 @@ export default function SchoolTabsSection({
         ) : role === "TEACHER" ? (
           <TeacherClassesView schoolId={schoolId} />
         ) : classItems.length > 0 ? (
-          <ClassGrid items={classItems} isAdmin={isAdmin} />
+          <ClassGrid items={classItems} />
         ) : (
           <Empty
             title={t("root.schoolPage.directory.emptyTitle")}
