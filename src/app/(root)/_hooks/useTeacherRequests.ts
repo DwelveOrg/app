@@ -2,6 +2,8 @@
 
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+import { leaveClassAction } from "@/app/(root)/_lib/enrollment-actions";
+import type { LeaveClassInput } from "@/app/(root)/_lib/enrollment.schemas";
 import {
   approveTeacherRequestAction,
   cancelTeacherRequestAction,
@@ -98,6 +100,27 @@ export function useCancelTeacherRequestMutation(schoolId: string | undefined) {
     mutationFn: async (input: CancelTeacherRequestInput) =>
       readSafeActionData(await cancelTeacherRequestAction(input), MUTATION_FALLBACK),
     onSettled: invalidate,
+  });
+}
+
+/**
+ * A teacher stepping down from a class they were assigned to. The action itself
+ * is shared with the student flow (the backend resolves the caller's own
+ * membership either way); what differs is the cache, so the teacher list — not
+ * the student directory or the overview counts — is what gets invalidated here.
+ * `queryKeys.classes.all` covers the class detail the leaver can no longer open.
+ */
+export function useLeaveClassMutation(schoolId: string | undefined) {
+  const queryClient = useQueryClient();
+  const invalidateTeacherClasses = useInvalidateTeacherClasses(schoolId);
+  return useMutation({
+    mutationFn: async (input: LeaveClassInput) =>
+      readSafeActionData(await leaveClassAction(input), MUTATION_FALLBACK),
+    onSettled: () =>
+      Promise.all([
+        invalidateTeacherClasses(),
+        queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+      ]),
   });
 }
 

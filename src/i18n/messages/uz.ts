@@ -912,14 +912,6 @@ translation: {
           active: "Faol",
           inactive: "Nofaol",
           soon: "Tez orada",
-          viewingAs: "{{role}} sifatida koʻrilmoqda — faqat oʻqish",
-          roles: {
-            owner: "Egasi",
-            director: "Direktor",
-            admin: "Administrator",
-            teacher: "Oʻqituvchi",
-            student: "Oʻquvchi",
-          },
           tabs: {
             classes: "Sinflar",
             teachers: "Oʻqituvchilar",
@@ -931,13 +923,8 @@ translation: {
             columns: {
               teacher: "Oʻqituvchi",
               email: "Email",
-              status: "Holat",
               joined: "Qoʻshilgan",
               actions: "Amallar",
-            },
-            status: {
-              ready: "Tayyor",
-              pending: "Profil toʻldirilmagan",
             },
             emptyTitle: "Hozircha oʻqituvchilar yoʻq",
             emptyDescription:
@@ -1320,10 +1307,8 @@ translation: {
             open: "Sinfni ochish",
             edit: "Tahrirlash",
             delete: "Oʻchirish",
-            more: "Yana",
             addTest: "Test qoʻshish",
-            addExam: "Imtihon qoʻshish",
-            comingSoon: "{{action}} — tez orada",
+            leave: "Sinfni tark etish",
           },
           overview: {
             title: "Sinf haqida",
@@ -1394,6 +1379,18 @@ translation: {
             cancel: "Bekor qilish",
             success: "«{{name}}» oʻchirildi",
             error: "Sinfni oʻchirib boʻlmadi. Qayta urinib koʻring.",
+          },
+          leave: {
+            title: "«{{name}}» sinfini tark etasizmi?",
+            descriptionStudent:
+              "Siz sinf roʻyxatidan chiqarilasiz va sinf hamda uning testlariga kirish huquqini yoʻqotasiz. Maktabda qolasiz va sinf soʻrovlarni qabul qilsa, qayta soʻrov yuborishingiz mumkin.",
+            descriptionTeacher:
+              "Siz bu sinfda dars berishni toʻxtatasiz va uning roʻyxati, soʻrovlari hamda testlariga kirish huquqini yoʻqotasiz. Maktabda qolasiz va qayta soʻrov yuborishingiz mumkin.",
+            confirm: "Sinfni tark etish",
+            cancel: "Bekor qilish",
+            success: "Siz «{{name}}» sinfini tark etdingiz",
+            alreadyLeft: "Siz allaqachon «{{name}}» sinfida emas edingiz",
+            error: "Sinfni tark etib boʻlmadi. Qayta urinib koʻring.",
           },
         },
         profile: {

@@ -14,7 +14,6 @@ import Empty from "../../_components/ui/Empty";
 import InviteTeacherDialog from "./InviteTeacherDialog";
 import RemoveTeacherDialog from "./RemoveTeacherDialog";
 import Surface from "@/components/ui/Surface";
-import Badge from "@/components/ui/badge";
 
 type SchoolTeachersTabProps = {
   /** Already filtered to `role === "TEACHER"` by the page. */
@@ -78,7 +77,6 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
             <tr>
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.teacher")}</th>
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.email")}</th>
-              <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.status")}</th>
               <th className="px-4 py-3">{t("root.schoolPage.teachers.columns.joined")}</th>
               <th className="px-4 py-3">
                 <span className="sr-only">{t("root.schoolPage.teachers.columns.actions")}</span>
@@ -96,9 +94,6 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
                 </td>
                 <td className="px-4 py-3 align-top text-muted-foreground">
                   {teacher.email}
-                </td>
-                <td className="px-4 py-3 align-top">
-                  <ProfileStatus teacherProfileId={teacher.teacherProfileId} />
                 </td>
                 <td className="px-4 py-3 align-top text-muted-foreground">
                   {teacher.createdAt ? <RelativeTime date={teacher.createdAt} /> : "—"}
@@ -128,10 +123,11 @@ export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachers
               </div>
               <TeacherActionsMenu teacher={teacher} onRemove={setRemoveTarget} />
             </div>
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-              <ProfileStatus teacherProfileId={teacher.teacherProfileId} />
-              {teacher.createdAt ? <RelativeTime date={teacher.createdAt} /> : null}
-            </div>
+            {teacher.createdAt ? (
+              <div className="text-xs text-muted-foreground">
+                <RelativeTime date={teacher.createdAt} />
+              </div>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -170,28 +166,5 @@ function TeacherActionsMenu({
         },
       ]}
     />
-  );
-}
-
-/**
- * `teacherProfileId` is the id used for class assignment (never `userId`). A
- * null one means the membership exists but the teacher profile is not set up
- * yet, so the person cannot be assigned to a class.
- */
-function ProfileStatus({ teacherProfileId }: { teacherProfileId: string | null }) {
-  const { t } = useTranslation();
-
-  if (teacherProfileId) {
-    return (
-      <Badge variant="success" size="md">
-        {t("root.schoolPage.teachers.status.ready")}
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge size="md">
-      {t("root.schoolPage.teachers.status.pending")}
-    </Badge>
   );
 }

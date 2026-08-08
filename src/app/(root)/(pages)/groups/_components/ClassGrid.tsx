@@ -13,14 +13,16 @@ import ClassCard from "./ClassCard";
 
 type ClassGridProps = {
   items: ClassItem[];
-  isAdmin: boolean;
 };
 
 /**
  * Responsive, staggered grid of class cards. Shared by the Classes page and the School page's class
  * directory so both stay visually identical.
+ *
+ * No `isAdmin`: the cards are links now, and managing a class happens on the class page, so nothing
+ * in this grid varies by role.
  */
-export default function ClassGrid({ items, isAdmin }: ClassGridProps) {
+export default function ClassGrid({ items }: ClassGridProps) {
   const reduce = useReducedMotion();
 
   return (
@@ -32,7 +34,7 @@ export default function ClassGrid({ items, isAdmin }: ClassGridProps) {
     >
       {items.map((item) => (
         <motion.div key={item.id} variants={reduce ? staticItemVariants : itemVariants}>
-          <ClassCard item={item} isAdmin={isAdmin} />
+          <ClassCard item={item} />
         </motion.div>
       ))}
     </motion.div>
