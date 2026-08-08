@@ -1,37 +1,45 @@
 import "server-only";
 
-import { decodeJwt } from "jose";
 import { z } from "zod";
 
 import type { BackendRequestInit } from "@/lib/api/backend";
+import { backendJson, BackendApiError } from "./api";
 import {
-  backendJson,
-  BackendApiError,
-  refreshTokensRequest,
-  type AuthTokens,
-} from "./api";
-import { createSession, getSession } from "./session";
-import type { SchoolRole, SessionPayload } from "../_types/auth";
-
-/**
- * A single access-token expiry can cause several server requests to receive a
- * 401 at once. Refresh tokens are single-use, so those requests must share one
- * refresh operation instead of each attempting to rotate the same token.
- */
-const pendingRefreshes = new Map<string, Promise<AuthTokens>>();
+  canPersistSession,
+  createSession,
+  deleteSession,
+  getSession,
+} from "./session";
+import { refreshTokensOnce, rotatedSessionProfile } from "./token-refresh";
+import type { SessionPayload } from "../_types/auth";
 
 /** Thrown when an authenticated request has no usable session / access token. */
-export class SessionExpiredError extends Error {
+export class SessionExpiredError extends BackendApiError {
   constructor(message = "Your session expired. Please log in again.") {
-    super(message);
+    // Session expiry is an authentication failure. Extending BackendApiError
+    // lets every existing server-action error mapper present this safe message
+    // instead of falling back to a feature-specific error or exposing the
+    // backend's "Invalid refresh token" response.
+    super(message, 401);
     this.name = "SessionExpiredError";
   }
 }
 
 /**
+ * Drops a session once its credentials can no longer be refreshed. This helper
+ * is also used by server-rendered reads, where Next.js does not allow cookie
+ * mutation, so clearing the cookie is deliberately best-effort there. Server
+ * actions—the usual source of a user-triggered error—will clear it and let the
+ * user open the login page immediately.
+ */
+async function throwSessionExpired(): Promise<never> {
+  await deleteSession().catch(() => undefined);
+  throw new SessionExpiredError();
+}
+
+/**
  * Exchanges the refresh token for a new access token and rewrites the session.
- * The refresh endpoint does not return the user or memberships, so the existing
- * session's identity is preserved and only the tokens are rotated.
+ * Only ever called where cookies are writable — see `canPersistSession`.
  */
 async function refreshAccessToken(current: SessionPayload) {
   if (!current.refreshToken) {
@@ -39,73 +47,10 @@ async function refreshAccessToken(current: SessionPayload) {
   }
 
   const tokens = await refreshTokensOnce(current.refreshToken);
-  const schoolContext = getSchoolContextFromAccessToken(tokens.accessToken);
 
-  await createSession({
-    userId: current.userId,
-    email: current.email,
-    fullName: current.fullName,
-    accessToken: tokens.accessToken,
-    refreshToken: tokens.refreshToken,
-    schoolId: schoolContext.schoolId,
-    memberId: schoolContext.memberId,
-    schoolRole: schoolContext.schoolRole,
-    membershipCount: current.membershipCount,
-  });
+  await createSession(rotatedSessionProfile(current, tokens));
 
   return tokens.accessToken;
-}
-
-function refreshTokensOnce(refreshToken: string): Promise<AuthTokens> {
-  const pendingRefresh = pendingRefreshes.get(refreshToken);
-
-  if (pendingRefresh) {
-    return pendingRefresh;
-  }
-
-  const refresh = refreshTokensRequest(refreshToken);
-  pendingRefreshes.set(refreshToken, refresh);
-
-  void refresh.then(
-    () => {
-      if (pendingRefreshes.get(refreshToken) === refresh) {
-        pendingRefreshes.delete(refreshToken);
-      }
-    },
-    () => {
-      if (pendingRefreshes.get(refreshToken) === refresh) {
-        pendingRefreshes.delete(refreshToken);
-      }
-    },
-  );
-
-  return refresh;
-}
-
-function getSchoolContextFromAccessToken(
-  accessToken: string,
-): Pick<SessionPayload, "schoolId" | "memberId" | "schoolRole"> {
-  try {
-    const payload = decodeJwt(accessToken);
-    const schoolId = typeof payload.schoolId === "string" ? payload.schoolId : undefined;
-    const memberId = typeof payload.memberId === "string" ? payload.memberId : undefined;
-    const schoolRole: SchoolRole | undefined =
-      payload.schoolRole === "ADMIN" ||
-      payload.schoolRole === "TEACHER" ||
-      payload.schoolRole === "STUDENT"
-        ? payload.schoolRole
-        : undefined;
-
-    if (!schoolId || !memberId || !schoolRole) {
-      return {};
-    }
-
-    return { schoolId, memberId, schoolRole };
-  } catch {
-    // The backend only returns signed access tokens. If one cannot be decoded,
-    // keep the session conservative and require the normal authenticated flow.
-    return {};
-  }
 }
 
 function withAuthHeader<TSchema extends z.ZodTypeAny | undefined>(
@@ -142,7 +87,7 @@ export async function authedBackendJson(
   const session = await getSession();
 
   if (!session?.accessToken) {
-    throw new SessionExpiredError();
+    return throwSessionExpired();
   }
 
   try {
@@ -150,11 +95,48 @@ export async function authedBackendJson(
   } catch (error) {
     const isUnauthorized = error instanceof BackendApiError && error.status === 401;
 
-    if (!isUnauthorized || !session.refreshToken) {
+    if (!isUnauthorized) {
       throw error;
     }
 
-    const newAccessToken = await refreshAccessToken(session);
+    if (!session.refreshToken) {
+      return throwSessionExpired();
+    }
+
+    // Refresh tokens are single-use, so a refresh started where its replacement
+    // cannot be saved — any Server Component render — would spend the token and
+    // strand the session permanently. Leaving it unspent keeps the session
+    // recoverable: the proxy refreshes it on the next navigation, where cookie
+    // writes are allowed.
+    if (!(await canPersistSession(session))) {
+      throw new SessionExpiredError();
+    }
+
+    let newAccessToken: string;
+
+    try {
+      newAccessToken = await refreshAccessToken(session);
+    } catch (refreshError) {
+      // A refresh token can legitimately expire or be revoked while a user is
+      // away. That is not actionable as "Invalid refresh token"; tell the
+      // user exactly how to continue instead. Other failures (for example a
+      // timeout or rate limit) retain their original messages.
+      if (refreshError instanceof BackendApiError && refreshError.status === 401) {
+        // Another request may have rotated the tokens between this one reading
+        // the session and its refresh landing, which spends the token this call
+        // is holding. That is a lost race, not an expired session, so retry
+        // with whatever the winner wrote before giving up on the user.
+        const rotated = await getSession();
+
+        if (rotated?.accessToken && rotated.accessToken !== session.accessToken) {
+          return backendJson(path, withAuthHeader(init, rotated.accessToken));
+        }
+
+        return throwSessionExpired();
+      }
+
+      throw refreshError;
+    }
 
     return backendJson(path, withAuthHeader(init, newAccessToken));
   }

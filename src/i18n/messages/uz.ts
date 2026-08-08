@@ -15,11 +15,6 @@ translation: {
           retry: "Qayta urinish",
           home: "Boshqaruv paneliga",
         },
-        notFound: {
-          title: "Sahifa topilmadi",
-          description: "Havola notoʻgʻri bo‘lishi yoki sahifa ko‘chirilgan bo‘lishi mumkin.",
-          home: "Boshqaruv paneliga",
-        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Bosh sahifa",
@@ -540,21 +535,21 @@ translation: {
           },
           create: {
             title: "Yangi test",
-            description: "Formatni tanlang — u qaysi savol turlari mavjudligini belgilaydi.",
+            description: "Format boshlangʻich boʻlimlarni belgilaydi. Savol turlari esa doim toʻliq mavjud.",
             titleLabel: "Nomi",
             titlePlaceholder: "3-boʻlim oʻqish nazorati",
             titleError: "Testga nom bering.",
             formatLabel: "Format",
             noFormats: "Formatlar mavjud emas. Sahifani yangilab koʻring.",
-            formatFallback: "{{sections}} ta boʻlim, {{types}} ta savol turi.",
+            formatFallback: "{{sections}} ta boʻlim bilan boshlanadi.",
             submit: "Yaratish va ochish",
             success: "«{{title}}» yaratildi.",
             error: "Testni yaratib boʻlmadi. Qaytadan urinib koʻring.",
             formatDescriptions: {
-              SIMPLE_QUIZ: "Bitta savollar roʻyxati. Tez nazorat uchun eng qulayi.",
+              SIMPLE_QUIZ: "Bitta umumiy boʻlim. Tez nazorat uchun eng qulayi.",
               IELTS: "Matnli Reading va Writing boʻlimlari, 1–40 gacha ketma-ket raqamlash.",
-              SAT: "SAT savol turlari bilan Reading & Writing va Math modullari.",
-              CUSTOM: "Barcha boʻlim va savol turlari ochiq.",
+              SAT: "Reading & Writing va Math modullari, haqiqiy imtihon tuzilishida.",
+              CUSTOM: "Bitta boʻlimdan boshlang, qolganini oʻzingiz nomlang.",
             },
             heading: "Test yaratish",
             subheading: "Nom bering va formatni tanlang. Format boshlangʻich boʻlimlarni belgilaydi — keyin hammasini oʻzgartirish mumkin.",
@@ -833,16 +828,23 @@ translation: {
               IELTS: "IELTS",
               SAT: "SAT",
             },
+            facts: {
+              sections: "Boʻlimlar",
+              sectionCount_one: "{{count}} boʻlim",
+              sectionCount_other: "{{count}} boʻlim",
+              passingScore: "Oʻtish balli: {{score}}",
+              noDuration: "Vaqt cheklanmagan",
+            },
             picker: {
               title: "Savol qoʻshish",
-              description: "Faqat shu test formati ruxsat bergan turlar koʻrsatilgan.",
+              description: "Basic, IELTS va SAT turlarini istalgan testda ishlatish mumkin.",
               tabsLabel: "Savol turlari guruhlari",
+              searchLabel: "Savol turlarini qidirish",
+              searchPlaceholder: "Barcha turlar boʻyicha qidirish…",
+              noMatches: "«{{query}}» boʻyicha savol turi topilmadi.",
               empty: "Bu format uchun hozircha savol turlari yoʻq.",
               needsStimulus: "Matn kerak",
               noDescription: "Tavsif mavjud emas.",
-              searchPlaceholder: "Barcha savol turlari boʻyicha qidirish…",
-              searchLabel: "Savol turlarini qidirish",
-              noMatches: "“{{query}}” boʻyicha hech nima topilmadi.",
             },
             section: {
               title: "Boʻlim nomi",
@@ -881,6 +883,7 @@ translation: {
               paragraphs: "Xatboshilar:",
             },
             question: {
+              numberLabel: "{{number}}-savol",
               points: "Ball",
               pointsInvalid: "Butun son, 0 dan kam emas",
               moveUp: "Savolni yuqoriga",
@@ -895,7 +898,6 @@ translation: {
               autoGraded: "Avtomatik baholanadi",
               manualGrading: "Qoʻlda tekshiriladi",
               unknownType: "Server endi «{{type}}» turini qoʻllamaydi. Bu savolni oʻchiring yoki almashtiring.",
-              numberLabel: "{{number}}-savol",
               duplicate: "Savolni nusxalash",
               diagram: "Diagramma",
               insertGap: "Tushirish belgisi",
@@ -1008,9 +1010,6 @@ translation: {
             },
             confirmExit: "Saqlanmagan oʻzgarishlar bor. Studiyadan baribir chiqasizmi?",
             saveBeforePublish: "Saqlanmagan oʻzgarishlar bor. Nashr saqlangan versiyani tekshiradi — davom etasizmi?",
-            facts: {
-              noDuration: "Cheklovsiz",
-            },
             stats: {
               summary: "{{questions}} savol · {{points}} ball",
             },
@@ -1222,24 +1221,12 @@ translation: {
             totalPointsInvalid: "Test nol ballga baholanmoqda.",
             passingScoreExceedsTotal: "Oʻtish balli umumiy balldan yuqori.",
             availabilityWindowInvalid: "Yopilish vaqti ochilish vaqtidan keyin boʻlishi kerak.",
-            DELIVERY_WARNING_EXCEEDS_DURATION:
-              "Taymer ogohlantirishi test vaqti tugashidan oldin boshlanishi kerak.",
-            DELIVERY_VIOLATION_LIMIT_MISSING:
-              "Qoidabuzarliklar sanalsa, ularning chegarasini belgilang.",
           },
         },
         schoolPage: {
           active: "Faol",
           inactive: "Nofaol",
           soon: "Tez orada",
-          viewingAs: "{{role}} sifatida koʻrilmoqda — faqat oʻqish",
-          roles: {
-            owner: "Egasi",
-            director: "Direktor",
-            admin: "Administrator",
-            teacher: "Oʻqituvchi",
-            student: "Oʻquvchi",
-          },
           tabs: {
             classes: "Sinflar",
             teachers: "Oʻqituvchilar",
@@ -1251,13 +1238,8 @@ translation: {
             columns: {
               teacher: "Oʻqituvchi",
               email: "Email",
-              status: "Holat",
               joined: "Qoʻshilgan",
               actions: "Amallar",
-            },
-            status: {
-              ready: "Tayyor",
-              pending: "Profil toʻldirilmagan",
             },
             emptyTitle: "Hozircha oʻqituvchilar yoʻq",
             emptyDescription:
@@ -1640,10 +1622,8 @@ translation: {
             open: "Sinfni ochish",
             edit: "Tahrirlash",
             delete: "Oʻchirish",
-            more: "Yana",
             addTest: "Test qoʻshish",
-            addExam: "Imtihon qoʻshish",
-            comingSoon: "{{action}} — tez orada",
+            leave: "Sinfni tark etish",
           },
           overview: {
             title: "Sinf haqida",
@@ -1714,6 +1694,18 @@ translation: {
             cancel: "Bekor qilish",
             success: "«{{name}}» oʻchirildi",
             error: "Sinfni oʻchirib boʻlmadi. Qayta urinib koʻring.",
+          },
+          leave: {
+            title: "«{{name}}» sinfini tark etasizmi?",
+            descriptionStudent:
+              "Siz sinf roʻyxatidan chiqarilasiz va sinf hamda uning testlariga kirish huquqini yoʻqotasiz. Maktabda qolasiz va sinf soʻrovlarni qabul qilsa, qayta soʻrov yuborishingiz mumkin.",
+            descriptionTeacher:
+              "Siz bu sinfda dars berishni toʻxtatasiz va uning roʻyxati, soʻrovlari hamda testlariga kirish huquqini yoʻqotasiz. Maktabda qolasiz va qayta soʻrov yuborishingiz mumkin.",
+            confirm: "Sinfni tark etish",
+            cancel: "Bekor qilish",
+            success: "Siz «{{name}}» sinfini tark etdingiz",
+            alreadyLeft: "Siz allaqachon «{{name}}» sinfida emas edingiz",
+            error: "Sinfni tark etib boʻlmadi. Qayta urinib koʻring.",
           },
         },
         profile: {

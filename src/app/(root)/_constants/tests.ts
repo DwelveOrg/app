@@ -1,8 +1,9 @@
 import {
+  Blocks,
   BookOpenText,
-  FileQuestion,
+  FileText,
+  ListChecks,
   Sigma,
-  SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -51,21 +52,21 @@ export const TEST_STATUS_TONE: Record<TestStatus, BadgeVariant> = {
 };
 
 /**
- * The mark for a test format.
+ * The mark on a test's identity tile and its format card.
  *
- * Formats come from the backend registry, so this is a presentation lookup with
- * a fallback rather than a closed list — a format added server-side renders with
- * the generic mark instead of crashing or rendering nothing.
+ * Presentation only, and deliberately keyed with a fallback: formats come from
+ * `GET /tests/formats`, so one the backend adds tomorrow must still render —
+ * with the generic document mark rather than a hole in the header.
  */
 const FORMAT_ICONS: Record<string, LucideIcon> = {
-  SIMPLE_QUIZ: FileQuestion,
+  SIMPLE_QUIZ: ListChecks,
   IELTS: BookOpenText,
   SAT: Sigma,
-  CUSTOM: SlidersHorizontal,
+  CUSTOM: Blocks,
 };
 
 export function formatIcon(format: string): LucideIcon {
-  return FORMAT_ICONS[format] ?? FileQuestion;
+  return FORMAT_ICONS[format] ?? FileText;
 }
 
 /* -------------------------------------------------------------------------- */

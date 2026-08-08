@@ -151,6 +151,7 @@ src/app/(root)/(pages)/groups/[classId]/tests/
     editors/MatchingEditor.tsx  OrderingEditor.tsx  ManualEditor.tsx
     PublishDialog.tsx        renders GET /validation issues, each deep-linked
     TestStatusBadge.tsx  DeleteTestDialog.tsx  DuplicateTestButton.tsx
+    FormatMark.tsx           the per-format icon tile, shared by the header and the create dialog
   _hooks/
     useCreateTestMutation.ts  useSaveTestStructureMutation.ts  usePublishTestMutation.ts
     useDeleteTestMutation.ts  useDuplicateTestMutation.ts  useTestValidationQuery.ts
@@ -160,11 +161,19 @@ src/app/(root)/(pages)/groups/[classId]/tests/
 ### The tabbed question picker
 
 This is the surface the whole feature is judged on. `AddQuestionDialog` renders one
-tab per `family` in the catalogue (Basic / IELTS / SAT), filtered to the current
-test's `allowedQuestionTypes`. Each entry shows its label, a one-line description,
-and whether it is auto-graded. Picking one appends a question pre-shaped for its
-`answerKind` — fixed options already filled in for
+tab per `family` in the catalogue (Basic / IELTS / SAT). Every creation format now
+returns the complete `allowedQuestionTypes` catalogue, so every tab is available in
+every test. Each entry shows its label, a one-line description, and whether it is
+auto-graded. Picking one appends a question pre-shaped for its `answerKind` — fixed
+options already filled in for
 `IELTS_TRUE_FALSE_NOT_GIVEN`, four blank options for `SAT_RW_MCQ`, and so on.
+
+A filter sits above the tabs and searches **across every family**, because roughly twenty-six
+presets is past the size where finding the right tab beats typing two letters — and a teacher who
+wants "True / False / Not Given" should not have to know it lives under IELTS. It matches the
+*translated* label, so the Russian and Uzbek catalogs are searchable in their own words. While a
+query is active the tabs stay mounted but stop deciding the list; hiding them would make the dialog
+jump, and disabling them would read as unavailable rather than overridden.
 
 ## Missing UI Primitives
 
@@ -185,6 +194,33 @@ Everything else reuses what exists: `Dialog` from `(root)/_components/Dialog`,
 `DropdownMenu`, `AlertDialog` for destructive confirms, and `ImagePicker` from
 `src/components/Custom` for passage and question images — its `imageFileSchema` in
 `_lib/actions.schemas.ts` already mirrors the backend's 5 MB / PNG-JPEG-WebP rules.
+
+### The shared primitives this feature must use
+
+A test is an entity page like a school or a class, and the two must look related. The list and the
+builder therefore route through the same primitives as `ClassDetailView`, not through local copies:
+
+| Surface | Primitive |
+|---|---|
+| Back link above the header | `BackLink` |
+| List page title block | `PageHeader` (`type-title`) |
+| Builder identity block | `EntityHeader`, with `tile` set to a `FormatMark` — a test has no meaningful initials |
+| Question / points / duration / section counts | `FactGrid` + `Fact` |
+| Status tabs and the picker's family tabs | `TabBar` (`underline` and `pill`) — **not** `components/ui/tabs` |
+| Every pill: status, format, type, grading mode, question number, question range | `Badge` |
+| Every panel, and the sticky action bar (`variant="glass"`) | `Surface` |
+
+`FactGrid` and `BackLink` were extracted here because the class page was already drawing both by
+hand; they are listed in `docs/design/design-system.md` §8 and belong to the whole app now.
+
+### Depth: the builder is one card deep
+
+Section → group → question is the deepest tree in the product, and the design system rules out
+nesting cards outright. The resolution is documented as the worked example in
+`docs/design/design-system.md` §4: the **section** is the only `Surface`, a **group** is a
+full-bleed band inside it separated by a hairline, and a **question** is a flat row in a `divide-y`
+list with no border and no `interactive` lift. Only a question flagged by a publish check draws an
+edge — that ring is what makes the problem findable, and it only works while nothing else is boxed.
 
 ## Frontend Rules
 

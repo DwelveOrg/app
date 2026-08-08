@@ -7,8 +7,14 @@ import { cn } from "@/lib/utils";
  *
  * A test has no meaningful pair of initials — "IELTS Practice 1" would render
  * as "IP" — so where a school or a class shows an `Avatar`, a test shows its
- * format mark. One component, used by the list card, the studio top bar, and the
- * format picker, so the three never disagree about the shape.
+ * format mark. One component, used by the list card, the studio top bar, the
+ * publish wizard, and the format picker, so the four never disagree.
+ *
+ * The icon arrives as a prop rather than being looked up here, which is the
+ * same shape `SectionHeader` uses. Resolving a component *inside* render gives
+ * React a new type on every pass and remounts the subtree; taking it as a prop
+ * keeps the reference stable. Callers pass `formatIcon(format)` from
+ * `@/app/(root)/_constants/tests`.
  */
 export default function FormatMark({
   icon: Icon,

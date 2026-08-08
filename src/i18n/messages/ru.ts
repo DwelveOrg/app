@@ -15,11 +15,6 @@ translation: {
           retry: "Повторить",
           home: "На панель управления",
         },
-        notFound: {
-          title: "Страница не найдена",
-          description: "Ссылка может быть неверной или страница была перемещена.",
-          home: "На панель управления",
-        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Главная",
@@ -546,21 +541,21 @@ translation: {
           },
           create: {
             title: "Новый тест",
-            description: "Выберите формат — он определяет доступные типы вопросов.",
+            description: "Формат задаёт начальные разделы. Все типы вопросов доступны всегда.",
             titleLabel: "Название",
             titlePlaceholder: "Чтение, раздел 3",
             titleError: "Укажите название теста.",
             formatLabel: "Формат",
             noFormats: "Форматы недоступны. Попробуйте обновить страницу.",
-            formatFallback: "Разделов: {{sections}}, типов вопросов: {{types}}.",
+            formatFallback: "Начальных разделов: {{sections}}.",
             submit: "Создать и открыть",
             success: "Тест «{{title}}» создан.",
             error: "Не удалось создать тест. Попробуйте ещё раз.",
             formatDescriptions: {
-              SIMPLE_QUIZ: "Один список вопросов. Самый быстрый способ проверить материал.",
+              SIMPLE_QUIZ: "Один общий раздел. Самый быстрый способ проверить материал.",
               IELTS: "Разделы Reading и Writing с текстами, сквозная нумерация 1–40.",
-              SAT: "Модули Reading & Writing и Math с типами вопросов SAT.",
-              CUSTOM: "Доступны все типы разделов и вопросов.",
+              SAT: "Модули Reading & Writing и Math в привычной структуре экзамена.",
+              CUSTOM: "Начните с одного раздела и назовите остальные сами.",
             },
             heading: "Создать тест",
             subheading: "Дайте название и выберите формат. Формат определяет начальные разделы — потом всё можно изменить.",
@@ -841,16 +836,25 @@ translation: {
               IELTS: "IELTS",
               SAT: "SAT",
             },
+            facts: {
+              sections: "Разделы",
+              sectionCount_one: "{{count}} раздел",
+              sectionCount_few: "{{count}} раздела",
+              sectionCount_many: "{{count}} разделов",
+              sectionCount_other: "{{count}} раздела",
+              passingScore: "Проходной балл: {{score}}",
+              noDuration: "Без ограничения",
+            },
             picker: {
               title: "Добавить вопрос",
-              description: "Показаны только типы, разрешённые форматом этого теста.",
+              description: "Базовые, IELTS и SAT — любые типы можно использовать в любом тесте.",
               tabsLabel: "Группы типов вопросов",
+              searchLabel: "Поиск типов вопросов",
+              searchPlaceholder: "Искать среди всех типов…",
+              noMatches: "По запросу «{{query}}» ничего не найдено.",
               empty: "Для этого формата пока нет доступных типов вопросов.",
               needsStimulus: "Нужен текст",
               noDescription: "Описание отсутствует.",
-              searchPlaceholder: "Поиск по всем типам вопросов…",
-              searchLabel: "Поиск типов вопросов",
-              noMatches: "Ничего не найдено по «{{query}}».",
             },
             section: {
               title: "Название раздела",
@@ -889,6 +893,7 @@ translation: {
               paragraphs: "Абзацы:",
             },
             question: {
+              numberLabel: "Вопрос {{number}}",
               points: "Баллы",
               pointsInvalid: "Целое число, не меньше 0",
               moveUp: "Переместить вопрос вверх",
@@ -903,7 +908,6 @@ translation: {
               autoGraded: "Проверяется автоматически",
               manualGrading: "Проверяется вручную",
               unknownType: "Сервер больше не поддерживает «{{type}}». Удалите или замените этот вопрос.",
-              numberLabel: "Вопрос {{number}}",
               duplicate: "Дублировать вопрос",
               diagram: "Схема",
               insertGap: "Вставить пропуск",
@@ -1016,9 +1020,6 @@ translation: {
             },
             confirmExit: "Есть несохранённые изменения. Всё равно выйти из студии?",
             saveBeforePublish: "Есть несохранённые изменения. Публикация проверяет сохранённую версию — продолжить?",
-            facts: {
-              noDuration: "Без ограничения",
-            },
             stats: {
               summary: "{{questions}} вопр. · {{points}} балл.",
             },
@@ -1230,24 +1231,12 @@ translation: {
             totalPointsInvalid: "Тест оценивается в ноль баллов.",
             passingScoreExceedsTotal: "Проходной балл выше общего числа баллов.",
             availabilityWindowInvalid: "Время закрытия должно быть позже времени открытия.",
-            DELIVERY_WARNING_EXCEEDS_DURATION:
-              "Предупреждение таймера должно появляться до окончания времени теста.",
-            DELIVERY_VIOLATION_LIMIT_MISSING:
-              "Укажите лимит нарушений, если нарушения подсчитываются.",
           },
         },
         schoolPage: {
           active: "Активна",
           inactive: "Неактивна",
           soon: "Скоро",
-          viewingAs: "Просмотр как {{role}} — только чтение",
-          roles: {
-            owner: "Владелец",
-            director: "Директор",
-            admin: "Администратор",
-            teacher: "Учитель",
-            student: "Ученик",
-          },
           tabs: {
             classes: "Классы",
             teachers: "Учителя",
@@ -1259,13 +1248,8 @@ translation: {
             columns: {
               teacher: "Учитель",
               email: "Email",
-              status: "Статус",
               joined: "Присоединился",
               actions: "Действия",
-            },
-            status: {
-              ready: "Готов",
-              pending: "Профиль не заполнен",
             },
             emptyTitle: "Учителей пока нет",
             emptyDescription:
@@ -1654,10 +1638,8 @@ translation: {
             open: "Открыть класс",
             edit: "Изменить",
             delete: "Удалить",
-            more: "Ещё",
             addTest: "Добавить тест",
-            addExam: "Добавить экзамен",
-            comingSoon: "{{action}} — скоро",
+            leave: "Покинуть класс",
           },
           overview: {
             title: "О классе",
@@ -1730,6 +1712,18 @@ translation: {
             cancel: "Отмена",
             success: "«{{name}}» удалён",
             error: "Не удалось удалить класс. Попробуйте ещё раз.",
+          },
+          leave: {
+            title: "Покинуть «{{name}}»?",
+            descriptionStudent:
+              "Вас исключат из состава класса, и вы потеряете доступ к нему и его тестам. Вы останетесь в школе и сможете подать заявку снова, если класс принимает заявки.",
+            descriptionTeacher:
+              "Вы перестанете преподавать в этом классе и потеряете доступ к его составу, заявкам и тестам. Вы останетесь в школе и сможете снова подать заявку на преподавание.",
+            confirm: "Покинуть класс",
+            cancel: "Отмена",
+            success: "Вы покинули «{{name}}»",
+            alreadyLeft: "Вы уже не состояли в «{{name}}»",
+            error: "Не удалось покинуть класс. Попробуйте ещё раз.",
           },
         },
         profile: {

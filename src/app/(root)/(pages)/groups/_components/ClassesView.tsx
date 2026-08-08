@@ -70,14 +70,17 @@ export default function ClassesView({ items, role }: ClassesViewProps) {
             ariaLabel={t("root.classes.filters.all")}
             value={filter}
             onSelect={(next) => setFilter(next as ClassFilter)}
+            // These filter a server-rendered list rather than fetching per tab,
+            // so the re-read is an RSC render; the filter itself stays local.
             items={classFilters.map((value) => ({
               value,
               label: t(classFilterLabelKeys[value]),
+              refresh: { router: true },
             }))}
           />
 
           {visible.length > 0 ? (
-            <ClassGrid key={filter} items={visible} isAdmin={isAdmin} />
+            <ClassGrid key={filter} items={visible} />
           ) : (
             <Empty
               title={t("root.classes.empty.title")}

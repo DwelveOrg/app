@@ -16,6 +16,8 @@ DWELVE_API_BASE_URL=http://localhost:5000/api/v1
 
 Do not use `NEXT_PUBLIC_API_URL` for private API calls.
 
+Detailed authoring contract: [TestCreation API Contract](test-creation.md).
+
 ## Request Implementation Rule
 
 Every frontend backend call should follow:

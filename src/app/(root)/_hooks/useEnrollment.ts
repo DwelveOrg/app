@@ -12,6 +12,7 @@ import {
   cancelJoinRequestAction,
   getStudentClassesAction,
   getStudentOverviewAction,
+  leaveClassAction,
   listClassJoinRequestsAction,
   listMyClassRequestsAction,
   rejectEnrollmentAction,
@@ -20,6 +21,7 @@ import {
 import type {
   ApproveEnrollmentInput,
   CancelJoinRequestInput,
+  LeaveClassInput,
   RejectEnrollmentInput,
   RequestJoinClassInput,
 } from "@/app/(root)/_lib/enrollment.schemas";
@@ -129,6 +131,27 @@ export function useCancelJoinRequestMutation(schoolId: string | undefined) {
     mutationFn: async (input: CancelJoinRequestInput) =>
       readSafeActionData(await cancelJoinRequestAction(input), MUTATION_FALLBACK),
     onSettled: invalidate,
+  });
+}
+
+/**
+ * A student leaving a class moves the same four surfaces a request/cancel does —
+ * the class drops out of My Classes, its directory row becomes requestable
+ * again, and the overview counts shift — plus the class detail, which the leaver
+ * can no longer open. `queryKeys.classes.all` covers that last one; the page
+ * itself is server-rendered, so the caller pairs this with `router.refresh()`.
+ */
+export function useLeaveClassMutation(schoolId: string | undefined) {
+  const queryClient = useQueryClient();
+  const invalidateStudentSurfaces = useInvalidateStudentEnrollment(schoolId);
+  return useMutation({
+    mutationFn: async (input: LeaveClassInput) =>
+      readSafeActionData(await leaveClassAction(input), MUTATION_FALLBACK),
+    onSettled: () =>
+      Promise.all([
+        invalidateStudentSurfaces(),
+        queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+      ]),
   });
 }
 

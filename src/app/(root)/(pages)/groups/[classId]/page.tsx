@@ -35,6 +35,7 @@ export default async function Page({ params }: PageProps) {
       classItem={result.class}
       isAdmin={viewerRole === "ADMIN"}
       viewerRole={viewerRole}
+      schoolId={user?.schoolId}
     />
   );
 }

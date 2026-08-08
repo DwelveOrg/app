@@ -15,11 +15,6 @@ translation: {
           retry: "Try again",
           home: "Go to dashboard",
         },
-        notFound: {
-          title: "Page not found",
-          description: "The link may be incorrect, or this page may have moved.",
-          home: "Go to dashboard",
-        },
         navbarTitle: "Dwelve",
         breadcrumb: {
           home: "Home",
@@ -540,21 +535,21 @@ translation: {
           },
           create: {
             title: "New test",
-            description: "Pick a format — it decides which question types the test can use.",
+            description: "The format sets the sections you start with. Every question type stays available.",
             titleLabel: "Title",
             titlePlaceholder: "Unit 3 reading check",
             titleError: "Give the test a title.",
             formatLabel: "Format",
             noFormats: "No formats are available. Try reloading the page.",
-            formatFallback: "{{sections}} sections, {{types}} question types.",
+            formatFallback: "Starts with {{sections}} sections.",
             submit: "Create and open",
             success: "Created \"{{title}}\".",
             error: "Could not create the test. Please try again.",
             formatDescriptions: {
-              SIMPLE_QUIZ: "One flat list of questions. Fastest for a quick check.",
+              SIMPLE_QUIZ: "One general section. Fastest for a quick check.",
               IELTS: "Reading and Writing sections with passages, numbered 1–40 end to end.",
-              SAT: "Reading & Writing and Math modules with SAT question types.",
-              CUSTOM: "Every section kind and question type unlocked.",
+              SAT: "Reading & Writing and Math modules, laid out like the real thing.",
+              CUSTOM: "Start from one section and name the rest yourself.",
             },
             heading: "Create a test",
             subheading: "Name it and pick a format. The format decides the sections you start with — you can change everything afterwards.",
@@ -833,16 +828,23 @@ translation: {
               IELTS: "IELTS",
               SAT: "SAT",
             },
+            facts: {
+              sections: "Sections",
+              sectionCount_one: "{{count}} section",
+              sectionCount_other: "{{count}} sections",
+              passingScore: "Pass at {{score}}",
+              noDuration: "Untimed",
+            },
             picker: {
               title: "Add a question",
-              description: "Only the types this test's format allows are listed.",
+              description: "Basic, IELTS, and SAT types can all be used in any test.",
               tabsLabel: "Question type families",
+              searchLabel: "Search question types",
+              searchPlaceholder: "Search all types…",
+              noMatches: "No question type matches \"{{query}}\".",
               empty: "This format allows no question types yet.",
               needsStimulus: "Needs a passage",
               noDescription: "No description available.",
-              searchPlaceholder: "Search every question type…",
-              searchLabel: "Search question types",
-              noMatches: "Nothing matches “{{query}}”.",
             },
             section: {
               title: "Section title",
@@ -881,6 +883,7 @@ translation: {
               paragraphs: "Paragraphs:",
             },
             question: {
+              numberLabel: "Question {{number}}",
               points: "Points",
               pointsInvalid: "Whole number, 0 or more",
               moveUp: "Move question up",
@@ -895,7 +898,6 @@ translation: {
               autoGraded: "Auto-graded",
               manualGrading: "Marked by hand",
               unknownType: "The server no longer offers \"{{type}}\". Remove this question or replace it.",
-              numberLabel: "Question {{number}}",
               duplicate: "Duplicate this question",
               diagram: "Diagram",
               insertGap: "Insert a gap",
@@ -1008,9 +1010,6 @@ translation: {
             },
             confirmExit: "You have unsaved changes. Leave the studio anyway?",
             saveBeforePublish: "You have unsaved changes. Publishing checks the saved version — continue anyway?",
-            facts: {
-              noDuration: "No limit",
-            },
             stats: {
               summary: "{{questions}} questions · {{points}} points",
             },
@@ -1222,24 +1221,12 @@ translation: {
             totalPointsInvalid: "The test is worth zero points.",
             passingScoreExceedsTotal: "The passing score is higher than the total points.",
             availabilityWindowInvalid: "The closing time must be after the opening time.",
-            DELIVERY_WARNING_EXCEEDS_DURATION:
-              "The timer warning must start before the test duration ends.",
-            DELIVERY_VIOLATION_LIMIT_MISSING:
-              "Set a violation limit when violations are counted.",
           },
         },
         schoolPage: {
           active: "Active",
           inactive: "Inactive",
           soon: "Soon",
-          viewingAs: "Viewing as {{role}} — read only",
-          roles: {
-            owner: "Owner",
-            director: "Director",
-            admin: "Admin",
-            teacher: "Teacher",
-            student: "Student",
-          },
           tabs: {
             classes: "Classes",
             teachers: "Teachers",
@@ -1251,13 +1238,8 @@ translation: {
             columns: {
               teacher: "Teacher",
               email: "Email",
-              status: "Status",
               joined: "Joined",
               actions: "Actions",
-            },
-            status: {
-              ready: "Ready",
-              pending: "Profile pending",
             },
             emptyTitle: "No teachers yet",
             emptyDescription:
@@ -1639,10 +1621,8 @@ translation: {
             open: "Open class",
             edit: "Edit",
             delete: "Delete",
-            more: "More",
             addTest: "Add test",
-            addExam: "Add exam",
-            comingSoon: "{{action}} — coming soon",
+            leave: "Leave class",
           },
           overview: {
             title: "Class overview",
@@ -1714,6 +1694,18 @@ translation: {
             cancel: "Cancel",
             success: "\"{{name}}\" deleted",
             error: "Could not delete the class. Please try again.",
+          },
+          leave: {
+            title: "Leave \"{{name}}\"?",
+            descriptionStudent:
+              "You'll be taken off the roster and lose access to this class and its tests. You stay in the school, and you can ask to join again if the class accepts requests.",
+            descriptionTeacher:
+              "You'll stop teaching this class and lose access to its roster, requests, and tests. You stay in the school, and you can ask to teach it again.",
+            confirm: "Leave class",
+            cancel: "Cancel",
+            success: "You left \"{{name}}\"",
+            alreadyLeft: "You were no longer in \"{{name}}\"",
+            error: "Could not leave the class. Please try again.",
           },
         },
         profile: {
