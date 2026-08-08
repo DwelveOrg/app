@@ -2,7 +2,7 @@ import { getUser } from "@/app/(root)/_utils/getUser";
 import { getClass } from "@/app/(root)/_utils/getClass";
 import { getClassTests } from "@/app/(root)/_utils/getClassTests";
 import { getTestFormats } from "@/app/(root)/_utils/getTestFormats";
-import { DEFAULT_TEST_STATUS, TESTS_PAGE_SIZE } from "./_constants";
+import { DEFAULT_TEST_STATUS, TESTS_PAGE_SIZE } from "@/app/(root)/_constants/tests";
 import TestsListView from "./_components/TestsListView";
 import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
 

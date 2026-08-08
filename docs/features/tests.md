@@ -1,5 +1,13 @@
 # Tests (authoring UI)
 
+> **Superseded in part, 9 August 2026.** The builder and the publish flow moved
+> out of the dashboard into the **test studio** — see
+> [test-studio.md](./test-studio.md). What is still current here: the data layer
+> (§"Data Layer"), the catalogue contract, the list page, and the frontend rules
+> at the bottom. What is not: the `_components` tree, the dialog-based create and
+> publish flows, and "reordering uses buttons, not drag-and-drop" — the studio
+> ships both.
+
 The test builder lets teachers and admins author assessments **inside a class**, in
 several exam formats, and publish them. This document is the frontend contract.
 

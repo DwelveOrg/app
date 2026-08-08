@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { ChevronLeft, ChevronRight, FilePlus2, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -17,9 +18,12 @@ import BackLink from "@/app/(root)/_components/BackLink";
 import PageHeader from "@/app/(root)/_components/PageHeader";
 import Empty from "@/app/(root)/(pages)/_components/ui/Empty";
 import { queryKeys } from "@/lib/query/keys";
-import { DEFAULT_TEST_STATUS, TEST_STATUS_TABS } from "../_constants";
-import { useTestsQuery } from "../_hooks/useTestsQuery";
-import CreateTestDialog from "./CreateTestDialog";
+import {
+  DEFAULT_TEST_STATUS,
+  TEST_STATUS_TABS,
+  studioRoutes,
+} from "@/app/(root)/_constants/tests";
+import { useTestsQuery } from "@/app/(root)/_hooks/useTests";
 import DeleteTestDialog from "./DeleteTestDialog";
 import TestCard from "./TestCard";
 
@@ -36,6 +40,10 @@ type TestsListViewProps = {
  * unfinished work sits and what a teacher returns for; published and archived
  * are references.
  *
+ * This page stays in the dashboard: it is class management, not authoring.
+ * Writing a test happens in the studio, so "New test" and every card navigate
+ * out of this shell rather than opening a dialog over it.
+ *
  * Authoring controls render only for staff, but the backend is the
  * authorization boundary — every route here answers 403 to a student.
  */
@@ -48,7 +56,6 @@ export default function TestsListView({
   const { t } = useTranslation();
   const [status, setStatus] = useState<TestStatus>(DEFAULT_TEST_STATUS);
   const [page, setPage] = useState(1);
-  const [createOpen, setCreateOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<ApiTestSummary | null>(null);
 
   /**
@@ -94,9 +101,14 @@ export default function TestsListView({
         title={t("root.tests.list.title")}
         subtitle={t("root.tests.list.subtitle", { name: className })}
         actions={
-          <Button size="lg" onClick={() => setCreateOpen(true)}>
-            <FilePlus2 className="size-4" />
-            {t("root.tests.list.create")}
+          // Authoring lives in the studio, a different environment with its own
+          // chrome, so this is a navigation rather than a dialog. The class comes
+          // along as a query parameter because the draft does not exist yet.
+          <Button asChild size="lg">
+            <Link href={studioRoutes.newTest(classId)}>
+              <FilePlus2 className="size-4" />
+              {t("root.tests.list.create")}
+            </Link>
           </Button>
         }
       />
@@ -151,9 +163,11 @@ export default function TestsListView({
           description={t(`root.tests.list.empty.${status}.description`)}
           action={
             status === "DRAFT" ? (
-              <Button type="button" className="w-full" onClick={() => setCreateOpen(true)}>
-                <FilePlus2 className="size-4" />
-                {t("root.tests.list.create")}
+              <Button asChild className="w-full">
+                <Link href={studioRoutes.newTest(classId)}>
+                  <FilePlus2 className="size-4" />
+                  {t("root.tests.list.create")}
+                </Link>
               </Button>
             ) : null
           }
@@ -168,7 +182,6 @@ export default function TestsListView({
             <TestCard
               key={test.id}
               test={test}
-              classId={classId}
               formats={formats}
               onRequestDelete={setDeleteTarget}
             />
@@ -204,13 +217,6 @@ export default function TestsListView({
           </Button>
         </nav>
       ) : null}
-
-      <CreateTestDialog
-        open={createOpen}
-        onOpenChange={setCreateOpen}
-        classId={classId}
-        formats={formats}
-      />
 
       <DeleteTestDialog
         open={deleteTarget !== null}

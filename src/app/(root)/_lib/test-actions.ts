@@ -9,6 +9,7 @@ import {
   getTestValidationRequest,
   listClassTestsRequest,
   publishTestRequest,
+  saveTestDeliveryRequest,
   saveTestStructureRequest,
   unpublishTestRequest,
   updateTestRequest,
@@ -20,6 +21,8 @@ import {
   duplicateTestSchema,
   type ListTestsInput,
   publishTestSchema,
+  publishTestWithDeliverySchema,
+  saveTestDeliverySchema,
   saveTestStructureSchema,
   unpublishTestSchema,
   updateTestSchema,
@@ -30,6 +33,7 @@ import type { TestsListResponse, TestValidationResponse } from "./tests.schemas"
 const NETWORK_ERROR = "Unable to reach Dwelve API. Please try again.";
 const SAVE_ERROR = "Could not save the test. Please try again.";
 const PUBLISH_ERROR = "Could not publish the test. Please fix the listed issues.";
+const DELIVERY_ERROR = "Could not save the delivery rules. Please try again.";
 
 /**
  * The backend's `status: 'DRAFT'` guard inside the save transaction doubles as
@@ -135,6 +139,91 @@ export const publishTestAction = actionClient
     try {
       const { test } = await publishTestRequest(parsedInput.testId);
       return { id: test.id, status: test.status, title: test.title };
+    } catch (error) {
+      throw new ActionError(mapTestError(error, PUBLISH_ERROR));
+    }
+  });
+
+/**
+ * True when the backend simply does not have the delivery endpoint yet, as
+ * opposed to having rejected the payload.
+ *
+ * A 404 from `PUT /tests/:testId/delivery` is ambiguous on its face — the route
+ * is missing *or* the test is. It is disambiguated by the fact that every
+ * caller has just successfully read that test, so a missing test would already
+ * have failed earlier in the same wizard.
+ */
+function isDeliveryUnsupported(error: unknown): boolean {
+  return error instanceof BackendApiError && (error.status === 404 || error.status === 405);
+}
+
+export const saveTestDeliveryAction = actionClient
+  .inputSchema(saveTestDeliverySchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const { test } = await saveTestDeliveryRequest(parsedInput.testId, {
+        delivery: parsedInput.delivery,
+      });
+      return { test, supported: true as const };
+    } catch (error) {
+      if (isDeliveryUnsupported(error)) {
+        return { test: null, supported: false as const };
+      }
+      throw new ActionError(mapTestError(error, DELIVERY_ERROR));
+    }
+  });
+
+/**
+ * The publish wizard's single terminal action.
+ *
+ * Ordered so that nothing goes live under rules that failed to save: metadata
+ * first (it is what the readiness check validated against), then delivery, then
+ * publish. If the delivery endpoint is absent the action stops and reports
+ * `deliveryUnsupported`, leaving the test a draft — the wizard then offers the
+ * teacher an explicit "publish without them" which comes back with `force`.
+ */
+export const publishTestWithDeliveryAction = actionClient
+  .inputSchema(publishTestWithDeliverySchema)
+  .action(async ({ parsedInput }) => {
+    const { testId, delivery, settings, force } = parsedInput;
+
+    const body = Object.fromEntries(
+      Object.entries(settings).filter(([, value]) => value !== undefined),
+    );
+
+    if (Object.keys(body).length > 0) {
+      try {
+        await updateTestRequest(testId, body);
+      } catch (error) {
+        throw new ActionError(mapTestError(error, SAVE_ERROR));
+      }
+    }
+
+    let deliverySaved = false;
+
+    try {
+      await saveTestDeliveryRequest(testId, { delivery });
+      deliverySaved = true;
+    } catch (error) {
+      if (!isDeliveryUnsupported(error)) {
+        throw new ActionError(mapTestError(error, DELIVERY_ERROR));
+      }
+      if (!force) {
+        // Not an ActionError: this is a decision for the teacher, not a failure
+        // to report. The wizard renders it as a choice.
+        return { published: false as const, deliveryUnsupported: true as const };
+      }
+    }
+
+    try {
+      const { test } = await publishTestRequest(testId);
+      return {
+        published: true as const,
+        deliverySaved,
+        id: test.id,
+        title: test.title,
+        status: test.status,
+      };
     } catch (error) {
       throw new ActionError(mapTestError(error, PUBLISH_ERROR));
     }
