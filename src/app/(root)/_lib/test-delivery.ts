@@ -24,12 +24,11 @@ import { z } from "zod";
  *
  * ## Contract status
  *
- * The backend does not serve or accept this object yet. The full server-side
- * contract — Prisma model, DTO, endpoints, validation, and sanitizer rules — is
- * specified in `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md`.
- * Until it ships, `GET /tests/:testId` simply omits `delivery` and every read
- * here falls back to {@link DEFAULT_TEST_DELIVERY}, so the wizard renders a
- * sensible default set rather than an empty form.
+ * Shipped on both sides. `GET /tests/:testId` serves `delivery` and
+ * `PUT /tests/:testId/delivery` replaces it; the server-side contract lives in
+ * `backend_nestJS/docs/features/tests.md`. Every field still carries a default
+ * so a test written before the model existed — or served by an older server —
+ * reads as {@link DEFAULT_TEST_DELIVERY} rather than as an empty form.
  */
 
 /* -------------------------------------------------------------------------- */
@@ -257,17 +256,6 @@ export type DeliveryPresetName = keyof typeof DELIVERY_PRESETS;
 /* Derived reads                                                               */
 /* -------------------------------------------------------------------------- */
 
-/** True when any rule would end or interrupt an attempt. Drives the "locked down" badge. */
-export function isLockedDown(delivery: TestDelivery): boolean {
-  return (
-    delivery.requireFullscreen ||
-    delivery.detectLeaveScreen ||
-    delivery.blockCopyPaste ||
-    delivery.blockContextMenu ||
-    delivery.navigationMode === "ONE_AT_A_TIME"
-  );
-}
-
 /**
  * Which preset a delivery object corresponds to, or `null` when the teacher has
  * customised it. Compared field by field rather than by a stored preset name,
@@ -284,10 +272,9 @@ export function matchPreset(delivery: TestDelivery): DeliveryPresetName | null {
 }
 
 /**
- * The integrity rules currently in force, as translation keys plus their action.
- * The confirm step reads these back to the teacher in plain language — a wizard
- * that collects fifteen switches and then says only "Publish?" has not actually
- * confirmed anything.
+ * The integrity rules currently in force, as translation keys plus their
+ * action. The publish screen counts them for the closed "Exam integrity"
+ * disclosure, so a collapsed group still says whether anything inside it is on.
  */
 export function activeIntegrityRules(
   delivery: TestDelivery,
@@ -312,17 +299,4 @@ export function activeIntegrityRules(
   if (delivery.shuffleOptions) rules.push({ key: "shuffleOptions", action: null });
 
   return rules;
-}
-
-/**
- * `violationLimit` is only read when an action is `COUNT`. Normalising here
- * keeps the confirm summary honest — showing "3 violations allowed" beside a
- * rule set to `SUBMIT` would describe behaviour the student will never see.
- */
-export function effectiveViolationLimit(delivery: TestDelivery): number | null {
-  const counts =
-    (delivery.requireFullscreen && delivery.fullscreenExitAction === "COUNT") ||
-    (delivery.detectLeaveScreen && delivery.leaveScreenAction === "COUNT");
-
-  return counts ? delivery.violationLimit : null;
 }

@@ -6,8 +6,8 @@ delivered. It replaces the in-dashboard builder described in
 catalogue contract, and the list page, none of which changed.
 
 Backend contract for the authoring half: `backend_nestJS/docs/features/tests.md`.
-Backend contract for the delivery half, which is **not implemented server-side
-yet**: `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md`.
+Backend state for the delivery and publishing half — **shipped on both sides** —
+is recorded in [test-publish-backend-handoff.md](./test-publish-backend-handoff.md).
 
 ## Why a separate environment
 
@@ -73,44 +73,99 @@ Performance rules (a 40-question test registers ~800 fields):
   stable callbacks.
 - `mode: "onSubmit"`.
 
-New here: an **outline rail** (jump to any section, group or question; shows
-publish flags), **autosave** after 12s of idle when the form validates,
-**duplicate question**, and Cmd/Ctrl+S.
+An **outline rail** (jump to any section, group or question; shows publish
+flags), **autosave** after 12s of idle when the form validates, **duplicate
+question**, and Cmd/Ctrl+S.
+
+**Optional fields collapse.** A question's hint and image render as one small
+"Add a hint or an image" control until they hold something — a forty-question
+paper was drawing eighty empty controls for fields most questions never use.
+A test's single implicit question group collapses the same way: while it has no
+title and no stimulus it is one quiet button, and the full header returns the
+moment it becomes a real group. A diagram-label question is exempt; there the
+image *is* the question.
 
 Publish issues reach the builder as a query string —
-`?issues=<ids>&focus=<id>` — rather than as component state, because the wizard
+`?issues=<ids>&focus=<id>` — rather than as component state, because publishing
 is a different route and the link has to survive a navigation. It is also
-shareable.
+shareable. **The flags re-derive themselves**: every save re-runs validation and
+rewrites the query, so a fixed row stops being ringed and an untouched one stays
+flagged. Clearing them outright would lose the problems the teacher has not
+reached yet.
 
-## The publish wizard
+Leaving with unsaved work opens `ConfirmDialog` with three ways out — save and
+leave, leave without saving, stay. **Publish** saves first and then navigates,
+because publishing validates *saved* data and "continue anyway?" asked the
+teacher to decide something they have no reason to have an opinion about.
 
-Five steps: **Check → Timing → Rules → Results → Confirm**. Only the readiness
-check blocks forward movement; a bad availability window or an out-of-range
-passing score is caught on its own step, where the field is visible.
+## Publishing
 
-The right-hand panel is a live **student preview**: every choice restated in the
-second person, in the order the student meets it. Eighteen switches produce a
+One page. It replaced a five-step wizard (Check → Timing → Rules → Results →
+Confirm), and the reason is the shape of the task: publishing is not a sequence
+with dependencies, it is a settings review with **one real question in it** and
+seventeen refinements that every mode already answers. The wizard charged the
+same four Next presses for a ten-question homework quiz as for a proctored
+final, put the presets *after* the manual switches they were meant to save the
+teacher from, and — because only step one could block — reported a rejected
+publish on the step furthest from the list of reasons.
+
+Top to bottom, as the decision actually goes:
+
+1. **Readiness** — a banner, not a step. A pass is one line; a failure lists the
+   problems with deep links into the builder. It gates the Publish button and
+   nothing else, so the settings below stay usable while the list is worked
+   through.
+2. **How students take it** — Practice / Standard / Proctored, full size. For
+   most tests this is the entire interaction. Edit anything below and no card is
+   selected: auto-selecting the nearest preset would be a lie, and offering
+   "custom" as a fourth card invites a press that can only discard the edits.
+3. **When** — the three things no mode can guess: how long, what window, how many
+   attempts.
+4. **Everything else** — three closed disclosures (During the test / Exam
+   integrity / After they submit). Each header reads back its own state
+   (`_lib/deliverySummary.ts`), so collapsing hides detail rather than
+   consequence.
+
+The right-hand panel is the live **student preview**: every choice restated in
+the second person, in the order the student meets it. Twenty switches produce a
 behaviour nobody can hold in their head, and the failure mode is specific —
 turning on "end the attempt when the student leaves the screen" while meaning
 "warn them", and finding out when a class submits blank papers because a
 notification stole focus.
 
-Three presets (Practice / Standard / Proctored exam) sit above the settings
-steps. They are one press, and then the teacher can see and adjust exactly what
-that meant.
-
 **Nothing is locked down by default.** `DEFAULT_TEST_DELIVERY` in
 `src/app/(root)/_lib/test-delivery.ts` is the least surprising delivery, not the
 strictest; every integrity rule is an explicit act.
 
-### The one thing that is blocked
+### Rejection is not a toast
 
-`PUT /tests/:testId/delivery` does not exist server-side yet. The wizard's final
-action saves metadata, then delivery, then publishes — in that order, so a test
-cannot go live under rules that failed to store. When the endpoint answers 404
-the wizard stops, says so, and offers an explicit *Publish without them*. That
-branch exists so a stale backend does not block publishing; it disappears the
-moment the endpoint ships.
+`POST /publish` answers 409 with `{ message, issues }`. Those issues are the
+whole point of the response, and an `ActionError` can only carry a string — so
+the message alone used to reach the screen and the list was dropped. A teacher
+saw "Test is not ready to publish" and nothing else.
+
+The action now returns a rejection as **data** (`{ published: false, issues }`)
+rather than throwing, the banner renders it, and the page scrolls to it. Only a
+genuine failure — network, auth, a 500 — still throws.
+
+### Candidate validation
+
+`validateTestForPublish` rejects `timeWarningMinutes >= durationMinutes`.
+The screen sends its unsaved settings and delivery rules to
+`POST /tests/:testId/validation`, so the readiness banner always describes what
+is on screen rather than an older persisted row. Candidate validation writes
+nothing; the publish transaction remains the only save point.
+
+### Nothing is written until Publish
+
+Abandoning the page changes nothing, so the unsaved-changes guard keys off edits
+rather than arrival. The terminal action sends `{ settings, delivery }` once to
+`POST /publish`; the backend applies it, validates it, publishes, and notifies in
+one transaction. A rejected publish leaves the stored draft unchanged.
+
+A published test may reopen the same route in delivery-only mode. Test-row
+settings stay locked and the save action calls only `PUT /delivery`, so changing
+result release or integrity rules does not unpublish or notify the class again.
 
 ## Libraries added
 
@@ -131,17 +186,27 @@ npm run lint && npm run build && npm run check:contrast
 
 Walk it: class → **New test** → pick SAT → builder → add a `SAT_RW_MCQ` and an
 `IELTS_TRUE_FALSE_NOT_GIVEN` and confirm they look like different questions →
-reorder by drag and by the buttons → wait for autosave → **Publish** → fix a
-deliberate issue through the deep link and confirm the row is ringed → pick
-**Proctored exam** → read the student preview → confirm. Repeat in `ru` and `uz`
-to catch missing keys, and in both themes.
+confirm neither shows a hint or image field until asked → reorder by drag and by
+the buttons → wait for autosave → **Publish**.
+
+On the publish page: leave a deliberate issue in the test, follow the deep link,
+fix it, save, and confirm **the ring clears on that row and stays on the others**
+→ back to publish → pick **Proctored exam** → set the limit to 3 minutes and
+confirm candidate validation flags an incompatible warning without persisting
+either value → open each disclosure and confirm its closed header already said
+what was inside → publish. Reopen the publish route for the published test,
+change a delivery rule, save, and confirm no new class notification is created.
+
+Repeat in `ru` and `uz` to catch missing keys, and in both themes. Check the page
+at `<768px`, `768–1024px` and `>1280px` — the old step rail vanished below `lg`,
+which is the class of bug a single-page layout cannot have.
 
 ## Related docs
 
 ```txt
 docs/features/tests.md
+docs/features/test-publish-backend-handoff.md
 docs/architecture/ARCHITECTURE.md
 docs/design/design-system.md
 backend_nestJS/docs/features/tests.md
-backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md
 ```

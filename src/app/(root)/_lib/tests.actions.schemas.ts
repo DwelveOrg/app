@@ -154,22 +154,21 @@ export const saveTestDeliverySchema = z.object({
 export type SaveTestDeliveryInput = z.infer<typeof saveTestDeliverySchema>;
 
 /**
- * The wizard's terminal action: save the metadata it edited, save the delivery
- * rules, then publish — in that order, because a test must not go live under
- * rules that failed to persist.
+ * The publish screen's candidate: the backend applies both nested objects and
+ * publishes inside one transaction. The same shape is also used by the
+ * write-free candidate validation endpoint.
  *
- * `force` is the teacher's explicit override for the one case where that order
- * cannot be honoured: a backend that has not shipped the delivery endpoint. It
- * publishes with today's semantics and reports plainly that the integrity rules
- * were not stored.
+ * A publish that the server rejects comes back as data rather than as an error,
+ * because the rejection carries the list of problems and the screen has a place
+ * to put it. Only a genuine failure — network, auth, a 500 — throws.
  */
 export const publishTestWithDeliverySchema = z.object({
   testId: z.string().min(1),
   delivery: testDeliveryInputSchema,
   settings: updateTestSchema.omit({ testId: true }),
-  force: z.boolean().default(false),
 });
 export type PublishTestWithDeliveryInput = z.infer<typeof publishTestWithDeliverySchema>;
+export type TestPublishCandidateInput = Omit<PublishTestWithDeliveryInput, "testId">;
 
 /** Every single-test action shares this shape. */
 export const testIdSchema = z.object({ testId: z.string().min(1) });

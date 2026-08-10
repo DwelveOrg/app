@@ -1,5 +1,7 @@
 "use server";
 
+import { z } from "zod";
+
 import { actionClient, ActionError } from "@/lib/safe-action";
 import { BackendApiError, BackendResponseValidationError } from "@/lib/api/backend";
 import {
@@ -14,12 +16,14 @@ import {
   unpublishTestRequest,
   updateTestRequest,
   uploadTestMediaRequest,
+  validateTestCandidateRequest,
 } from "./tests.api";
 import {
   createTestSchema,
   deleteTestSchema,
   duplicateTestSchema,
   type ListTestsInput,
+  type TestPublishCandidateInput,
   publishTestSchema,
   publishTestWithDeliverySchema,
   saveTestDeliverySchema,
@@ -28,7 +32,12 @@ import {
   updateTestSchema,
   uploadTestMediaSchema,
 } from "./tests.actions.schemas";
-import type { TestsListResponse, TestValidationResponse } from "./tests.schemas";
+import {
+  testValidationIssueSchema,
+  type TestsListResponse,
+  type TestValidationIssue,
+  type TestValidationResponse,
+} from "./tests.schemas";
 
 const NETWORK_ERROR = "Unable to reach Dwelve API. Please try again.";
 const SAVE_ERROR = "Could not save the test. Please try again.";
@@ -76,9 +85,11 @@ export async function listClassTestsAction(
 }
 
 export async function getTestValidationAction(
-  testId: string,
+  input: { testId: string; candidate?: TestPublishCandidateInput },
 ): Promise<TestValidationResponse> {
-  return getTestValidationRequest(testId);
+  return input.candidate
+    ? validateTestCandidateRequest(input.testId, input.candidate)
+    : getTestValidationRequest(input.testId);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -144,19 +155,6 @@ export const publishTestAction = actionClient
     }
   });
 
-/**
- * True when the backend simply does not have the delivery endpoint yet, as
- * opposed to having rejected the payload.
- *
- * A 404 from `PUT /tests/:testId/delivery` is ambiguous on its face — the route
- * is missing *or* the test is. It is disambiguated by the fact that every
- * caller has just successfully read that test, so a missing test would already
- * have failed earlier in the same wizard.
- */
-function isDeliveryUnsupported(error: unknown): boolean {
-  return error instanceof BackendApiError && (error.status === 404 || error.status === 405);
-}
-
 export const saveTestDeliveryAction = actionClient
   .inputSchema(saveTestDeliverySchema)
   .action(async ({ parsedInput }) => {
@@ -164,67 +162,58 @@ export const saveTestDeliveryAction = actionClient
       const { test } = await saveTestDeliveryRequest(parsedInput.testId, {
         delivery: parsedInput.delivery,
       });
-      return { test, supported: true as const };
+      return { test };
     } catch (error) {
-      if (isDeliveryUnsupported(error)) {
-        return { test: null, supported: false as const };
-      }
       throw new ActionError(mapTestError(error, DELIVERY_ERROR));
     }
   });
 
 /**
- * The publish wizard's single terminal action.
+ * A rejected publish, with the reasons attached.
  *
- * Ordered so that nothing goes live under rules that failed to save: metadata
- * first (it is what the readiness check validated against), then delivery, then
- * publish. If the delivery endpoint is absent the action stops and reports
- * `deliveryUnsupported`, leaving the test a draft — the wizard then offers the
- * teacher an explicit "publish without them" which comes back with `force`.
+ * `POST /tests/:testId/publish` answers 409 with `{ message, issues }` when the
+ * test does not pass `validateTestForPublish`. Those issues are the whole point
+ * of the response — they are what the teacher has to act on — and an
+ * `ActionError` can only carry a string, so the message alone used to reach the
+ * screen and the list was dropped on the floor. A teacher saw "Test is not
+ * ready to publish" and nothing else.
+ */
+function publishRejectionIssues(error: unknown): TestValidationIssue[] | null {
+  if (!(error instanceof BackendApiError) || error.status !== 409) return null;
+
+  const parsed = z
+    .object({ issues: z.array(testValidationIssueSchema).min(1) })
+    .safeParse(error.body);
+
+  return parsed.success ? parsed.data.issues : null;
+}
+
+/**
+ * The publish screen's single terminal action.
+ *
+ * The backend applies the candidate and publishes it in one transaction. A
+ * rejected validation therefore leaves the persisted draft untouched.
  */
 export const publishTestWithDeliveryAction = actionClient
   .inputSchema(publishTestWithDeliverySchema)
   .action(async ({ parsedInput }) => {
-    const { testId, delivery, settings, force } = parsedInput;
-
-    const body = Object.fromEntries(
-      Object.entries(settings).filter(([, value]) => value !== undefined),
-    );
-
-    if (Object.keys(body).length > 0) {
-      try {
-        await updateTestRequest(testId, body);
-      } catch (error) {
-        throw new ActionError(mapTestError(error, SAVE_ERROR));
-      }
-    }
-
-    let deliverySaved = false;
+    const { testId, delivery, settings } = parsedInput;
 
     try {
-      await saveTestDeliveryRequest(testId, { delivery });
-      deliverySaved = true;
-    } catch (error) {
-      if (!isDeliveryUnsupported(error)) {
-        throw new ActionError(mapTestError(error, DELIVERY_ERROR));
-      }
-      if (!force) {
-        // Not an ActionError: this is a decision for the teacher, not a failure
-        // to report. The wizard renders it as a choice.
-        return { published: false as const, deliveryUnsupported: true as const };
-      }
-    }
-
-    try {
-      const { test } = await publishTestRequest(testId);
+      const { test } = await publishTestRequest(testId, { delivery, settings });
       return {
         published: true as const,
-        deliverySaved,
         id: test.id,
         title: test.title,
         status: test.status,
       };
     } catch (error) {
+      const issues = publishRejectionIssues(error);
+      if (issues) {
+        // Not an ActionError: the server answered a question the screen asked,
+        // and the answer belongs in the readiness banner, not in a toast.
+        return { published: false as const, issues };
+      }
       throw new ActionError(mapTestError(error, PUBLISH_ERROR));
     }
   });

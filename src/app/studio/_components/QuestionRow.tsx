@@ -1,16 +1,17 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
   AlertTriangle,
   ArrowDown,
   ArrowUp,
   Copy,
   PenLine,
+  Plus,
   Trash2,
   Zap,
 } from "lucide-react";
-import { Controller, type Control, type UseFormSetValue } from "react-hook-form";
+import { Controller, useWatch, type Control, type UseFormSetValue } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
@@ -124,6 +125,22 @@ function QuestionRow({
         />
       )}
     />
+  );
+
+  /**
+   * The hint line and the image are optional on nearly every question, and a
+   * forty-question paper rendered eighty empty controls for them — more
+   * always-visible chrome than the questions themselves. They collapse when
+   * unused, exactly as the group's passage does, and open on their own when the
+   * question already carries one.
+   *
+   * A diagram-label question is exempt: there the image *is* the question, and
+   * hiding it behind a press would bury the thing being asked about.
+   */
+  const helpText = useWatch({ control, name: `${name}.helpText` });
+  const imageUrl = useWatch({ control, name: `${name}.imageUrl` });
+  const [extrasOpen, setExtrasOpen] = useState(
+    () => Boolean(helpText) || (!presentation?.imageFirst && Boolean(imageUrl)),
   );
 
   return (
@@ -331,15 +348,33 @@ function QuestionRow({
           )}
         />
 
-        <Input
-          {...control.register(`${name}.helpText`)}
-          disabled={disabled}
-          placeholder={t("root.tests.builder.question.helpPlaceholder")}
-          aria-label={t("root.tests.builder.question.help")}
-          className="py-2"
-        />
-
-        {presentation?.imageFirst ? null : imageField}
+        {extrasOpen ? (
+          <>
+            <Input
+              {...control.register(`${name}.helpText`)}
+              disabled={disabled}
+              placeholder={t("root.tests.builder.question.helpPlaceholder")}
+              aria-label={t("root.tests.builder.question.help")}
+              className="py-2"
+            />
+            {presentation?.imageFirst ? null : imageField}
+          </>
+        ) : (
+          <Button
+            type="button"
+            size="xs"
+            variant="ghost"
+            disabled={disabled}
+            aria-expanded={false}
+            className="text-muted-foreground"
+            onClick={() => setExtrasOpen(true)}
+          >
+            <Plus className="size-3" />
+            {presentation?.imageFirst
+              ? t("root.tests.builder.question.addHint")
+              : t("root.tests.builder.question.addExtras")}
+          </Button>
+        )}
 
         {spec ? (
           <QuestionAnswerEditor

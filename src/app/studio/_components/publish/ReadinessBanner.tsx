@@ -1,26 +1,30 @@
 "use client";
 
 import Link from "next/link";
-import { AlertTriangle, ArrowRight, CheckCircle2, RefreshCw } from "lucide-react";
+import { AlertTriangle, ArrowRight, CheckCircle2, Loader2, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { TestValidationIssue } from "@/app/(root)/_lib/tests.schemas";
 import { studioRoutes } from "@/app/(root)/_constants/tests";
 import { humanizeToken, translateKey } from "@/app/(root)/_lib/test-labels";
 import { Button } from "@/components/ui/Button";
-import Skeleton from "@/components/ui/Skeleton";
 import Surface from "@/components/ui/Surface";
 
 /**
- * Step one: is this test publishable at all.
+ * Whether this test may be published, stated once at the top of the page.
  *
- * `GET /tests/:testId/validation` runs the same function `POST /publish` runs,
- * so this is the real answer rather than a client-side guess. Every issue links
+ * It used to be step one of a five-step wizard, which made it a screen that
+ * asks nothing: in the common case it said "everything checks out" and then
+ * required a Next click to get past itself. A gate is not a step. Now it is the
+ * banner the page opens with, it blocks only the Publish button, and everything
+ * else on the page stays usable while a teacher works through the list.
+ *
+ * Candidate validation runs the same function `POST /publish` runs, so this is
+ * the real answer rather than a client-side guess. Every issue links
  * back into the builder with the whole issue set in the query string, so the
- * flagged rows stay highlighted while the teacher works through them — the old
- * dialog closed on the first jump and lost the list.
+ * flagged rows stay highlighted while they are being fixed.
  */
-export default function ReadinessStep({
+export default function ReadinessBanner({
   testId,
   issues,
   isReady,
@@ -52,18 +56,33 @@ export default function ReadinessStep({
 
   if (isPending) {
     return (
-      <div className="space-y-2" aria-busy="true">
-        <Skeleton className="h-12 rounded-xl" />
-        <Skeleton className="h-12 rounded-xl" />
-        <Skeleton className="h-12 rounded-xl" />
-      </div>
+      <Surface
+        variant="muted"
+        padding="none"
+        elevation={0}
+        className="flex items-center gap-2.5 px-4 py-3"
+        aria-busy="true"
+      >
+        <Loader2
+          className="size-4 shrink-0 animate-spin text-muted-foreground"
+          aria-hidden="true"
+        />
+        <p className="text-sm text-muted-foreground">
+          {t("root.tests.publish.readiness.checking")}
+        </p>
+      </Surface>
     );
   }
 
   if (isError) {
     return (
-      <Surface variant="muted" padding="md" elevation={0} className="space-y-3">
-        <p className="text-sm text-muted-foreground">
+      <Surface
+        variant="muted"
+        padding="none"
+        elevation={0}
+        className="flex flex-wrap items-center gap-3 px-4 py-3"
+      >
+        <p className="min-w-0 flex-1 text-sm text-muted-foreground">
           {t("root.tests.publish.checkFailed")}
         </p>
         <Button type="button" variant="outline" size="sm" onClick={onRetry}>
@@ -75,14 +94,17 @@ export default function ReadinessStep({
   }
 
   if (isReady) {
+    // One line, not a card. A pass is the expected outcome and should take the
+    // least room on the page; the settings below are what the teacher came for.
     return (
       <Surface
-        padding="md"
+        padding="none"
         elevation={0}
-        className="border-[color-mix(in_srgb,var(--success)_40%,transparent)] bg-[color-mix(in_srgb,var(--success)_8%,transparent)]"
+        className="flex items-center gap-2.5 border-[color-mix(in_srgb,var(--success)_40%,transparent)] bg-[color-mix(in_srgb,var(--success)_8%,transparent)] px-4 py-3"
       >
-        <p className="flex items-start gap-2 text-sm text-success">
-          <CheckCircle2 className="mt-px size-4 shrink-0" aria-hidden="true" />
+        {/* Icon plus wording: the state is never carried by the green wash alone. */}
+        <CheckCircle2 className="size-4 shrink-0 text-success" aria-hidden="true" />
+        <p className="min-w-0 flex-1 text-sm text-foreground">
           {t("root.tests.publish.ready")}
         </p>
       </Surface>
@@ -90,10 +112,21 @@ export default function ReadinessStep({
   }
 
   return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-foreground">
-        {t("root.tests.publish.blocked", { count: issues.length })}
-      </p>
+    <Surface
+      padding="none"
+      elevation={0}
+      className="space-y-3 border-destructive/35 bg-[color-mix(in_srgb,var(--destructive)_5%,transparent)] p-4"
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <AlertTriangle className="size-4 shrink-0 text-destructive" aria-hidden="true" />
+        <p className="min-w-0 flex-1 text-sm font-medium text-foreground">
+          {t("root.tests.publish.blocked", { count: issues.length })}
+        </p>
+        <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
+          <RefreshCw />
+          {t("root.tests.publish.recheck")}
+        </Button>
+      </div>
 
       <ul className="space-y-1.5">
         {issues.map((issue, index) => {
@@ -113,11 +146,7 @@ export default function ReadinessStep({
                   href={builderLink(target)}
                   className="interactive-flat flex w-full items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-left text-xs text-foreground outline-none hover:border-destructive/45 focus-visible:ring-2 focus-visible:ring-ring/40"
                 >
-                  <AlertTriangle
-                    className="mt-px size-3.5 shrink-0 text-destructive"
-                    aria-hidden="true"
-                  />
-                  <span className="flex-1">{message}</span>
+                  <span className="min-w-0 flex-1">{message}</span>
                   <ArrowRight
                     className="mt-px size-3.5 shrink-0 text-muted-foreground"
                     aria-hidden="true"
@@ -125,10 +154,6 @@ export default function ReadinessStep({
                 </Link>
               ) : (
                 <p className="flex items-start gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-foreground">
-                  <AlertTriangle
-                    className="mt-px size-3.5 shrink-0 text-destructive"
-                    aria-hidden="true"
-                  />
                   <span>{message}</span>
                 </p>
               )}
@@ -137,15 +162,9 @@ export default function ReadinessStep({
         })}
       </ul>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <Button asChild variant="outline" size="sm">
-          <Link href={builderLink()}>{t("root.tests.publish.fixInBuilder")}</Link>
-        </Button>
-        <Button type="button" variant="ghost" size="sm" onClick={onRetry}>
-          <RefreshCw />
-          {t("root.tests.publish.recheck")}
-        </Button>
-      </div>
-    </div>
+      <Button asChild variant="outline" size="sm">
+        <Link href={builderLink()}>{t("root.tests.publish.fixInBuilder")}</Link>
+      </Button>
+    </Surface>
   );
 }
