@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { paragraphLabels } from "@/app/(root)/_lib/test-form";
@@ -8,7 +9,7 @@ import type { QuestionEditorProps } from "../../_types";
 import {
   presentationFor,
   type QuestionEditorKind,
-} from "../../_lib/questionPresentation";
+} from "@/lib/tests/question-presentation";
 import ChoiceEditor from "./ChoiceEditor";
 import FixedChoiceEditor from "./FixedChoiceEditor";
 import GridInEditor from "./GridInEditor";
@@ -30,17 +31,16 @@ import TextAnswerEditor from "./TextAnswerEditor";
  * the backend catalogue can grow without a frontend release.
  */
 export default function QuestionAnswerEditor(props: QuestionEditorProps) {
-  const { type, spec, passage } = props;
+  const { type, spec } = props;
   const presentation = presentationFor(type, spec);
 
-  return renderEditor(presentation.editor, props, presentation.wordLimits, passage);
+  return renderEditor(presentation.editor, props, presentation.wordLimits);
 }
 
 function renderEditor(
   kind: QuestionEditorKind,
   props: QuestionEditorProps,
   wordLimits: boolean,
-  passage: string | undefined,
 ) {
   switch (kind) {
     case "choice":
@@ -60,7 +60,7 @@ function renderEditor(
     case "matching":
       return <MatchingEditor {...props} />;
     case "headings":
-      return <HeadingsEditor {...props} passage={passage} />;
+      return <HeadingsEditor {...props} />;
     case "ordering":
       return <OrderingEditor {...props} />;
     case "manual":
@@ -76,12 +76,20 @@ function renderEditor(
  * every render (`paragraphLabels`), so offering them as one-press right-hand
  * items removes the single most tedious step in authoring IELTS reading:
  * retyping A/B/C/D/E and hoping they still line up after the passage is edited.
+ *
+ * The subscription to the passage lives **here**, in the one editor that reads
+ * it, rather than being watched higher up and passed down. Watching it where
+ * the material is rendered would re-render every question sharing that passage
+ * on each keystroke — twelve questions and several hundred fields to keep one
+ * suggestion list current.
  */
-function HeadingsEditor({
-  passage,
-  ...props
-}: QuestionEditorProps & { passage?: string }) {
+function HeadingsEditor(props: QuestionEditorProps) {
   const { t } = useTranslation();
+
+  const passage = useWatch({
+    control: props.control,
+    name: `${props.groupName}.passage`,
+  });
 
   const suggestions = useMemo(
     () =>

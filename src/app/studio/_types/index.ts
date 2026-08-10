@@ -51,11 +51,17 @@ export type QuestionEditorProps = {
   type: string;
   disabled?: boolean;
   /**
-   * The group's passage, for the editors that derive their content from it —
-   * matching-headings offers the passage's paragraph labels as its right-hand
-   * items rather than making the teacher retype A/B/C.
+   * The path to the shared material this question sits under, for the editors
+   * that derive their content from it — matching-headings offers the passage's
+   * paragraph labels as its right-hand items rather than making the teacher
+   * retype A/B/C.
+   *
+   * A path rather than the text itself, so the one editor that needs it can
+   * subscribe on its own. Passing the text down would mean watching it where
+   * the material renders, which re-renders every question under that passage on
+   * every keystroke in it.
    */
-  passage?: string;
+  groupName: GroupFieldName;
 };
 
 /** Re-exported so studio code has one import for its builder types. */

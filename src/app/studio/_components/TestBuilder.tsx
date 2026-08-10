@@ -28,7 +28,7 @@ import {
   buildFormDefaults,
   buildStructurePayload,
   createSectionDraft,
-  groupStartNumber,
+  sectionStartNumber,
 } from "@/app/(root)/_lib/test-form";
 import { humanizeToken, translateKey } from "@/app/(root)/_lib/test-labels";
 import {
@@ -52,8 +52,8 @@ import TestStatusBadge from "@/components/tests/TestStatusBadge";
 import type { BuilderCatalog, SectionFieldName } from "../_types";
 import { useAutosave } from "../_hooks/useAutosave";
 import OutlineRail from "./OutlineRail";
+import PartCard from "./PartCard";
 import SaveState from "./SaveState";
-import SectionCard from "./SectionCard";
 import StudioTopBar from "./StudioTopBar";
 import TestSettingsDialog from "./TestSettingsDialog";
 import { TestStatsSummary } from "./TestStats";
@@ -134,6 +134,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     control,
     setValue,
     getValues,
+    register,
     watch,
     trigger,
     reset,
@@ -281,15 +282,15 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   }, []);
 
   /**
-   * The first question number of a group, counted across the whole test —
-   * IELTS numbers 1–40 end to end. Read from the live form values, and
-   * recomputed whenever `structureVersion` changes, which is exactly when the
-   * count of rows can have changed.
+   * The first question number of a part, counted across the whole test — IELTS
+   * numbers 1–40 end to end. Read from the live form values, and recomputed
+   * whenever `structureVersion` changes, which is exactly when the count of
+   * rows can have changed.
    */
   const startNumberFor = useCallback(
-    (sectionIndex: number, groupIndex: number) => {
+    (sectionIndex: number) => {
       void structureVersion;
-      return groupStartNumber(getValues("sections"), sectionIndex, groupIndex);
+      return sectionStartNumber(getValues("sections"), sectionIndex);
     },
     [getValues, structureVersion],
   );
@@ -316,8 +317,8 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   );
 
   /**
-   * A new section takes the next preset the blueprint declares, so an IELTS
-   * test gains "Writing" after "Reading" rather than "Section 2".
+   * A new part takes the next preset the blueprint declares, so an IELTS test
+   * gains "Writing" after "Reading" rather than "Part 2".
    */
   const addSection = () => {
     const preset = blueprint?.sectionPresets[sectionFields.length];
@@ -326,7 +327,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
         preset?.kind ?? SECTION_KINDS[0],
         preset
           ? translateKey(t, preset.titleKey, humanizeToken(preset.kind))
-          : t("root.tests.builder.section.newTitle", { index: sectionFields.length + 1 }),
+          : t("root.tests.builder.part.newTitle", { index: sectionFields.length + 1 }),
       ),
     );
     onStructureChange();
@@ -497,11 +498,12 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
               )}
 
               {sectionFields.map((field, sectionIndex) => (
-                <SectionCard
-                  key={field.id}
+                <PartCard
+                  key={field.uid || field.id}
                   control={control}
                   setValue={setValue}
                   getValues={getValues}
+                  register={register}
                   name={`sections.${sectionIndex}` as SectionFieldName}
                   sectionIndex={sectionIndex}
                   sectionCount={sectionFields.length}
@@ -510,25 +512,31 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
                   catalog={builderCatalog}
                   flaggedIds={flaggedIds}
                   disabled={!isDraft}
-                  startNumberFor={(groupIndex) =>
-                    startNumberFor(sectionIndex, groupIndex)
-                  }
+                  startNumber={startNumberFor(sectionIndex)}
+                  /*
+                    A one-part test has nothing to name and nowhere else to go,
+                    so it renders as a bare list of questions. "General" as a
+                    heading over the only list on the page is a label for a
+                    distinction that does not exist yet; it appears the moment a
+                    second part does, for both of them.
+                  */
+                  showHeader={sectionFields.length > 1}
                   onMove={handleMoveSection}
                   onRemove={handleRemoveSection}
                   onStructureChange={onStructureChange}
                 />
               ))}
 
-              {isDraft && !builderCatalog.blueprint.hidesStructure ? (
+              {isDraft ? (
                 <Button
                   type="button"
-                  variant="outline"
-                  className="w-full justify-center border-dashed"
+                  variant="ghost"
+                  className="w-full justify-center text-muted-foreground"
                   disabled={sectionFields.length >= TEST_LIMITS.sectionsPerTest}
                   onClick={addSection}
                 >
                   <Plus className="size-4" />
-                  {t("root.tests.builder.addSection")}
+                  {t("root.tests.builder.addPart")}
                 </Button>
               ) : null}
             </div>

@@ -32,7 +32,12 @@ export type NotificationInvitationData = {
 export type NotificationTab = "all" | "unread";
 
 /** Notification category (backend-assigned; the frontend also derives it as a fallback). */
-export type NotificationCategory = "system" | "payments" | "invitations";
+/**
+ * Mirrors the backend's `ListNotificationsDto` filter, which gained `test` when
+ * attempts shipped. A value the API accepts but this union omits is a filter
+ * pill the product can never show.
+ */
+export type NotificationCategory = "system" | "payments" | "invitations" | "test";
 
 /**
  * The active filter pill on the notifications page. `all`/`unread` map to the

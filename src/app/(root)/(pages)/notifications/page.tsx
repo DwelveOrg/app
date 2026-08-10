@@ -31,7 +31,12 @@ import { queryKeys } from "@/lib/query/keys";
 import { useTabRefresh } from "@/lib/query/useTabRefresh";
 
 const PAGE_SIZE = 10;
-const CATEGORY_FILTERS: NotificationCategory[] = ["system", "payments", "invitations"];
+const CATEGORY_FILTERS: NotificationCategory[] = [
+  "system",
+  "payments",
+  "invitations",
+  "test",
+];
 
 /**
  * The backend params one filter pill maps to: `all`/`unread` are the `tab`, the

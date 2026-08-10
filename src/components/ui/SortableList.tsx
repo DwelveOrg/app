@@ -50,13 +50,25 @@ import { cn } from "@/lib/utils";
 export default function SortableList({
   ids,
   onReorder,
+  onDropOn,
   disabled,
   children,
   className,
 }: {
-  /** Stable keys — RHF's `field.id`, never the array index. */
+  /** Stable keys — a row's own `uid`, or RHF's `field.id`. Never the array index. */
   ids: string[];
-  onReorder: (from: number, to: number) => void;
+  /** Index-based reorder, for a list that is one array. */
+  onReorder?: (from: number, to: number) => void;
+  /**
+   * Id-based reorder, for a list that is not one array.
+   *
+   * A part is rendered flat but stored as several wire groups, so "moved from 4
+   * to 7" cannot be applied without first working out which group each index
+   * belongs to. Handing back the two ids lets the caller resolve both against
+   * the tree it owns — and lets a drag move a question under a different
+   * passage, which an index pair cannot express.
+   */
+  onDropOn?: (activeId: string, overId: string) => void;
   disabled?: boolean;
   children: ReactNode;
   className?: string;
@@ -72,11 +84,16 @@ export default function SortableList({
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
+    if (onDropOn) {
+      onDropOn(String(active.id), String(over.id));
+      return;
+    }
+
     const from = ids.indexOf(String(active.id));
     const to = ids.indexOf(String(over.id));
     if (from === -1 || to === -1) return;
 
-    onReorder(from, to);
+    onReorder?.(from, to);
   };
 
   if (disabled) {

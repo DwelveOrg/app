@@ -39,6 +39,36 @@ export function resolveNotificationHref(item: NotificationItem): string | null {
   if (type === "CLASS_DELETED") return "/groups";
   if (type === "SCHOOL_DELETED") return "/school";
 
+  /*
+   * Test notifications, resolved before the generic `classId` fallback below —
+   * which would otherwise send every one of them to the class page, one level
+   * above the thing the notification is actually about.
+   *
+   * The student-facing ones need no `classId`, which matters: the backend does
+   * not put one in the payload for a submission or a release.
+   */
+  if (type.startsWith("TEST_")) {
+    const testId = typeof data.testId === "string" ? data.testId : null;
+    const attemptId = typeof data.attemptId === "string" ? data.attemptId : null;
+    if (!testId) return null;
+
+    // A teacher: straight to the paper that was handed in, or to the register.
+    if (type === "TEST_SUBMITTED" || type === "TEST_AUTO_SUBMITTED_TEACHER") {
+      return classId
+        ? attemptId
+          ? `/groups/${classId}/tests/${testId}/results/${attemptId}`
+          : `/groups/${classId}/tests/${testId}/results`
+        : `/tests/${testId}/results${attemptId ? `/${attemptId}` : ""}`;
+    }
+    if (type === "TEST_PUBLISHED_TEACHER") {
+      return classId ? `/groups/${classId}/tests` : `/tests/${testId}/results`;
+    }
+
+    // A student: their own result if there is one, else the test's cover.
+    if (attemptId) return `/exam/${testId}/result/${attemptId}`;
+    return `/exam/${testId}`;
+  }
+
   if (type === "CLASS_JOIN_REQUEST_CREATED" && classId) {
     return `/groups/${classId}/requests`;
   }
@@ -67,6 +97,10 @@ export const CATEGORY_TINT: Record<NotificationCategory, string> = {
   system: "bg-[color-mix(in_srgb,var(--info)_14%,transparent)] text-info",
   payments: "bg-[color-mix(in_srgb,var(--success)_16%,transparent)] text-success",
   invitations: "bg-[color-mix(in_srgb,var(--primary)_16%,transparent)] text-primary",
+  // Chart violet rather than a semantic token: a test notification is not a
+  // success, a warning, or an error, and `--success` in this product means
+  // "correct answer".
+  test: "bg-[var(--chart-1-tint)] text-[var(--chart-1-ink)]",
 };
 
 /** True when a notification is an unresolved invitation (renders Accept / Decline). */

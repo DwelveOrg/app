@@ -149,7 +149,7 @@ function MobileLink({
   );
 }
 
-export default function SideBar() {
+export default function SideBar({ schoolRole }: { schoolRole?: string | null }) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -169,6 +169,18 @@ export default function SideBar() {
   };
   const settingsItem: NavItem = { href: "/settings", label: t("sidebar.settings"), icon: Settings };
   const profileItem: NavItem = { href: "/profile", label: t("sidebar.profile"), icon: UserRound };
+
+  /**
+   * Assignments is where a student sits the tests set for their classes. It is
+   * a real destination only for them: a teacher has no assignments, and a row
+   * that opens an empty page is worse than the "coming soon" it replaced.
+   */
+  const assignmentsItem: NavItem = {
+    href: "/assignments/exams",
+    label: t("sidebar.assignments"),
+    icon: NotebookPen,
+  };
+  const canTakeTests = schoolRole === "STUDENT";
 
   const comingSoon = t("sidebar.comingSoon");
   const isActive = (href: string) => isRouteActive(pathname, href);
@@ -192,7 +204,15 @@ export default function SideBar() {
           {primaryItems.map((item) => (
             <NavLink key={item.href} item={item} active={isActive(item.href)} />
           ))}
-          <LockedNavItem icon={NotebookPen} label={t("sidebar.assignments")} comingSoonLabel={comingSoon} />
+          {canTakeTests ? (
+            <NavLink item={assignmentsItem} active={isActive(assignmentsItem.href)} />
+          ) : (
+            <LockedNavItem
+              icon={NotebookPen}
+              label={t("sidebar.assignments")}
+              comingSoonLabel={comingSoon}
+            />
+          )}
           <NavLink
             item={notificationsItem}
             active={isActive(notificationsItem.href)}
@@ -255,16 +275,35 @@ export default function SideBar() {
                 align="end"
                 className="mb-2 w-[260px] rounded-2xl border-border bg-popover p-2 shadow-elev-3 max-[350px]:w-[220px]"
               >
-                <DropdownMenuItem
-                  disabled
-                  className="rounded-xl px-3 py-2.5 text-sm font-semibold opacity-70 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
-                >
-                  <NavIcon icon={NotebookPen} />
-                  <span className="ml-3">{t("sidebar.assignments")}</span>
-                  <Badge variant="neutral" size="xs" uppercase className="ml-auto">
-                    {comingSoon}
-                  </Badge>
-                </DropdownMenuItem>
+                {canTakeTests ? (
+                  <DropdownMenuItem
+                    asChild
+                    className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs ${
+                      isActive(assignmentsItem.href)
+                        ? "bg-accent text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        : ""
+                    }`}
+                  >
+                    <Link
+                      href={assignmentsItem.href}
+                      onClick={() => setMobileMoreOpen(false)}
+                    >
+                      <NavIcon icon={NotebookPen} />
+                      <span className="ml-3">{assignmentsItem.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    disabled
+                    className="rounded-xl px-3 py-2.5 text-sm font-semibold opacity-70 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
+                  >
+                    <NavIcon icon={NotebookPen} />
+                    <span className="ml-3">{t("sidebar.assignments")}</span>
+                    <Badge variant="neutral" size="xs" uppercase className="ml-auto">
+                      {comingSoon}
+                    </Badge>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator className="my-1.5" />
                 {mobileExtra.map((item) => (
                   <DropdownMenuItem

@@ -16,7 +16,7 @@ import Badge from "@/components/ui/badge";
 import Input from "@/components/ui/Input";
 import TabBar from "@/components/ui/TabBar";
 import { cn } from "@/lib/utils";
-import { ACCENT_CLASSES, presentationFor } from "../_lib/questionPresentation";
+import { ACCENT_CLASSES, presentationFor } from "@/lib/tests/question-presentation";
 
 type AddQuestionDialogProps = {
   open: boolean;

@@ -5,13 +5,20 @@ import {
   AlertTriangle,
   ArrowDown,
   ArrowUp,
+  BookOpenText,
   Copy,
   PenLine,
   Plus,
   Trash2,
   Zap,
 } from "lucide-react";
-import { Controller, useWatch, type Control, type UseFormSetValue } from "react-hook-form";
+import {
+  Controller,
+  useWatch,
+  type Control,
+  type UseFormRegister,
+  type UseFormSetValue,
+} from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import type { QuestionTypeSpec } from "@/app/(root)/_lib/tests.schemas";
@@ -21,24 +28,23 @@ import { humanizeToken, translateKey } from "@/app/(root)/_lib/test-labels";
 import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
+import RowActionsMenu from "@/components/ui/RowActionsMenu";
 import Textarea from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import type { QuestionFieldName } from "../_types";
+import type { GroupFieldName, QuestionFieldName } from "../_types";
 import {
   ACCENT_CLASSES,
   GAP_MARKER,
   presentationFor,
-} from "../_lib/questionPresentation";
+} from "@/lib/tests/question-presentation";
 import QuestionAnswerEditor from "./editors";
 import TestImageField from "./TestImageField";
 
 type QuestionRowProps = {
   control: Control<TestBuilderForm>;
   setValue: UseFormSetValue<TestBuilderForm>;
+  register: UseFormRegister<TestBuilderForm>;
   name: QuestionFieldName;
-  /** Position inside its group, for the move/remove callbacks. */
-  index: number;
-  count: number;
   /** 1-based number across the whole test, as the student will see it. */
   questionNumber: number;
   /** Backend id, or `""` for a question that has never been saved. */
@@ -47,15 +53,22 @@ type QuestionRowProps = {
   /** Catalogue entry, or `null` if the backend no longer serves this preset. */
   spec: QuestionTypeSpec | null;
   testId: string;
-  /** The group's passage, for editors that derive content from it. */
-  passage?: string;
+  /** Path to the shared material above this question, for editors that read it. */
+  groupName: GroupFieldName;
   disabled?: boolean;
+  /** First and last **in the whole part**, not within a wire group. */
+  isFirst: boolean;
+  isLast: boolean;
+  /** False when this question already begins a run of shared material. */
+  canAddMaterial: boolean;
   /** Highlighted because a publish check points at it. */
   flagged?: boolean;
   dragHandle?: React.ReactNode;
-  onMove: (from: number, to: number) => void;
-  onRemove: (index: number) => void;
-  onDuplicate: (index: number) => void;
+  onNudge: (direction: -1 | 1) => void;
+  onRemove: () => void;
+  onDuplicate: () => void;
+  onInsertAfter: () => void;
+  onAddMaterialAbove: () => void;
 };
 
 /**
@@ -71,25 +84,37 @@ type QuestionRowProps = {
  *
  * Memoised, and given only `control`, a composed `name`, and stable callbacks,
  * so typing in one question never re-renders its thirty-nine siblings.
+ *
+ * ## Actions
+ *
+ * Up and down stay on the row, because reordering is the thing done most and
+ * they are also the keyboard path. Everything else moved into the overflow
+ * menu: the row gained "insert a question here" and "these questions share a
+ * passage" when groups stopped being a container the teacher managed, and six
+ * icon buttons on a row of form fields is chrome competing with content.
  */
 function QuestionRow({
   control,
   setValue,
+  register,
   name,
-  index,
-  count,
   questionNumber,
   questionId,
   type,
   spec,
   testId,
-  passage,
+  groupName,
   disabled,
+  isFirst,
+  isLast,
+  canAddMaterial,
   flagged,
   dragHandle,
-  onMove,
+  onNudge,
   onRemove,
   onDuplicate,
+  onInsertAfter,
+  onAddMaterialAbove,
 }: QuestionRowProps) {
   const { t } = useTranslation();
 
@@ -131,8 +156,7 @@ function QuestionRow({
    * The hint line and the image are optional on nearly every question, and a
    * forty-question paper rendered eighty empty controls for them — more
    * always-visible chrome than the questions themselves. They collapse when
-   * unused, exactly as the group's passage does, and open on their own when the
-   * question already carries one.
+   * unused and open on their own when the question already carries one.
    *
    * A diagram-label question is exempt: there the image *is* the question, and
    * hiding it behind a press would bury the thing being asked about.
@@ -237,14 +261,20 @@ function QuestionRow({
             `docs/architecture/ARCHITECTURE.md`, a sortable row keeps its
             buttons — a handle needs a sustained drag, which is the wrong ask
             for touch and for motor impairment.
+
+            They step through the **whole part**, so a question at the top of a
+            passage's run steps out from under it and one at the bottom of the
+            run above steps in. In the old builder they stopped at the group
+            edge, and moving a question under a different passage meant
+            rewriting it.
           */}
           <Button
             type="button"
             size="icon-sm"
             variant="ghost"
-            disabled={disabled || index === 0}
+            disabled={disabled || isFirst}
             aria-label={t("root.tests.builder.question.moveUp")}
-            onClick={() => onMove(index, index - 1)}
+            onClick={() => onNudge(-1)}
           >
             <ArrowUp className="size-3.5" />
           </Button>
@@ -252,40 +282,64 @@ function QuestionRow({
             type="button"
             size="icon-sm"
             variant="ghost"
-            disabled={disabled || index >= count - 1}
+            disabled={disabled || isLast}
             aria-label={t("root.tests.builder.question.moveDown")}
-            onClick={() => onMove(index, index + 1)}
+            onClick={() => onNudge(1)}
           >
             <ArrowDown className="size-3.5" />
           </Button>
 
-          {/*
-            Duplicating is the fastest way to build a paper: twelve
-            True/False/Not Given statements over one passage differ only in
-            their prompt, and re-picking the preset for each was twelve trips
-            through the picker.
-          */}
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="ghost"
-            disabled={disabled}
-            aria-label={t("root.tests.builder.question.duplicate")}
-            onClick={() => onDuplicate(index)}
-          >
-            <Copy className="size-3.5" />
-          </Button>
-          <Button
-            type="button"
-            size="icon-sm"
-            variant="ghost"
-            disabled={disabled}
-            aria-label={t("root.tests.builder.question.remove")}
-            className="text-muted-foreground hover:text-destructive"
-            onClick={() => onRemove(index)}
-          >
-            <Trash2 className="size-3.5" />
-          </Button>
+          <RowActionsMenu
+            label={t("root.tests.builder.question.actionsLabel", {
+              number: questionNumber,
+            })}
+            actions={[
+              {
+                label: t("root.tests.builder.question.insertAfter"),
+                icon: Plus,
+                onSelect: onInsertAfter,
+                disabled,
+                // The picker is a dialog: closing the menu in the same tick
+                // moves focus while it mounts and focus lands back here.
+                keepOpen: true,
+              },
+              {
+                /*
+                 * Duplicating is the fastest way to build a paper: twelve
+                 * True/False/Not Given statements over one passage differ only
+                 * in their prompt, and re-picking the preset for each was
+                 * twelve trips through the picker.
+                 */
+                label: t("root.tests.builder.question.duplicate"),
+                icon: Copy,
+                onSelect: onDuplicate,
+                disabled,
+              },
+              ...(canAddMaterial
+                ? [
+                    {
+                      /*
+                       * The replacement for "create a group, then move the
+                       * questions into it". A teacher realises several
+                       * questions share a passage while looking at the
+                       * questions, so the action lives on the first of them.
+                       */
+                      label: t("root.tests.builder.question.addMaterialAbove"),
+                      icon: BookOpenText,
+                      onSelect: onAddMaterialAbove,
+                      disabled,
+                    },
+                  ]
+                : []),
+              {
+                label: t("root.tests.builder.question.remove"),
+                icon: Trash2,
+                onSelect: onRemove,
+                destructive: true,
+                disabled,
+              },
+            ]}
+          />
         </div>
       </header>
 
@@ -351,7 +405,7 @@ function QuestionRow({
         {extrasOpen ? (
           <>
             <Input
-              {...control.register(`${name}.helpText`)}
+              {...register(`${name}.helpText`)}
               disabled={disabled}
               placeholder={t("root.tests.builder.question.helpPlaceholder")}
               aria-label={t("root.tests.builder.question.help")}
@@ -383,7 +437,7 @@ function QuestionRow({
             name={name}
             spec={spec}
             type={type}
-            passage={passage}
+            groupName={groupName}
             disabled={disabled}
           />
         ) : null}

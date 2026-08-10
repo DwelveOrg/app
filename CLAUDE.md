@@ -74,6 +74,14 @@ Known route groups:
 - `src/app/(root)` — authenticated dashboard
 - `src/app/(root)/(pages)` — dashboard pages
 - `src/app/(root)/(pages)/(small-container)` — narrow-width pages such as profile, settings, notifications
+- `src/app/studio` — test authoring. A separate environment: no sidebar, one document. See `docs/features/test-studio.md`.
+- `src/app/exam` — sitting a test. The same idea from the student's side, with a stricter rule: while an attempt is live there is nothing else on screen to click. See `docs/features/test-taking.md`.
+
+Shared test code that both environments (and the teacher's results screens) use:
+
+- `src/lib/tests/` — the paper schemas, the answer shapes, and the question-presentation registry
+- `src/components/tests/paper/` — **one** question renderer, in `answer` / `review` / `preview` modes, so what a student saw and what a teacher marks cannot drift apart
+- `src/lib/motion/` — the motion variants, bound to the `--dur-*` / `--ease-*` tokens, with reduced-motion equivalents in one place
 
 Shared code:
 

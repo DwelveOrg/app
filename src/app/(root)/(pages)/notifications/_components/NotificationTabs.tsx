@@ -16,6 +16,7 @@ const FILTERS: Array<{ value: NotificationFilter; labelKey: string }> = [
   { value: "system", labelKey: "root.notifications.tabs.system" },
   { value: "payments", labelKey: "root.notifications.tabs.payments" },
   { value: "invitations", labelKey: "root.notifications.tabs.invitations" },
+  { value: "test", labelKey: "root.notifications.tabs.test" },
 ];
 
 export function NotificationTabs({ active, onChange, unreadCount }: Readonly<NotificationTabsProps>) {
