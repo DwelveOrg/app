@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Clock3, ListChecks, Target, Trash2 } from "lucide-react";
+import { BarChart3, Clock3, ListChecks, Target, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -119,6 +119,22 @@ export default function TestCard({
               : t("root.tests.list.actions.open")}
           </Link>
         </Button>
+
+        {/*
+          Results are the point of publishing, so the way to them is on the card
+          rather than inside the studio. Drafts have none — a link to an empty
+          register is a promise the page cannot keep — and archived tests keep
+          theirs, because a finished term's marks are exactly what gets looked
+          up later.
+        */}
+        {test.status === "DRAFT" ? null : (
+          <Button asChild size="sm" variant="outline">
+            <Link href={`/groups/${test.classId}/tests/${test.id}/results`}>
+              <BarChart3 className="size-3.5" />
+              {t("root.tests.list.actions.results")}
+            </Link>
+          </Button>
+        )}
 
         <DuplicateTestButton testId={test.id} />
 

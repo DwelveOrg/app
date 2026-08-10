@@ -9,7 +9,7 @@ import { blankOption } from "@/app/(root)/_lib/test-form";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { QuestionEditorProps } from "../../_types";
-import SortableList, { SortableRow } from "../SortableList";
+import SortableList, { SortableRow } from "@/components/ui/SortableList";
 import { EditorLabel, RowControls, RowTextInput } from "./fields";
 
 /**

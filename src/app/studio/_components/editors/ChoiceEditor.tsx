@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
 import type { QuestionEditorProps } from "../../_types";
-import SortableList, { SortableRow } from "../SortableList";
+import SortableList, { SortableRow } from "@/components/ui/SortableList";
 import { CorrectMark, EditorLabel, RowControls, RowTextInput } from "./fields";
 
 /**

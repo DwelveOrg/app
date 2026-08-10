@@ -58,6 +58,51 @@ still stored by the seven `answerKind` engines, and a preset the registry has
 never seen falls back to its engine's presentation — so the backend catalogue
 can grow without a frontend release.
 
+## No groups
+
+The backend models a test as section → **question group** → question, and the
+group is load-bearing: it is how one reading passage is bound to the twelve
+questions about it. The builder used to expose it directly, which meant a
+teacher writing a ten-question quiz had to create a container, name it, and file
+questions into it before writing one — three decisions to reach the one thing
+they came to do. The container was also unavoidable: every test carries at least
+one group whether or not its author wanted one.
+
+**The group is now a wire concept only.** A part renders as one flat, numbered
+list of questions. A group boundary is visible exactly where it means something,
+which is where a passage starts:
+
+- **Shared material** (`MaterialCard`) is a passage, image or set of
+  instructions, sitting above the questions that depend on it. No title field —
+  a group's title was never shown to a student and never read by anything.
+- The questions it covers carry a **left rail** running back up to its card, so
+  "these belong to that passage" is visible without nesting a second box inside
+  the part and without the word "group".
+- "Add group" is gone. In its place: **Add shared material** at the foot of the
+  part, and **"These questions share a passage"** in a question's own menu —
+  because a teacher realises several questions share a passage while looking at
+  the questions.
+- Deleting material **keeps its questions**; they merge into the run above.
+  Deleting a passage must not delete the twelve questions about it.
+
+`_lib/sectionBlocks.ts` is the entire translation between the two models. Every
+structural edit goes through it — live values in, a new `groups` array out,
+applied with one `replace()` — and that single-write rule is what makes a
+cross-boundary move possible at all: dragging question 19 above the passage it
+belongs to removes it from one group and inserts it into another, which a
+`move()` on either group's own field array can only half express. Up and down
+cross boundaries for the same reason.
+
+Rows are keyed by a **`uid`** carried in the form values, not by
+`useFieldArray`'s `field.id`: `replace()` regenerates that id, so React would
+remount every row and the drag that caused the move would end on a different
+element. `uid` and `hasMaterial` are builder-only and are stripped by
+`buildStructurePayload`.
+
+**A single-part test shows no part chrome at all.** "General" as a heading over
+the only list on the page is a label for a distinction that does not exist; it
+appears the moment a second part does, for both of them.
+
 ## The builder
 
 One `useForm`, three nested `useFieldArray` levels, one `PUT /tests/:testId/structure`.
@@ -73,16 +118,16 @@ Performance rules (a 40-question test registers ~800 fields):
   stable callbacks.
 - `mode: "onSubmit"`.
 
-An **outline rail** (jump to any section, group or question; shows publish
-flags), **autosave** after 12s of idle when the form validates, **duplicate
-question**, and Cmd/Ctrl+S.
+An **outline rail** — now two levels, part → question, with shared material as
+a marker among the questions rather than a tier above them, labelled by its
+opening words rather than by an index. Plus **autosave** after 12s of idle when
+the form validates, **duplicate question**, **insert a question here**, and
+Cmd/Ctrl+S.
 
 **Optional fields collapse.** A question's hint and image render as one small
 "Add a hint or an image" control until they hold something — a forty-question
 paper was drawing eighty empty controls for fields most questions never use.
-A test's single implicit question group collapses the same way: while it has no
-title and no stimulus it is one quiet button, and the full header returns the
-moment it becomes a real group. A diagram-label question is exempt; there the
+A diagram-label question is exempt; there the
 image *is* the question.
 
 Publish issues reach the builder as a query string —
@@ -205,6 +250,8 @@ which is the class of bug a single-page layout cannot have.
 
 ```txt
 docs/features/tests.md
+docs/features/test-taking.md
+docs/features/test-taking-backend-handoff.md
 docs/features/test-publish-backend-handoff.md
 docs/architecture/ARCHITECTURE.md
 docs/design/design-system.md

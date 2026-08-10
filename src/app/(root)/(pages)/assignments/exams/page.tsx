@@ -1,74 +1,69 @@
-"use client";
+import "server-only";
 
-import { useMemo, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import { useTranslation } from "react-i18next";
-import ExamCard from "../../_components/ui/ExamCard";
-import Empty from "../../_components/ui/Empty";
-import {
-  containerVariants,
-  examItems,
-  examTabLabelKeys,
-  examTabs,
-  itemVariants,
-  staticContainerVariants,
-  staticItemVariants,
-} from "../../_constants";
-import type { ExamTab } from "../../_types";
+import { getUser } from "@/app/(root)/_utils/getUser";
+import { BackendApiError } from "@/lib/api/backend";
+import { listMyTestsRequest } from "@/app/exam/_lib/attempts.api";
+import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
+import StudentTestsView from "./_components/StudentTestsView";
 
-export default function Page() {
-  const reduce = useReducedMotion();
-  const { t } = useTranslation();
-  const [activeTab, setActiveTab] = useState<ExamTab>("active");
+/**
+ * A student's tests.
+ *
+ * Server-rendered from `GET /me/tests`, whose rows already carry the resolved
+ * state — open, in progress, closed, out of attempts. That resolution belongs
+ * to the server: it is the only party that knows what time it is, and a client
+ * comparing `availableUntil` to its own clock would show a paper as open to a
+ * student whose laptop is running slow. See
+ * `docs/features/test-taking-backend-handoff.md` §B.5.
+ */
+export default async function Page() {
+  const user = await getUser();
 
-  const filteredItems = useMemo(() => {
-    return examItems.filter((exam) => (activeTab === "completed" ? exam.completed : !exam.completed));
-  }, [activeTab]);
+  if (user?.schoolRole !== "STUDENT") {
+    return (
+      <ResourceStateView
+        reason="forbidden"
+        namespace="root.exams"
+        backHref="/dashboard"
+        backLabelKey="root.exams.backToDashboard"
+        retryLabelKey="root.tests.actions.retry"
+      />
+    );
+  }
 
-  return (
-    <div className="flex flex-col gap-6 pt-4">
-      <div className="flex flex-wrap items-center gap-3">
-        {examTabs.map((tab) => {
-          const isActive = activeTab === tab;
-          return (
-            <button
-              key={tab}
-              type="button"
-              onClick={() => setActiveTab(tab)}
-              className={`inline-flex h-10 cursor-pointer items-center justify-center rounded-full border px-4 text-sm font-semibold transition ${
-                isActive
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-card text-muted-foreground hover:border-ring"
-              }`}
-            >
-              {t(examTabLabelKeys[tab])}
-            </button>
-          );
-        })}
-      </div>
+  // The fetch is resolved to data or a reason *before* any JSX exists. A
+  // `return <View/>` inside a `try` would put rendering errors — which React
+  // raises later, not here — into this catch, and they would be reported as a
+  // failure to load.
+  const result = await loadMyTests();
 
-      {filteredItems.length === 0 ? (
-        <div className="flex min-h-[30vh] items-center justify-center">
-          <Empty
-            title={t("root.empty.title")}
-            description={t("root.empty.description")}
-          />
-        </div>
-      ) : (
-        <motion.div
-          key={activeTab}
-          variants={reduce ? staticContainerVariants : containerVariants}
-          initial="hidden"
-          animate="show"
-          className="grid gap-5 lg:grid-cols-2"
-        >
-          {filteredItems.map((exam) => (
-            <motion.div key={exam.id} variants={reduce ? staticItemVariants : itemVariants}>
-              <ExamCard exam={exam} />
-            </motion.div>
-          ))}
-        </motion.div>
-      )}
-    </div>
-  );
+  if (!result.ok) {
+    return (
+      <ResourceStateView
+        reason={result.reason}
+        namespace="root.exams"
+        backHref="/dashboard"
+        backLabelKey="root.exams.backToDashboard"
+        retryLabelKey="root.tests.actions.retry"
+      />
+    );
+  }
+
+  return <StudentTestsView tests={result.tests} />;
+}
+
+async function loadMyTests() {
+  try {
+    const { tests } = await listMyTestsRequest({ page: 1, limit: 50 });
+    return { ok: true as const, tests };
+  } catch (error) {
+    // 403 here means the account has no student membership in the selected
+    // school — the same situation the role check catches for a stale session —
+    // so it reads as the same state rather than as a failure.
+    if (error instanceof BackendApiError && error.status === 403) {
+      return { ok: false as const, reason: "forbidden" as const };
+    }
+    console.error("Failed to load student tests:", error);
+    return { ok: false as const, reason: "error" as const };
+  }
 }

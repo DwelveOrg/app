@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 import type { QuestionEditorProps } from "../../_types";
-import SortableList, { SortableRow } from "../SortableList";
+import SortableList, { SortableRow } from "@/components/ui/SortableList";
 import { EditorLabel, RowControls, RowTextInput } from "./fields";
 
 export type MatchingEditorProps = QuestionEditorProps & {

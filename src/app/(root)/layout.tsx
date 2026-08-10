@@ -1,8 +1,14 @@
 import SideBar from "@/app/(root)/_components/Sidebar";
+import { getUser } from "@/app/(root)/_utils/getUser";
 
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // The sidebar needs the role for one row: Assignments is a real destination
+  // for a student and nothing at all for anyone else. Read here rather than in
+  // the sidebar itself, which is a client component.
+  const user = await getUser();
+
   return (
     // Flush-left sidebar over the canvas, with a single scrolling content column. The top bar was
     // removed — each page owns its own header, and the sidebar is the only persistent chrome.
@@ -11,7 +17,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // elevation. Previously the canvas was --muted in light and --background in dark, which meant
     // light-mode panels had to be separated by a border alone because they were the lighter surface.
     <div className="flex h-dvh min-h-0 overflow-hidden bg-background text-foreground md:h-screen">
-      <SideBar />
+      <SideBar schoolRole={user?.schoolRole ?? null} />
       <div className="layout-enter relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
         <main className="content-scroll min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 md:pb-0">
           <div className="mx-auto w-full min-w-0 max-w-[1180px] px-4 py-6 md:px-8 md:py-8">

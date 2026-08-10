@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { QuestionEditorProps } from "../../_types";
-import { WORD_LIMIT_PRESETS } from "../../_lib/questionPresentation";
+import { WORD_LIMIT_PRESETS } from "@/lib/tests/question-presentation";
 import { ChipListInput, EditorLabel, NumberField } from "./fields";
 
 /**
