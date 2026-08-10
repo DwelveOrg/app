@@ -191,13 +191,12 @@ const testBaseShape = {
   createdAt: z.union([z.string(), z.date()]).optional(),
   updatedAt: z.union([z.string(), z.date()]).optional(),
   /**
-   * Delivery and exam-integrity rules, collected by the publish wizard.
+   * Delivery and exam-integrity rules, collected by the publish screen.
    *
-   * Defaulted rather than optional: the backend does not serve this object yet
-   * (see `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md`),
-   * and a wizard opening onto `undefined` would have nothing to render. A test
-   * that has never been through the wizard behaves exactly as it does today,
-   * because `DEFAULT_TEST_DELIVERY` locks nothing down.
+   * Defaulted rather than optional: a test written before the model existed has
+   * no `TestDelivery` row, and a screen opening onto `undefined` would have
+   * nothing to render. Such a test behaves exactly as tests behaved before the
+   * feature, because `DEFAULT_TEST_DELIVERY` locks nothing down.
    */
   delivery: testDeliverySchema.default(DEFAULT_TEST_DELIVERY),
   /**
@@ -209,6 +208,7 @@ const testBaseShape = {
       sections: z.number(),
       groups: z.number(),
       questions: z.number(),
+      students: z.number(),
     })
     .partial()
     .optional(),
@@ -259,6 +259,7 @@ export const testValidationIssueSchema = z
   .object({
     code: z.string(),
     messageKey: z.string(),
+    severity: z.enum(["BLOCKING", "WARNING"]).default("BLOCKING"),
     sectionId: z.string().nullable().optional(),
     groupId: z.string().nullable().optional(),
     questionId: z.string().nullable().optional(),

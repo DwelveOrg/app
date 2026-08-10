@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Clock3, Layers, ListChecks } from "lucide-react";
+import { ArrowRight, Clock3, Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -251,7 +251,13 @@ export default function NewTestScreen({
                 </ol>
               </div>
 
-              <dl className="space-y-2 border-t border-border pt-3 text-xs">
+              {/*
+                Only the duration. "26 question types" was a number a teacher
+                cannot act on — it does not change which format they want and it
+                is not a limit they will ever reach — so it was answering a
+                question nobody asked in the one panel meant to answer theirs.
+              */}
+              <dl className="border-t border-border pt-3 text-xs">
                 <div className="flex items-center gap-2">
                   <Clock3
                     className="size-3.5 shrink-0 text-muted-foreground"
@@ -266,20 +272,6 @@ export default function NewTestScreen({
                           count: blueprint.defaultDurationMinutes,
                         })
                       : t("root.tests.create.preview.noDuration")}
-                  </dd>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <ListChecks
-                    className="size-3.5 shrink-0 text-muted-foreground"
-                    aria-hidden="true"
-                  />
-                  <dt className="flex-1 text-muted-foreground">
-                    {t("root.tests.create.preview.questionTypes")}
-                  </dt>
-                  <dd className="font-medium text-foreground tabular-nums">
-                    {blueprint?.allowedQuestionTypes.length ??
-                      Object.keys(catalog.questionTypes).length}
                   </dd>
                 </div>
               </dl>

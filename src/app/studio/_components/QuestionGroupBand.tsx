@@ -93,6 +93,7 @@ export default function QuestionGroupBand({
   // matching-headings editor both derive from it, and both must stay live.
   const passage = useWatch({ control, name: `${name}.passage` }) ?? "";
   const imageUrl = useWatch({ control, name: `${name}.imageUrl` }) ?? "";
+  const title = useWatch({ control, name: `${name}.title` }) ?? "";
 
   const [stimulusOpen, setStimulusOpen] = useState(
     () => Boolean(passage) || Boolean(imageUrl),
@@ -141,68 +142,94 @@ export default function QuestionGroupBand({
 
   const hasStimulus = Boolean(passage) || Boolean(imageUrl);
 
+  /**
+   * Every test carries at least one group whether or not its author wanted one,
+   * and a simple quiz never wants one: a lone untitled group with no passage is
+   * a container the teacher did not ask for, and it was charging them a title
+   * field, a numbering badge and two buttons for the privilege. While it is
+   * still implicit it renders as a single quiet control, and the moment it
+   * becomes a real group — a passage, an image, or a second group beside it —
+   * the full header comes back.
+   */
+  const isImplicit = groupCount === 1 && !hasStimulus && !title && !stimulusOpen;
+
   return (
     <section
       id={groupId ? groupAnchorId(groupId) : undefined}
       className="-mx-5 scroll-mt-24 border-t border-border px-5 pt-4 pb-2 first:border-t-0 first:pt-0 sm:-mx-6 sm:px-6"
     >
-      <header className="flex flex-wrap items-center gap-2">
-        <Input
-          {...control.register(`${name}.title`)}
+      {isImplicit ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="ghost"
           disabled={disabled}
-          placeholder={t("root.tests.builder.group.titlePlaceholder", {
-            index: groupIndex + 1,
-          })}
-          aria-label={t("root.tests.builder.group.title")}
-          className="h-8 max-w-64 flex-1 border-transparent bg-transparent px-2 py-1 text-sm font-semibold hover:border-border focus:border-border"
-        />
-
-        {fields.length > 0 ? (
-          <Badge variant="neutral" size="sm">
-            {t("root.tests.builder.group.range", {
-              from: startNumber,
-              to: startNumber + fields.length - 1,
-            })}
-          </Badge>
-        ) : null}
-
-        <div className="ml-auto flex items-center gap-1">
-          <Button
-            type="button"
-            size="sm"
-            variant="ghost"
+          aria-expanded={false}
+          className="text-muted-foreground"
+          onClick={() => setStimulusOpen(true)}
+        >
+          <FileText className="size-3.5" />
+          {t("root.tests.builder.group.addStimulus")}
+        </Button>
+      ) : (
+        <header className="flex flex-wrap items-center gap-2">
+          <Input
+            {...control.register(`${name}.title`)}
             disabled={disabled}
-            aria-expanded={stimulusOpen}
-            onClick={() => setStimulusOpen((open) => !open)}
-          >
-            <FileText className="size-3.5" />
-            {hasStimulus
-              ? t("root.tests.builder.group.editStimulus")
-              : t("root.tests.builder.group.addStimulus")}
-            <ChevronDown
-              aria-hidden="true"
-              className={cn(
-                "size-3 transition-transform duration-[var(--dur-2)]",
-                stimulusOpen && "rotate-180",
-              )}
-            />
-          </Button>
+            placeholder={t("root.tests.builder.group.titlePlaceholder", {
+              index: groupIndex + 1,
+            })}
+            aria-label={t("root.tests.builder.group.title")}
+            className="h-8 max-w-64 flex-1 border-transparent bg-transparent px-2 py-1 text-sm font-semibold hover:border-border focus:border-border"
+          />
 
-          {groupCount > 1 ? (
+          {fields.length > 0 ? (
+            <Badge variant="neutral" size="sm">
+              {t("root.tests.builder.group.range", {
+                from: startNumber,
+                to: startNumber + fields.length - 1,
+              })}
+            </Badge>
+          ) : null}
+
+          <div className="ml-auto flex items-center gap-1">
             <Button
               type="button"
-              size="icon-sm"
+              size="sm"
               variant="ghost"
               disabled={disabled}
-              aria-label={t("root.tests.builder.group.remove")}
-              className="text-muted-foreground hover:text-destructive"
-              onClick={() => onRemove(groupIndex)}
+              aria-expanded={stimulusOpen}
+              onClick={() => setStimulusOpen((open) => !open)}
             >
-              <Trash2 className="size-3.5" />
+              <FileText className="size-3.5" />
+              {hasStimulus
+                ? t("root.tests.builder.group.editStimulus")
+                : t("root.tests.builder.group.addStimulus")}
+              <ChevronDown
+                aria-hidden="true"
+                className={cn(
+                  "size-3 transition-transform duration-[var(--dur-2)]",
+                  stimulusOpen && "rotate-180",
+                )}
+              />
             </Button>
-          ) : null}
-        </div>
-      </header>
+
+            {groupCount > 1 ? (
+              <Button
+                type="button"
+                size="icon-sm"
+                variant="ghost"
+                disabled={disabled}
+                aria-label={t("root.tests.builder.group.remove")}
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => onRemove(groupIndex)}
+              >
+                <Trash2 className="size-3.5" />
+              </Button>
+            ) : null}
+          </div>
+        </header>
+      )}
 
       {stimulusOpen ? (
         <div className="mt-3 space-y-3 rounded-xl bg-muted/60 p-3">

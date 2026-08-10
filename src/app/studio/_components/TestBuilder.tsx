@@ -4,8 +4,17 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Lock, Plus, Save, Send, Settings2, Undo2 } from "lucide-react";
-import { type SubmitHandler, useFieldArray, useForm } from "react-hook-form";
+import {
+  Lock,
+  LogOut,
+  Plus,
+  Save,
+  Send,
+  Settings2,
+  SlidersHorizontal,
+  Undo2,
+} from "lucide-react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -30,9 +39,11 @@ import {
 } from "@/app/(root)/_constants/tests";
 import {
   useSaveTestStructureMutation,
+  useTestValidationQuery,
   useUnpublishTestMutation,
 } from "@/app/(root)/_hooks/useTests";
 import { useUnsavedChangesWarning } from "@/app/(root)/_hooks/useUnsavedChangesWarning";
+import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
@@ -87,9 +98,11 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   }, [searchParams]);
 
   const focusId = searchParams.get("focus");
+  const hasFlags = flaggedIds.size > 0;
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [outlineCollapsed, setOutlineCollapsed] = useState(false);
+  const [exitPromptOpen, setExitPromptOpen] = useState(false);
 
   /**
    * Bumped by every add, remove, and move. Question numbering is derived from
@@ -101,6 +114,15 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   const saveStructure = useSaveTestStructureMutation();
   const unpublish = useUnpublishTestMutation();
 
+  /**
+   * Only subscribed while the builder is showing publish flags. It is what lets
+   * a fixed row stop being ringed: the flags live in the query string, and
+   * without re-asking the server after a save they stayed red until the teacher
+   * navigated away by hand — which made the whole marker untrustworthy.
+   */
+  const validation = useTestValidationQuery({ testId: test.id, enabled: hasFlags });
+  const refetchValidation = validation.refetch;
+
   const blueprint = catalog.formats[test.format];
 
   const defaultValues = useMemo(
@@ -110,7 +132,6 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
 
   const {
     control,
-    handleSubmit,
     setValue,
     getValues,
     watch,
@@ -151,9 +172,31 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
       reset(buildFormDefaults(saved, catalog.questionTypes));
       setStructureVersion((version) => version + 1);
       router.refresh();
+
+      /*
+       * Re-derive the flags from a fresh check rather than clearing them.
+       * Clearing would lose the problems the teacher has not reached yet;
+       * keeping them would leave a fixed row ringed red. Asking again is the
+       * only answer that stays true, and it is one request per save and only
+       * while flags are actually on screen.
+       */
+      if (hasFlags) {
+        const { data } = await refetchValidation();
+        const ids = (data?.issues ?? [])
+          .flatMap((issue) => [issue.questionId, issue.groupId, issue.sectionId])
+          .filter((id): id is string => Boolean(id));
+        // `focus` is a one-shot scroll target and is always dropped here.
+        router.replace(
+          ids.length > 0
+            ? `${studioRoutes.builder(test.id)}?issues=${ids.join(",")}`
+            : studioRoutes.builder(test.id),
+          { scroll: false },
+        );
+      }
+
       return saved;
     },
-    [saveStructure, test.id, catalog.questionTypes, reset, router],
+    [saveStructure, test.id, catalog.questionTypes, reset, router, hasFlags, refetchValidation],
   );
 
   /**
@@ -177,31 +220,44 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     }, [trigger, persist, getValues]),
   });
 
-  const onSubmit: SubmitHandler<TestBuilderForm> = async (values) => {
+  /**
+   * The one explicit save. The Save button, Cmd/Ctrl+S, the form's own submit,
+   * and the hand-off to publishing all go through it, and it reports whether
+   * the work reached the server — which is what lets "publish" mean "save, then
+   * publish" instead of a confirm dialog asking the teacher to decide something
+   * they have no reason to have an opinion about.
+   */
+  const saveNow = useCallback(async (): Promise<boolean> => {
     autosave.cancel();
-    try {
-      await persist(values);
-      autosave.markSaved();
-      toast.success(t("root.tests.builder.saved"));
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : t("root.tests.errorGeneric"),
-      );
+
+    if (!(await trigger())) {
+      toast.error(t("root.tests.builder.fixErrors"));
+      return false;
     }
-  };
+
+    try {
+      await persist(getValues());
+      autosave.markSaved();
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t("root.tests.errorGeneric"));
+      return false;
+    }
+  }, [autosave, trigger, persist, getValues, t]);
+
+  const save = useCallback(async () => {
+    if (await saveNow()) toast.success(t("root.tests.builder.saved"));
+  }, [saveNow, t]);
 
   /**
-   * The current submit, for the keyboard shortcut. Held in a ref and written in
-   * an effect so the `keydown` listener can be registered once instead of being
-   * torn down and rebuilt on every keystroke in the document.
+   * Held in a ref and written in an effect so the `keydown` listener can be
+   * registered once instead of being torn down and rebuilt on every keystroke
+   * in the document.
    */
-  const submitRef = useRef<() => void>(() => {});
+  const saveRef = useRef<() => void>(() => {});
 
   useEffect(() => {
-    submitRef.current = () =>
-      void handleSubmit(onSubmit, () =>
-        toast.error(t("root.tests.builder.fixErrors")),
-      )();
+    saveRef.current = () => void save();
   });
 
   /** Scrolls a deep link from the publish wizard into view once the tree is up. */
@@ -218,7 +274,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     const onKeyDown = (event: KeyboardEvent) => {
       if (!(event.metaKey || event.ctrlKey) || event.key.toLowerCase() !== "s") return;
       event.preventDefault();
-      submitRef.current();
+      saveRef.current();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
@@ -292,12 +348,29 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     );
   };
 
+  const exitHref = studioRoutes.classTests(test.classId);
+
+  /**
+   * Leaving with unsaved work opens the product's confirmation dialog rather
+   * than `window.confirm`. The native prompt cannot be translated, ignores the
+   * theme, and reads as a browser malfunction in the middle of an otherwise
+   * finished surface.
+   */
   const confirmExit = useCallback(() => {
     if (!isDirty) return true;
-    return window.confirm(t("root.tests.builder.confirmExit"));
-  }, [isDirty, t]);
+    setExitPromptOpen(true);
+    return false;
+  }, [isDirty]);
 
-  const exitHref = studioRoutes.classTests(test.classId);
+  /**
+   * Publishing validates *saved* data, so unsaved edits would be reviewed
+   * against a version the teacher cannot see. Rather than asking them about it,
+   * the button saves and then goes — which is what "publish" meant every time.
+   */
+  const goToPublish = async () => {
+    if (isDirty && !(await saveNow())) return;
+    router.push(studioRoutes.publish(test.id));
+  };
 
   return (
     <>
@@ -349,27 +422,25 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
               size="sm"
               loading={isBusy}
               disabled={!isDraft}
-              onClick={() => submitRef.current()}
+              onClick={() => saveRef.current()}
             >
               <Save />
               <span className="hidden sm:inline">{t("root.tests.actions.save")}</span>
             </Button>
 
             {isDraft ? (
-              <Button asChild size="sm">
-                <Link
-                  href={studioRoutes.publish(test.id)}
-                  onClick={(event) => {
-                    // Publish validates saved data, so unsaved edits would be
-                    // reviewed against a version the teacher cannot see.
-                    if (isDirty && !window.confirm(t("root.tests.builder.saveBeforePublish"))) {
-                      event.preventDefault();
-                    }
-                  }}
-                >
-                  <Send />
-                  {t("root.tests.publish.action")}
-                </Link>
+              <Button type="button" size="sm" disabled={isBusy} onClick={() => void goToPublish()}>
+                <Send />
+                {t("root.tests.publish.action")}
+              </Button>
+            ) : test.status === "PUBLISHED" ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => router.push(studioRoutes.publish(test.id))}
+              >
+                <SlidersHorizontal />
+                {t("root.tests.builder.deliveryRules")}
               </Button>
             ) : null}
           </>
@@ -388,9 +459,10 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
 
           <form
             className="min-h-0 min-w-0 flex-1 overflow-y-auto"
-            onSubmit={handleSubmit(onSubmit, () =>
-              toast.error(t("root.tests.builder.fixErrors")),
-            )}
+            onSubmit={(event) => {
+              event.preventDefault();
+              void save();
+            }}
             noValidate
           >
             <div className="mx-auto w-full max-w-[900px] space-y-5 px-4 py-6 md:px-8">
@@ -485,6 +557,41 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
         onOpenChange={setSettingsOpen}
         test={test}
       />
+
+      {/*
+        Three ways out, in the order a teacher wants them: keep the work, leave
+        it behind, or stay. `tone="default"` because leaving is reversible in
+        the sense that matters — the draft on the server is untouched.
+      */}
+      <ConfirmDialog
+        open={exitPromptOpen}
+        onOpenChange={setExitPromptOpen}
+        icon={<LogOut />}
+        tone="default"
+        title={t("root.tests.builder.exit.title")}
+        description={t("root.tests.builder.exit.description")}
+        confirmLabel={t("root.tests.builder.exit.saveAndLeave")}
+        cancelLabel={t("root.tests.actions.cancel")}
+        isPending={isBusy}
+        onConfirm={() => {
+          void (async () => {
+            if (await saveNow()) router.push(exitHref);
+          })();
+        }}
+      >
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="w-full text-muted-foreground"
+          onClick={() => {
+            setExitPromptOpen(false);
+            router.push(exitHref);
+          }}
+        >
+          {t("root.tests.builder.exit.discard")}
+        </Button>
+      </ConfirmDialog>
     </>
   );
 }

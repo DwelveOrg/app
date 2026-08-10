@@ -26,6 +26,7 @@ import type {
   SaveTestDeliveryInput,
   SaveTestStructureInput,
   TestIdInput,
+  TestPublishCandidateInput,
   UpdateTestInput,
 } from "@/app/(root)/_lib/tests.actions.schemas";
 import type { TestsListResponse } from "@/app/(root)/_lib/tests.schemas";
@@ -86,22 +87,24 @@ export function useTestsQuery({
 }
 
 /**
- * Live publish-readiness for a test (`GET /tests/:testId/validation`).
+ * Live publish-readiness for a test.
  *
- * The answer is about *saved* data, so the wizard saves before it asks and this
- * never caches: reporting a problem the teacher just fixed is the fastest way
- * to make a checklist untrustworthy.
+ * The publish screen passes its unsaved candidate to the body-bearing POST;
+ * callers without one retain the stored-value GET. Candidate values are part
+ * of the query key so an edit cannot reuse readiness for an older draft.
  */
 export function useTestValidationQuery({
   testId,
   enabled,
+  candidate,
 }: {
   testId: string;
   enabled: boolean;
+  candidate?: TestPublishCandidateInput;
 }) {
   return useQuery({
-    queryKey: queryKeys.tests.validation(testId),
-    queryFn: () => getTestValidationAction(testId),
+    queryKey: [...queryKeys.tests.validation(testId), candidate ?? null],
+    queryFn: () => getTestValidationAction({ testId, candidate }),
     enabled,
     staleTime: 0,
     refetchOnMount: "always",
@@ -161,13 +164,7 @@ export function useUpdateTestMutation() {
   });
 }
 
-/**
- * `PUT /tests/:testId/delivery` - the delivery and integrity rules.
- *
- * Resolves with `supported: false` rather than throwing when the backend has
- * not shipped the endpoint, so the wizard can tell the difference between "your
- * settings were rejected" and "this server cannot store them yet".
- */
+/** `PUT /tests/:testId/delivery` - the delivery and integrity rules. */
 export function useSaveTestDeliveryMutation() {
   const invalidate = useInvalidateTests();
 
@@ -179,8 +176,8 @@ export function useSaveTestDeliveryMutation() {
 }
 
 /**
- * The publish wizard's terminal action: settings, then delivery, then publish.
- * See `publishTestWithDeliveryAction` for why the order is load-bearing.
+ * The publish screen's transactional terminal action. A server rejection comes
+ * back as data because the readiness banner owns the attached issue list.
  */
 export function usePublishWithDeliveryMutation() {
   const invalidate = useInvalidateTests();

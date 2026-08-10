@@ -11,7 +11,7 @@ import ChoiceCards from "../ChoiceCards";
 import { SwitchSetting } from "../SettingRow";
 
 /**
- * Step four: what students see afterwards.
+ * What students see once they have submitted.
  *
  * Score, answer key, and feedback are three separate switches because most
  * exams release exactly one of them. A single "show results" toggle would force
@@ -19,12 +19,13 @@ import { SwitchSetting } from "../SettingRow";
  * choose between the two — which is the common case for a test that will be sat
  * again by another class.
  */
-export default function ResultsStep({
+export default function ResultsPanel({
   delivery,
   onChange,
   passingScore,
   onPassingScoreChange,
   totalPoints,
+  settingsLocked = false,
 }: {
   delivery: TestDelivery;
   onChange: (next: Partial<TestDelivery>) => void;
@@ -32,6 +33,7 @@ export default function ResultsStep({
   passingScore: number | null;
   onPassingScoreChange: (value: number | null) => void;
   totalPoints: number;
+  settingsLocked?: boolean;
 }) {
   const { t } = useTranslation();
 
@@ -117,11 +119,14 @@ export default function ResultsStep({
               max={totalPoints}
               size="md"
               className="max-w-32"
+              disabled={settingsLocked}
               aria-invalid={passingInvalid || undefined}
               value={passingScore ?? ""}
               onChange={(event) =>
                 onPassingScoreChange(
-                  event.target.value === "" ? null : Number(event.target.value),
+                  event.target.value === ""
+                    ? null
+                    : Math.max(0, Number(event.target.value)),
                 )
               }
             />
