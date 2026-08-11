@@ -1,5 +1,6 @@
 export const protectedRoutes = [
   "/dashboard",
+  "/onboarding",
   /**
    * The account area — identity, security, preferences and support in one
    * destination. Formerly split across `/profile` and `/settings`.
