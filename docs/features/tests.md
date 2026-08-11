@@ -25,6 +25,7 @@ Tests nest under the existing class detail route. `/groups` is already in
 `protectedRoutes`, so **`src/proxy.ts` needs no change**.
 
 ```txt
+/tests                               cross-class library (ADMIN + TEACHER)
 /groups/[classId]/tests             test list      (ADMIN + TEACHER)
 /groups/[classId]/tests/[testId]    the builder
 ```
@@ -34,6 +35,12 @@ Creation is a **dialog on the list page**, not a route — it matches
 
 Add `tests: "root.pages.tests"` to `ROUTE_LABEL_KEYS` in
 `src/app/(root)/_constants/routes.ts` so the breadcrumb renders.
+
+The sidebar's tests row routes staff to `/tests` and keeps the student
+assignment destination at `/assignments/exams`. The library is a server-rendered
+first page backed by React Query for status, class, search, and pagination. Each
+row names its source class and can deep-copy the test into another class the
+caller may author in; the copy opens in the studio as an unpublished draft.
 
 ### Entry point
 
@@ -56,6 +63,7 @@ src/app/(root)/_lib/tests.schemas.ts           Zod RESPONSE schemas
 src/app/(root)/_lib/tests.actions.schemas.ts   Zod FORM/INPUT schemas
 src/app/(root)/_lib/test-actions.ts            "use server" next-safe-action mutations
 src/app/(root)/_utils/getClassTests.ts         "server-only" RSC read
+src/app/(root)/_utils/getLibraryTests.ts       "server-only" library read
 src/app/(root)/_utils/getTest.ts               "server-only" RSC read
 src/lib/query/keys.ts                          + tests branch
 ```

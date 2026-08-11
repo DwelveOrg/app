@@ -5,6 +5,7 @@ import type { z } from "zod";
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
+  libraryTestsListResponseSchema,
   testDetailResponseSchema,
   testFormatsResponseSchema,
   testMediaResponseSchema,
@@ -40,6 +41,11 @@ type ListTestsQuery = {
   limit?: number;
 };
 
+type ListLibraryTestsQuery = ListTestsQuery & {
+  classId?: string;
+  search?: string;
+};
+
 /** `GET /tests/formats` - the format blueprints and question-type catalogue. */
 export function getTestFormatsRequest(
   requestJson: BackendRequester = authedBackendJson,
@@ -58,6 +64,17 @@ export function listClassTestsRequest(
   return requestJson(`/classes/${classId}/tests`, {
     query,
     responseSchema: testsListResponseSchema,
+  });
+}
+
+/** `GET /tests` - the caller's tests across every class, for the library. */
+export function listLibraryTestsRequest(
+  query: ListLibraryTestsQuery = {},
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson("/tests", {
+    query,
+    responseSchema: libraryTestsListResponseSchema,
   });
 }
 
@@ -193,10 +210,13 @@ export function unpublishTestRequest(
 /** `POST /tests/:testId/duplicate` - deep clone as a new DRAFT. */
 export function duplicateTestRequest(
   testId: string,
+  /** Omitted copies into the source class; set reassigns the copy to another. */
+  body: { classId?: string } = {},
   requestJson: BackendRequester = authedBackendJson,
 ) {
   return requestJson(`/tests/${testId}/duplicate`, {
     method: "POST",
+    body,
     responseSchema: testSummaryResponseSchema,
   });
 }

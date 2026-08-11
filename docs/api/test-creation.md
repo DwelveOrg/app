@@ -26,6 +26,7 @@ requirement follows the selected question type, regardless of the test format.
 
 | Method | Path | Purpose |
 |---|---|---|
+| `GET` | `/tests` | Paginated cross-class test library |
 | `GET` | `/tests/formats` | Format blueprints and question-type catalogue |
 | `GET` | `/classes/:classId/tests` | Paginated test summaries for a class |
 | `POST` | `/classes/:classId/tests` | Create a draft and its initial tree |
@@ -123,6 +124,14 @@ Response:
   "meta": { "page": 1, "limit": 20, "total": 1, "totalPages": 1, "hasMore": false }
 }
 ```
+
+### `GET /tests`
+
+This is the authoring library across classes. It accepts `status`, `page`, and
+`limit` plus optional `classId` and `search` (a case-insensitive title match).
+Each summary also includes its owning `class: { id, name }` and
+`questionCount`. An admin sees the selected school's tests; a teacher sees only
+tests they authored.
 
 ## Read and save the test tree
 
@@ -254,9 +263,12 @@ and returns `{ "test": TestDetail }`. If validation fails, it returns `409` with
 
 `POST /tests/:testId/unpublish` moves a published test back to `DRAFT` and returns
 `{ "success": true }`. `POST /tests/:testId/duplicate` deep-copies the full tree as
-a new draft and returns `{ "test": TestDetail }`. `DELETE /tests/:testId` deletes a
-draft; for published or archived tests it sets status to `ARCHIVED`. Both deletion
-outcomes return `{ "success": true }`.
+a new draft and returns `{ "test": TestDetail }`. It accepts optional `{ "classId":
+"destination-class-id" }`; every copy requires create permission in the active
+destination class. A cross-class copy clears its availability dates, while a
+same-class copy retains them. `DELETE /tests/:testId` deletes a draft; for published
+or archived tests it sets status to `ARCHIVED`. Both deletion outcomes return
+`{ "success": true }`.
 
 ## `POST /tests/:testId/media`
 

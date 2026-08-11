@@ -26,6 +26,14 @@ export const queryKeys = {
     all: ["tests"] as const,
     list: (classId: string, filters: { status: string; page: number }) =>
       [...queryKeys.tests.all, "list", classId, filters] as const,
+    /** Every filter variant of the cross-class library, for broad invalidation. */
+    libraryAll: () => [...queryKeys.tests.all, "library"] as const,
+    library: (filters: {
+      status: string;
+      page: number;
+      classId: string;
+      search: string;
+    }) => [...queryKeys.tests.libraryAll(), filters] as const,
     detail: (testId: string) => [...queryKeys.tests.all, "detail", testId] as const,
     validation: (testId: string) =>
       [...queryKeys.tests.all, "validation", testId] as const,

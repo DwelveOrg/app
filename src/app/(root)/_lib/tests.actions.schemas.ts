@@ -177,7 +177,25 @@ export type TestIdInput = z.infer<typeof testIdSchema>;
 export const publishTestSchema = testIdSchema;
 export const unpublishTestSchema = testIdSchema;
 export const deleteTestSchema = testIdSchema;
-export const duplicateTestSchema = testIdSchema;
+
+/**
+ * `POST /tests/:testId/duplicate`. Without `classId` the copy stays in the
+ * source class; with one it is assigned to that class instead.
+ */
+export const duplicateTestSchema = testIdSchema.extend({
+  classId: z.string().uuid().optional(),
+});
+export type DuplicateTestInput = z.infer<typeof duplicateTestSchema>;
+
+/** `GET /tests` - the cross-class library list. */
+export const listLibraryTestsSchema = z.object({
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]).optional(),
+  page: z.number().int().min(1).optional(),
+  limit: z.number().int().min(1).max(100).optional(),
+  classId: z.string().uuid().optional(),
+  search: z.string().trim().max(200).optional(),
+});
+export type ListLibraryTestsInput = z.infer<typeof listLibraryTestsSchema>;
 
 /** `POST /tests/:testId/media` - one image for a passage or a question. */
 export const uploadTestMediaSchema = z.object({

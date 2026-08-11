@@ -526,7 +526,9 @@ clicks — right for a forced confirmation, wrong for everything else.
 
 Takes **rendered strings, never translation keys**, so each caller keeps its own `t()` calls and no
 key namespace gets baked into a shared component. `tone` defaults to `destructive`. `children` slots
-extra content (a warning, a checkbox, a summary) between description and footer.
+extra content (a warning, a checkbox, a summary) between description and footer. Set
+`confirmDisabled` when that content must be completed before confirmation, such as selecting a
+destination; pending state still disables both footer controls.
 
 The confirm button suppresses Radix's auto-close so the pending state stays visible until the
 mutation settles and the caller closes the dialog itself.

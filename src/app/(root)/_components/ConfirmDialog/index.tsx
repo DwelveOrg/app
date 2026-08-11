@@ -43,6 +43,12 @@ export type ConfirmDialogProps = {
   tone?: "destructive" | "default";
   isPending?: boolean;
   onConfirm: () => void;
+  /**
+   * Holds the confirm closed until `children` are complete. Only dialogs that
+   * ask for something — a target, a reason — need it; a plain confirmation has
+   * nothing to be incomplete, which is why this defaults to enabled.
+   */
+  confirmDisabled?: boolean;
   /** Extra content between the description and the footer (a warning, a checkbox, a summary). */
   children?: ReactNode;
 };
@@ -59,6 +65,7 @@ export default function ConfirmDialog({
   tone = "destructive",
   isPending = false,
   onConfirm,
+  confirmDisabled = false,
   children,
 }: ConfirmDialogProps) {
   const destructive = tone === "destructive";
@@ -94,7 +101,7 @@ export default function ConfirmDialog({
               event.preventDefault();
               onConfirm();
             }}
-            disabled={isPending}
+            disabled={isPending || confirmDisabled}
             aria-busy={isPending || undefined}
           >
             {isPending ? (
