@@ -2,9 +2,24 @@
 
 This file is for coding agents and contributors working in the Dwelve frontend repository.
 
-For product requirements, read `docs/product/PRD.md`.
-For frontend architecture and required libraries, read `docs/architecture/ARCHITECTURE.md`.
-For the design system, read `docs/design/design-system.md`.
+`docs/README.md` is the documentation index and carries a task → document routing table. Start there
+when you do not know which document owns a rule.
+
+For adding or changing a feature, follow `docs/guides/building-a-feature.md` — the ordered playbook.
+
+| Task | Document |
+|---|---|
+| Product requirements | `docs/product/PRD.md` |
+| Backend requests, schemas, libraries | `docs/architecture/ARCHITECTURE.md` |
+| Data fetching, caching, server/client seam | `docs/architecture/RENDERING_AND_STATE.md` |
+| Forms | `docs/architecture/FORMS.md` |
+| Tokens: colour, type, elevation, motion | `docs/design/design-system.md` |
+| Shared components: props, variants, rules | `docs/design/component-library.md` |
+| Page layout and composition | `docs/design/layout-and-composition.md` |
+| Loading / empty / error / destructive / async | `docs/design/interaction-and-states.md` |
+| Accessibility | `docs/design/accessibility.md` |
+| Copy and translations | `docs/design/content-and-i18n.md` |
+
 Do not duplicate full product or design documentation in this file; keep those documents in `docs/`.
 
 ---
@@ -145,15 +160,21 @@ Teacher access must use a targeted invite link or email-bound one-time code, nev
 
 ## Design system usage
 
-The design system lives in `docs/design/design-system.md`.
+The design system lives in `docs/design/`. Do not copy token tables, component APIs, or font rules
+into this file. Read the relevant document before making UI changes:
 
-Do not copy token tables or font rules into this file. Agents should read the design document before making UI changes.
+- `design-system.md` — tokens (colour, type, elevation, motion) and the shell contract
+- `component-library.md` — which component to use, and its props
+- `layout-and-composition.md` — page anatomy, widths, responsive rules
+- `interaction-and-states.md` — the states every control and screen must ship
+- `accessibility.md` — the WCAG contract
 
-Key reminder only:
+Key reminders only:
 
-- use the approved sans font for app UI and user-generated text
+- use the approved sans font (Manrope) for app UI and all user-generated text
 - use the display serif only for controlled Latin-only marketing/logo text
 - do not introduce competing fonts without updating the design system
+- `npm run check:contrast` must stay green after any change to the token layer
 
 ---
 

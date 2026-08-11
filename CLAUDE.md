@@ -3,9 +3,23 @@
 Guidance for Claude Code when working in this repository.
 
 Read `AGENTS.md` first for general repository rules.
-Read `docs/architecture/ARCHITECTURE.md` for request, schema, form, and data-fetching rules.
-Read `docs/design/design-system.md` for design-system decisions.
+Read `docs/README.md` for the documentation index and a task → document routing table.
+Read `docs/guides/building-a-feature.md` before adding or changing any feature — it is the ordered playbook and links out to everything else.
 Read `docs/product/PRD.md` for product scope and priorities.
+
+Do not start UI work without reading the relevant one of these:
+
+| Task | Document |
+|---|---|
+| Any UI change | `docs/design/component-library.md` — every shared component's props, variants, and rules |
+| Page or panel layout | `docs/design/layout-and-composition.md` |
+| Tokens: colour, type, elevation, motion | `docs/design/design-system.md` |
+| Loading / empty / error / destructive / async | `docs/design/interaction-and-states.md` |
+| Accessibility | `docs/design/accessibility.md` |
+| Copy and translations | `docs/design/content-and-i18n.md` |
+| Forms | `docs/architecture/FORMS.md` |
+| Data fetching, caching, stale UI | `docs/architecture/RENDERING_AND_STATE.md` |
+| Backend requests, schemas, libraries | `docs/architecture/ARCHITECTURE.md` |
 
 This file is intentionally root-level because Claude Code uses root project guidance. Do not move it into `docs/`.
 
@@ -116,7 +130,9 @@ Before adding any UI element, check whether a component for it already exists, a
 - Drive shared values (colours, sizes, radii) from design-system tokens (`bg-primary`, `var(--primary)`, etc.), not hard-coded hex. Two call sites that hard-code different hexes for "the same" button is the bug this rule prevents.
 - Promote a component up the tree as its reach grows: route-local `_components` → `src/components/Custom` (or `ui`) once it is used across route groups.
 
-Reference examples: `src/components/ui/Button.tsx` is the only button in the product (variants cover primary, outline, ghost, destructive, and the landing `brand` treatment; `asChild` covers button-shaped links); `src/components/ui/Surface.tsx` is the only bordered container; the brand mark uses `src/components/Custom/DwelveLogo.tsx`. See `docs/design/design-system.md` §8 for the full primitive list.
+Reference examples: `src/components/ui/Button.tsx` is the only button in the product (variants cover primary, outline, ghost, destructive, and the landing `brand` treatment; `asChild` covers button-shaped links); `src/components/ui/Surface.tsx` is the only bordered container; the brand mark uses `src/components/Custom/DwelveLogo.tsx`.
+
+`docs/design/component-library.md` is the full reference: the decision table in §2 answers "which component do I use", and §3–9 give every primitive's props and rules. `docs/design/design-system.md` §8 lists the same set at a glance.
 
 ---
 
