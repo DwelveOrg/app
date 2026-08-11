@@ -1,5 +1,6 @@
 export const protectedRoutes = [
   "/dashboard",
+  "/onboarding",
   "/profile",
   "/settings",
   "/notifications",

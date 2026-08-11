@@ -7,6 +7,85 @@ translation: {
         ru: "Russian",
         uz: "Uzbek",
       },
+      onboarding: {
+        yourSchool: "your school",
+        ready: "Your access to {{school}} is ready. These next steps are optional and can be replayed from the dashboard.",
+        progress: {
+          eyebrow: "Getting started",
+          label: "Step {{current}} of {{total}}",
+        },
+        actions: {
+          skip: "Skip for now",
+          back: "Back",
+          next: "Next",
+          finish: "Open dashboard",
+          continue: "Continue",
+          working: "Working…",
+        },
+        access: {
+          eyebrow: "Welcome to Dwelve",
+          title: "Let’s get you set up, {{name}}",
+          description: "Choose the access you already have. Your action or invitation creates the school role—there is no self-selected teacher role.",
+          success: "Access confirmed",
+          error: "We could not complete that step. Please try again.",
+          admin: {
+            title: "Create a school",
+            description: "Start a school or learning center and become its administrator.",
+            name: "School or learning center name",
+            country: "Country (optional)",
+            city: "City (optional)",
+          },
+          student: {
+            title: "Join as a student",
+            description: "Use the school code shared by your teacher or administrator.",
+            code: "Student join code",
+          },
+          teacher: {
+            title: "Redeem teacher invite",
+            description: "Use the private invitation sent by a school administrator.",
+            token: "Invitation token",
+          },
+        },
+        roles: {
+          admin: {
+            title: "Set up your school",
+            ready: { nav: "School ready", title: "Your school is ready", description: "{{school}} now has a secure workspace. You can finish the useful first tasks here or continue at any time." },
+            class: { nav: "First class", title: "Create your first class", description: "Classes connect teachers, students and tests. Add one now so the rest of the workspace has somewhere to live.", field: "Class name", action: "Create class", existing: "Classes already available", success: "Class created", error: "Could not create the class." },
+            people: { nav: "Invite people", title: "Bring your team and students in", description: "Teacher access uses private email invitations. Students use the school join code.", students: "Student join code", studentsDescription: "Share this code only with students who should join your school.", teacherEmail: "Teacher email", invite: "Create invite", copyInvite: "Copy invite link", copied: "Copied", inviteSuccess: "Teacher invitation created", inviteError: "Could not create the invitation." },
+            workspace: { nav: "Your workspace", title: "Know where everything lives", description: "These are the destinations you will use to run {{school}}. You can open them after onboarding." },
+          },
+          teacher: {
+            title: "Meet your teaching workspace",
+            ready: { nav: "Access ready", title: "Your teacher access is ready", description: "You are connected to {{school}}. Detailed data stays limited to classes assigned to you." },
+            classes: { nav: "Your classes", title: "Work from your assigned classes", description: "Each class contains its roster, tests and results. Your administrator controls which classes you can access.", assigned: "Assigned classes", waiting: "No classes are assigned yet. Your dashboard will show a waiting state until an administrator adds you." },
+            tests: { nav: "Tests and results", title: "Create, publish and review tests", description: "Open a class to create a test, publish delivery settings and review submissions without exposing another teacher’s classes." },
+            analytics: { nav: "Analytics", title: "Spot where students need help", description: "Your dashboard combines trends, grade distribution, class comparisons and pending grading for your assigned students." },
+          },
+          student: {
+            title: "Set up your learning space",
+            ready: { nav: "Access ready", title: "You joined your school", description: "Your student access to {{school}} is ready. Only your own classes, attempts and released results appear in your dashboard." },
+            classes: { nav: "Find classes", title: "Join the classes you need", description: "Request an available class here. Classes that require approval appear as pending until a teacher or administrator accepts you.", enrolled: "Your current classes", none: "No requestable classes are available right now ({{count}} listed). You can check again from Classes.", request: "Request", requested: "Class request sent", error: "Could not send the class request." },
+            assignments: { nav: "Assignments", title: "Take tests from one focused place", description: "Assignments shows tests available to you. The exam room keeps navigation and integrity controls separate from the dashboard." },
+            progress: { nav: "Your progress", title: "Track progress without comparing private data", description: "Your dashboard uses only your released results to show trends, class performance and upcoming work." },
+          },
+        },
+        destinations: {
+          school: { title: "School", description: "Manage the school profile, people, join code and class setup." },
+          classes: { title: "Classes", description: "Open rosters, tests, requests and class-level results." },
+          tests: { title: "Test Studio", description: "Create and publish assessments in a focused authoring workspace." },
+          assignments: { title: "Assignments", description: "See available, in-progress and completed tests." },
+          results: { title: "Results", description: "Review scores, feedback and detailed performance after release." },
+          notifications: { title: "Notifications", description: "Follow invitations, requests and test updates." },
+        },
+        features: {
+          trend: "A six-month score trend built from final results",
+          classes: "Performance and completion broken down by class",
+          grading: "Pending grading and submission status for assigned students",
+          notifications: "Recent invitations, requests and assessment updates",
+          upcoming: "Tests opening or closing soon",
+          results: "Only results your teacher has released",
+        },
+      },
       root: {
         errorBoundary: {
           title: "Something went wrong",
@@ -39,6 +118,25 @@ translation: {
           },
         },
         dashboard: {
+          roles: { admin: "Administrator", teacher: "Teacher", student: "Student" },
+          roleEyebrow: "{{role}} · {{school}}",
+          roleSubtitle: {
+            admin: "A school-wide view of people, classes, assessments and progress.",
+            teacher: "Your assigned classes, students, grading and performance in one place.",
+            student: "Your classes, upcoming tests and released results in one place.",
+          },
+          replayOnboarding: "Show onboarding",
+          kpi: {
+            admin: { students: "Students", classes: "Classes", teachers: "Teachers", assessments: "Assessments", average: "Average score", completion: "Test completion" },
+            teacher: { students: "My students", classes: "My classes", pendingGrading: "Pending grading", assessments: "Assessments", average: "Class average", completion: "Completion" },
+            student: { classes: "My classes", available: "Available classes", due: "Due soon", completed: "Completed tests", inProgress: "In progress", average: "My average" },
+          },
+          gettingStarted: {
+            title: "Your next step",
+            admin: { title: "Finish setting up your school", description: "Create a class and bring students in so analytics can start reflecting real learning activity.", action: "Open school setup" },
+            teacher: { title: "Waiting for an assigned class", description: "Your administrator needs to assign you to a class before student and assessment data becomes available.", action: "View classes" },
+            student: { title: "Find your classes", description: "Browse the school directory and request the classes you need before taking assigned tests.", action: "Browse classes" },
+          },
           empty: {
             eyebrow: "Account ready",
             title: "Choose how you want to enter a school",
@@ -135,6 +233,29 @@ translation: {
             distribution: {
               title: "Grade distribution",
               center: "results",
+              emptyTitle: "No final scores yet",
+              emptyDescription: "The distribution appears after the first final result is recorded or released.",
+            },
+            classPerformance: {
+              title: "Performance by class",
+              average: "Average",
+              completed: "Final results",
+              emptyTitle: "No class performance yet",
+              emptyDescription: "Class averages appear when graded or released results become available.",
+            },
+            submissions: {
+              title: "Submission status",
+              range: "Last 7 days",
+              onTime: "On time",
+              late: "Late",
+              missing: "Missing",
+              emptyTitle: "No recently due tests",
+              emptyDescription: "Tests due during the last seven days will show on-time, late and missing submissions here.",
+            },
+            activity: {
+              title: "Recent activity",
+              emptyTitle: "No recent activity",
+              emptyDescription: "Invitations, requests and test updates will appear here.",
             },
             members: {
               title: "Members by role",
@@ -148,6 +269,11 @@ translation: {
               addClass: "Add class",
               inviteTeacher: "Invite teacher",
               viewClasses: "View classes",
+              school: "Manage school",
+              classes: "Open classes",
+              tests: "Create or review tests",
+              assignments: "Open assignments",
+              notifications: "View notifications",
             },
             teacherNoClasses: {
               title: "No classes assigned yet",
@@ -229,6 +355,7 @@ translation: {
             titleStaff: "Performance Trend",
             caption: "Last 6 months",
             aria: "Bar chart of the monthly grade average from January to June",
+            titleRole: "{{role}} performance trend",
             months: {
               jan: "Jan",
               feb: "Feb",
@@ -240,6 +367,8 @@ translation: {
           },
           upcoming: {
             title: "Upcoming",
+            emptyTitle: "Nothing due soon",
+            emptyDescription: "Published tests with an opening or deadline will appear here.",
             items: {
               math: { title: "Math Homework Ch.5", due: "Due tomorrow" },
               physics: { title: "Physics Lab Report", due: "Due in 3 days" },

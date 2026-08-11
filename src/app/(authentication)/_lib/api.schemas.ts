@@ -83,6 +83,7 @@ const memberWithSchoolSchema = backendMemberSchema.extend({
 
 export const authResponseSchema = z
   .object({
+    isNewUser: z.boolean().default(false),
     user: backendUserSchema,
     school: backendSchoolSchema.optional(),
     member: backendMemberSchema.optional(),

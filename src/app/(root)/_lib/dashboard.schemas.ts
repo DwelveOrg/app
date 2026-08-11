@@ -6,12 +6,9 @@ import { z } from "zod";
  * role-scoped on the backend (student → self, teacher → their classes, admin →
  * whole school). `.passthrough()` keeps forward-compatible fields from failing.
  *
- * Two fields are intentionally "unavailable" on the backend today and must be
- * treated as empty, never faked:
- *   - `studentDashboardSummary.attendancePct` is always `null` (attendance is
- *     not modelled yet).
- *   - `submissions.byClass` is always `[]` (results carry no due/late/submitted
- *     timestamps, so on-time/late/missing cannot be derived).
+ * Attendance remains intentionally unavailable. Submission analytics are
+ * derived only from modern TestAttempt records; the legacy Result model does
+ * not contain enough timing information to infer them safely.
  */
 
 /** `GET /dashboard/summary` for ADMIN / TEACHER. */
@@ -20,8 +17,13 @@ export const staffDashboardSummarySchema = z
     students: z.number(),
     classes: z.number(),
     exams: z.number(),
+    assessments: z.number().optional(),
     teachers: z.number(),
     avgScore: z.number(),
+    scoredResults: z.number().optional(),
+    completedAttempts: z.number().optional(),
+    completionRate: z.number().nullable().optional(),
+    pendingGrading: z.number().optional(),
   })
   .passthrough();
 
@@ -31,6 +33,9 @@ export const studentDashboardSummarySchema = z
     enrolledCourses: z.number(),
     dueThisWeek: z.number(),
     myAverage: z.number(),
+    assessments: z.number().optional(),
+    completedAssessments: z.number().optional(),
+    inProgressAssessments: z.number().optional(),
     attendancePct: z.number().nullable(),
   })
   .passthrough();
@@ -69,9 +74,8 @@ export const distributionsSchema = z
   .passthrough();
 
 /**
- * `GET /dashboard/submissions?range=week`. The backend returns an empty
- * `byClass` today (see note above); the schema is ready for when the data model
- * gains submission timestamps.
+ * `GET /dashboard/submissions?range=week` — modern test submission state for
+ * tests whose due date fell in the rolling seven-day window.
  */
 export const submissionsSchema = z
   .object({
@@ -87,6 +91,22 @@ export const submissionsSchema = z
   })
   .passthrough();
 
+/** `GET /dashboard/class-performance` — role-scoped class comparison rows. */
+export const classPerformanceSchema = z
+  .object({
+    classes: z.array(
+      z.object({
+        classId: z.string(),
+        className: z.string(),
+        studentCount: z.number(),
+        completedAssessments: z.number(),
+        averageScore: z.number().nullable(),
+        completionRate: z.number().nullable(),
+      }),
+    ),
+  })
+  .passthrough();
+
 /** `GET /dashboard/feed`. `recent.meta` is the raw notification payload. */
 export const dashboardFeedSchema = z
   .object({
@@ -96,6 +116,8 @@ export const dashboardFeedSchema = z
         title: z.string(),
         dueAt: z.union([z.string(), z.date()]),
         kind: z.string(),
+        timing: z.enum(["DUE", "OPENS"]).optional(),
+        href: z.string().nullable().optional(),
       }),
     ),
     recent: z.array(
@@ -105,6 +127,7 @@ export const dashboardFeedSchema = z
         meta: z.unknown().nullable().optional(),
         at: z.union([z.string(), z.date()]),
         kind: z.string(),
+        href: z.string().nullable().optional(),
       }),
     ),
   })
@@ -116,4 +139,5 @@ export type ScoreTrend = z.infer<typeof scoreTrendSchema>;
 export type GradeBucket = z.infer<typeof gradeBucketSchema>;
 export type Distributions = z.infer<typeof distributionsSchema>;
 export type Submissions = z.infer<typeof submissionsSchema>;
+export type ClassPerformance = z.infer<typeof classPerformanceSchema>;
 export type DashboardFeed = z.infer<typeof dashboardFeedSchema>;

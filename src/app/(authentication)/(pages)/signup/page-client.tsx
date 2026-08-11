@@ -21,6 +21,7 @@ import SignupPanel from "./_sections/SignupPanel";
 import { useSignupMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
 import { safeNextPath } from "../../_utils/next-path";
+import { markOnboardingPending } from "@/app/onboarding/_lib/onboarding-storage";
 
 type SignupPageClientProps = {
   /** Root-relative path to return to after signup (e.g. an invite). */
@@ -52,6 +53,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
       const result = await signupMutation.mutateAsync(data);
       clearErrors("root");
       toast.success(t("auth.signup.success"));
+      if (result.onboardingRequired) markOnboardingPending(result.userId);
       router.push(safeNextPath(next, result.redirectTo));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Please check the form and try again.";
@@ -66,6 +68,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
     try {
       const result = await googleMutation.mutateAsync(idToken);
       toast.success(t("auth.signup.success"));
+      if (result.onboardingRequired) markOnboardingPending(result.userId);
       router.push(safeNextPath(next, result.redirectTo));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google sign-in failed.";

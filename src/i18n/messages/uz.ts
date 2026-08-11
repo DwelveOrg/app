@@ -7,6 +7,54 @@ translation: {
         ru: "Ruscha",
         uz: "Oʻzbekcha",
       },
+      onboarding: {
+        yourSchool: "maktabingiz",
+        ready: "«{{school}}» dagi kirishingiz tayyor. Keyingi qadamlar ixtiyoriy va ularni paneldan qayta ochish mumkin.",
+        progress: { eyebrow: "Ishni boshlash", label: "{{total}} qadamdan {{current}}-qadam" },
+        actions: { skip: "Hozircha oʻtkazib yuborish", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
+        access: {
+          eyebrow: "Dwelve’ga xush kelibsiz",
+          title: "Kirishni sozlaymiz, {{name}}",
+          description: "Sizda bor kirish usulini tanlang. Rolni maktab yaratish, kod yoki taklif belgilaydi — oʻqituvchi rolini mustaqil tanlab boʻlmaydi.",
+          success: "Kirish tasdiqlandi",
+          error: "Qadamni yakunlab boʻlmadi. Qayta urinib koʻring.",
+          admin: { title: "Maktab yaratish", description: "Maktab yoki oʻquv markazini boshlab, uning administratori boʻling.", name: "Maktab yoki markaz nomi", country: "Mamlakat (ixtiyoriy)", city: "Shahar (ixtiyoriy)" },
+          student: { title: "Oʻquvchi sifatida qoʻshilish", description: "Oʻqituvchi yoki administrator bergan maktab kodidan foydalaning.", code: "Oʻquvchi qoʻshilish kodi" },
+          teacher: { title: "Oʻqituvchi taklifini qabul qilish", description: "Maktab administratori yuborgan shaxsiy taklifdan foydalaning.", token: "Taklif tokeni" },
+        },
+        roles: {
+          admin: {
+            title: "Maktabni sozlash",
+            ready: { nav: "Maktab tayyor", title: "Maktabingiz tayyor", description: "«{{school}}» uchun xavfsiz ish maydoni tayyor. Birinchi vazifalarni hozir bajaring yoki keyin qayting." },
+            class: { nav: "Birinchi sinf", title: "Birinchi sinfni yarating", description: "Sinf oʻqituvchilar, oʻquvchilar va testlarni bogʻlaydi. Ishni boshlash uchun sinf qoʻshing.", field: "Sinf nomi", action: "Sinf yaratish", existing: "Mavjud sinflar", success: "Sinf yaratildi", error: "Sinfni yaratib boʻlmadi." },
+            people: { nav: "Taklif qilish", title: "Jamoa va oʻquvchilarni qoʻshing", description: "Oʻqituvchilar email orqali shaxsiy taklif oladi, oʻquvchilar esa maktab kodidan foydalanadi.", students: "Oʻquvchi qoʻshilish kodi", studentsDescription: "Bu kodni faqat maktabingizga qoʻshilishi kerak boʻlgan oʻquvchilarga bering.", teacherEmail: "Oʻqituvchi emaili", invite: "Taklif yaratish", copyInvite: "Taklif havolasini nusxalash", copied: "Nusxalandi", inviteSuccess: "Oʻqituvchi taklifi yaratildi", inviteError: "Taklifni yaratib boʻlmadi." },
+            workspace: { nav: "Ish maydoni", title: "Boʻlimlarni tanib oling", description: "«{{school}}» ni boshqarishda shu boʻlimlardan foydalanasiz. Ularni onboardingdan keyin ochish mumkin." },
+          },
+          teacher: {
+            title: "Oʻqituvchi ish maydoni",
+            ready: { nav: "Kirish tayyor", title: "Oʻqituvchi kirishi tayyor", description: "Siz «{{school}}» ga ulandingiz. Batafsil maʼlumot faqat sizga biriktirilgan sinflar bilan cheklangan." },
+            classes: { nav: "Sinflaringiz", title: "Biriktirilgan sinflarda ishlang", description: "Har bir sinfda roʻyxat, testlar va natijalar bor. Qaysi sinflarga kirishingizni administrator belgilaydi.", assigned: "Biriktirilgan sinflar", waiting: "Hali sinf biriktirilmagan. Administrator sinf qoʻshgach panelda maʼlumotlar koʻrinadi." },
+            tests: { nav: "Test va natijalar", title: "Test yarating va tekshiring", description: "Boshqa oʻqituvchining sinflarini ochmasdan test yaratish, nashr qilish va javoblarni tekshirish uchun sinfni oching." },
+            analytics: { nav: "Tahlil", title: "Yordam kerak joylarni aniqlang", description: "Panel sizning sinflaringiz uchun trend, baholar taqsimoti, sinflar taqqoslanishi va kutilayotgan tekshiruvni birlashtiradi." },
+          },
+          student: {
+            title: "Oʻquv maydonini sozlash",
+            ready: { nav: "Kirish tayyor", title: "Maktabga qoʻshildingiz", description: "«{{school}}» dagi oʻquvchi kirishingiz tayyor. Panelda faqat sinflaringiz, urinishlaringiz va eʼlon qilingan natijalar koʻrinadi." },
+            classes: { nav: "Sinflarni topish", title: "Kerakli sinflarga qoʻshiling", description: "Mavjud sinfga soʻrov yuboring. Tasdiq talab qiladigan soʻrov oʻqituvchi yoki administrator javobigacha kutiladi.", enrolled: "Joriy sinflaringiz", none: "Hozir soʻrov yuborish mumkin boʻlgan sinf yoʻq (jami: {{count}}). Keyinroq Sinflar boʻlimini tekshiring.", request: "Soʻrov", requested: "Sinf soʻrovi yuborildi", error: "Sinf soʻrovini yuborib boʻlmadi." },
+            assignments: { nav: "Topshiriqlar", title: "Testlarni bir joyda topshiring", description: "Topshiriqlar boʻlimida sizga mavjud testlar jamlangan. Imtihon xonasi paneldan alohida va nazorat vositalariga ega." },
+            progress: { nav: "Natijalaringiz", title: "Shaxsiy natijalarni kuzating", description: "Panel trend, sinf natijasi va yaqin testlar uchun faqat eʼlon qilingan natijalaringizdan foydalanadi." },
+          },
+        },
+        destinations: {
+          school: { title: "Maktab", description: "Maktab profili, aʼzolar, kod va sinf sozlamalari." },
+          classes: { title: "Sinflar", description: "Roʻyxat, testlar, soʻrovlar va sinf natijalari." },
+          tests: { title: "Test studiyasi", description: "Alohida ish maydonida test yaratish va nashr qilish." },
+          assignments: { title: "Topshiriqlar", description: "Mavjud, davom etayotgan va tugallangan testlar." },
+          results: { title: "Natijalar", description: "Eʼlon qilingach ball, fikr va batafsil natijalarni koʻring." },
+          notifications: { title: "Bildirishnomalar", description: "Takliflar, soʻrovlar va test yangiliklari." },
+        },
+        features: { trend: "Yakuniy ballarning olti oylik trendi", classes: "Sinf boʻyicha natija va bajarilish", grading: "Kutilayotgan tekshiruv va topshirish holati", notifications: "Soʻnggi taklif, soʻrov va yangiliklar", upcoming: "Tez orada ochiladigan yoki yopiladigan testlar", results: "Faqat oʻqituvchi eʼlon qilgan natijalar" },
+      },
       root: {
         errorBoundary: {
           title: "Nimadir notoʻgʻri ketdi",
@@ -39,6 +87,21 @@ translation: {
           },
         },
         dashboard: {
+          roles: { admin: "Administrator", teacher: "Oʻqituvchi", student: "Oʻquvchi" },
+          roleEyebrow: "{{role}} · {{school}}",
+          roleSubtitle: { admin: "Maktab aʼzolari, sinflari, testlari va natijalarining umumiy koʻrinishi.", teacher: "Biriktirilgan sinflar, oʻquvchilar, tekshiruv va natijalar bir joyda.", student: "Sinflaringiz, yaqin testlar va eʼlon qilingan natijalar bir joyda." },
+          replayOnboarding: "Onboardingni koʻrsatish",
+          kpi: {
+            admin: { students: "Oʻquvchilar", classes: "Sinflar", teachers: "Oʻqituvchilar", assessments: "Testlar", average: "Oʻrtacha ball", completion: "Test bajarilishi" },
+            teacher: { students: "Oʻquvchilarim", classes: "Sinflarim", pendingGrading: "Tekshiruv kutilmoqda", assessments: "Testlar", average: "Sinf oʻrtachasi", completion: "Bajarilish" },
+            student: { classes: "Sinflarim", available: "Mavjud sinflar", due: "Yaqin muddat", completed: "Tugallangan", inProgress: "Jarayonda", average: "Oʻrtacha ballim" },
+          },
+          gettingStarted: {
+            title: "Keyingi qadamingiz",
+            admin: { title: "Maktab sozlamasini yakunlang", description: "Tahlil haqiqiy oʻquv faoliyatini koʻrsatishi uchun sinf yarating va oʻquvchilarni qoʻshing.", action: "Maktabni sozlash" },
+            teacher: { title: "Sinf biriktirilishini kutish", description: "Oʻquvchi va test maʼlumotlari chiqishi uchun administrator sizni sinfga biriktirishi kerak.", action: "Sinflarni koʻrish" },
+            student: { title: "Sinflaringizni toping", description: "Maktab katalogini koʻring va kerakli sinflarga kirish soʻrovini yuboring.", action: "Sinflarni koʻrish" },
+          },
           empty: {
             eyebrow: "Hisob tayyor",
             title: "Maktabga qanday kirishni tanlang",
@@ -135,7 +198,12 @@ translation: {
             distribution: {
               title: "Baholar taqsimoti",
               center: "natija",
+              emptyTitle: "Hali yakuniy ball yoʻq",
+              emptyDescription: "Birinchi yakuniy yoki eʼlon qilingan natijadan keyin taqsimot koʻrinadi.",
             },
+            classPerformance: { title: "Sinf boʻyicha natija", average: "Oʻrtacha", completed: "Yakuniy natijalar", emptyTitle: "Hali sinf natijasi yoʻq", emptyDescription: "Tekshirilgan yoki eʼlon qilingan natijalardan keyin sinf oʻrtachasi koʻrinadi." },
+            submissions: { title: "Topshirish holati", range: "Oxirgi 7 kun", onTime: "Vaqtida", late: "Kech", missing: "Topshirilmagan", emptyTitle: "Yaqinda muddati tugagan test yoʻq", emptyDescription: "Oxirgi yetti kunda muddati tugagan testlar shu yerda koʻrinadi." },
+            activity: { title: "Soʻnggi faollik", emptyTitle: "Hali faollik yoʻq", emptyDescription: "Taklif, soʻrov va test yangiliklari shu yerda koʻrinadi." },
             members: {
               title: "Rollar boʻyicha aʼzolar",
               center: "aʼzo",
@@ -148,6 +216,11 @@ translation: {
               addClass: "Sinf qoʻshish",
               inviteTeacher: "Oʻqituvchi taklif qilish",
               viewClasses: "Sinflarni koʻrish",
+              school: "Maktabni boshqarish",
+              classes: "Sinflarni ochish",
+              tests: "Test yaratish yoki tekshirish",
+              assignments: "Topshiriqlarni ochish",
+              notifications: "Bildirishnomalar",
             },
             teacherNoClasses: {
               title: "Hali sinflar tayinlanmagan",
@@ -229,6 +302,7 @@ translation: {
             titleStaff: "Natijalar dinamikasi",
             caption: "Soʻnggi 6 oy",
             aria: "Yanvardan iyungacha oylik oʻrtacha bahoning ustunli diagrammasi",
+            titleRole: "{{role}} natijalari dinamikasi",
             months: {
               jan: "Yan",
               feb: "Fev",
@@ -240,6 +314,8 @@ translation: {
           },
           upcoming: {
             title: "Rejalashtirilgan",
+            emptyTitle: "Yaqin muddat yoʻq",
+            emptyDescription: "Ochish yoki tugash sanasi bor nashr qilingan testlar shu yerda koʻrinadi.",
             items: {
               math: { title: "Matematika uy vazifasi, 5-bob", due: "Muddati ertaga" },
               physics: { title: "Fizika laboratoriya hisoboti", due: "Muddati 3 kundan soʻng" },
