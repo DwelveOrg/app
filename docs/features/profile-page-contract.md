@@ -1,8 +1,9 @@
-# Profile Page Backend Contract
+# Unified Profile And Account Settings Backend Contract
 
-This is the backend handoff for the frontend profile page. Do not implement the
-page by changing backend assumptions from the frontend. Use these endpoints with
-the authenticated request helper and Zod response schemas.
+This is the backend contract consumed by the consolidated frontend Profile and
+Settings area. `/profile` is the canonical account destination and API; there is
+no backend `/settings` route. Use these endpoints with the authenticated request
+helper and Zod response schemas.
 
 All routes are under:
 
@@ -20,6 +21,8 @@ PATCH  /profile/school-profile
 POST   /profile/change-password
 GET    /profile/sessions
 DELETE /profile/sessions/:sessionId
+DELETE /profile
+POST   /auth/logout-all
 ```
 
 Every endpoint requires a bearer access token. `GET /profile` works without a
@@ -282,6 +285,34 @@ DELETE /profile/sessions/:sessionId
 
 If `revokedCurrent` is `true`, clear local tokens and route to login.
 
+### Logout All Devices
+
+```txt
+POST /auth/logout-all
+```
+
+This returns `{ "success": true }` after revoking all refresh sessions. Clear
+the encrypted local session after success.
+
+### Delete Account
+
+```txt
+DELETE /profile
+```
+
+This returns `{ "success": true }` after permanently deleting the authenticated
+account. Clear the encrypted local session after success and do not retry the
+mutation automatically.
+
+## Frontend-Owned Preferences
+
+Theme, language, support links, feedback composition, and documentation
+navigation remain frontend-owned. They are not part of `GET /profile` and must
+not trigger requests to a `/settings` backend endpoint.
+
+Former `/settings` routes redirect to the matching `/profile` tab for backward
+compatibility.
+
 ## UI Rules
 
 - Do not display role selection on the profile page.
@@ -305,6 +336,7 @@ If `revokedCurrent` is `true`, clear local tokens and route to login.
 401 expired/invalid auth or wrong current password
 403 missing/invalid selected school context
 404 session not found
+429 profile security or avatar mutation rate limit exceeded
 ```
 
 Use backend messages for developer logging, but keep end-user text friendly and

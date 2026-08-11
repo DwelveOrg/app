@@ -1,7 +1,7 @@
 # Password Auth Settings
 
 This is the frontend source of truth for password behavior across email login,
-email signup, Google auth, and settings/profile password management.
+email signup, Google auth, and profile password management.
 
 All backend routes are under:
 
@@ -16,14 +16,14 @@ All backend routes are under:
   user in without asking for the existing password.
 - Manual email login always requires a password.
 - Manual email signup always requires a password.
-- A Google-only user can add a password later from settings/profile.
+- A Google-only user can add a password later from the Profile security tab.
 - A user who already has a password must enter the current password before
   changing it.
 - The frontend must never show, log, store, or infer `passwordHash`.
 
 ## Backend Signals
 
-Bootstrap the settings/profile page with:
+Bootstrap the Profile account area with:
 
 ```txt
 GET /api/v1/profile
@@ -120,7 +120,7 @@ After success, reuse the same post-auth routing as manual auth:
 
 Do not create Google-only dashboard branches.
 
-## Settings Password Panel
+## Profile Security Password Panel
 
 If `authMethods.password === false`, render:
 

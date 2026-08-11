@@ -1,6 +1,6 @@
 export default function SmallContainerLayout({ children }: { children: React.ReactNode }) {
   return (
-    // Narrow reading column for profile and settings.
+    // Narrow reading column for the consolidated account area.
     //
     // This used to mix `container`, `max-w-[80%]`, and two identical breakpoint caps. The 80% rule
     // applied between 500px and 768px, so on a small tablet the column floated with a 10% gutter on

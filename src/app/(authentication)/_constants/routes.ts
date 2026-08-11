@@ -1,6 +1,20 @@
 export const protectedRoutes = [
   "/dashboard",
+  /**
+   * The account area — identity, security, preferences and support in one
+   * destination. Formerly split across `/profile` and `/settings`.
+   */
   "/profile",
+  /**
+   * Retired: `/settings` and its subroutes now 307 to the matching `/profile`
+   * tab (see `next.config.ts`).
+   *
+   * Config redirects run *before* the proxy, so in practice nothing unauthenticated
+   * reaches this entry — `/settings` resolves as `/settings` → `/profile` → `/login`,
+   * with the auth check happening at `/profile`. It stays listed only so the guard
+   * survives if those redirects are ever dropped; it is not what protects the route
+   * today.
+   */
   "/settings",
   "/notifications",
   "/groups",

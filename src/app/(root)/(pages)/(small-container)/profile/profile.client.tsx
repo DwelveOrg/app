@@ -1,33 +1,53 @@
 "use client";
 
+import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 
 import PageHeader from "@/app/(root)/_components/PageHeader";
-import Empty from "../../_components/ui/Empty";
-import { AccountDetailsForm } from "./_components/AccountDetailsForm";
-import { MembershipsPanel } from "./_components/MembershipsPanel";
-import { ProfileSummaryCard } from "./_components/ProfileSummaryCard";
-import { SchoolProfileForm } from "./_components/SchoolProfileForm";
-import { SecurityLinkCard } from "./_components/SecurityLinkCard";
-import { SelectedSchoolCard } from "./_components/SelectedSchoolCard";
-import type { ProfileClientProps } from "./_types";
+import Surface from "@/components/ui/Surface";
+import TabBar from "@/components/ui/TabBar";
+import { AccountTab } from "./_components/AccountTab";
+import { PreferencesTab } from "./_components/PreferencesTab";
+import { SecurityTab } from "./_components/SecurityTab";
+import { SupportTab } from "./_components/SupportTab";
+import type { AccountContext, AccountTab as AccountTabKey, ProfileClientProps } from "./_types";
 
-export default function ProfileClient({ user, profile }: Readonly<ProfileClientProps>) {
+/**
+ * The account area: one destination for what used to be `/profile` and
+ * `/settings`.
+ *
+ * Both halves already read the same `GET /profile` bootstrap, so keeping them
+ * apart cost a second request and a nav item without buying a single capability.
+ * The four panels are tabs rather than one long scroll — identity, security,
+ * preferences and support are things you arrive wanting *one* of.
+ *
+ * The tab is local state, seeded from `?tab=` so the retired Settings URLs land
+ * on the panel their content moved to.
+ */
+export default function ProfileClient({
+  user,
+  profile,
+  initialTab,
+}: Readonly<ProfileClientProps>) {
   const { t } = useTranslation();
   const reduce = useReducedMotion();
+  const [activeTab, setActiveTab] = useState<AccountTabKey>(initialTab);
 
-  if (!user || !profile) {
-    return (
-      <div className="flex min-h-[calc(100dvh-12rem)] w-full items-center justify-center">
-        <Empty />
-      </div>
-    );
-  }
+  /**
+   * Profile is the richer source (avatar, school, role); the session cookie keeps
+   * the page usable when the bootstrap request fails.
+   */
+  const account: AccountContext = {
+    name: profile?.account.fullName ?? user?.fullName ?? null,
+    email: profile?.account.email ?? user?.email ?? null,
+    schoolName: profile?.selectedSchool?.school.name ?? null,
+    role: profile?.selectedSchool?.member.role ?? user?.schoolRole ?? null,
+  };
 
-  const { account, selectedSchool, memberships } = profile;
-  const showSchoolProfile =
-    selectedSchool && selectedSchool.roleProfile.type !== "ADMIN";
+  // Never offer the passwordless setup form on a guess: an account that already
+  // has a password would be shown the wrong flow.
+  const hasPassword = profile?.account.authMethods?.password ?? true;
 
   return (
     <motion.div
@@ -36,24 +56,50 @@ export default function ProfileClient({ user, profile }: Readonly<ProfileClientP
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       className="space-y-6"
     >
-      <PageHeader
-        title={t("root.pages.profile")}
-        subtitle={t("root.profile.subtitle")}
+      <PageHeader title={t("root.pages.profile")} subtitle={t("root.profile.subtitle")} />
+
+      <TabBar
+        layoutId="account-tabs"
+        ariaLabel={t("root.profile.tabs.label")}
+        value={activeTab}
+        onSelect={(next) => setActiveTab(next as AccountTabKey)}
+        items={[
+          { value: "account", label: t("root.profile.tabs.account") },
+          { value: "security", label: t("root.profile.tabs.security") },
+          { value: "preferences", label: t("root.profile.tabs.preferences") },
+          { value: "support", label: t("root.profile.tabs.support") },
+        ]}
       />
 
-      <ProfileSummaryCard account={account} />
-
-      <SelectedSchoolCard selectedSchool={selectedSchool} />
-
-      <AccountDetailsForm account={account} />
-
-      {showSchoolProfile ? (
-        <SchoolProfileForm selectedSchool={selectedSchool} />
-      ) : null}
-
-      <MembershipsPanel memberships={memberships} selectedSchool={selectedSchool} />
-
-      <SecurityLinkCard />
+      {/* Theme, language and the support composer are frontend-owned, so a failed
+          bootstrap must not take them away with it. Only the two panels that read
+          account data report the failure — and Security still renders, because
+          revoking a session, logging out everywhere and deleting the account each
+          make their own request and can succeed while `GET /profile` is down. */}
+      {activeTab === "account" ? (
+        profile ? (
+          <AccountTab profile={profile} />
+        ) : (
+          <UnavailableNotice message={t("root.profile.unavailable")} />
+        )
+      ) : activeTab === "security" ? (
+        <div className="space-y-6">
+          {profile ? null : <UnavailableNotice message={t("root.profile.unavailable")} />}
+          <SecurityTab hasPassword={hasPassword} />
+        </div>
+      ) : activeTab === "preferences" ? (
+        <PreferencesTab />
+      ) : (
+        <SupportTab account={account} />
+      )}
     </motion.div>
+  );
+}
+
+function UnavailableNotice({ message }: Readonly<{ message: string }>) {
+  return (
+    <Surface variant="dashed" elevation={0} role="status">
+      <p className="text-center text-sm text-muted-foreground">{message}</p>
+    </Surface>
   );
 }

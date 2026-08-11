@@ -7,6 +7,7 @@ import type {
   ProfileMembershipEntry,
   ProfileSelectedSchool,
 } from "@/app/(root)/_lib/profile.schemas";
+import SectionHeader from "@/app/(root)/_components/SectionHeader";
 import { cn } from "@/lib/utils";
 import Surface from "@/components/ui/Surface";
 import Badge from "@/components/ui/badge";
@@ -28,21 +29,16 @@ export function MembershipsPanel({
 
   return (
     <Surface as="section">
-      <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
-          <Building2 className="h-[18px] w-[18px]" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-foreground">
-            {t("root.profile.memberships.title")}
-          </h2>
-          {/* Deliberately not a count: the profile page shows the active school,
-              never a "you belong to N schools" metric. */}
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {t("root.profile.memberships.description")}
-          </p>
-        </div>
-      </header>
+      {/* The description is deliberately not a count, and deliberately does not
+          promise switching: school selection runs through `POST /auth/select-school`,
+          which this frontend does not call anywhere yet. Copy that offers a
+          control the page does not have is a bug report waiting to happen. */}
+      <SectionHeader
+        icon={Building2}
+        title={t("root.profile.memberships.title")}
+        description={t("root.profile.memberships.description")}
+        className="mb-5"
+      />
 
       <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
         {memberships.map(({ membership, school }) => {

@@ -29,7 +29,7 @@ backend infrastructure only; the frontend must not connect to Redis directly.
   `/login?logout=all` (login shows a distinct confirmation toast).
 - The settings security area exposes "Logout from all devices" via
   `SecuritySection.tsx` and the `LogoutAllButton` confirm dialog under
-  `src/app/(root)/(pages)/(small-container)/settings/_components/`.
+  `src/app/(root)/(pages)/(small-container)/profile/_components/`.
 - Backend `429` responses are surfaced as a calm, intentional message
   (`getActionError` in `actions.ts` maps status `429` to a dedicated copy)
   across login, signup, google, create-school, and join-school actions.
