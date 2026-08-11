@@ -1,21 +1,33 @@
+import { redirect } from "next/navigation";
+
 import { getUser } from "../../_utils/getUser";
 import { getSchool } from "../../_utils/getSchool";
 import { getStudentOverview } from "../../_utils/getStudentOverview";
 import { getMyClasses } from "../../_utils/getMyClasses";
 import { getDashboard } from "../../_utils/getDashboard";
+import { getOnboarding } from "../../_utils/getOnboarding";
 import NoMembershipState from "./_components/NoMembershipState";
 import DashboardComposer from "./_components/composer/DashboardComposer";
-import OnboardingGate from "./_components/OnboardingGate";
 
 export default async function Dashboard() {
   const user = await getUser();
 
-  if (!user?.membershipCount) {
-    return (
-      <OnboardingGate userId={user?.id ?? "unknown"} memberId={user?.memberId}>
-        <NoMembershipState />
-      </OnboardingGate>
-    );
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Onboarding state is server-owned, so the decision happens before any HTML
+  // is sent. The previous client-side gate had to render the whole dashboard
+  // behind a skeleton on *every* visit just to read localStorage, which threw
+  // away the server render for established users and silently skipped the flow
+  // on a second device.
+  const onboarding = await getOnboarding();
+  if (onboarding.status === "in_progress") {
+    redirect("/onboarding");
+  }
+
+  if (!user.membershipCount) {
+    return <NoMembershipState />;
   }
 
   // Fails soft: if the school fetch errors we still render the dashboard using
@@ -25,11 +37,7 @@ export default async function Dashboard() {
   const studentJoinCode = detail?.school.studentJoinCode ?? null;
 
   if (!role) {
-    return (
-      <OnboardingGate userId={user.id} memberId={user.memberId}>
-        <NoMembershipState />
-      </OnboardingGate>
-    );
+    return <NoMembershipState />;
   }
 
   // Students get a real, data-backed home (overview counts + active roster)
@@ -45,8 +53,7 @@ export default async function Dashboard() {
   ]);
 
   return (
-    <OnboardingGate userId={user.id} memberId={user.memberId}>
-      <DashboardComposer
+    <DashboardComposer
       context={{
         role,
         fullName: user.fullName ?? null,
@@ -63,7 +70,6 @@ export default async function Dashboard() {
         availableClasses: overview?.counts.availableClasses ?? 0,
         pendingRequests: overview?.counts.pendingRequests ?? 0,
       }}
-      />
-    </OnboardingGate>
+    />
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, useTransition, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
@@ -39,24 +39,22 @@ import Input from "@/components/ui/Input";
 import Surface from "@/components/ui/Surface";
 import CopyButton from "@/components/ui/CopyButton";
 import { cn } from "@/lib/utils";
-import {
-  clearPendingOnboarding,
-  migrateAccountOnboarding,
-  markOnboardingPending,
-  readOnboardingState,
-  writeOnboardingState,
-} from "../_lib/onboarding-storage";
+import { updateOnboardingAction } from "@/app/(root)/_lib/onboarding-actions";
 
 type WizardUser = {
   id: string;
-  fullName: string;
+  fullName: string | null;
   schoolId: string | null;
   memberId: string | null;
   role: SchoolRole | null;
 };
 
 type WizardProps = {
-  replay: boolean;
+  /**
+   * Server-persisted resume point. Already accounts for replay, which the page
+   * resolves before rendering, so the wizard never needs to know the difference.
+   */
+  initialStep: number;
   user: WizardUser;
   schoolName: string | null;
   studentJoinCode: string | null;
@@ -88,51 +86,47 @@ const ROLE_STEPS: Record<SchoolRole, Array<{ icon: LucideIcon; key: string }>> =
 };
 
 export default function OnboardingWizard(props: WizardProps) {
-  const { user, replay } = props;
+  const { user, initialStep } = props;
   const { t } = useTranslation();
   const router = useRouter();
-  const [ready, setReady] = useState(false);
-  const [step, setStep] = useState(0);
+  const [step, setStep] = useState(() => Math.max(0, initialStep));
+  const [leaving, startLeaving] = useTransition();
 
-  useEffect(() => {
-    const state = user.memberId
-      ? migrateAccountOnboarding(user.id, user.memberId)
-      : readOnboardingState(user.id, null);
-    if (!replay && (state?.status === "completed" || state?.status === "skipped")) {
-      router.replace("/dashboard");
-      return;
-    }
-    markOnboardingPending(user.id);
-    const initialStep = replay ? 0 : Math.max(0, state?.step ?? 0);
-    writeOnboardingState(user.id, user.memberId, {
-      status: "in_progress",
-      step: initialStep,
-    });
-    const frame = window.requestAnimationFrame(() => {
-      setStep(initialStep);
-      setReady(true);
-    });
-    return () => window.cancelAnimationFrame(frame);
-  }, [replay, router, user.id, user.memberId]);
-
-  const finish = (status: "completed" | "skipped") => {
-    writeOnboardingState(user.id, user.memberId, { status, step });
-    clearPendingOnboarding(user.id);
-    router.push("/dashboard");
-    router.refresh();
+  /**
+   * Progress is written server-side so the flow resumes on any device. Step
+   * writes are fire-and-forget: a failed save costs at most a resumed position,
+   * and blocking the wizard on a network round trip per click would be worse.
+   */
+  const saveStep = (value: number) => {
+    void updateOnboardingAction({ status: "in_progress", step: value });
   };
 
-  if (!ready) {
-    return <Surface className="h-[560px] w-full max-w-4xl animate-pulse bg-muted" />;
-  }
+  const finish = (status: "completed" | "skipped") => {
+    startLeaving(async () => {
+      try {
+        // The save must land before leaving. The dashboard sends unfinished
+        // users straight back here, so redirecting on a failed write would
+        // bounce the user between the two pages.
+        const result = await updateOnboardingAction({ status, step });
+        readSafeActionData(result, t("onboarding.actions.saveError"));
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : t("onboarding.actions.saveError"),
+        );
+        return;
+      }
+      router.replace("/dashboard");
+      router.refresh();
+    });
+  };
 
   if (!user.role || !user.memberId) {
-    return <AccessSetup {...props} onSkip={() => finish("skipped")} />;
+    return <AccessSetup {...props} busy={leaving} onSkip={() => finish("skipped")} />;
   }
 
   const role = user.role;
   const steps = ROLE_STEPS[role];
-  const safeStep = Math.min(step, steps.length - 1);
+  const safeStep = Math.min(Math.max(step, 0), steps.length - 1);
   const current = steps[safeStep];
   const Icon = current.icon;
   const base = `onboarding.roles.${role.toLowerCase()}.${current.key}`;
@@ -143,12 +137,12 @@ export default function OnboardingWizard(props: WizardProps) {
     }
     const value = safeStep + 1;
     setStep(value);
-    writeOnboardingState(user.id, user.memberId, { status: "in_progress", step: value });
+    saveStep(value);
   };
   const back = () => {
     const value = Math.max(0, safeStep - 1);
     setStep(value);
-    writeOnboardingState(user.id, user.memberId, { status: "in_progress", step: value });
+    saveStep(value);
   };
 
   return (
@@ -168,12 +162,18 @@ export default function OnboardingWizard(props: WizardProps) {
                 <li key={item.key} className="min-w-0">
                   <button
                     type="button"
-                    onClick={() => done && setStep(index)}
+                    onClick={() => {
+                      if (!done) return;
+                      setStep(index);
+                      saveStep(index);
+                    }}
                     disabled={!done}
+                    aria-current={active ? "step" : undefined}
                     className={cn(
                       "flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left",
                       active && "bg-accent text-accent-foreground",
                       !active && "text-muted-foreground",
+                      done && "hover:bg-muted/60",
                     )}
                   >
                     <span
@@ -211,15 +211,25 @@ export default function OnboardingWizard(props: WizardProps) {
           </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-5">
-            <Button type="button" variant="ghost" onClick={() => finish("skipped")}>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => finish("skipped")}
+              disabled={leaving}
+            >
               {t("onboarding.actions.skip")}
             </Button>
             <div className="flex items-center gap-2">
-              <Button type="button" variant="outline" onClick={back} disabled={safeStep === 0}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={back}
+                disabled={safeStep === 0 || leaving}
+              >
                 <ArrowLeft className="h-4 w-4" />
                 {t("onboarding.actions.back")}
               </Button>
-              <Button type="button" onClick={next}>
+              <Button type="button" onClick={next} disabled={leaving}>
                 {safeStep === steps.length - 1
                   ? t("onboarding.actions.finish")
                   : t("onboarding.actions.next")}
@@ -235,8 +245,9 @@ export default function OnboardingWizard(props: WizardProps) {
 
 function AccessSetup({
   user,
+  busy: leaving,
   onSkip,
-}: WizardProps & { onSkip: () => void }) {
+}: WizardProps & { busy: boolean; onSkip: () => void }) {
   const { t } = useTranslation();
   const router = useRouter();
   const [path, setPath] = useState<AccessPath>("choose");
@@ -249,9 +260,10 @@ function AccessSetup({
   const joinSchool = useJoinSchoolMutation();
   const acceptInvite = useAcceptTeacherInviteMutation();
 
+  // Gaining a membership does not finish onboarding — it unlocks the role tour,
+  // which the refreshed server render picks up from step 0.
   const complete = () => {
     toast.success(t("onboarding.access.success"));
-    writeOnboardingState(user.id, null, { status: "in_progress", step: 0 });
     router.refresh();
   };
   const submit = async (event: FormEvent) => {
@@ -269,7 +281,11 @@ function AccessSetup({
       toast.error(error instanceof Error ? error.message : t("onboarding.access.error"));
     }
   };
-  const busy = createSchool.isPending || joinSchool.isPending || acceptInvite.isPending;
+  const busy =
+    createSchool.isPending ||
+    joinSchool.isPending ||
+    acceptInvite.isPending ||
+    leaving;
 
   return (
     <Surface className="w-full max-w-4xl p-6 sm:p-10">
@@ -278,7 +294,9 @@ function AccessSetup({
       </span>
       <p className="mt-6 type-micro text-primary">{t("onboarding.access.eyebrow")}</p>
       <h1 className="mt-2 type-title text-foreground">
-        {t("onboarding.access.title", { name: user.fullName.split(/\s+/)[0] })}
+        {t("onboarding.access.title", {
+          name: user.fullName?.trim().split(/\s+/)[0] ?? "",
+        })}
       </h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
         {t("onboarding.access.description")}
@@ -329,7 +347,7 @@ function AccessSetup({
       )}
 
       <div className="mt-8 border-t border-border pt-5">
-        <Button type="button" variant="ghost" onClick={onSkip}>
+        <Button type="button" variant="ghost" onClick={onSkip} disabled={busy}>
           {t("onboarding.actions.skip")}
         </Button>
       </div>
