@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 
 import { deleteAccountAction } from "@/app/(root)/_lib/profile-actions";
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
-import { rowDangerActionClassName } from "../_constants";
+import { Button } from "@/components/ui/Button";
 
 /**
  * Account deletion control. The server action removes the signed-in account and redirects, so only
@@ -33,9 +33,9 @@ export function DeleteAccountButton() {
       open={open}
       onOpenChange={(next) => !isPending && setOpen(next)}
       trigger={
-        <button type="button" className={rowDangerActionClassName}>
+        <Button type="button" variant="destructive" size="sm">
           {t("root.settings.actions.delete")}
-        </button>
+        </Button>
       }
       icon={<Trash2 />}
       title={t("root.settings.security.deleteAccount.confirmTitle")}

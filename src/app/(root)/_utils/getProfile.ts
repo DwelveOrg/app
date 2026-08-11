@@ -1,91 +1,32 @@
 import "server-only";
 
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
-import { getUser } from "./getUser";
 import { getProfileRequest } from "../_lib/profile.api";
 import type { ProfileResponse } from "../_lib/profile.schemas";
 
 /**
- * Fetches the current account's profile bootstrap (`GET /profile`). See
- * `docs/features/profile-page-contract.md`. Fails soft — returns `null` on any
- * error so the profile page can render an empty state instead of crashing the
- * authenticated shell.
+ * The account area's single bootstrap (`GET /profile`). See
+ * `docs/features/profile-page-contract.md`.
  *
- * DEV BRIDGE: while the backend `/profile` route is still shipping (returns 404
- * today), synthesize the payload from the session identity + selected school in
- * development only, so the page can be previewed end-to-end. Remove this
- * fallback once the backend exposes `GET /profile`.
+ * Fails soft — returns `null` on any error so the route renders an unavailable
+ * notice instead of crashing the authenticated shell, and so the frontend-owned
+ * panels (theme, language, support) stay usable while the backend is not.
+ *
+ * There used to be a development fallback here that synthesized this payload
+ * from the session cookie while the backend route was still shipping. It is gone
+ * with the route it was waiting for: it made every backend failure look like a
+ * success in development, and the profile it invented was wrong — it named the
+ * selected school after the signed-in user and claimed `authMethods.password`
+ * for accounts that may have no password, which is exactly the signal that picks
+ * between the change-password and set-password flows.
  */
 export async function getProfile(): Promise<ProfileResponse | null> {
   try {
     return await getProfileRequest(authedBackendJson);
-  } catch {
+  } catch (error) {
     if (process.env.NODE_ENV !== "production") {
-      return synthesizeProfileFromSession();
+      console.error("GET /profile failed:", error);
     }
     return null;
   }
-}
-
-async function synthesizeProfileFromSession(): Promise<ProfileResponse | null> {
-  const user = await getUser();
-  if (!user) return null;
-
-  const now = new Date().toISOString();
-  const hasSelected = Boolean(user.schoolId && user.memberId && user.schoolRole);
-
-  return {
-    account: {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      avatarUrl: null,
-      isActive: true,
-      authMethods: { password: true, google: false },
-      createdAt: now,
-      updatedAt: now,
-    },
-    selectedSchool: hasSelected
-      ? {
-          school: {
-            id: user.schoolId!,
-            name: user.fullName,
-            isActive: true,
-            createdAt: now,
-            updatedAt: now,
-          },
-          member: {
-            id: user.memberId!,
-            userId: user.id,
-            schoolId: user.schoolId!,
-            role: user.schoolRole!,
-            isActive: true,
-            createdAt: now,
-            updatedAt: now,
-          },
-          roleProfile:
-            user.schoolRole === "ADMIN"
-              ? { type: "ADMIN" }
-              : user.schoolRole === "TEACHER"
-                ? {
-                    type: "TEACHER",
-                    teacherId: user.memberId!,
-                    phone: null,
-                    bio: null,
-                    classes: [],
-                    classCount: 0,
-                  }
-                : {
-                    type: "STUDENT",
-                    studentId: user.memberId!,
-                    studentCode: null,
-                    phone: null,
-                    classes: [],
-                    classCount: 0,
-                  },
-        }
-      : null,
-    memberships: [],
-    notificationStatus: { hasUnread: false, unreadCount: 0 },
-  };
 }

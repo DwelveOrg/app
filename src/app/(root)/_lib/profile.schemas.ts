@@ -171,6 +171,13 @@ export const revokeSessionResponseSchema = z
   })
   .passthrough();
 
+/** `DELETE /profile` — `{ "success": true }`. */
+export const deleteAccountResponseSchema = z
+  .object({
+    success: z.boolean(),
+  })
+  .passthrough();
+
 export type ProfileAccount = z.infer<typeof profileAccountSchema>;
 export type ProfileSchool = z.infer<typeof profileSchoolSchema>;
 export type ProfileMembership = z.infer<typeof profileMembershipSchema>;
@@ -184,3 +191,4 @@ export type ProfileSession = z.infer<typeof profileSessionSchema>;
 export type ProfileSessionsResponse = z.infer<typeof profileSessionsResponseSchema>;
 export type ChangePasswordResponse = z.infer<typeof changePasswordResponseSchema>;
 export type RevokeSessionResponse = z.infer<typeof revokeSessionResponseSchema>;
+export type DeleteAccountResponse = z.infer<typeof deleteAccountResponseSchema>;

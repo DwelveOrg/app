@@ -14,7 +14,6 @@ import {
   Menu,
   NotebookPen,
   School,
-  Settings,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -167,7 +166,11 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
     label: t("sidebar.notifications"),
     icon: Bell,
   };
-  const settingsItem: NavItem = { href: "/settings", label: t("sidebar.settings"), icon: Settings };
+  /**
+   * One account destination, not two. Profile and Settings were separate rows
+   * over the same `GET /profile` payload; `/profile` now owns identity,
+   * security, preferences and support as tabs.
+   */
   const profileItem: NavItem = { href: "/profile", label: t("sidebar.profile"), icon: UserRound };
 
   /**
@@ -185,7 +188,7 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
   const comingSoon = t("sidebar.comingSoon");
   const isActive = (href: string) => isRouteActive(pathname, href);
 
-  const mobileExtra: NavItem[] = [settingsItem, profileItem];
+  const mobileExtra: NavItem[] = [profileItem];
 
   return (
     <>
@@ -218,7 +221,6 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
             active={isActive(notificationsItem.href)}
             badge={unreadCount}
           />
-          <NavLink item={settingsItem} active={isActive(settingsItem.href)} />
         </nav>
 
         <div className="space-y-1 border-t border-border px-3 py-3">

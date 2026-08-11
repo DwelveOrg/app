@@ -1,3 +1,10 @@
+/**
+ * Translation key per route segment, for breadcrumbs and segment labels.
+ *
+ * `settings`, `change-password`, `documentation` and `login-history` are gone
+ * with the Settings routes: the account area is one destination (`/profile`)
+ * whose panels are tabs, so there are no account subsegments left to label.
+ */
 export const ROUTE_LABEL_KEYS: Record<string, string> = {
   dashboard: "root.pages.dashboard",
   groups: "root.pages.classes",
@@ -5,13 +12,9 @@ export const ROUTE_LABEL_KEYS: Record<string, string> = {
   school: "root.pages.school",
   notifications: "root.pages.notifications",
   profile: "root.pages.profile",
-  settings: "root.pages.settings",
   assignments: "sidebar.assignments",
   homework: "root.pages.homework",
   exams: "root.pages.exams",
-  "change-password": "root.settings.security.changePassword.page.title",
-  documentation: "root.settings.documentation.page.title",
-  "login-history": "root.settings.security.loginHistory.title",
 };
 
 export function getRouteLabelKey(segment: string) {

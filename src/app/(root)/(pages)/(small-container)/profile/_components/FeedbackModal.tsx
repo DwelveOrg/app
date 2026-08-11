@@ -5,26 +5,23 @@ import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import Dialog, { DialogFooterActions } from "@/app/(root)/_components/Dialog";
+import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Textarea from "@/components/ui/textarea";
 import {
   feedbackMinLength,
   feedbackModalTitleKeys,
   feedbackSubjectPrefix,
-  rowActionClassName,
   supportEmail,
 } from "../_constants";
-import type { FeedbackModalKind } from "../_types";
+import type { AccountContext, FeedbackModalKind } from "../_types";
 import { buildAccountContext, buildMailtoHref } from "../_utils/mailto";
 
 type FeedbackModalProps = {
   kind: FeedbackModalKind;
   /** Label for the row's trailing trigger button. */
   children: ReactNode;
-  accountName?: string | null;
-  accountEmail?: string | null;
-  schoolName?: string | null;
-  role?: string | null;
+  account: AccountContext;
 };
 
 /**
@@ -40,10 +37,7 @@ type FeedbackModalProps = {
 export function FeedbackModal({
   kind,
   children,
-  accountName,
-  accountEmail,
-  schoolName,
-  role,
+  account,
 }: Readonly<FeedbackModalProps>) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -73,10 +67,10 @@ export function FeedbackModal({
       body:
         trimmed +
         buildAccountContext({
-          fullName: accountName,
-          email: accountEmail,
-          schoolName,
-          role,
+          fullName: account.name,
+          email: account.email,
+          schoolName: account.schoolName,
+          role: account.role,
         }),
     });
 
@@ -91,7 +85,11 @@ export function FeedbackModal({
       onOpenChange={handleOpenChange}
       title={t(feedbackModalTitleKeys[kind])}
       description={t("root.settings.support.feedbackModal.description")}
-      trigger={<button type="button" className={rowActionClassName}>{children}</button>}
+      trigger={
+        <Button type="button" variant="outline" size="sm">
+          {children}
+        </Button>
+      }
       showClose
       closeLabel={t("root.settings.support.feedbackModal.close")}
       footer={
