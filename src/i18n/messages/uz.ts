@@ -9,25 +9,79 @@ translation: {
       },
       onboarding: {
         yourSchool: "maktabingiz",
-        ready: "«{{school}}» dagi kirishingiz tayyor. Keyingi qadamlar ixtiyoriy va ularni paneldan qayta ochish mumkin.",
-        progress: { eyebrow: "Ishni boshlash", label: "{{total}} qadamdan {{current}}-qadam" },
-        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
+        ready: {
+          role: "Sizning rolingiz",
+          school: "Maktab",
+          classes: "Sinflar",
+        },
+        progress: { done: "Bajarildi", eyebrow: "Ishni boshlash", label: "{{total}} qadamdan {{current}}-qadam" },
+        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", skipStep: "Bu qadamni oʻtkazish", skipAll: "Sozlashni oʻtkazish", skipAllHint: "Toʻgʻridan-toʻgʻri panelga oʻtish. Keyin qayta koʻrish mumkin.", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
         access: {
-          eyebrow: "Dwelve’ga xush kelibsiz",
-          title: "Kirishni sozlaymiz, {{name}}",
-          description: "Sizda bor kirish usulini tanlang. Rolni maktab yaratish, kod yoki taklif belgilaydi — oʻqituvchi rolini mustaqil tanlab boʻlmaydi.",
-          success: "Kirish tasdiqlandi",
-          error: "Qadamni yakunlab boʻlmadi. Qayta urinib koʻring.",
-          admin: { title: "Maktab yaratish", description: "Maktab yoki oʻquv markazini boshlab, uning administratori boʻling.", name: "Maktab yoki markaz nomi", country: "Mamlakat (ixtiyoriy)", city: "Shahar (ixtiyoriy)" },
-          student: { title: "Oʻquvchi sifatida qoʻshilish", description: "Oʻqituvchi yoki administrator bergan maktab kodidan foydalaning.", code: "Oʻquvchi qoʻshilish kodi" },
-          teacher: { title: "Oʻqituvchi taklifini qabul qilish", description: "Maktab administratori yuborgan shaxsiy taklifdan foydalaning.", token: "Taklif tokeni" },
+          railTitle: "Maktabga qoʻshilish",
+          eyebrow: "Dwelve'ga xush kelibsiz",
+          choose: "Tanlash",
+          selected: "Tanlandi",
+          success: "Ruxsat tasdiqlandi",
+          error: "Bu qadamni bajarib boʻlmadi. Qayta urinib koʻring.",
+          steps: {
+            welcome: {
+              nav: "Tanishuv",
+              title: "Dwelve'ga xush kelibsiz, {{name}}",
+              description: "Dwelve'da maktab testlar tuzadi, ularni baholaydi va oʻquvchilar holatini kuzatadi. Uch qisqa qadam — va siz ichkaridasiz.",
+            },
+            path: {
+              nav: "Qoʻshilish yoʻli",
+              title: "Qanday qoʻshilyapsiz?",
+              description: "Sizda allaqachon bor narsani tanlang. Tanlovingiz rolni belgilaydi — uni oʻzingizga oʻzingiz bera olmaysiz.",
+            },
+            connect: {
+              nav: "Ulanish",
+              title: "Sizni ulaymiz",
+              description: "Oxirgi qadam. Shundan soʻng ish maydoningiz tayyor boʻladi.",
+            },
+          },
+          welcome: {
+            body: "Dwelve'dagi har bir maktab uchta tamoyil asosida ishlaydi. Ularni hozir bilsangiz, qolgani oʻz-oʻzidan tushunarli boʻladi.",
+            asideTitle: "Tanishganimdan xursandman, {{name}}",
+            asideBody: "Bu yerda hech narsa abadiy emas. Maktabdan chiqish, boshqasiga qoʻshilish yoki shu akkaunt bilan bir vaqtda bir nechtasida boʻlish mumkin.",
+            points: {
+              role: { title: "Rollar maktab ichida", description: "Siz maktab ichida administrator, oʻqituvchi yoki oʻquvchisiz — global emas." },
+              invite: { title: "Ruxsat beriladi", description: "Rolni kod yoki taklifnoma beradi. Oʻzingiz tanlay olmaysiz." },
+              later: { title: "Hech narsa qatʼiy emas", description: "Keyin boshqa maktablarga qoʻshiling; har birida oʻz roli va maʼlumotlari boʻladi." },
+            },
+          },
+          admin: {
+            title: "Maktab yaratish",
+            description: "Maktab yoki oʻquv markazini oching. Siz uning administratori boʻlasiz.",
+            name: "Maktab yoki oʻquv markazi nomi",
+            country: "Davlat (ixtiyoriy)",
+            city: "Shahar (ixtiyoriy)",
+            asideTitle: "Siz administrator boʻlasiz",
+            asideBody: "Maktab yaratsangiz, uning admini boʻlasiz: sinf qoʻshish, oʻqituvchi taklif qilish va oʻquvchilarga kod ulashish mumkin.",
+          },
+          student: {
+            title: "Kod bilan qoʻshilish",
+            description: "Oʻqituvchi yoki administrator bergan maktab kodini kiriting.",
+            code: "Maktab kodi",
+            codeHint: "Kod boʻlmasa, oʻqituvchi yoki administratordan soʻrang.",
+            asideTitle: "Kodni qayerdan olish mumkin",
+            asideBody: "Maktab oʻquvchilarga bitta umumiy kod beradi — xabarda, tarqatmada yoki doskada. Harf katta-kichikligi muhim emas.",
+          },
+          teacher: {
+            title: "Taklifnomadan foydalanish",
+            description: "Maktab administratori yuborgan taklif havolasini joylashtiring.",
+            token: "Taklif havolasi yoki kodi",
+            tokenHint: "Xatdagi havolani toʻliq joylashtiring — kodni oʻzimiz ajratib olamiz.",
+            asideTitle: "Nega oʻqituvchiga taklifnoma kerak",
+            asideBody: "Oʻqituvchi akkaunti javob kalitlarini koʻradi, shuning uchun ruxsat taklif yuborilgan pochtaga bogʻlanadi. Oʻqituvchilar uchun ochiq kod yoʻq.",
+          },
         },
         roles: {
           admin: {
             title: "Maktabni sozlash",
             ready: { nav: "Maktab tayyor", title: "Maktabingiz tayyor", description: "«{{school}}» uchun xavfsiz ish maydoni tayyor. Birinchi vazifalarni hozir bajaring yoki keyin qayting." },
-            class: { nav: "Birinchi sinf", title: "Birinchi sinfni yarating", description: "Sinf oʻqituvchilar, oʻquvchilar va testlarni bogʻlaydi. Ishni boshlash uchun sinf qoʻshing.", field: "Sinf nomi", action: "Sinf yaratish", existing: "Mavjud sinflar", success: "Sinf yaratildi", error: "Sinfni yaratib boʻlmadi." },
-            people: { nav: "Taklif qilish", title: "Jamoa va oʻquvchilarni qoʻshing", description: "Oʻqituvchilar email orqali shaxsiy taklif oladi, oʻquvchilar esa maktab kodidan foydalanadi.", students: "Oʻquvchi qoʻshilish kodi", studentsDescription: "Bu kodni faqat maktabingizga qoʻshilishi kerak boʻlgan oʻquvchilarga bering.", teacherEmail: "Oʻqituvchi emaili", invite: "Taklif yaratish", copyInvite: "Taklif havolasini nusxalash", copied: "Nusxalandi", inviteSuccess: "Oʻqituvchi taklifi yaratildi", inviteError: "Taklifni yaratib boʻlmadi." },
+            class: { asideTitle: "Sinf nima uchun kerak", asideBody: "Sinfda oʻquvchilar roʻyxati va unga tayinlangan testlar boʻladi. Paneldagi barcha natija va grafiklar sinf boʻyicha hisoblanadi.", nav: "Birinchi sinf", title: "Birinchi sinfni yarating", description: "Sinf oʻqituvchilar, oʻquvchilar va testlarni bogʻlaydi. Ishni boshlash uchun sinf qoʻshing.", field: "Sinf nomi", action: "Sinf yaratish", existing: "Mavjud sinflar", success: "Sinf yaratildi", error: "Sinfni yaratib boʻlmadi." },
+            people: { teachers: "Oʻqituvchilar", teachersDescription: "Shaxsiy taklif havolasini yuboring. Oʻqituvchi ruxsati pochtaga bogʻlanadi, chunki bu rol javob kalitlarini koʻradi.", copyCode: "Kodni nusxalash", nav: "Taklif qilish", title: "Jamoa va oʻquvchilarni qoʻshing", description: "Oʻqituvchilar email orqali shaxsiy taklif oladi, oʻquvchilar esa maktab kodidan foydalanadi.", students: "Oʻquvchi qoʻshilish kodi", studentsDescription: "Bu kodni faqat maktabingizga qoʻshilishi kerak boʻlgan oʻquvchilarga bering.", teacherEmail: "Oʻqituvchi emaili", invite: "Taklif yaratish", copyInvite: "Taklif havolasini nusxalash", copied: "Nusxalandi", inviteSuccess: "Oʻqituvchi taklifi yaratildi", inviteError: "Taklifni yaratib boʻlmadi." },
             workspace: { nav: "Ish maydoni", title: "Boʻlimlarni tanib oling", description: "«{{school}}» ni boshqarishda shu boʻlimlardan foydalanasiz. Ularni onboardingdan keyin ochish mumkin." },
           },
           teacher: {
@@ -40,12 +94,12 @@ translation: {
           student: {
             title: "Oʻquv maydonini sozlash",
             ready: { nav: "Kirish tayyor", title: "Maktabga qoʻshildingiz", description: "«{{school}}» dagi oʻquvchi kirishingiz tayyor. Panelda faqat sinflaringiz, urinishlaringiz va eʼlon qilingan natijalar koʻrinadi." },
-            classes: { nav: "Sinflarni topish", title: "Kerakli sinflarga qoʻshiling", description: "Mavjud sinfga soʻrov yuboring. Tasdiq talab qiladigan soʻrov oʻqituvchi yoki administrator javobigacha kutiladi.", enrolled: "Joriy sinflaringiz", none: "Hozir soʻrov yuborish mumkin boʻlgan sinf yoʻq (jami: {{count}}). Keyinroq Sinflar boʻlimini tekshiring.", request: "Soʻrov", requested: "Sinf soʻrovi yuborildi", error: "Sinf soʻrovini yuborib boʻlmadi." },
+            classes: { noneTitle: "Hozircha sizga ochiq sinf yoʻq", nav: "Sinflarni topish", title: "Kerakli sinflarga qoʻshiling", description: "Mavjud sinfga soʻrov yuboring. Tasdiq talab qiladigan soʻrov oʻqituvchi yoki administrator javobigacha kutiladi.", enrolled: "Joriy sinflaringiz", none: "Hozir soʻrov yuborish mumkin boʻlgan sinf yoʻq (jami: {{count}}). Keyinroq Sinflar boʻlimini tekshiring.", request: "Soʻrov", requested: "Sinf soʻrovi yuborildi", error: "Sinf soʻrovini yuborib boʻlmadi." },
             assignments: { nav: "Topshiriqlar", title: "Testlarni bir joyda topshiring", description: "Topshiriqlar boʻlimida sizga mavjud testlar jamlangan. Imtihon xonasi paneldan alohida va nazorat vositalariga ega." },
             progress: { nav: "Natijalaringiz", title: "Shaxsiy natijalarni kuzating", description: "Panel trend, sinf natijasi va yaqin testlar uchun faqat eʼlon qilingan natijalaringizdan foydalanadi." },
           },
         },
-        destinations: {
+        destinations: { open: "Ochish",
           school: { title: "Maktab", description: "Maktab profili, aʼzolar, kod va sinf sozlamalari." },
           classes: { title: "Sinflar", description: "Roʻyxat, testlar, soʻrovlar va sinf natijalari." },
           tests: { title: "Test studiyasi", description: "Alohida ish maydonida test yaratish va nashr qilish." },
@@ -173,7 +227,6 @@ translation: {
           },
           nextUp: {
             title: "Keyingisi",
-            open: "Ochish",
             emptyTitle: "Muddati yo'q",
             emptyDescription: "Hozircha bo'sh. Yangi topshiriqlar e'lon qilinishi bilan shu yerda chiqadi.",
           },
@@ -456,7 +509,6 @@ translation: {
             comingSoon: "Tez orada",
             change: "Oʻzgartirish",
             review: "Koʻrish",
-            open: "Ochish",
             logout: "Chiqish",
             enabled: "Yoqilgan",
             update: "Yangilash",
@@ -665,7 +717,6 @@ translation: {
             actions: {
               edit: "Tahrirni davom ettirish",
               results: "Natijalar",
-              open: "Ochish",
               duplicate: "Nusxa olish",
               delete: "Oʻchirish",
               archive: "Arxivlash",
@@ -1465,7 +1516,6 @@ translation: {
           soon: "Tez orada",
           tabs: {
             classes: "Sinflar",
-            teachers: "Oʻqituvchilar",
             students: "Oʻquvchilar",
             courses: "Kurslar",
             groups: "Guruhlar",
@@ -1633,7 +1683,6 @@ translation: {
           stats: {
             classes: "Sinflar",
             students: "Oʻquvchilar",
-            teachers: "Oʻqituvchilar",
           },
           actions: {
             invite: "Taklif qilish",

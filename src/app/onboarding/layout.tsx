@@ -1,16 +1,17 @@
-import DwelveLogo from "@/components/Custom/DwelveLogo";
-
-export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
+/**
+ * Onboarding owns the whole viewport.
+ *
+ * It used to render a fixed-width card centred in a flex container, which left
+ * most of a desktop screen empty and forced every step to compete for one
+ * column. The wizard now lays out its own two-pane shell, so this layout only
+ * establishes the full-height canvas and gets out of the way.
+ */
+export default function OnboardingLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <div className="min-h-dvh bg-background text-foreground">
-      <header className="border-b border-border bg-card/90 px-5 py-4 shadow-elev-1">
-        <div className="mx-auto flex w-full max-w-6xl items-center">
-          <DwelveLogo variant="form" />
-        </div>
-      </header>
-      <main className="mx-auto flex min-h-[calc(100dvh-69px)] w-full max-w-6xl items-center justify-center px-4 py-8 sm:px-6">
-        {children}
-      </main>
-    </div>
+    <div className="min-h-dvh bg-background text-foreground">{children}</div>
   );
 }

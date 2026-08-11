@@ -1,21 +1,17 @@
 "use client";
 
-import type { ComponentType, ReactNode } from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
   ArrowRight,
-  BarChart3,
   Bell,
   BookOpenCheck,
   CalendarClock,
   Check,
   ClipboardList,
-  Compass,
   GraduationCap,
   HelpCircle,
-  LayoutGrid,
-  LineChart,
   School,
   UserPlus,
   Users,
@@ -27,6 +23,7 @@ import type { DashboardAvailability } from "@/app/(root)/_utils/getDashboard";
 import {
   deriveStage,
   packRows,
+  spanForCount,
   SPAN_CLASS,
   type DashboardStage,
 } from "@/app/(root)/_lib/dashboard-layout";
@@ -44,6 +41,7 @@ import { RelativeTime } from "@/components/Custom/RelativeTime";
 import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
 import { cn } from "@/lib/utils";
+import { EMPTY_ART, type EmptyArtKind } from "../EmptyArt";
 import JoinCodeChip from "../JoinCodeChip";
 import Panel from "../Panel";
 import ClassPerformanceChart from "./ClassPerformanceChart";
@@ -221,27 +219,30 @@ function KpiStrip({ ctx }: ModuleProps) {
 /* -------------------------------------------------------------------------- */
 
 function EmptyNote({
-  Icon,
+  art,
   title,
   description,
   href,
   action,
 }: {
-  Icon: ComponentType<{ className?: string }>;
+  /** Which illustration previews the data this panel will hold. */
+  art: EmptyArtKind;
   title: string;
   description: string;
   href?: string;
   action?: string;
 }) {
+  const Art = EMPTY_ART[art];
   return (
-    <div className="flex min-h-40 flex-col items-start justify-center gap-2 py-2">
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
-        <Icon className="h-5 w-5" />
-      </span>
+    // `flex-1` + centring: the panel body already stretches to the row height,
+    // so the empty state sits in the middle of whatever space it inherits
+    // instead of pinning to the top and leaving a gap below.
+    <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4 text-center text-muted-foreground">
+      <Art />
       <p className="text-sm font-semibold text-foreground">{title}</p>
-      <p className="max-w-[54ch] text-xs leading-5 text-muted-foreground">{description}</p>
+      <p className="max-w-[42ch] text-xs leading-5 text-muted-foreground">{description}</p>
       {href && action ? (
-        <Button asChild variant="outline" size="sm" className="mt-2">
+        <Button asChild variant="outline" size="sm" className="mt-1">
           <Link href={href}>{action}</Link>
         </Button>
       ) : null}
@@ -460,10 +461,10 @@ function NeedsAttention({ ctx }: ModuleProps) {
   const clear = rows.every((row) => row.value === 0);
 
   return (
-    <Panel title={t("root.dashboard.attention.title")}>
+    <Panel title={t("root.dashboard.attention.title")} align={clear ? "center" : "start"}>
       {clear ? (
         <EmptyNote
-          Icon={Check}
+          art="check"
           title={t("root.dashboard.attention.clearTitle")}
           description={t("root.dashboard.attention.clearDescription")}
         />
@@ -563,7 +564,7 @@ function ClassRoster({ ctx }: ModuleProps) {
       ) : (
         <div className="p-5 md:p-6">
           <EmptyNote
-            Icon={LayoutGrid}
+            art="list"
             title={t("root.dashboard.roster.emptyTitle")}
             description={t("root.dashboard.roster.emptyDescription")}
             href="/groups"
@@ -584,7 +585,7 @@ function NextUp({ ctx }: ModuleProps) {
   const next = (ctx.feed?.upcoming ?? [])[0] ?? null;
 
   return (
-    <Panel title={t("root.dashboard.nextUp.title")}>
+    <Panel title={t("root.dashboard.nextUp.title")} align="center">
       {next ? (
         <div className="flex h-full flex-col">
           <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary">
@@ -608,7 +609,7 @@ function NextUp({ ctx }: ModuleProps) {
         </div>
       ) : (
         <EmptyNote
-          Icon={CalendarClock}
+          art="calendar"
           title={t("root.dashboard.nextUp.emptyTitle")}
           description={t("root.dashboard.nextUp.emptyDescription")}
         />
@@ -633,7 +634,7 @@ function PerformanceTrend({ ctx }: ModuleProps) {
         <TrendChart points={ctx.trend.points} />
       ) : (
         <EmptyNote
-          Icon={LineChart}
+          art="trend"
           title={t("root.dashboard.modules.trend.emptyTitle")}
           description={t("root.dashboard.modules.trend.emptyDesc")}
         />
@@ -652,7 +653,7 @@ function ClassPerformancePanel({ ctx }: ModuleProps) {
         <ClassPerformanceChart classes={classes} />
       ) : (
         <EmptyNote
-          Icon={BarChart3}
+          art="trend"
           title={t("root.dashboard.modules.classPerformance.emptyTitle")}
           description={t("root.dashboard.modules.classPerformance.emptyDescription")}
         />
@@ -673,7 +674,7 @@ function GradeDistribution({ ctx }: ModuleProps) {
   const grades = ctx.distributions?.grades ?? [];
   const total = grades.reduce((sum, grade) => sum + grade.count, 0);
   return (
-    <Panel title={t("root.dashboard.modules.distribution.title")}>
+    <Panel title={t("root.dashboard.modules.distribution.title")} align="center">
       {total ? (
         <SegmentDonut
           segments={grades.map((grade) => ({
@@ -686,7 +687,7 @@ function GradeDistribution({ ctx }: ModuleProps) {
         />
       ) : (
         <EmptyNote
-          Icon={BookOpenCheck}
+          art="calendar"
           title={t("root.dashboard.modules.distribution.emptyTitle")}
           description={t("root.dashboard.modules.distribution.emptyDescription")}
         />
@@ -716,7 +717,7 @@ function MembersByRole({ ctx }: ModuleProps) {
     },
   ];
   return (
-    <Panel title={t("root.dashboard.modules.members.title")}>
+    <Panel title={t("root.dashboard.modules.members.title")} align="center">
       <SegmentDonut
         segments={segments}
         centerValue={segments.reduce((sum, item) => sum + item.value, 0)}
@@ -737,7 +738,7 @@ function SubmissionStatus({ ctx }: ModuleProps) {
         <SubmissionsChart rows={ctx.submissions.byClass} />
       ) : (
         <EmptyNote
-          Icon={Check}
+          art="check"
           title={t("root.dashboard.modules.submissions.emptyTitle")}
           description={t("root.dashboard.modules.submissions.emptyDescription")}
         />
@@ -754,7 +755,11 @@ function Upcoming({ ctx }: ModuleProps) {
   const { t } = useTranslation();
   const items = (ctx.feed?.upcoming ?? []).slice(0, 6);
   return (
-    <Panel title={t("root.dashboard.upcoming.title")} bodyClassName="p-2.5 md:p-3">
+    <Panel
+      title={t("root.dashboard.upcoming.title")}
+      bodyClassName="p-2.5 md:p-3"
+      align={items.length > 2 ? "start" : "center"}
+    >
       {items.length ? (
         <ul className="space-y-1">
           {items.map((item) => {
@@ -789,7 +794,7 @@ function Upcoming({ ctx }: ModuleProps) {
         </ul>
       ) : (
         <EmptyNote
-          Icon={BookOpenCheck}
+          art="calendar"
           title={t("root.dashboard.upcoming.emptyTitle")}
           description={t("root.dashboard.upcoming.emptyDescription")}
         />
@@ -802,7 +807,11 @@ function RecentActivity({ ctx }: ModuleProps) {
   const { t, i18n } = useTranslation();
   const items = (ctx.feed?.recent ?? []).slice(0, 6);
   return (
-    <Panel title={t("root.dashboard.modules.activity.title")} bodyClassName="p-2.5 md:p-3">
+    <Panel
+      title={t("root.dashboard.modules.activity.title")}
+      bodyClassName="p-2.5 md:p-3"
+      align={items.length > 2 ? "start" : "center"}
+    >
       {items.length ? (
         <ul className="space-y-1">
           {items.map((item) => (
@@ -827,7 +836,7 @@ function RecentActivity({ ctx }: ModuleProps) {
         </ul>
       ) : (
         <EmptyNote
-          Icon={Bell}
+          art="bell"
           title={t("root.dashboard.modules.activity.emptyTitle")}
           description={t("root.dashboard.modules.activity.emptyDescription")}
         />
@@ -839,7 +848,10 @@ function RecentActivity({ ctx }: ModuleProps) {
 function StudentClasses({ ctx }: ModuleProps) {
   const { t } = useTranslation();
   return (
-    <Panel title={t("root.dashboard.student.myClasses.title")}>
+    <Panel
+      title={t("root.dashboard.student.myClasses.title")}
+      align={ctx.studentClasses.length > 3 ? "start" : "center"}
+    >
       {ctx.studentClasses.length ? (
         <ul className="divide-y divide-border">
           {ctx.studentClasses.slice(0, 6).map((classItem) => (
@@ -861,7 +873,7 @@ function StudentClasses({ ctx }: ModuleProps) {
         </ul>
       ) : (
         <EmptyNote
-          Icon={GraduationCap}
+          art="list"
           title={t("root.dashboard.gettingStarted.student.title")}
           description={t("root.dashboard.gettingStarted.student.description")}
           href="/groups"
@@ -913,7 +925,7 @@ function DiscoverClasses({ ctx }: ModuleProps) {
   return (
     <Panel title={t("root.dashboard.discover.title")}>
       <EmptyNote
-        Icon={Compass}
+        art="list"
         title={t("root.dashboard.discover.heading", { count: ctx.availableClasses })}
         description={t("root.dashboard.discover.description")}
         href="/groups"
@@ -929,9 +941,13 @@ function DiscoverClasses({ ctx }: ModuleProps) {
 
 /**
  * Every module declares which roles it belongs to and, given the live context
- * and derived stage, whether it appears and how wide it wants to be. Widths are
- * intentions, not guarantees: `packRows` reconciles each row to exactly 12
- * columns, so the page can never strand a gap the way fixed spans did.
+ * and derived stage, whether it appears and how wide it wants to be.
+ *
+ * Widths are computed from how much content the module will actually render,
+ * not from a fixed table. A feed holding six entries asks for more room than
+ * the same feed holding none, so a sparse panel steps aside rather than sitting
+ * next to a dense one with a hollow underneath. `packRows` then reconciles each
+ * row to exactly 12 columns.
  */
 const REGISTRY: ModuleEntry[] = [
   {
@@ -969,35 +985,54 @@ const REGISTRY: ModuleEntry[] = [
     id: "next-up",
     roles: ["STUDENT"],
     resolve: (ctx) =>
-      ctx.availability.hasUpcoming ? { priority: 85, span: 5, minSpan: 4 } : null,
+      ctx.availability.hasUpcoming ? { priority: 85, span: 4, minSpan: 4, maxSpan: 5 } : null,
     Component: NextUp,
   },
   {
     id: "trend",
     roles: ["ADMIN", "TEACHER", "STUDENT"],
-    resolve: (_ctx, stage) =>
-      stage === "fresh" ? null : { priority: 80, span: 7, minSpan: 6 },
+    resolve: (ctx, stage) =>
+      stage === "fresh"
+        ? null
+        : {
+            priority: 80,
+            // A chart with no points is a placeholder; it should not hold seven
+            // columns while the panel beside it overflows.
+            span: spanForCount(ctx.trend?.points.length ?? 0, { empty: 5, low: 6, high: 7 }),
+            minSpan: 4,
+            maxSpan: 8,
+          },
     Component: PerformanceTrend,
   },
   {
     id: "distribution",
     roles: ["ADMIN", "TEACHER", "STUDENT"],
     resolve: (ctx) =>
-      ctx.availability.hasResults ? { priority: 78, span: 5, minSpan: 4 } : null,
+      ctx.availability.hasResults ? { priority: 78, span: 4, minSpan: 4, maxSpan: 6 } : null,
     Component: GradeDistribution,
   },
   {
     id: "attention",
     roles: ["ADMIN", "TEACHER"],
     resolve: (_ctx, stage) =>
-      stage === "fresh" ? null : { priority: 76, span: 5, minSpan: 4 },
+      stage === "fresh" ? null : { priority: 76, span: 4, minSpan: 3, maxSpan: 6 },
     Component: NeedsAttention,
   },
   {
     id: "roster",
     roles: ["ADMIN", "TEACHER"],
-    resolve: (ctx) =>
-      ctx.availability.hasClasses ? { priority: 72, span: 7, minSpan: 6 } : null,
+    resolve: (ctx) => {
+      const rows = ctx.classPerformance?.classes.length ?? 0;
+      return ctx.availability.hasClasses
+        ? {
+            priority: 72,
+            // A table is the one module that genuinely needs width once it has
+            // rows to show; with one class it does not.
+            span: spanForCount(rows, { empty: 5, low: 6, high: 8 }, 2),
+            minSpan: 5,
+          }
+        : null;
+    },
     Component: ClassRoster,
   },
   {
@@ -1005,7 +1040,7 @@ const REGISTRY: ModuleEntry[] = [
     roles: ["ADMIN", "TEACHER"],
     resolve: (ctx, stage) =>
       stage === "active" && ctx.availability.hasClassPerformance
-        ? { priority: 70, span: 7, minSpan: 6 }
+        ? { priority: 70, span: 7, minSpan: 5, maxSpan: 8 }
         : null,
     Component: ClassPerformancePanel,
   },
@@ -1013,32 +1048,51 @@ const REGISTRY: ModuleEntry[] = [
     id: "members",
     roles: ["ADMIN"],
     resolve: (ctx) =>
-      ctx.availability.hasStudents ? { priority: 68, span: 5, minSpan: 4 } : null,
+      ctx.availability.hasStudents ? { priority: 68, span: 4, minSpan: 3, maxSpan: 6 } : null,
     Component: MembersByRole,
   },
   {
     id: "submissions",
     roles: ["ADMIN", "TEACHER"],
-    resolve: (ctx) =>
-      ctx.availability.hasSubmissions ? { priority: 65, span: 7, minSpan: 5 } : null,
+    resolve: (ctx) => {
+      const rows = ctx.submissions?.byClass.length ?? 0;
+      return ctx.availability.hasSubmissions
+        ? { priority: 65, span: spanForCount(rows, { empty: 5, low: 6, high: 7 }, 2), minSpan: 5 }
+        : null;
+    },
     Component: SubmissionStatus,
   },
   {
     id: "classes",
     roles: ["STUDENT"],
-    resolve: () => ({ priority: 64, span: 5, minSpan: 4 }),
+    resolve: (ctx) => ({
+      priority: 64,
+      span: spanForCount(ctx.studentClasses.length, { empty: 4, low: 4, high: 6 }, 2),
+      minSpan: 3,
+      maxSpan: 7,
+    }),
     Component: StudentClasses,
   },
   {
     id: "upcoming",
     roles: ["ADMIN", "TEACHER", "STUDENT"],
-    resolve: () => ({ priority: 55, span: 6, minSpan: 4 }),
+    resolve: (ctx) => ({
+      priority: 55,
+      span: spanForCount(ctx.feed?.upcoming.length ?? 0, { empty: 4, low: 5, high: 6 }),
+      minSpan: 3,
+      maxSpan: 7,
+    }),
     Component: Upcoming,
   },
   {
     id: "activity",
     roles: ["ADMIN", "TEACHER", "STUDENT"],
-    resolve: () => ({ priority: 54, span: 6, minSpan: 4 }),
+    resolve: (ctx) => ({
+      priority: 54,
+      span: spanForCount(ctx.feed?.recent.length ?? 0, { empty: 4, low: 5, high: 6 }),
+      minSpan: 3,
+      maxSpan: 8,
+    }),
     Component: RecentActivity,
   },
   {
