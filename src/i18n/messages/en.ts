@@ -9,14 +9,21 @@ translation: {
       },
       onboarding: {
         yourSchool: "your school",
-        ready: "Your access to {{school}} is ready. These next steps are optional and can be replayed from the dashboard.",
-        progress: {
+        ready: {
+          role: "Your role",
+          school: "School",
+          classes: "Classes",
+        },
+        progress: { done: "Done",
           eyebrow: "Getting started",
           label: "Step {{current}} of {{total}}",
         },
         actions: {
           saveError: "Could not save your progress. Please try again.",
           skip: "Skip for now",
+          skipStep: "Skip this step",
+          skipAll: "Skip all setup",
+          skipAllHint: "Go straight to your dashboard. You can replay this later.",
           back: "Back",
           next: "Next",
           finish: "Open dashboard",
@@ -24,35 +31,71 @@ translation: {
           working: "Working…",
         },
         access: {
+          railTitle: "Get into a school",
           eyebrow: "Welcome to Dwelve",
-          title: "Let’s get you set up, {{name}}",
-          description: "Choose the access you already have. Your action or invitation creates the school role—there is no self-selected teacher role.",
+          choose: "Choose",
+          selected: "Selected",
           success: "Access confirmed",
           error: "We could not complete that step. Please try again.",
+          steps: {
+            welcome: {
+              nav: "Welcome",
+              title: "Welcome to Dwelve, {{name}}",
+              description: "Dwelve is where your school builds tests, marks them, and watches how students are doing. Three short steps and you are in.",
+            },
+            path: {
+              nav: "How you join",
+              title: "How are you joining?",
+              description: "Pick the one that matches what you already have. Your choice decides your role — you never assign it to yourself.",
+            },
+            connect: {
+              nav: "Connect",
+              title: "Let's connect you",
+              description: "Last step. Once this goes through, your workspace is ready.",
+            },
+          },
+          welcome: {
+            body: "Every school on Dwelve runs on the same three ideas. Knowing them now makes the rest of the product obvious.",
+            asideTitle: "Nice to meet you, {{name}}",
+            asideBody: "Nothing here is permanent. You can leave a school, join another, or hold roles at several at once with this same account.",
+            points: {
+              role: { title: "Roles live in schools", description: "You are an admin, teacher, or student inside a school — never globally." },
+              invite: { title: "Access is granted", description: "A code or an invitation gives you a role. You cannot pick one yourself." },
+              later: { title: "Nothing is locked in", description: "Join more schools later; each keeps its own role and its own data." },
+            },
+          },
           admin: {
             title: "Create a school",
-            description: "Start a school or learning center and become its administrator.",
+            description: "Start a school or learning center. You become its administrator.",
             name: "School or learning center name",
             country: "Country (optional)",
             city: "City (optional)",
+            asideTitle: "You will be the administrator",
+            asideBody: "Creating a school makes you its admin: you can add classes, invite teachers, and share the join code with students.",
           },
           student: {
-            title: "Join as a student",
-            description: "Use the school code shared by your teacher or administrator.",
-            code: "Student join code",
+            title: "Join with a code",
+            description: "Enter the school code your teacher or administrator gave you.",
+            code: "School join code",
+            codeHint: "Ask your teacher or administrator if you do not have one.",
+            asideTitle: "Where to find your code",
+            asideBody: "Schools share a single join code with their students — by message, on a handout, or on the board. It is not case sensitive.",
           },
           teacher: {
-            title: "Redeem teacher invite",
-            description: "Use the private invitation sent by a school administrator.",
-            token: "Invitation token",
+            title: "Use an invitation",
+            description: "Paste the invite link a school administrator emailed you.",
+            token: "Invite link or code",
+            tokenHint: "Paste the whole link from the email — we will read the code out of it.",
+            asideTitle: "Why teachers need an invitation",
+            asideBody: "Teaching accounts can see answer keys, so access is tied to the email address the administrator invited. There is no open code for teachers.",
           },
         },
         roles: {
           admin: {
             title: "Set up your school",
             ready: { nav: "School ready", title: "Your school is ready", description: "{{school}} now has a secure workspace. You can finish the useful first tasks here or continue at any time." },
-            class: { nav: "First class", title: "Create your first class", description: "Classes connect teachers, students and tests. Add one now so the rest of the workspace has somewhere to live.", field: "Class name", action: "Create class", existing: "Classes already available", success: "Class created", error: "Could not create the class." },
-            people: { nav: "Invite people", title: "Bring your team and students in", description: "Teacher access uses private email invitations. Students use the school join code.", students: "Student join code", studentsDescription: "Share this code only with students who should join your school.", teacherEmail: "Teacher email", invite: "Create invite", copyInvite: "Copy invite link", copied: "Copied", inviteSuccess: "Teacher invitation created", inviteError: "Could not create the invitation." },
+            class: { asideTitle: "What a class is for", asideBody: "A class holds a roster and the tests you assign to it. Every result and every chart on your dashboard is scoped to one.", nav: "First class", title: "Create your first class", description: "Classes connect teachers, students and tests. Add one now so the rest of the workspace has somewhere to live.", field: "Class name", action: "Create class", existing: "Classes already available", success: "Class created", error: "Could not create the class." },
+            people: { teachers: "Teachers", teachersDescription: "Send a private invite link. Teacher access is email-bound because the role can see answer keys.", copyCode: "Copy join code", nav: "Invite people", title: "Bring your team and students in", description: "Teacher access uses private email invitations. Students use the school join code.", students: "Student join code", studentsDescription: "Share this code only with students who should join your school.", teacherEmail: "Teacher email", invite: "Create invite", copyInvite: "Copy invite link", copied: "Copied", inviteSuccess: "Teacher invitation created", inviteError: "Could not create the invitation." },
             workspace: { nav: "Your workspace", title: "Know where everything lives", description: "These are the destinations you will use to run {{school}}. You can open them after onboarding." },
           },
           teacher: {
@@ -65,12 +108,12 @@ translation: {
           student: {
             title: "Set up your learning space",
             ready: { nav: "Access ready", title: "You joined your school", description: "Your student access to {{school}} is ready. Only your own classes, attempts and released results appear in your dashboard." },
-            classes: { nav: "Find classes", title: "Join the classes you need", description: "Request an available class here. Classes that require approval appear as pending until a teacher or administrator accepts you.", enrolled: "Your current classes", none: "No requestable classes are available right now ({{count}} listed). You can check again from Classes.", request: "Request", requested: "Class request sent", error: "Could not send the class request." },
+            classes: { noneTitle: "No classes open to you yet", nav: "Find classes", title: "Join the classes you need", description: "Request an available class here. Classes that require approval appear as pending until a teacher or administrator accepts you.", enrolled: "Your current classes", none: "No requestable classes are available right now ({{count}} listed). You can check again from Classes.", request: "Request", requested: "Class request sent", error: "Could not send the class request." },
             assignments: { nav: "Assignments", title: "Take tests from one focused place", description: "Assignments shows tests available to you. The exam room keeps navigation and integrity controls separate from the dashboard." },
             progress: { nav: "Your progress", title: "Track progress without comparing private data", description: "Your dashboard uses only your released results to show trends, class performance and upcoming work." },
           },
         },
-        destinations: {
+        destinations: { open: "Open",
           school: { title: "School", description: "Manage the school profile, people, join code and class setup." },
           classes: { title: "Classes", description: "Open rosters, tests, requests and class-level results." },
           tests: { title: "Test Studio", description: "Create and publish assessments in a focused authoring workspace." },
@@ -209,7 +252,6 @@ translation: {
           },
           nextUp: {
             title: "Next up",
-            open: "Open",
             emptyTitle: "Nothing due",
             emptyDescription: "You're clear for now. New assignments appear here as soon as they're published.",
           },
@@ -510,7 +552,6 @@ translation: {
             comingSoon: "Coming soon",
             change: "Change",
             review: "Review",
-            open: "Open",
             logout: "Log out",
             enabled: "Enabled",
             update: "Update",
@@ -719,7 +760,6 @@ translation: {
             actions: {
               edit: "Continue editing",
               results: "Results",
-              open: "Open",
               duplicate: "Duplicate",
               delete: "Delete",
               archive: "Archive",
@@ -1519,7 +1559,6 @@ translation: {
           soon: "Soon",
           tabs: {
             classes: "Classes",
-            teachers: "Teachers",
             students: "Students",
             courses: "Courses",
             groups: "Groups",
@@ -1615,14 +1654,12 @@ translation: {
             copyLink: "Copy invite link",
             linkCopied: "Invite link copied",
             linkCopyError: "Could not copy the invite link",
-            done: "Done",
           },
           addStudents: {
             title: "Add students",
             description: "Share your student join code so learners can join this school.",
             noCode: "No student join code is available yet.",
             hint: "Students enter this code from Classes → Join a school.",
-            done: "Done",
           },
           createClass: {
             title: "Create a class",
@@ -1687,7 +1724,6 @@ translation: {
           stats: {
             classes: "Classes",
             students: "Students",
-            teachers: "Teachers",
           },
           actions: {
             invite: "Invite",
@@ -2789,7 +2825,6 @@ translation: {
             card: {
               subject: "Algebra · Chapter 5",
               meta: "Graded automatically · 2 min ago",
-              done: "Done",
               students: "24 students",
               average: "83% avg score",
             },

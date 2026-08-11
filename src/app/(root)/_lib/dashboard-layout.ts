@@ -38,6 +38,27 @@ export function deriveStage(
 
 export const GRID_COLUMNS = 12;
 
+/**
+ * Turns "how much content does this module actually have" into a width.
+ *
+ * Fixed spans were the second layout bug: a panel holding one class claimed the
+ * same five columns as a panel holding twelve, so it sat next to a tall
+ * neighbour with a hollow underneath. Sizing by volume lets a sparse panel step
+ * aside and a dense one take the room it needs, which is also what keeps rows
+ * filling across rather than running down the page.
+ *
+ * `empty` is deliberately narrow but never tiny: an empty state still has to
+ * hold an illustration and a sentence.
+ */
+export function spanForCount(
+  count: number,
+  scale: { empty: number; low: number; high: number },
+  lowThreshold = 3,
+) {
+  if (count <= 0) return scale.empty;
+  return count <= lowThreshold ? scale.low : scale.high;
+}
+
 export type PackInput = {
   id: string;
   /** Preferred width in 12ths. */
@@ -109,9 +130,21 @@ function fitRow<T extends PackInput>(row: T[], rowIndex: number): PackedItem<T>[
     total -= 1;
   }
 
-  // Shortfall: hand columns out, widest first, never above maxSpan.
+  // Shortfall: hand columns out, widest first, respecting maxSpan.
   while (total < GRID_COLUMNS) {
     const index = widestGrowableIndex(spans, maxes);
+    if (index === -1) break;
+    spans[index] += 1;
+    total += 1;
+  }
+
+  // Still short means every module in the row hit its cap — a lone panel with
+  // `maxSpan: 8` on its own row, for instance. Leaving the remainder empty is
+  // the exact gap this function exists to prevent, so the cap yields: a panel
+  // that is wider than it would like still reads better than a hole beside it.
+  const uncapped = spans.map(() => GRID_COLUMNS);
+  while (total < GRID_COLUMNS) {
+    const index = widestGrowableIndex(spans, uncapped);
     if (index === -1) break;
     spans[index] += 1;
     total += 1;
