@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { logoutAll } from "@/app/(authentication)/_lib/actions";
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
-import { rowActionClassName } from "../_constants";
+import { Button } from "@/components/ui/Button";
 
 /**
  * Trailing control for the "logout from all devices" row. Confirms intent, then calls the
@@ -30,9 +30,9 @@ export function LogoutAllButton() {
       open={open}
       onOpenChange={(next) => !isPending && setOpen(next)}
       trigger={
-        <button type="button" className={rowActionClassName}>
+        <Button type="button" variant="outline" size="sm">
           {t("root.settings.actions.logout")}
-        </button>
+        </Button>
       }
       icon={<LogOut />}
       title={t("root.settings.security.logoutAllDevices.confirmTitle")}

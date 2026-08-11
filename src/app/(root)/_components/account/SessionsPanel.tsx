@@ -11,6 +11,7 @@ import {
   revokeSessionAction,
 } from "@/app/(root)/_lib/profile-actions";
 import type { ProfileSession } from "@/app/(root)/_lib/profile.schemas";
+import SectionHeader from "@/app/(root)/_components/SectionHeader";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import { Button } from "@/components/ui/Button";
 import { SkeletonList } from "@/components/ui/Skeleton";
@@ -96,19 +97,12 @@ export function SessionsPanel() {
 
   return (
     <Surface as="section">
-      <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
-          <Laptop className="h-[18px] w-[18px]" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-foreground">
-            {t("root.profile.sessions.title")}
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {t("root.profile.sessions.description")}
-          </p>
-        </div>
-      </header>
+      <SectionHeader
+        icon={Laptop}
+        title={t("root.profile.sessions.title")}
+        description={t("root.profile.sessions.description")}
+        className="mb-5"
+      />
 
       {sessions === null ? (
         // A list is loading, so it gets the list skeleton — a bare spinner said nothing about

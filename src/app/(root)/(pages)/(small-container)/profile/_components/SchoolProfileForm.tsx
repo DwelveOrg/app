@@ -14,6 +14,7 @@ import {
   type UpdateSchoolProfileInput,
 } from "@/app/(root)/_lib/profile.schemas.forms";
 import type { ProfileSelectedSchool } from "@/app/(root)/_lib/profile.schemas";
+import SectionHeader from "@/app/(root)/_components/SectionHeader";
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
@@ -79,24 +80,21 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
 
   return (
     <Surface as="section">
-      <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
-          <GraduationCap className="h-[18px] w-[18px]" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-foreground">
-            {t(isStudent ? "root.profile.roleProfile.student.title" : "root.profile.roleProfile.teacher.title")}
-          </h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {t(
-              isStudent
-                ? "root.profile.roleProfile.student.description"
-                : "root.profile.roleProfile.teacher.description",
-              { school: selectedSchool.school.name },
-            )}
-          </p>
-        </div>
-      </header>
+      <SectionHeader
+        icon={GraduationCap}
+        title={t(
+          isStudent
+            ? "root.profile.roleProfile.student.title"
+            : "root.profile.roleProfile.teacher.title",
+        )}
+        description={t(
+          isStudent
+            ? "root.profile.roleProfile.student.description"
+            : "root.profile.roleProfile.teacher.description",
+          { school: selectedSchool.school.name },
+        )}
+        className="mb-5"
+      />
 
       <form onSubmit={onSubmit} noValidate className="space-y-4">
         <Field htmlFor="profile-phone" label={t("root.profile.roleProfile.phone.label")}>

@@ -290,9 +290,6 @@ translation: {
           error: "Notoʻgʻri kod. Tekshirib, qayta urinib koʻring.",
         },
         settings: {
-          title: "Ish usulingizga mos sozlamalar",
-          subtitle: "Koʻrinish, xavfsizlik va yordam sozlamalari.",
-          description: "Koʻrinish, xavfsizlik va yordam boʻlimlarini bitta joydan boshqaring. Sahifa yirik platformalardagi kabi tuzildi: maʼnoga koʻra boʻlimlar, qisqa izohlar va xavfli amallarni alohida ajratish.",
           groups: {
             preferences: "Koʻrinish va til",
           },
@@ -421,10 +418,6 @@ translation: {
               title: "Yordam bilan bogʻlanish",
               description: "Hisob, toʻlov yoki texnik yordam boʻyicha jamoa bilan toʻgʻridan-toʻgʻri bogʻlaning.",
             },
-            documentation: {
-              title: "Hujjatlar",
-              description: "Qoʻllanmalar, yoʻriqnomalar va mahsulotdan foydalanish materiallarini oching.",
-            },
             feedbackModal: {
               description: "Tezda javob berishimiz uchun tafsilotlarni quyida yozing.",
               messageLabel: "Xabar",
@@ -456,7 +449,6 @@ translation: {
           school: "Maktab",
           notifications: "Bildirishnomalar",
           profile: "Profil",
-          settings: "Sozlamalar",
           homework: "Uy vazifalari",
           exams: "Imtihonlar",
           tests: "Testlar",
@@ -1796,7 +1788,19 @@ translation: {
           },
         },
         profile: {
-          subtitle: "Hisob, maktab profili va faol seanslarni boshqaring.",
+          subtitle: "Hisobingiz, maktab profili, xavfsizlik, sozlamalar va yordam — bir joyda.",
+          unavailable:
+            "Hisob ma’lumotlarini yuklab bo‘lmadi. Sozlamalar va yordam ishlamoqda — birozdan so‘ng qayta urinib ko‘ring.",
+          tabs: {
+            label: "Hisob bo‘limlari",
+            account: "Hisob",
+            security: "Xavfsizlik",
+            preferences: "Sozlamalar",
+            support: "Yordam",
+          },
+          groups: {
+            accountActions: "Hisob amallari",
+          },
           roles: {
             admin: "Administrator",
             teacher: "O‘qituvchi",
@@ -1859,7 +1863,7 @@ translation: {
           },
           memberships: {
             title: "Maktablar",
-            description: "Siz aʼzo boʻlgan maktablar. Faol maktabni almashtirish uchun tanlang.",
+            description: "Siz aʼzo boʻlgan maktablar. Faol maktab tizimga kirishda belgilanadi.",
             active: "Faol",
           },
           password: {
@@ -1900,10 +1904,6 @@ translation: {
             revoked: "Seans bekor qilindi.",
             empty: "Faol seanslar yo‘q.",
             unknownDevice: "Noma’lum qurilma",
-          },
-          security: {
-            title: "Parol va xavfsizlik",
-            description: "Parol, faol seanslar va hisob xavfsizligini Sozlamalarda boshqaring.",
           },
         },
         notifications: {
@@ -2346,7 +2346,6 @@ translation: {
         assignments: "Topshiriqlar",
         homework: "Uy vazifalari",
         exams: "Imtihonlar",
-        settings: "Sozlamalar",
         profile: "Profil",
         more: "Yana",
         logOut: "Chiqish",

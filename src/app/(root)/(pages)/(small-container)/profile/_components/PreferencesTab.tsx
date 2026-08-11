@@ -3,15 +3,20 @@
 import { Languages, Palette } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import ListRow from "@/app/(root)/_components/ListRow";
-import { SettingsGroup } from "./SettingsGroup";
+import { AccountGroup } from "./AccountGroup";
 import { ThemeSegment } from "./ThemeSegment";
 import { LanguageSegment } from "./LanguageSegment";
 
-export function PreferencesSection() {
+/**
+ * Theme and language. Both are frontend-owned — the backend persists neither and
+ * `GET /profile` carries neither — so this panel renders identically whether or
+ * not the bootstrap request succeeded.
+ */
+export function PreferencesTab() {
   const { t } = useTranslation();
 
   return (
-    <SettingsGroup label={t("root.settings.groups.preferences")}>
+    <AccountGroup label={t("root.settings.groups.preferences")}>
       <ListRow
         icon={Palette}
         title={t("root.settings.appearance.themeLabel")}
@@ -24,6 +29,6 @@ export function PreferencesSection() {
         description={t("root.settings.language.primary.description")}
         control={<LanguageSegment />}
       />
-    </SettingsGroup>
+    </AccountGroup>
   );
 }

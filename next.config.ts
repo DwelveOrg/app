@@ -21,6 +21,30 @@ const securityHeaders = [
   },
 ];
 
+/**
+ * Compatibility redirects for the retired Settings routes. Profile and Settings
+ * are one account area now (`/profile`), so every old entry point lands on the
+ * tab its content moved to.
+ *
+ * These live in the config rather than as `redirect()` page stubs so the hop
+ * happens before anything renders, and they cannot loop: no destination is a
+ * source. They stay `permanent: false` deliberately — a 308 is cached by the
+ * browser indefinitely, which would strand `/settings` if the route ever comes
+ * back, and the product has no released links to these URLs to save a hop for.
+ *
+ * Config redirects run before the proxy, so an unauthenticated request to an old
+ * URL lands on `/profile` first and is bounced to `/login` from there — the auth
+ * check still happens, one hop later than it would for a direct `/profile` hit.
+ */
+const settingsRedirects = [
+  { source: "/settings", destination: "/profile" },
+  { source: "/settings/change-password", destination: "/profile?tab=security" },
+  { source: "/settings/sessions", destination: "/profile?tab=security" },
+  { source: "/settings/documentation", destination: "/profile?tab=support" },
+  // Never shipped as a page, but it was a declared route label; send it somewhere real.
+  { source: "/settings/login-history", destination: "/profile?tab=security" },
+];
+
 const nextConfig: NextConfig = {
   // Never expose the framework fingerprint in the `X-Powered-By` header.
   poweredByHeader: false,
@@ -36,6 +60,9 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
     ];
+  },
+  async redirects() {
+    return settingsRedirects.map((redirect) => ({ ...redirect, permanent: false }));
   },
 };
 

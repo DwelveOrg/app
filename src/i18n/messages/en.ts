@@ -290,9 +290,6 @@ translation: {
           error: "Invalid join code. Please check and try again.",
         },
         settings: {
-          title: "Preferences that fit the way you work",
-          subtitle: "Appearance, security, and support options.",
-          description: "Manage appearance, security, and support options from one place. The layout follows grouped settings patterns used by major platforms: clear sections, short descriptions, and safe separation of destructive actions.",
           groups: {
             preferences: "Appearance & language",
           },
@@ -421,10 +418,6 @@ translation: {
               title: "Contact support",
               description: "Reach the team directly for account, billing, or technical help.",
             },
-            documentation: {
-              title: "Documentation",
-              description: "Open setup notes, guides, and product usage references.",
-            },
             feedbackModal: {
               description: "Share the details below so we can follow up quickly.",
               messageLabel: "Message",
@@ -456,7 +449,6 @@ translation: {
           school: "School",
           notifications: "Notifications",
           profile: "Profile",
-          settings: "Settings",
           homework: "Homework",
           exams: "Exams",
           tests: "Tests",
@@ -1796,7 +1788,19 @@ translation: {
           },
         },
         profile: {
-          subtitle: "Manage your account, school profile, and active sessions.",
+          subtitle: "Your account, school profile, security, preferences, and support in one place.",
+          unavailable:
+            "We couldn't load your account details. Preferences and support still work — try again in a moment.",
+          tabs: {
+            label: "Account sections",
+            account: "Account",
+            security: "Security",
+            preferences: "Preferences",
+            support: "Support",
+          },
+          groups: {
+            accountActions: "Account actions",
+          },
           roles: {
             admin: "Admin",
             teacher: "Teacher",
@@ -1859,7 +1863,7 @@ translation: {
           },
           memberships: {
             title: "Schools",
-            description: "Schools you belong to. Switch to change your active school.",
+            description: "Schools you belong to. Your active school is set when you sign in.",
             active: "Active",
           },
           password: {
@@ -1900,10 +1904,6 @@ translation: {
             revoked: "Session revoked.",
             empty: "No active sessions.",
             unknownDevice: "Unknown device",
-          },
-          security: {
-            title: "Password & security",
-            description: "Manage your password, active sessions and account safety in Settings.",
           },
         },
         notifications: {
@@ -2346,7 +2346,6 @@ translation: {
         assignments: "Assignments",
         homework: "Homework",
         exams: "Exams",
-        settings: "Settings",
         profile: "Profile",
         more: "More",
         logOut: "Log out",
