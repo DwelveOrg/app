@@ -607,6 +607,52 @@ translation: {
               },
             },
           },
+          library: {
+            title: "Testlar",
+            subtitle: "Barcha sinflaringiz boʻyicha yozgan testlaringiz.",
+            backToDashboard: "Boshqaruv paneliga qaytish",
+            searchLabel: "Testlarni nomi boʻyicha qidirish",
+            searchPlaceholder: "Nomi boʻyicha qidirish",
+            classFilterLabel: "Testlarni sinf boʻyicha filtrlash",
+            allClasses: "Barcha sinflar",
+            clearFilters: "Filtrlarni tozalash",
+            meta: {
+              class: "Sinf",
+            },
+            actions: {
+              assign: "Sinfga tayinlash",
+              openClass: "Sinfni ochish",
+            },
+            assign: {
+              title: "«{{title}}» testini boshqa sinfga tayinlash",
+              description:
+                "Sinf oʻz nusxasini qoralama sifatida oladi. Keyin bu testni tahrirlasangiz, ularning nusxasi oʻzgarmaydi.",
+              noClasses: "Bu testni tayinlash uchun boshqa sinfingiz hozircha yoʻq.",
+              classLabel: "Sinf",
+              classPlaceholder: "Sinfni tanlang",
+              hint: "Nusxada sanalar belgilanmagan, shuning uchun siz eʼlon qilmaguningizcha uni hech kim ocha olmaydi.",
+              confirm: "Tayinlash",
+              success: "«{{title}}» {{className}} sinfiga tayinlandi.",
+            },
+            empty: {
+              filtered: {
+                title: "Mos test topilmadi",
+                description: "Boshqa sinfni tanlang yoki filtrlarni tozalang.",
+              },
+              DRAFT: {
+                title: "Qoralamalar yoʻq",
+                description: "Test yozish uchun sinfni oching. Saqlangan qoralamalar shu yerda koʻrinadi.",
+              },
+              PUBLISHED: {
+                title: "Hali hech narsa eʼlon qilinmagan",
+                description: "Eʼlon qilingan testlar shu yerda chiqadi va boshqa sinfga tayinlanadi.",
+              },
+              ARCHIVED: {
+                title: "Arxiv boʻsh",
+                description: "Arxivlangan testlar maʼlumot uchun shu yerda saqlanadi.",
+              },
+            },
+          },
           create: {
             title: "Yangi test",
             description: "Format boshlangʻich boʻlimlarni belgilaydi. Savol turlari esa doim toʻliq mavjud.",
@@ -2420,6 +2466,7 @@ translation: {
         school: "Maktab",
         notifications: "Bildirishnomalar",
         assignments: "Topshiriqlar",
+        tests: "Testlar",
         homework: "Uy vazifalari",
         exams: "Imtihonlar",
         profile: "Profil",

@@ -13,6 +13,7 @@ import {
   duplicateTestAction,
   getTestValidationAction,
   listClassTestsAction,
+  listLibraryTestsAction,
   publishTestAction,
   publishTestWithDeliveryAction,
   saveTestDeliveryAction,
@@ -22,6 +23,7 @@ import {
 } from "@/app/(root)/_lib/test-actions";
 import type {
   CreateTestInput,
+  DuplicateTestInput,
   PublishTestWithDeliveryInput,
   SaveTestDeliveryInput,
   SaveTestStructureInput,
@@ -29,7 +31,11 @@ import type {
   TestPublishCandidateInput,
   UpdateTestInput,
 } from "@/app/(root)/_lib/tests.actions.schemas";
-import type { TestsListResponse } from "@/app/(root)/_lib/tests.schemas";
+import type {
+  LibraryTestsListResponse,
+  TestStatus,
+  TestsListResponse,
+} from "@/app/(root)/_lib/tests.schemas";
 import { TESTS_PAGE_SIZE } from "@/app/(root)/_constants/tests";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
@@ -72,7 +78,7 @@ export function useTestsQuery({
   initialData,
 }: {
   classId: string;
-  status: string;
+  status: TestStatus;
   page: number;
   /** The server-rendered first page, seeded so the default tab never refetches. */
   initialData?: TestsListResponse;
@@ -81,6 +87,46 @@ export function useTestsQuery({
     queryKey: queryKeys.tests.list(classId, { status, page }),
     queryFn: () =>
       listClassTestsAction({ classId, status, page, limit: TESTS_PAGE_SIZE }),
+    initialData,
+    placeholderData: keepPreviousData,
+  });
+}
+
+/**
+ * One page of the cross-class test library.
+ *
+ * Filters are part of the key, so a class or search change is its own cache
+ * entry rather than a refetch that blanks the list. `keepPreviousData` holds
+ * the previous page on screen while the next one loads — the same treatment the
+ * class list gets, and the reason typing in the search box does not flicker.
+ */
+export function useLibraryTestsQuery({
+  status,
+  page,
+  classId,
+  search,
+  initialData,
+}: {
+  status: TestStatus;
+  page: number;
+  /** `""` means every class. */
+  classId: string;
+  search: string;
+  /** The server-rendered first page, seeded so the default view never refetches. */
+  initialData?: LibraryTestsListResponse;
+}) {
+  return useQuery({
+    queryKey: queryKeys.tests.library({ status, page, classId, search }),
+    queryFn: () =>
+      listLibraryTestsAction({
+        status,
+        page,
+        limit: TESTS_PAGE_SIZE,
+        // The action schema rejects an empty string, and "no filter" is the
+        // absence of the field rather than a blank one.
+        ...(classId ? { classId } : {}),
+        ...(search ? { search } : {}),
+      }),
     initialData,
     placeholderData: keepPreviousData,
   });
@@ -229,7 +275,7 @@ export function useDuplicateTestMutation() {
   const invalidate = useInvalidateTests();
 
   return useMutation({
-    mutationFn: async (input: TestIdInput) =>
+    mutationFn: async (input: DuplicateTestInput) =>
       readSafeActionData(await duplicateTestAction(input), FALLBACKS.duplicate),
     onSettled: invalidate,
   });

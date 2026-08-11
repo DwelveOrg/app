@@ -660,6 +660,52 @@ translation: {
               },
             },
           },
+          library: {
+            title: "Tests",
+            subtitle: "Every test you have written, across your classes.",
+            backToDashboard: "Back to dashboard",
+            searchLabel: "Search tests by title",
+            searchPlaceholder: "Search by title",
+            classFilterLabel: "Filter tests by class",
+            allClasses: "All classes",
+            clearFilters: "Clear filters",
+            meta: {
+              class: "Class",
+            },
+            actions: {
+              assign: "Assign to class",
+              openClass: "Open class",
+            },
+            assign: {
+              title: "Assign \"{{title}}\" to another class",
+              description:
+                "The class gets its own copy as a draft. Editing this test later will not change their copy.",
+              noClasses: "You do not teach another class to assign this test to yet.",
+              classLabel: "Class",
+              classPlaceholder: "Pick a class",
+              hint: "The copy has no dates set, so nobody can open it until you publish it.",
+              confirm: "Assign",
+              success: "Assigned \"{{title}}\" to {{className}}.",
+            },
+            empty: {
+              filtered: {
+                title: "No tests match",
+                description: "Try another class, or clear the filters to see everything.",
+              },
+              DRAFT: {
+                title: "No drafts yet",
+                description: "Open a class to write a test. Drafts you save show up here.",
+              },
+              PUBLISHED: {
+                title: "Nothing published yet",
+                description: "Tests you publish appear here, ready to assign to another class.",
+              },
+              ARCHIVED: {
+                title: "Nothing archived",
+                description: "Tests you archive are kept here for reference.",
+              },
+            },
+          },
           create: {
             title: "New test",
             description: "The format sets the parts you start with. Every question type stays available.",
@@ -2473,6 +2519,7 @@ translation: {
         school: "School",
         notifications: "Notifications",
         assignments: "Assignments",
+        tests: "Tests",
         homework: "Homework",
         exams: "Exams",
         profile: "Profile",

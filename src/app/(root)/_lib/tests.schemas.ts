@@ -248,6 +248,29 @@ export const testsListResponseSchema = z.object({
 });
 export type TestsListResponse = z.infer<typeof testsListResponseSchema>;
 
+/**
+ * A row in `GET /tests` — the same test, plus the class it belongs to.
+ *
+ * The class is required here and absent from `testSummarySchema` because the
+ * two lists answer different questions: inside a class the class is the page
+ * you are on, while the library spans classes and a bare title would not say
+ * which "Unit 3 check" you are looking at.
+ */
+export const libraryTestSummarySchema = z
+  .object({
+    ...testBaseShape,
+    class: z.object({ id: z.string(), name: z.string() }),
+    questionCount: z.number().int().nonnegative(),
+  })
+  .passthrough();
+export type ApiLibraryTestSummary = z.infer<typeof libraryTestSummarySchema>;
+
+export const libraryTestsListResponseSchema = z.object({
+  tests: z.array(libraryTestSummarySchema),
+  meta: testsPaginationMetaSchema,
+});
+export type LibraryTestsListResponse = z.infer<typeof libraryTestsListResponseSchema>;
+
 export const testDetailResponseSchema = z.object({ test: testDetailSchema });
 export type TestDetailResponse = z.infer<typeof testDetailResponseSchema>;
 

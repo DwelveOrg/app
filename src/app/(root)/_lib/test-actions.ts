@@ -10,6 +10,7 @@ import {
   duplicateTestRequest,
   getTestValidationRequest,
   listClassTestsRequest,
+  listLibraryTestsRequest,
   publishTestRequest,
   saveTestDeliveryRequest,
   saveTestStructureRequest,
@@ -22,6 +23,8 @@ import {
   createTestSchema,
   deleteTestSchema,
   duplicateTestSchema,
+  listLibraryTestsSchema,
+  type ListLibraryTestsInput,
   type ListTestsInput,
   type TestPublishCandidateInput,
   publishTestSchema,
@@ -34,6 +37,7 @@ import {
 } from "./tests.actions.schemas";
 import {
   testValidationIssueSchema,
+  type LibraryTestsListResponse,
   type TestsListResponse,
   type TestValidationIssue,
   type TestValidationResponse,
@@ -81,6 +85,21 @@ export async function listClassTestsAction(
     status: input.status,
     page: input.page ?? 1,
     limit: input.limit ?? 20,
+  });
+}
+
+/** The cross-class library list. Filters are omitted rather than sent blank. */
+export async function listLibraryTestsAction(
+  input: ListLibraryTestsInput,
+): Promise<LibraryTestsListResponse> {
+  const parsedInput = listLibraryTestsSchema.parse(input);
+
+  return listLibraryTestsRequest({
+    status: parsedInput.status,
+    page: parsedInput.page ?? 1,
+    limit: parsedInput.limit ?? 20,
+    ...(parsedInput.classId ? { classId: parsedInput.classId } : {}),
+    ...(parsedInput.search ? { search: parsedInput.search } : {}),
   });
 }
 
@@ -235,8 +254,10 @@ export const duplicateTestAction = actionClient
   .inputSchema(duplicateTestSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const { test } = await duplicateTestRequest(parsedInput.testId);
-      return { id: test.id, title: test.title };
+      const { test } = await duplicateTestRequest(parsedInput.testId, {
+        classId: parsedInput.classId,
+      });
+      return { id: test.id, title: test.title, classId: test.classId };
     } catch (error) {
       throw new ActionError(
         mapTestError(error, "Could not duplicate the test. Please try again."),
