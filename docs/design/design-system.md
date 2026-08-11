@@ -348,6 +348,12 @@ content column; each page owns its own header.
 One component per job. Before building UI, check `src/components/ui`, `src/components/Custom`, and
 the route-local `_components` — and prefer extending a primitive over restyling from scratch.
 
+> **Props, variants, and per-component rules live in [component-library.md](./component-library.md).**
+> The table below is the vocabulary at a glance; that file is the reference, and its §2 decision
+> table answers "which component do I use for this". Page-level composition —
+> environments, page anatomy, widths, responsive — is in
+> [layout-and-composition.md](./layout-and-composition.md).
+
 | Primitive | Owns |
 |---|---|
 | `Surface` | Every card, panel, and bordered container. Padding, variant, elevation, interactive, divided. |
@@ -383,6 +389,9 @@ sibling exists before you improve it.
 ---
 
 ## 9. Verifying a change
+
+The full checklist, including the drift greps, is in
+[../guides/building-a-feature.md](../guides/building-a-feature.md) §6. The design-specific gates:
 
 - `npm run lint` and `npm run build` must pass.
 - **`npm run check:contrast` must stay green** after any change to the `:root` / `.dark` blocks.
