@@ -1970,6 +1970,13 @@ translation: {
           people: {
             title: "People in this class",
           },
+          tests: {
+            title: "Your tests for this class",
+            tabsLabel: "Filter your tests for this class",
+            seeAll: "All assignments",
+            emptyTitle: "Nothing set yet",
+            emptyDescription: "Tests your teacher publishes to this class appear here.",
+          },
           requests: {
             title: "Requests",
           },
@@ -2332,6 +2339,32 @@ translation: {
             policyUpdate: {
               title: "Policy update",
               description: "A long policy update is available. Open the notification to read the full details.",
+            },
+          },
+        },
+        staffAssignments: {
+          title: "Assignments",
+          subtitle: "Every test you have set, across your classes.",
+          tabsLabel: "Filter assignments by status",
+          tabs: { live: "Live", drafts: "Drafts", archive: "Archive" },
+          card: {
+            submissions: "Submissions",
+            results: "Results",
+            open: "Open in studio",
+            closes: "Closes {{when}}",
+          },
+          empty: {
+            live: {
+              title: "Nothing live right now",
+              description: "Publish a test from one of your classes and it appears here.",
+            },
+            drafts: {
+              title: "No drafts",
+              description: "Tests you have started but not published wait here.",
+            },
+            archive: {
+              title: "Nothing archived",
+              description: "Tests you archive keep their results and move here.",
             },
           },
         },

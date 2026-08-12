@@ -219,6 +219,7 @@ const testBaseShape = {
 export const testSummarySchema = z.object(testBaseShape).passthrough();
 export type ApiTestSummary = z.infer<typeof testSummarySchema>;
 
+
 /** `GET /tests/:testId` - the full tree, including the answer key. */
 export const testDetailSchema = z
   .object({
@@ -247,6 +248,26 @@ export const testsListResponseSchema = z.object({
   meta: testsPaginationMetaSchema,
 });
 export type TestsListResponse = z.infer<typeof testsListResponseSchema>;
+/**
+ * A row in the cross-class library (`GET /tests`).
+ *
+ * Same shape plus the class it belongs to, which the class-scoped list has no
+ * need for and this one cannot do without: every row here comes from a
+ * different class, so a card without one is unattributable.
+ */
+export const libraryTestSummarySchema = z
+  .object({
+    ...testBaseShape,
+    class: z.object({ id: z.string(), name: z.string() }).nullable().optional(),
+  })
+  .passthrough();
+export type ApiLibraryTestSummary = z.infer<typeof libraryTestSummarySchema>;
+
+export const libraryTestsResponseSchema = z.object({
+  tests: z.array(libraryTestSummarySchema),
+  meta: testsPaginationMetaSchema,
+});
+export type LibraryTestsResponse = z.infer<typeof libraryTestsResponseSchema>;
 
 export const testDetailResponseSchema = z.object({ test: testDetailSchema });
 export type TestDetailResponse = z.infer<typeof testDetailResponseSchema>;

@@ -5,6 +5,7 @@ import type { z } from "zod";
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
+  libraryTestsResponseSchema,
   testDetailResponseSchema,
   testFormatsResponseSchema,
   testMediaResponseSchema,
@@ -46,6 +47,21 @@ export function getTestFormatsRequest(
 ) {
   return requestJson("/tests/formats", {
     responseSchema: testFormatsResponseSchema,
+  });
+}
+
+/**
+ * `GET /tests` - the school-wide library, across every class the caller may
+ * manage. ADMIN sees the school's tests; TEACHER sees their own. The
+ * class-scoped list stays the surface for "what is set for *this* class".
+ */
+export function listLibraryTestsRequest(
+  query: ListTestsQuery & { classId?: string; search?: string } = {},
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson("/tests", {
+    query,
+    responseSchema: libraryTestsResponseSchema,
   });
 }
 

@@ -1927,6 +1927,13 @@ translation: {
           people: {
             title: "Sinf ishtirokchilari",
           },
+          tests: {
+            title: "Bu sinf uchun testlaringiz",
+            tabsLabel: "Bu sinf boʻyicha testlaringizni filtrlash",
+            seeAll: "Barcha topshiriqlar",
+            emptyTitle: "Hozircha hech narsa belgilanmagan",
+            emptyDescription: "Oʻqituvchi bu sinf uchun eʼlon qilgan testlar shu yerda koʻrinadi.",
+          },
           requests: {
             title: "Soʻrovlar",
           },
@@ -2289,6 +2296,18 @@ translation: {
               title: "Qoidalar yangilandi",
               description: "Uzun qoidalar yangilanishi mavjud. Batafsil oʻqish uchun bildirishnomani oching.",
             },
+          },
+        },
+        staffAssignments: {
+          title: "Topshiriqlar",
+          subtitle: "Barcha sinflaringiz boʻyicha siz bergan testlar.",
+          tabsLabel: "Topshiriqlarni holat boʻyicha filtrlash",
+          tabs: { live: "Faol", drafts: "Qoralamalar", archive: "Arxiv" },
+          card: { submissions: "Topshirilgan", results: "Natijalar", open: "Studiyada ochish", closes: "{{when}} gacha" },
+          empty: {
+            live: { title: "Hozircha faol test yoʻq", description: "Sinflaringizdan birida test eʼlon qiling va u shu yerda koʻrinadi." },
+            drafts: { title: "Qoralama yoʻq", description: "Boshlangan, ammo eʼlon qilinmagan testlar shu yerda turadi." },
+            archive: { title: "Arxiv boʻsh", description: "Arxivlangan testlar natijalarini saqlab shu yerga oʻtadi." },
           },
         },
         exams: {
