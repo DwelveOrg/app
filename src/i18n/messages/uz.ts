@@ -227,6 +227,7 @@ translation: {
           },
           nextUp: {
             title: "Keyingisi",
+            open: "Ochish",
             emptyTitle: "Muddati yo'q",
             emptyDescription: "Hozircha bo'sh. Yangi topshiriqlar e'lon qilinishi bilan shu yerda chiqadi.",
           },
@@ -717,6 +718,7 @@ translation: {
             actions: {
               edit: "Tahrirni davom ettirish",
               results: "Natijalar",
+              open: "Ochish",
               duplicate: "Nusxa olish",
               delete: "Oʻchirish",
               archive: "Arxivlash",
@@ -1086,6 +1088,7 @@ translation: {
               SUBMITTED: "Topshirgan",
               GRADED: "Tekshirilgan",
               EXPIRED: "Ulgurmagan",
+              ABANDONED: "Bekor qilingan",
             },
             stats: {
               mean: "Oʻrtacha ball",
@@ -1562,6 +1565,7 @@ translation: {
           soon: "Tez orada",
           tabs: {
             classes: "Sinflar",
+            teachers: "Oʻqituvchilar",
             students: "Oʻquvchilar",
             courses: "Kurslar",
             groups: "Guruhlar",
@@ -1729,6 +1733,7 @@ translation: {
           stats: {
             classes: "Sinflar",
             students: "Oʻquvchilar",
+            teachers: "Oʻqituvchilar",
           },
           actions: {
             invite: "Taklif qilish",
@@ -2333,6 +2338,8 @@ translation: {
           },
         },
         exams: {
+          title: "Topshiriqlar",
+          subtitle: "Oʻqituvchilar sinflaringizga qoʻygan testlar va siz allaqachon yakunlaganlari.",
           tabsLabel: "Testlarni filtrlash",
           backToDashboard: "Boshqaruv paneliga",
           seeResult: "Natijani koʻrish",

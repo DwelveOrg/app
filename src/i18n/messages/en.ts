@@ -252,6 +252,7 @@ translation: {
           },
           nextUp: {
             title: "Next up",
+            open: "Open",
             emptyTitle: "Nothing due",
             emptyDescription: "You're clear for now. New assignments appear here as soon as they're published.",
           },
@@ -760,6 +761,7 @@ translation: {
             actions: {
               edit: "Continue editing",
               results: "Results",
+              open: "Open",
               duplicate: "Duplicate",
               delete: "Delete",
               archive: "Archive",
@@ -1129,6 +1131,7 @@ translation: {
               SUBMITTED: "Submitted",
               GRADED: "Marked",
               EXPIRED: "Ran out of time",
+              ABANDONED: "Voided",
             },
             stats: {
               mean: "Average score",
@@ -1605,6 +1608,7 @@ translation: {
           soon: "Soon",
           tabs: {
             classes: "Classes",
+            teachers: "Teachers",
             students: "Students",
             courses: "Courses",
             groups: "Groups",
@@ -1700,12 +1704,14 @@ translation: {
             copyLink: "Copy invite link",
             linkCopied: "Invite link copied",
             linkCopyError: "Could not copy the invite link",
+            done: "Done",
           },
           addStudents: {
             title: "Add students",
             description: "Share your student join code so learners can join this school.",
             noCode: "No student join code is available yet.",
             hint: "Students enter this code from Classes → Join a school.",
+            done: "Done",
           },
           createClass: {
             title: "Create a class",
@@ -1770,6 +1776,7 @@ translation: {
           stats: {
             classes: "Classes",
             students: "Students",
+            teachers: "Teachers",
           },
           actions: {
             invite: "Invite",
@@ -2374,6 +2381,8 @@ translation: {
           },
         },
         exams: {
+          title: "Assignments",
+          subtitle: "Tests your teachers have set for your classes, and the ones you have already finished.",
           tabsLabel: "Filter tests",
           backToDashboard: "Back to dashboard",
           seeResult: "See result",
@@ -2872,6 +2881,7 @@ translation: {
             card: {
               subject: "Algebra · Chapter 5",
               meta: "Graded automatically · 2 min ago",
+              done: "Done",
               students: "24 students",
               average: "83% avg score",
             },
