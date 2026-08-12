@@ -22,6 +22,11 @@ import type {
 } from "@/app/(root)/_lib/enrollment.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import {
+  POLL_ACTIVE_MS,
+  POLL_AMBIENT_MS,
+  pollingOptions,
+} from "@/lib/query/polling";
 import { useServerDataRefresh } from "@/lib/query/useServerDataRefresh";
 
 const MUTATION_FALLBACK = "Something went wrong. Please try again.";
@@ -59,6 +64,13 @@ export function useStudentClasses({
   });
 }
 
+/**
+ * A student's own pending requests.
+ *
+ * Polled at the ambient rate rather than the active one: the change a student
+ * is waiting for here is someone else approving them, which is a decision made
+ * on a human timescale. A minute late is indistinguishable from instant.
+ */
 export function useMyClassRequests({ limit = 20 }: { limit?: number } = {}) {
   return useInfiniteQuery({
     queryKey: queryKeys.enrollment.myRequests(limit),
@@ -66,9 +78,19 @@ export function useMyClassRequests({ limit = 20 }: { limit?: number } = {}) {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasMore ? lastPage.meta.page + 1 : undefined,
+    ...pollingOptions(POLL_AMBIENT_MS),
   });
 }
 
+/**
+ * The pending student join requests for one class.
+ *
+ * Polled, because this is the queue the stale-data complaint was about: a
+ * student requests to join and the admin looking straight at the queue is the
+ * last person to find out. Three components mount this — the header count
+ * button, the panel's tab counts, and the list itself — and they share a query
+ * key, so a tick is one request that updates all three at once.
+ */
 export function useClassJoinRequests({
   classId,
   search,
@@ -85,6 +107,7 @@ export function useClassJoinRequests({
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasMore ? lastPage.meta.page + 1 : undefined,
+    ...pollingOptions(POLL_ACTIVE_MS),
   });
 }
 

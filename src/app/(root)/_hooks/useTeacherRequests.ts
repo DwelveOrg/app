@@ -20,6 +20,7 @@ import type {
 } from "@/app/(root)/_lib/teacher-requests.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import { POLL_ACTIVE_MS, pollingOptions } from "@/lib/query/polling";
 import { useServerDataRefresh } from "@/lib/query/useServerDataRefresh";
 
 const MUTATION_FALLBACK = "Something went wrong. Please try again.";
@@ -50,6 +51,12 @@ export function useTeacherClasses({
  * Pending requests to teach one class. Admin-only on the backend, so callers
  * that render for teachers too must pass `enabled: false` for them rather than
  * firing a request that can only come back 403.
+ *
+ * Polled alongside the student queue: both counts sit in the same tab row on
+ * the class page, so leaving one to go stale would put a freshly-loaded number
+ * next to a stale one — the exact mismatch the tab-refresh rule was written to
+ * prevent. `enabled: false` suppresses the interval too, so a teacher viewing
+ * the page polls nothing they cannot read.
  */
 export function useTeacherRequests({
   classId,
@@ -70,6 +77,7 @@ export function useTeacherRequests({
     getNextPageParam: (lastPage) =>
       lastPage.meta.hasMore ? lastPage.meta.page + 1 : undefined,
     enabled,
+    ...pollingOptions(POLL_ACTIVE_MS),
   });
 }
 

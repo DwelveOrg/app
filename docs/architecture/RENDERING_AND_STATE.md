@@ -202,11 +202,30 @@ sites are added, so the hook owns it now and components pass no refresh callback
 **Do not add a `router.refresh()` beside a success toast.** If the mutation hook is doing its job
 that is a second RSC request for the same data.
 
-### What this does not fix
+### The other half: someone else's write
 
-Someone *else's* write. A student filing a request does not update an admin's already-open screen —
-nothing has told that browser anything happened. That needs polling or a server-pushed event and is
-a separate decision; this contract covers the person who clicked.
+The refresh contract covers the person who clicked. It cannot cover a student filing a join request
+while an admin stares at the queue — nothing has told that browser anything happened.
+
+**That half is polling**, in `@/lib/query/polling`. A polled query spreads in `pollingOptions(ms)`,
+which pairs the interval with `refetchOnWindowFocus`; the two are one mechanism, because React Query
+pauses interval timers on a blurred tab and without the focus refetch a returning user would sit on
+whatever was true when they left.
+
+| Surface | Rate | Why |
+|---|---|---|
+| Class join requests, teacher requests | `POLL_ACTIVE_MS` (30s) | A queue the viewer is actively working |
+| Notification unread badge | `POLL_AMBIENT_MS` (60s) | Mounted on every page; wrong by 30s costs nothing |
+| A student's own pending requests | `POLL_AMBIENT_MS` (60s) | Waiting on a human decision |
+
+**A poll tick does not `router.refresh()`.** Re-running the server render every 30s for every open
+tab would cost far more than the poll it accompanies, and it is not needed: a *pending* request
+changes only query-backed surfaces. The roster and counts that come from the server change on
+**approval**, which is the acting user's own click and already goes through `useServerDataRefresh`.
+
+Not SSE, deliberately. The browser has no direct line to the backend — the session is an httpOnly
+cookie read on the Next server — so a stream would need either a new token surface or a serverless
+function pinned open per tab, for a queue measured in requests per hour.
 
 ---
 
@@ -292,6 +311,7 @@ in those files record failures that are not obvious from the types.
 - [ ] Query keys come from `@/lib/query/keys.ts`
 - [ ] Mutation hooks refresh through `useServerDataRefresh`, using `*All` keys where variants exist
 - [ ] No `router.refresh()` at a mutation call site — the hook owns it
+- [ ] Queues and ambient counts poll through `pollingOptions`, never a bare `refetchInterval`
 - [ ] Every tab showing server state declares `refresh`
 - [ ] No server data mirrored into `useState`
 - [ ] `loading.tsx` present for slow routes

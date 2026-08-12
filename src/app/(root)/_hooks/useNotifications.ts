@@ -27,6 +27,7 @@ import type {
 } from "@/app/(root)/_types";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import { POLL_AMBIENT_MS, pollingOptions } from "@/lib/query/polling";
 
 type UseNotificationsListOptions = {
   tab: NotificationTab;
@@ -106,10 +107,20 @@ function markItemRead(item: NotificationItem): NotificationItem {
     : item;
 }
 
+/**
+ * The unread count behind the sidebar badge.
+ *
+ * Polled, because it is the one number in the shell that changes without the
+ * viewer doing anything — a teacher approving a request, a test being
+ * published, an invitation arriving. It used to be read once per mount, so a
+ * user who left a tab open saw the count they had on arrival for as long as
+ * they stayed on it.
+ */
 export function useNotificationStatus() {
   return useQuery({
     queryKey: queryKeys.notifications.status(),
     queryFn: getNotificationStatusAction,
+    ...pollingOptions(POLL_AMBIENT_MS),
   });
 }
 
