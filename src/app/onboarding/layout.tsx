@@ -1,3 +1,5 @@
+import ReportProblem from "@/components/Custom/ReportProblem";
+
 /**
  * Onboarding owns the whole viewport.
  *
@@ -12,6 +14,11 @@ export default function OnboardingLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-dvh bg-background text-foreground">{children}</div>
+    <div className="min-h-dvh bg-background text-foreground">
+      {children}
+      {/* A user stuck in onboarding is the user least able to reach a support
+          page, and the most likely to have something worth reporting. */}
+      <ReportProblem />
+    </div>
   );
 }

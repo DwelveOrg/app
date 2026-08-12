@@ -58,7 +58,7 @@ docs/
     classes.md · tests.md · test-studio.md · test-taking.md · notifications.md
     school-membership.md · school-profile-and-groups-ux.md · students-page-contract.md
     profile-page-contract.md · password-auth-settings.md · teacher-class-requests.md
-    landing.md · redis-backend-integration.md · …
+    problem-reporting.md · landing.md · redis-backend-integration.md · …
   planning/
     MVP_PLAN.md
 ```

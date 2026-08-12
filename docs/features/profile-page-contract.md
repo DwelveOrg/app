@@ -306,9 +306,15 @@ mutation automatically.
 
 ## Frontend-Owned Preferences
 
-Theme, language, support links, feedback composition, and documentation
-navigation remain frontend-owned. They are not part of `GET /profile` and must
-not trigger requests to a `/settings` backend endpoint.
+Theme, language, and documentation navigation remain frontend-owned. They are
+not part of `GET /profile` and must not trigger requests to a `/settings`
+backend endpoint.
+
+Feedback is no longer among them. The Support tab's "Report a bug" and "Suggest
+a feature" rows open the same dialog as the floating report control and post to
+`POST /reports`; they used to compose a `mailto:`, which could not carry the
+screenshot that makes a report actionable. "Contact support" stays an email
+link — it starts a conversation, which belongs in the user's own inbox.
 
 Former `/settings` routes redirect to the matching `/profile` tab for backward
 compatibility.

@@ -1,7 +1,4 @@
-import type { AuthUser } from "@/app/(authentication)/_types/auth";
 import type { ProfileResponse } from "@/app/(root)/_lib/profile.schemas";
-
-export type ProfileUser = AuthUser;
 
 /**
  * The four panels of the consolidated account area. Profile and Settings used to
@@ -21,23 +18,7 @@ export function isAccountTab(value: unknown): value is AccountTab {
 }
 
 export type ProfileClientProps = {
-  user: ProfileUser | null;
   profile: ProfileResponse | null;
   /** Resolved from `?tab=` so the old Settings URLs land on the right panel. */
   initialTab: AccountTab;
-};
-
-export type FeedbackModalKind = "bug" | "feature";
-
-/**
- * Identity resolved once from the profile bootstrap, with the session cookie as
- * fallback. Passed to the support composer, which attaches it to an outgoing
- * message so the team can identify the account without a round-trip.
- */
-export type AccountContext = {
-  name: string | null;
-  email: string | null;
-  schoolName: string | null;
-  /** Raw backend role (`ADMIN` | `TEACHER` | `STUDENT`), not a display label. */
-  role: string | null;
 };

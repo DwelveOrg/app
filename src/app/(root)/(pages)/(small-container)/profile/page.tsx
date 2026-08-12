@@ -15,15 +15,15 @@ type PageProps = {
 export default async function Page({ searchParams }: PageProps) {
   const [profile, params] = await Promise.all([getProfile(), searchParams]);
   // `GET /profile` already supplies every rendered identity field. Decrypt the
-  // session separately only for the failure fallback instead of doing duplicate
-  // work on every successful request.
+  // session separately only when the bootstrap failed, so the key below still
+  // changes with the account and a second user on the same browser does not
+  // inherit the first one's panel state.
   const user = profile ? null : await getUser();
   const tab = isAccountTab(params.tab) ? params.tab : "account";
 
   return (
     <ProfileClient
       key={`${profile?.account.id ?? user?.id ?? "guest"}:${tab}`}
-      user={user}
       profile={profile}
       initialTab={tab}
     />

@@ -1,12 +1,14 @@
 import SideBar from "@/app/(root)/_components/Sidebar";
+import ReportProblem from "@/components/Custom/ReportProblem";
 import { getUser } from "@/app/(root)/_utils/getUser";
 
 export const dynamic = "force-dynamic";
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  // The sidebar needs the role for one row: Assignments is a real destination
-  // for a student and nothing at all for anyone else. Read here rather than in
-  // the sidebar itself, which is a client component.
+  // The sidebar needs the role for one row: Assignments shows a student the
+  // tests set for them and staff the tests they have set, and is locked only
+  // for an account with no membership at all. Read here rather than in the
+  // sidebar itself, which is a client component.
   const user = await getUser();
 
   return (
@@ -25,6 +27,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </main>
       </div>
+
+      {/* Reachable from every page in the shell, because the moment someone
+          wants it is the moment the page they are on has gone wrong. */}
+      <ReportProblem />
     </div>
   );
 }

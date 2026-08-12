@@ -11,7 +11,7 @@ import { AccountTab } from "./_components/AccountTab";
 import { PreferencesTab } from "./_components/PreferencesTab";
 import { SecurityTab } from "./_components/SecurityTab";
 import { SupportTab } from "./_components/SupportTab";
-import type { AccountContext, AccountTab as AccountTabKey, ProfileClientProps } from "./_types";
+import type { AccountTab as AccountTabKey, ProfileClientProps } from "./_types";
 
 /**
  * The account area: one destination for what used to be `/profile` and
@@ -26,24 +26,12 @@ import type { AccountContext, AccountTab as AccountTabKey, ProfileClientProps } 
  * on the panel their content moved to.
  */
 export default function ProfileClient({
-  user,
   profile,
   initialTab,
 }: Readonly<ProfileClientProps>) {
   const { t } = useTranslation();
   const reduce = useReducedMotion();
   const [activeTab, setActiveTab] = useState<AccountTabKey>(initialTab);
-
-  /**
-   * Profile is the richer source (avatar, school, role); the session cookie keeps
-   * the page usable when the bootstrap request fails.
-   */
-  const account: AccountContext = {
-    name: profile?.account.fullName ?? user?.fullName ?? null,
-    email: profile?.account.email ?? user?.email ?? null,
-    schoolName: profile?.selectedSchool?.school.name ?? null,
-    role: profile?.selectedSchool?.member.role ?? user?.schoolRole ?? null,
-  };
 
   // Never offer the passwordless setup form on a guess: an account that already
   // has a password would be shown the wrong flow.
@@ -90,7 +78,7 @@ export default function ProfileClient({
       ) : activeTab === "preferences" ? (
         <PreferencesTab />
       ) : (
-        <SupportTab account={account} />
+        <SupportTab />
       )}
     </motion.div>
   );
