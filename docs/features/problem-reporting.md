@@ -61,6 +61,11 @@ rather than a `next-safe-action` one, because the payload carries a file. The
 action rebuilds the `FormData` rather than forwarding it, so a field the dialog
 never sends cannot be injected into the backend request.
 
+Next's Server Action body limit is set to 9 MB in `next.config.ts`: the feature
+accepts an 8 MB image, and the remaining space covers the multipart envelope and
+context fields. Without that setting Next rejects larger screenshots before the
+action or backend validation runs.
+
 Identity on the report is the **session's**, read on the backend. Nothing the
 client sends is trusted to say who is reporting.
 

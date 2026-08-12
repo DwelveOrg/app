@@ -126,7 +126,7 @@ function AssignmentCard({ test }: { test: ApiLibraryTestSummary }) {
   const { t } = useTranslation();
 
   const questionCount = test.counts?.questions ?? test.questionCount ?? null;
-  const submissions = test.counts?.students ?? null;
+  const submissions = test.submissionCount ?? null;
   const closesAt = test.availableUntil ? new Date(test.availableUntil) : null;
 
   return (

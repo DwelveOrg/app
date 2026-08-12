@@ -48,6 +48,15 @@ const settingsRedirects = [
 const nextConfig: NextConfig = {
   // Never expose the framework fingerprint in the `X-Powered-By` header.
   poweredByHeader: false,
+  // Report screenshots pass through a Server Action before reaching Nest. Next
+  // otherwise rejects anything above its 1 MB default before our 8 MB feature
+  // limit or backend image validation can run; the extra megabyte covers the
+  // multipart envelope and context fields.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "9mb",
+    },
+  },
   // No remote image hosts. The auth panels used to hotlink Unsplash; their visuals are now
   // rendered from design tokens, so nothing outside this origin is loaded.
   images: {

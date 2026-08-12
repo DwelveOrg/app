@@ -213,6 +213,8 @@ const testBaseShape = {
     .partial()
     .optional(),
   questionCount: z.number().optional(),
+  /** Submitted or graded attempts in the cross-class staff library. */
+  submissionCount: z.number().optional(),
 };
 
 /** A row in `GET /classes/:classId/tests`. */
