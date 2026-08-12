@@ -1,8 +1,9 @@
 "use client";
 
-import { Check } from "lucide-react";
+import { Check, LogOut } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
+import { logout } from "@/app/(authentication)/_lib/actions";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -47,7 +48,30 @@ export default function StepRail({
     // by the bottom of a short viewport.
     <aside className="flex flex-col gap-8 border-b border-border bg-sidebar px-6 py-7 lg:sticky lg:top-0 lg:h-dvh lg:w-[336px] lg:shrink-0 lg:justify-between lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-8 lg:py-9">
       <div className="min-w-0">
-        <DwelveLogo variant="form" />
+        {/*
+          Log out sits with the brand rather than at the foot of the rail because
+          on small screens the rail is a single band at the top of the page and
+          has no foot to sit in. It is the escape from the *account*, not from
+          setup — onboarding is a full-screen route with no sidebar, so without
+          it a user who signed in as the wrong person, or was invited to a school
+          they do not want, has no way out that does not involve clearing
+          cookies. Quiet by default; destructive only on hover, because leaving
+          is a legitimate choice here, not a mistake.
+        */}
+        <div className="flex items-center justify-between gap-3">
+          <DwelveLogo variant="form" />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => logout()}
+            disabled={busy}
+            className="shrink-0 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <LogOut className="size-4" />
+            <span className="max-sm:sr-only">{t("onboarding.actions.logOut")}</span>
+          </Button>
+        </div>
 
         <p className="mt-8 type-micro text-primary">{eyebrow}</p>
         <h1 className="mt-2 type-heading text-foreground">{title}</h1>
@@ -129,8 +153,9 @@ export default function StepRail({
         </ol>
       </div>
 
-      {/* The all-at-once escape. Deliberately quiet and separated from the
-          per-step skip in the footer, so the two are not mistaken for each other. */}
+      {/* The all-at-once escape from setup. Deliberately quiet and separated from
+          the per-step skip in the footer, so the two are not mistaken for each
+          other. Desktop only — the footer carries it on small screens. */}
       <div className="hidden lg:block">
         <Button
           type="button"

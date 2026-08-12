@@ -15,7 +15,7 @@ translation: {
           classes: "Sinflar",
         },
         progress: { done: "Bajarildi", eyebrow: "Ishni boshlash", label: "{{total}} qadamdan {{current}}-qadam" },
-        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", skipStep: "Bu qadamni oʻtkazish", skipAll: "Sozlashni oʻtkazish", skipAllHint: "Toʻgʻridan-toʻgʻri panelga oʻtish. Keyin qayta koʻrish mumkin.", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
+        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", skipStep: "Bu qadamni oʻtkazish", skipAll: "Sozlashni oʻtkazish", skipAllHint: "Toʻgʻridan-toʻgʻri panelga oʻtish. Keyin qayta koʻrish mumkin.", logOut: "Chiqish", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
         access: {
           railTitle: "Maktabga qoʻshilish",
           eyebrow: "Dwelve'ga xush kelibsiz",

@@ -20,10 +20,18 @@ import type { BadgeVariant } from "@/components/ui/badge";
  * and a dot in the outline rail.
  */
 
-/** Status tabs on the test list, in the order a teacher works through them. */
-export const TEST_STATUS_TABS: TestStatus[] = ["DRAFT", "PUBLISHED", "ARCHIVED"];
+/**
+ * Status tabs on the test list.
+ *
+ * Published leads because it is the class's live state: the tests students can
+ * actually sit, and what a teacher opens the list to check on. Draft used to
+ * lead on the theory that unfinished work is what you return for, but a draft is
+ * something you already know you left — a published paper with submissions
+ * coming in is the thing you look at without being told to.
+ */
+export const TEST_STATUS_TABS: TestStatus[] = ["PUBLISHED", "DRAFT", "ARCHIVED"];
 
-export const DEFAULT_TEST_STATUS: TestStatus = "DRAFT";
+export const DEFAULT_TEST_STATUS: TestStatus = "PUBLISHED";
 
 export const TESTS_PAGE_SIZE = 20;
 

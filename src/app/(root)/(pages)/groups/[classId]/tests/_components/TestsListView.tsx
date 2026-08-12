@@ -36,9 +36,9 @@ type TestsListViewProps = {
 };
 
 /**
- * The tests a class owns, split by lifecycle. Draft leads because that is where
- * unfinished work sits and what a teacher returns for; published and archived
- * are references.
+ * The tests a class owns, split by lifecycle. Published leads because it is the
+ * class's live state — the papers students can sit right now; drafts and the
+ * archive are what a teacher goes looking for on purpose.
  *
  * This page stays in the dashboard: it is class management, not authoring.
  * Writing a test happens in the studio, so "New test" and every card navigate
@@ -156,20 +156,22 @@ export default function TestsListView({
         />
       ) : tests.length === 0 ? (
         <Empty
-          // A draft tab with nothing in it is a first-run state the teacher is meant to act on;
-          // an empty Published tab is simply a fact, so only the former reads as an open slot.
-          variant={status === "DRAFT" ? "dashed" : "card"}
+          // Published and Draft empty are both first-run states a teacher is meant
+          // to act on — Published is now the landing tab, so an empty one with no
+          // control would make a new class a dead end. An empty Archive is simply a
+          // fact about the past, so it stays a plain card with nothing to press.
+          variant={status === "ARCHIVED" ? "card" : "dashed"}
           title={t(`root.tests.list.empty.${status}.title`)}
           description={t(`root.tests.list.empty.${status}.description`)}
           action={
-            status === "DRAFT" ? (
+            status === "ARCHIVED" ? null : (
               <Button asChild className="w-full">
                 <Link href={studioRoutes.newTest(classId)}>
                   <FilePlus2 className="size-4" />
                   {t("root.tests.list.create")}
                 </Link>
               </Button>
-            ) : null
+            )
           }
         />
       ) : (

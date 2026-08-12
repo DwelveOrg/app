@@ -24,6 +24,7 @@ translation: {
           skipStep: "Skip this step",
           skipAll: "Skip all setup",
           skipAllHint: "Go straight to your dashboard. You can replay this later.",
+          logOut: "Log out",
           back: "Back",
           next: "Next",
           finish: "Open dashboard",

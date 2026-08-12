@@ -195,7 +195,7 @@ export default function OnboardingWizard(props: WizardProps) {
             </Button>
 
             <div className="ml-auto flex flex-wrap items-center gap-2">
-              {/* Skip one step. Distinct from the rail's skip-everything. */}
+              {/* Skip one step. Distinct from the skip-everything beside it. */}
               {!isLast ? (
                 <Button
                   type="button"
@@ -208,13 +208,21 @@ export default function OnboardingWizard(props: WizardProps) {
                 </Button>
               ) : null}
 
-              {/* On small screens the rail hides its skip-all, so surface it here. */}
+              {/*
+                Skip everything. On earlier steps the desktop rail already carries
+                this, so the footer copy is only for small screens where the rail
+                hides it. The last step shows it at every width: "Skip this step"
+                is gone by then, and the rail's control sits at the bottom of a
+                scrollable column — so a user who has decided they are done would
+                otherwise face a footer offering only "Open dashboard", which
+                completes the flow rather than leaving it.
+              */}
               <Button
                 type="button"
                 variant="ghost"
                 onClick={() => finish("skipped")}
                 disabled={leaving}
-                className={cn("lg:hidden", "text-muted-foreground")}
+                className={cn("text-muted-foreground", !isLast && "lg:hidden")}
               >
                 {t("onboarding.actions.skipAll")}
               </Button>
