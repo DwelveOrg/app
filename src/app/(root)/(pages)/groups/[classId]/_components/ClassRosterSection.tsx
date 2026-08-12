@@ -33,8 +33,6 @@ type ClassRosterSectionProps = {
   canManageTeachers: boolean;
   /** Admins and teachers assigned to this class. */
   canManageStudents: boolean;
-  /** Re-reads the server-rendered class after a roster change. */
-  onRosterChange: () => void;
 };
 
 /**
@@ -54,7 +52,6 @@ export default function ClassRosterSection({
   studentCount,
   canManageTeachers,
   canManageStudents,
-  onRosterChange,
 }: ClassRosterSectionProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<RosterTab>("students");
@@ -75,7 +72,6 @@ export default function ClassRosterSection({
         onSuccess: () => {
           setRemoveTeacher(null);
           toast.success(t("root.enrollment.assignTeacher.removedToast", { name: fullName }));
-          onRosterChange();
         },
         onError: (error) =>
           toast.error(
@@ -94,7 +90,6 @@ export default function ClassRosterSection({
         onSuccess: () => {
           setRemoveStudent(null);
           toast.success(t("root.enrollment.assign.removedToast", { name: fullName }));
-          onRosterChange();
         },
         onError: (error) =>
           toast.error(
@@ -192,7 +187,6 @@ export default function ClassRosterSection({
             open={addTeacherOpen}
             onOpenChange={setAddTeacherOpen}
             classId={classId}
-            onAssigned={onRosterChange}
           />
           <RemoveClassTeacherDialog
             open={removeTeacher !== null}
@@ -212,7 +206,6 @@ export default function ClassRosterSection({
             open={addStudentOpen}
             onOpenChange={setAddStudentOpen}
             classId={classId}
-            onAssigned={onRosterChange}
           />
           <RemoveClassStudentDialog
             open={removeStudent !== null}

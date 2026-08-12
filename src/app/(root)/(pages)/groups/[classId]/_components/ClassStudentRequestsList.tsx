@@ -18,11 +18,6 @@ import RejectRequestDialog from "./RejectRequestDialog";
 
 type ClassStudentRequestsListProps = {
   classId: string;
-  /**
-   * Called after an approve or reject lands. Approving enrols the student, so
-   * the server-rendered class page uses this to re-read its roster.
-   */
-  onReviewed?: () => void;
 };
 
 /**
@@ -32,7 +27,6 @@ type ClassStudentRequestsListProps = {
  */
 export default function ClassStudentRequestsList({
   classId,
-  onReviewed,
 }: ClassStudentRequestsListProps) {
   const { t } = useTranslation();
   const [rejecting, setRejecting] = useState<ClassEnrollmentItem | null>(null);
@@ -52,7 +46,6 @@ export default function ClassStudentRequestsList({
       {
         onSuccess: () => {
           toast.success(t("root.enrollment.classRequests.approvedToast"));
-          onReviewed?.();
         },
         onError: (error) =>
           toast.error(
@@ -71,7 +64,6 @@ export default function ClassStudentRequestsList({
         onSuccess: () => {
           setRejecting(null);
           toast.success(t("root.enrollment.classRequests.rejectedToast"));
-          onReviewed?.();
         },
         onError: (error) =>
           toast.error(

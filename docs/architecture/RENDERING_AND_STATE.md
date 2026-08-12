@@ -116,8 +116,8 @@ and "go home".
 |---|---|
 | Initial page data | Server component + `_utils/get*` |
 | Data fetched on demand (a picker's search, a paginated list, a dialog's contents) | React Query |
-| Data that changes as a result of a mutation | React Query, invalidated by the mutation hook |
-| Server-rendered data that a mutation changed | `router.refresh()` |
+| Data that changes as a result of a mutation | The mutation hook, through `useServerDataRefresh` |
+| Server-rendered data that a mutation changed | The same call — see §5, the two halves travel together |
 | Session / current user | `getUser()` on the server; the proxy handles refresh |
 | Theme | `next-themes` (`dwelve-theme`, class strategy) |
 | Language | i18next + `localStorage["gf-language"]` |
@@ -179,14 +179,34 @@ invalidating, use the specific key when querying.
 
 After a mutation, ask: **what on screen is now wrong?**
 
-| Source of the stale thing | Fix |
-|---|---|
-| A React Query cache entry | `queryClient.invalidateQueries({ queryKey })` in the hook's `onSuccess` |
-| RSC props on the current page | `router.refresh()` in the component |
-| Both | both — they are separate systems |
+Almost always: both halves. Approving a join request clears a row from a React Query list *and*
+adds a student to the server-rendered roster three inches above it, *and* shifts the counts in the
+page header above that. Fixing one and not the other reads as a failed approval.
 
-`router.refresh()` belongs in the component (usually beside the success toast) because only the
-component knows whether it is still on the page that rendered the data.
+So the two are not separate calls. **Mutation hooks call `useServerDataRefresh` in `onSettled`,
+which invalidates the query keys and re-runs the server render together:**
+
+```ts
+function useInvalidateClassRequests(classId: string) {
+  const refresh = useServerDataRefresh();
+  return () => refresh(queryKeys.enrollment.classRequestsAll(classId), queryKeys.classes.all);
+}
+```
+
+This used to live at the call sites, as an `onReviewed` / `onRosterChange` callback each component
+passed down so it could `router.refresh()` itself. Some remembered. `StudentClassCard` and
+`MyClassRequestsView` did not, so a student requesting to join a class watched nothing change until
+they reloaded by hand. A rule you have to remember at every call site is a rule that decays as call
+sites are added, so the hook owns it now and components pass no refresh callbacks at all.
+
+**Do not add a `router.refresh()` beside a success toast.** If the mutation hook is doing its job
+that is a second RSC request for the same data.
+
+### What this does not fix
+
+Someone *else's* write. A student filing a request does not update an admin's already-open screen —
+nothing has told that browser anything happened. That needs polling or a server-pushed event and is
+a separate decision; this contract covers the person who clicked.
 
 ---
 
@@ -270,8 +290,8 @@ in those files record failures that are not obvious from the types.
 - [ ] Server reads go through a `_utils/get*` helper with `import "server-only"`
 - [ ] Failures classified (403 / 404 / other), not collapsed
 - [ ] Query keys come from `@/lib/query/keys.ts`
-- [ ] Mutation hooks invalidate in `onSuccess`, using `*All` keys where variants exist
-- [ ] `router.refresh()` when server-rendered data changed
+- [ ] Mutation hooks refresh through `useServerDataRefresh`, using `*All` keys where variants exist
+- [ ] No `router.refresh()` at a mutation call site — the hook owns it
 - [ ] Every tab showing server state declares `refresh`
 - [ ] No server data mirrored into `useState`
 - [ ] `loading.tsx` present for slow routes

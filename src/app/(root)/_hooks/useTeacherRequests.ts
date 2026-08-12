@@ -1,6 +1,6 @@
 "use client";
 
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import { leaveClassAction } from "@/app/(root)/_lib/enrollment-actions";
 import type { LeaveClassInput } from "@/app/(root)/_lib/enrollment.schemas";
@@ -20,6 +20,7 @@ import type {
 } from "@/app/(root)/_lib/teacher-requests.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import { useServerDataRefresh } from "@/lib/query/useServerDataRefresh";
 
 const MUTATION_FALLBACK = "Something went wrong. Please try again.";
 
@@ -78,11 +79,8 @@ export function useTeacherRequests({
 
 /** Refreshes the teacher class list after a request/cancel so the flags update. */
 function useInvalidateTeacherClasses(schoolId: string | undefined) {
-  const queryClient = useQueryClient();
-  return () =>
-    queryClient.invalidateQueries({
-      queryKey: queryKeys.enrollment.teacherClassesAll(schoolId ?? ""),
-    });
+  const refresh = useServerDataRefresh();
+  return () => refresh(queryKeys.enrollment.teacherClassesAll(schoolId ?? ""));
 }
 
 export function useRequestToTeachMutation(schoolId: string | undefined) {
@@ -111,16 +109,13 @@ export function useCancelTeacherRequestMutation(schoolId: string | undefined) {
  * `queryKeys.classes.all` covers the class detail the leaver can no longer open.
  */
 export function useLeaveClassMutation(schoolId: string | undefined) {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   const invalidateTeacherClasses = useInvalidateTeacherClasses(schoolId);
   return useMutation({
     mutationFn: async (input: LeaveClassInput) =>
       readSafeActionData(await leaveClassAction(input), MUTATION_FALLBACK),
     onSettled: () =>
-      Promise.all([
-        invalidateTeacherClasses(),
-        queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
-      ]),
+      Promise.all([invalidateTeacherClasses(), refresh(queryKeys.classes.all)]),
   });
 }
 
@@ -132,16 +127,15 @@ export function useLeaveClassMutation(schoolId: string | undefined) {
  * After approve/reject, refresh the pending teacher-request list and every class
  * list. Approval assigns the teacher, so `GET /classes` must refetch — both the
  * teacher-visible list (under the `enrollment` key namespace, which also covers
- * the request list) and any class-detail React Query (under `classes`).
+ * the request list) and any class-detail React Query (under `classes`). The
+ * class page renders its teaching roster on the server, so that render is
+ * re-run too.
  */
 function useInvalidateAfterReview() {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   return () =>
-    Promise.all([
-      // `enrollment.all` is a prefix of the teacher-request and teacher-class keys.
-      queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
-    ]);
+    // `enrollment.all` is a prefix of the teacher-request and teacher-class keys.
+    refresh(queryKeys.enrollment.all, queryKeys.classes.all);
 }
 
 export function useApproveTeacherRequestMutation() {

@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   approveEnrollmentAction,
@@ -27,6 +22,7 @@ import type {
 } from "@/app/(root)/_lib/enrollment.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import { useServerDataRefresh } from "@/lib/query/useServerDataRefresh";
 
 const MUTATION_FALLBACK = "Something went wrong. Please try again.";
 
@@ -99,21 +95,18 @@ export function useClassJoinRequests({
 /**
  * Refreshes every student-facing enrollment surface after a request/cancel
  * (see the Cache Refresh Rules in the feature doc): overview counts, the class
- * directory, pending requests, and the dashboard class list.
+ * directory, pending requests, and the dashboard class list — plus the server
+ * render, because the counts in the page header come from it.
  */
 function useInvalidateStudentEnrollment(schoolId: string | undefined) {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   return () =>
-    Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.enrollment.overview(schoolId ?? ""),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.enrollment.studentClassesAll(schoolId ?? ""),
-      }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.myRequestsAll() }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.myClasses() }),
-    ]);
+    refresh(
+      queryKeys.enrollment.overview(schoolId ?? ""),
+      queryKeys.enrollment.studentClassesAll(schoolId ?? ""),
+      queryKeys.enrollment.myRequestsAll(),
+      queryKeys.enrollment.myClasses(),
+    );
 }
 
 export function useRequestJoinClassMutation(schoolId: string | undefined) {
@@ -138,11 +131,10 @@ export function useCancelJoinRequestMutation(schoolId: string | undefined) {
  * A student leaving a class moves the same four surfaces a request/cancel does —
  * the class drops out of My Classes, its directory row becomes requestable
  * again, and the overview counts shift — plus the class detail, which the leaver
- * can no longer open. `queryKeys.classes.all` covers that last one; the page
- * itself is server-rendered, so the caller pairs this with `router.refresh()`.
+ * can no longer open. `queryKeys.classes.all` covers that last one.
  */
 export function useLeaveClassMutation(schoolId: string | undefined) {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   const invalidateStudentSurfaces = useInvalidateStudentEnrollment(schoolId);
   return useMutation({
     mutationFn: async (input: LeaveClassInput) =>
@@ -150,7 +142,7 @@ export function useLeaveClassMutation(schoolId: string | undefined) {
     onSettled: () =>
       Promise.all([
         invalidateStudentSurfaces(),
-        queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+        refresh(queryKeys.classes.all),
       ]),
   });
 }
@@ -161,18 +153,14 @@ export function useLeaveClassMutation(schoolId: string | undefined) {
 
 /**
  * Approving a request adds the student to the roster, so a review refreshes the
- * pending-requests list *and* every class query — the class page shows both, and
- * a stale roster next to a cleared request reads as a failed approval.
+ * pending-requests list *and* every class query *and* the server render — the
+ * class page shows all three, and a stale roster next to a cleared request reads
+ * as a failed approval.
  */
 function useInvalidateClassRequests(classId: string) {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   return () =>
-    Promise.all([
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.enrollment.classRequestsAll(classId),
-      }),
-      queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
-    ]);
+    refresh(queryKeys.enrollment.classRequestsAll(classId), queryKeys.classes.all);
 }
 
 export function useApproveEnrollmentMutation(classId: string) {

@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   CalendarDays,
@@ -23,7 +21,6 @@ import { Button } from "@/components/ui/Button";
 import EntityHeader from "@/app/(root)/_components/EntityHeader";
 import FactGrid, { Fact } from "@/app/(root)/_components/FactGrid";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
-import { queryKeys } from "@/lib/query/keys";
 import { classAccent } from "../../_constants";
 import { enrollmentModeLabelKeys } from "../../_lib/enrollmentLabels";
 import EditClassDialog from "../../_components/EditClassDialog";
@@ -58,8 +55,6 @@ export default function ClassDetailView({
   schoolId,
 }: ClassDetailViewProps) {
   const { t } = useTranslation();
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
@@ -81,12 +76,6 @@ export default function ClassDetailView({
   const leadTeacher = classItem.teachers[0]?.fullName ?? null;
   const accent = classAccent(classItem.id);
   const capacity = classItem.capacity ?? null;
-
-  /** Roster and request changes affect this server-rendered page and the caches. */
-  const refreshClassData = () => {
-    router.refresh();
-    void queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all });
-  };
 
   return (
     <section className="flex flex-col gap-6 py-6">
@@ -226,15 +215,10 @@ export default function ClassDetailView({
         studentCount={studentCount}
         canManageTeachers={isAdmin}
         canManageStudents={canManage}
-        onRosterChange={refreshClassData}
       />
 
       {canManage ? (
-        <ClassRequestsSection
-          classId={classItem.id}
-          isAdmin={isAdmin}
-          onReviewed={refreshClassData}
-        />
+        <ClassRequestsSection classId={classItem.id} isAdmin={isAdmin} />
       ) : null}
 
       {isAdmin ? (
