@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
 import TabBar from "@/components/ui/TabBar";
 import Empty from "@/app/(root)/(pages)/_components/ui/Empty";
+import PageHeader from "@/app/(root)/_components/PageHeader";
 import FormatMark from "@/components/tests/FormatMark";
 import { formatIcon } from "@/app/(root)/_constants/tests";
 import type { StudentTestRow } from "@/app/exam/_lib/attempts.schemas";
@@ -68,15 +69,33 @@ export default function StudentTestsView({ tests }: { tests: StudentTestRow[] })
 
   return (
     <div className="flex flex-col gap-6 pt-4">
+      <PageHeader title={t("root.exams.title")} subtitle={t("root.exams.subtitle")} />
+
+      {/*
+        The page-level treatment, not the pill one. These two tabs are the page's
+        sections rather than a filter inside a panel, and a pill tray stretched
+        across a wide page is mostly empty trough — the underline rule spans the
+        full width and reads as deliberate. `showZeroCount` because "Completed 0"
+        is a fact about the student's term, not noise.
+      */}
       <TabBar
-        variant="pill"
         layoutId="student-tests-tabs"
         ariaLabel={t("root.exams.tabsLabel")}
         value={tab}
         onSelect={(next) => setTab(next as Tab)}
         items={[
-          { value: "open", label: t("root.exams.tabs.active"), count: open.length },
-          { value: "done", label: t("root.exams.tabs.completed"), count: done.length },
+          {
+            value: "open",
+            label: t("root.exams.tabs.active"),
+            count: open.length,
+            showZeroCount: true,
+          },
+          {
+            value: "done",
+            label: t("root.exams.tabs.completed"),
+            count: done.length,
+            showZeroCount: true,
+          },
         ]}
       />
 
