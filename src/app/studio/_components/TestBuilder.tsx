@@ -51,6 +51,7 @@ import FormatMark from "@/components/tests/FormatMark";
 import TestStatusBadge from "@/components/tests/TestStatusBadge";
 import type { BuilderCatalog, SectionFieldName } from "../_types";
 import { useAutosave } from "../_hooks/useAutosave";
+import ImportSummaryBanner from "./ImportSummaryBanner";
 import OutlineRail from "./OutlineRail";
 import PartCard from "./PartCard";
 import SaveState from "./SaveState";
@@ -99,6 +100,9 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
 
   const focusId = searchParams.get("focus");
   const hasFlags = flaggedIds.size > 0;
+
+  /** Set when the builder was opened by a finished PDF import. */
+  const importJobId = searchParams.get("import");
 
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [outlineCollapsed, setOutlineCollapsed] = useState(false);
@@ -467,6 +471,14 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
             noValidate
           >
             <div className="mx-auto w-full max-w-[900px] space-y-5 px-4 py-6 md:px-8">
+              {/*
+                Arriving straight from a PDF import. The job id rides the query
+                string for the same reason the publish issues do — the importer
+                is a different route, and component state does not survive the
+                navigation between them.
+              */}
+              {importJobId ? <ImportSummaryBanner jobId={importJobId} /> : null}
+
               {isDraft ? null : (
                 <Surface
                   variant="muted"

@@ -262,6 +262,12 @@ translation: {
             inviteTeacher: "Invite a teacher",
             manageMembers: "Manage members",
           },
+          importTest: {
+            title: "Import a test",
+            description: "Have the paper as a PDF? Upload it, choose the pages, and skip the typing.",
+            classLabel: "Class to import into",
+            action: "Import",
+          },
           attention: {
             title: "Needs attention",
             grading: "Waiting to be graded",
@@ -768,6 +774,7 @@ translation: {
             subtitle: "Assessments for {{name}}.",
             backToClass: "Back to class",
             create: "New test",
+            import: "Import PDF",
             tabsLabel: "Filter tests by status",
             noDescription: "No description yet.",
             pagination: "Test pages",
@@ -841,6 +848,9 @@ translation: {
             nameRequired: "Give the test a name.",
             cancel: "Cancel and go back",
             untitled: "Untitled test",
+            importTitle: "Already have it as a PDF?",
+            importBlurb: "Upload the file, choose the pages, and let AI build the test for you.",
+            importAction: "Import a PDF",
             formatBlurb: {
               SIMPLE_QUIZ: "One list of questions. The fastest way to a short quiz.",
               IELTS: "Reading and Writing parts, timed like the real paper.",
@@ -853,6 +863,91 @@ translation: {
               questionTypes: "Question types",
               noDuration: "Set at publish",
               note: "Everything inside is still editable. Parts, questions, timing and rules can all change before you publish.",
+            },
+          },
+          import: {
+            title: "Import a test",
+            cancel: "Cancel and go back",
+            untitled: "Untitled test",
+            submit: "Create test",
+            tryAgain: "Try again",
+            chooseAnother: "Choose a different file",
+            answerRule:
+              "Answers are filled in only where the page marks them — a ticked box, a bold option, or an answer key. Include your answer-key page in the selection if your test has one. Anything unmarked is left for you to choose.",
+            choose: {
+              heading: "Import a test from a PDF",
+              subheading:
+                "Upload the paper, choose the pages that hold the questions, and the test is built for you.",
+              dropzone: "Drop a PDF here",
+              browse: "Choose a file",
+              constraints: "PDF, up to {{size}} MB and {{pages}} pages.",
+              explainer:
+                "Your file is read in this browser first, so you can see the pages before anything is uploaded.",
+            },
+            pages: {
+              heading: "Which pages hold the test?",
+              subheading_one: "This document has {{count}} page.",
+              subheading_other: "This document has {{count}} pages.",
+              label: "Pages",
+              hint: "Click pages below, or type them here.",
+              gridLabel: "Choose pages to import",
+              pageLabel: "Page {{page}}",
+              selectAll: "Select all",
+              selectFirst: "Select first {{max}}",
+              clear: "Clear",
+              count_one: "{{count}} of {{max}} pages selected",
+              count_other: "{{count}} of {{max}} pages selected",
+              atCap: "That is the most you can import at once.",
+            },
+            maxQuestions: {
+              label: "Questions to create",
+              hint: "Up to {{max}} per import. Leave empty for as many as we find.",
+            },
+            progress: {
+              title: "Building your test",
+              failedTitle: "The import stopped",
+              cancel: "Cancel this import",
+              statusError: "We could not check the import. It may still be running.",
+              retryStatus: "Check again",
+              pages_one: "{{count}} page",
+              pages_other: "{{count}} pages",
+              questions_one: "{{count}} question so far",
+              questions_other: "{{count}} questions so far",
+              questionsOf: "{{count}} of {{total}} questions",
+              steps: {
+                uploading: "Uploading your file",
+                analyzing: "Reading the pages",
+                extracting: "Finding questions",
+                building: "Building your test",
+              },
+            },
+            banner: {
+              title_one: "{{count}} question imported from your PDF.",
+              title_other: "{{count}} questions imported from your PDF.",
+              missingAnswers_one:
+                "{{count}} question has no correct answer yet — choose one before publishing.",
+              missingAnswers_other:
+                "{{count}} questions have no correct answer yet — choose them before publishing.",
+              allAnswered: "Every question has a correct answer marked.",
+              truncated:
+                "We found {{total}} questions and imported the first {{count}} — that is the limit for one import.",
+              incomplete:
+                "We counted about {{total}} questions but could build only {{count}}. Check the PDF and retry if anything is missing.",
+              review: "Check the wording and answers against your paper before you publish.",
+              dismiss: "Dismiss",
+            },
+            errors: {
+              UNREADABLE: "That file could not be opened. It may be damaged or password-protected.",
+              TOO_LARGE: "That PDF is larger than {{size}} MB.",
+              TOO_MANY_PAGES: "That document has more than {{max}} pages.",
+              TOO_MANY_SELECTED_PAGES: "You can import up to {{pages}} pages at once.",
+              INVALID_PAGES: "Those page numbers could not be read. Try a range like 1-4, 7.",
+              INVALID_PDF: "That file is not a readable PDF.",
+              QUOTA_EXCEEDED: "Your school has reached today's import limit. Try again tomorrow.",
+              EXTRACTION_FAILED: "The test could not be read from those pages. Try selecting a different range.",
+              NO_QUESTIONS_FOUND: "No questions were found on those pages. Check the page selection.",
+              INTERRUPTED: "The import was interrupted. Please start it again.",
+              DISABLED: "PDF import is switched off right now.",
             },
           },
           delete: {
@@ -2365,6 +2460,10 @@ translation: {
             testPublished: {
               title: "New test published",
               description: "A test was published for one of your classes.",
+            },
+            testImportReady: {
+              title: "Your imported test is ready",
+              description: "Open the draft to review its questions and answers.",
             },
             policyUpdate: {
               title: "Policy update",

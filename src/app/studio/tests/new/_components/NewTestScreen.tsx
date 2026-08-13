@@ -1,8 +1,9 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Clock3, Layers } from "lucide-react";
+import { ArrowRight, Clock3, FileUp, Layers } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -120,6 +121,36 @@ export default function NewTestScreen({
                 {t("root.tests.create.subheading")}
               </p>
             </div>
+
+            {/*
+              The other way a test can come into existence. This screen is where
+              that decision is made, so the alternative belongs here rather than
+              hidden behind a menu — a teacher holding a PDF should not have to
+              discover the importer by accident and type the paper out first.
+            */}
+            <Surface
+              variant="muted"
+              padding="sm"
+              elevation={0}
+              className="flex flex-wrap items-center gap-3"
+            >
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-card text-muted-foreground">
+                <FileUp className="size-4" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="type-label text-foreground">
+                  {t("root.tests.create.importTitle")}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  {t("root.tests.create.importBlurb")}
+                </p>
+              </div>
+              <Button asChild variant="outline" size="sm">
+                <Link href={studioRoutes.importTest(classId)}>
+                  {t("root.tests.create.importAction")}
+                </Link>
+              </Button>
+            </Surface>
 
             <Field
               label={t("root.tests.create.nameLabel")}

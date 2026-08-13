@@ -100,6 +100,9 @@ export const questionAnchorId = (id: string) => `test-question-${id}`;
  */
 export const studioRoutes = {
   newTest: (classId: string) => `/studio/tests/new?class=${encodeURIComponent(classId)}`,
+  /** Creating a test from a PDF rather than from a blank format blueprint. */
+  importTest: (classId: string) =>
+    `/studio/tests/import?class=${encodeURIComponent(classId)}`,
   builder: (testId: string) => `/studio/tests/${testId}`,
   publish: (testId: string) => `/studio/tests/${testId}/publish`,
   classTests: (classId: string) => `/groups/${classId}/tests`,

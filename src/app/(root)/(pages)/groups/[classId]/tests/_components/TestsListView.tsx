@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, FilePlus2, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, FilePlus2, FileUp, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -102,14 +102,26 @@ export default function TestsListView({
         subtitle={t("root.tests.list.subtitle", { name: className })}
         actions={
           // Authoring lives in the studio, a different environment with its own
-          // chrome, so this is a navigation rather than a dialog. The class comes
+          // chrome, so these are navigations rather than dialogs. The class comes
           // along as a query parameter because the draft does not exist yet.
-          <Button asChild size="lg">
-            <Link href={studioRoutes.newTest(classId)}>
-              <FilePlus2 className="size-4" />
-              {t("root.tests.list.create")}
-            </Link>
-          </Button>
+          //
+          // Import sits beside "New test" as an outline button, not a menu item:
+          // it is the other way a test starts, and a teacher who arrived holding
+          // a PDF should see it without opening anything.
+          <div className="flex flex-wrap items-center gap-2">
+            <Button asChild variant="outline" size="lg">
+              <Link href={studioRoutes.importTest(classId)}>
+                <FileUp className="size-4" />
+                {t("root.tests.list.import")}
+              </Link>
+            </Button>
+            <Button asChild size="lg">
+              <Link href={studioRoutes.newTest(classId)}>
+                <FilePlus2 className="size-4" />
+                {t("root.tests.list.create")}
+              </Link>
+            </Button>
+          </div>
         }
       />
 
