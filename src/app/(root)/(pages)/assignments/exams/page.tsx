@@ -62,7 +62,11 @@ async function StaffAssignments() {
 }
 
 /** Every failure on this route lands in the same place, back to the dashboard. */
-function AssignmentsState({ reason }: { reason: "forbidden" | "error" }) {
+function AssignmentsState({
+  reason,
+}: {
+  reason: "forbidden" | "notFound" | "error";
+}) {
   return (
     <ResourceStateView
       reason={reason}

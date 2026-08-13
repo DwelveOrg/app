@@ -174,22 +174,21 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
   const profileItem: NavItem = { href: "/profile", label: t("sidebar.profile"), icon: UserRound };
 
   /**
-   * Assignments: the tests set for a student's classes, or — for staff — the
-   * tests they have set across theirs. One row, because it is one question
-   * asked from two directions, and it now has a real destination for every
-   * membership role rather than a "coming soon" for two of the three.
+   * One row, two destinations, because "tests" means different work to each
+   * role in the selected school: a student sits the papers set for their
+   * classes, while a teacher keeps a library of the ones they wrote and hands
+   * them to other classes from there.
+   *
+   * Role is unambiguous here — it comes from the selected membership, not the
+   * account — so the same account can be a teacher in one school and a student
+   * in another and get the right row in each.
    */
-  const assignmentsItem: NavItem = {
-    href: "/assignments/exams",
-    label: t("sidebar.assignments"),
-    icon: NotebookPen,
-  };
-  /**
-   * An account with no membership has neither side of it, so the row stays
-   * locked for them rather than opening onto an access state.
-   */
-  const hasAssignments =
-    schoolRole === "STUDENT" || schoolRole === "TEACHER" || schoolRole === "ADMIN";
+  const canTakeTests = schoolRole === "STUDENT";
+  const canAuthorTests = schoolRole === "TEACHER" || schoolRole === "ADMIN";
+  const testsItem: NavItem = canTakeTests
+    ? { href: "/assignments/exams", label: t("sidebar.assignments"), icon: NotebookPen }
+    : { href: "/tests", label: t("sidebar.tests"), icon: NotebookPen };
+  const showTests = canTakeTests || canAuthorTests;
 
   const comingSoon = t("sidebar.comingSoon");
   const isActive = (href: string) => isRouteActive(pathname, href);
@@ -213,12 +212,15 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
           {primaryItems.map((item) => (
             <NavLink key={item.href} item={item} active={isActive(item.href)} />
           ))}
-          {hasAssignments ? (
-            <NavLink item={assignmentsItem} active={isActive(assignmentsItem.href)} />
+          {showTests ? (
+            <NavLink item={testsItem} active={isActive(testsItem.href)} />
           ) : (
+            // No membership in the selected school yet: neither destination has
+            // anything to show, so the row stays locked rather than opening on
+            // a page that can only answer 403.
             <LockedNavItem
               icon={NotebookPen}
-              label={t("sidebar.assignments")}
+              label={t("sidebar.tests")}
               comingSoonLabel={comingSoon}
             />
           )}
@@ -283,21 +285,18 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
                 align="end"
                 className="mb-2 w-[260px] rounded-2xl border-border bg-popover p-2 shadow-elev-3 max-[350px]:w-[220px]"
               >
-                {hasAssignments ? (
+                {showTests ? (
                   <DropdownMenuItem
                     asChild
                     className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs ${
-                      isActive(assignmentsItem.href)
+                      isActive(testsItem.href)
                         ? "bg-accent text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                         : ""
                     }`}
                   >
-                    <Link
-                      href={assignmentsItem.href}
-                      onClick={() => setMobileMoreOpen(false)}
-                    >
+                    <Link href={testsItem.href} onClick={() => setMobileMoreOpen(false)}>
                       <NavIcon icon={NotebookPen} />
-                      <span className="ml-3">{assignmentsItem.label}</span>
+                      <span className="ml-3">{testsItem.label}</span>
                     </Link>
                   </DropdownMenuItem>
                 ) : (
@@ -306,7 +305,7 @@ export default function SideBar({ schoolRole }: { schoolRole?: string | null }) 
                     className="rounded-xl px-3 py-2.5 text-sm font-semibold opacity-70 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
                   >
                     <NavIcon icon={NotebookPen} />
-                    <span className="ml-3">{t("sidebar.assignments")}</span>
+                    <span className="ml-3">{t("sidebar.tests")}</span>
                     <Badge variant="neutral" size="xs" uppercase className="ml-auto">
                       {comingSoon}
                     </Badge>

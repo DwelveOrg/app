@@ -1,33 +1,39 @@
 import "server-only";
 
+import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import { BackendApiError } from "@/lib/api/backend";
 import { listLibraryTestsRequest } from "../_lib/tests.api";
-import type { LibraryTestsResponse } from "../_lib/tests.schemas";
-
-/** Why the library could not be shown, so each case gets its own UI state. */
-export type LibraryFetchFailure = "forbidden" | "error";
+import type { LibraryTestsListResponse } from "../_lib/tests.schemas";
+import type { TestsFetchFailure } from "./getClassTests";
 
 export type LibraryTestsResult =
-  | { ok: true; data: LibraryTestsResponse }
-  | { ok: false; reason: LibraryFetchFailure };
+  | { ok: true; data: LibraryTestsListResponse }
+  | { ok: false; reason: TestsFetchFailure };
 
 /**
- * Every test the caller has given, across their classes (`GET /tests`).
+ * Fetches the first page of the caller's test library (`GET /tests`).
  *
- * The backend decides the scope: an admin sees the school's tests, a teacher
- * sees their own. That is why this is not assembled from per-class calls — the
- * "which classes are mine" question is already answered there, and answering it
- * again on the client would be a second, weaker copy of the same rule.
+ * Mirrors `getClassTests`, including the 403/404 split, so both test lists fail
+ * into the same three UI states. There is no not-found case for the unfiltered
+ * library — the route needs no class to exist — but the filtered variant can
+ * still 404 on a class the caller cannot see.
  */
 export async function getLibraryTests(
-  query: { status?: string; page?: number; limit?: number; search?: string } = {},
+  query: {
+    status?: string;
+    page?: number;
+    limit?: number;
+    classId?: string;
+    search?: string;
+  } = {},
 ): Promise<LibraryTestsResult> {
   try {
-    const data = await listLibraryTestsRequest(query);
+    const data = await listLibraryTestsRequest(query, authedBackendJson);
     return { ok: true, data };
   } catch (error) {
-    if (error instanceof BackendApiError && error.status === 403) {
-      return { ok: false, reason: "forbidden" };
+    if (error instanceof BackendApiError) {
+      if (error.status === 403) return { ok: false, reason: "forbidden" };
+      if (error.status === 404) return { ok: false, reason: "notFound" };
     }
     console.error("Failed to load the test library:", error);
     return { ok: false, reason: "error" };
