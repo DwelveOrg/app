@@ -18,8 +18,6 @@ type ClassRequestsPanelProps = {
   isAdmin: boolean;
   /** Which queue opens first — teacher-request notifications deep-link here. */
   initialTab?: RequestsTab;
-  /** Re-reads the server-rendered class after a request is approved/rejected. */
-  onReviewed?: () => void;
 };
 
 /**
@@ -34,7 +32,6 @@ export default function ClassRequestsPanel({
   classId,
   isAdmin,
   initialTab = "students",
-  onReviewed,
 }: ClassRequestsPanelProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<RequestsTab>(
@@ -97,9 +94,9 @@ export default function ClassRequestsPanel({
       ) : null}
 
       {onTeachers ? (
-        <ClassTeacherRequestsList classId={classId} onReviewed={onReviewed} />
+        <ClassTeacherRequestsList classId={classId} />
       ) : (
-        <ClassStudentRequestsList classId={classId} onReviewed={onReviewed} />
+        <ClassStudentRequestsList classId={classId} />
       )}
     </div>
   );

@@ -18,11 +18,6 @@ import RejectTeacherRequestDialog from "./RejectTeacherRequestDialog";
 
 type ClassTeacherRequestsListProps = {
   classId: string;
-  /**
-   * Called after an approve or reject lands. Approving assigns the teacher, so
-   * the server-rendered class page uses this to re-read its roster.
-   */
-  onReviewed?: () => void;
 };
 
 /**
@@ -32,7 +27,6 @@ type ClassTeacherRequestsListProps = {
  */
 export default function ClassTeacherRequestsList({
   classId,
-  onReviewed,
 }: ClassTeacherRequestsListProps) {
   const { t } = useTranslation();
   const [rejecting, setRejecting] = useState<TeacherRequestItem | null>(null);
@@ -52,7 +46,6 @@ export default function ClassTeacherRequestsList({
       {
         onSuccess: () => {
           toast.success(t("root.enrollment.teacherRequests.approvedToast"));
-          onReviewed?.();
         },
         onError: (error) =>
           toast.error(
@@ -71,7 +64,6 @@ export default function ClassTeacherRequestsList({
         onSuccess: () => {
           setRejecting(null);
           toast.success(t("root.enrollment.teacherRequests.rejectedToast"));
-          onReviewed?.();
         },
         onError: (error) =>
           toast.error(

@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
   CalendarDays,
@@ -19,11 +17,11 @@ import { useTranslation } from "react-i18next";
 
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import type { ApiClass } from "@/app/(root)/_lib/classes.schemas";
+import type { StudentTestRow } from "@/app/exam/_lib/attempts.schemas";
 import { Button } from "@/components/ui/Button";
 import EntityHeader from "@/app/(root)/_components/EntityHeader";
 import FactGrid, { Fact } from "@/app/(root)/_components/FactGrid";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
-import { queryKeys } from "@/lib/query/keys";
 import { classAccent } from "../../_constants";
 import { enrollmentModeLabelKeys } from "../../_lib/enrollmentLabels";
 import EditClassDialog from "../../_components/EditClassDialog";
@@ -31,6 +29,7 @@ import DeleteClassDialog from "../../_components/DeleteClassDialog";
 import ClassRequestsButton from "./ClassRequestsButton";
 import ClassRequestsSection from "./ClassRequestsSection";
 import ClassRosterSection from "./ClassRosterSection";
+import ClassStudentTestsSection from "./ClassStudentTestsSection";
 import LeaveClassDialog from "./LeaveClassDialog";
 
 type ClassDetailViewProps = {
@@ -39,11 +38,17 @@ type ClassDetailViewProps = {
   viewerRole: SchoolRole | null;
   /** The selected school, for the caches a self-leave has to invalidate. */
   schoolId: string | undefined;
+  /** The viewer's own tests for this class. Empty for anyone but a student. */
+  myTests: StudentTestRow[];
 };
 
 /**
- * The class page: identity first, then an overview of the class facts, who is
- * in it, and — for staff — the requests waiting on a decision.
+ * The class page: identity first, then an overview of the class facts, then
+ * what the class asks of the viewer — assigned tests for a student, the request
+ * queue for staff — and who else is in it.
+ *
+ * The order is deliberate and role-dependent. A student's work outranks the
+ * roster: they came to find out what is due, not who their classmates are.
  *
  * Every action the viewer is allowed is a direct, labelled control in the
  * header. There is no overflow menu: a three-dot button that hides two items
@@ -56,10 +61,9 @@ export default function ClassDetailView({
   isAdmin,
   viewerRole,
   schoolId,
+  myTests,
 }: ClassDetailViewProps) {
   const { t } = useTranslation();
-  const router = useRouter();
-  const queryClient = useQueryClient();
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
@@ -81,12 +85,6 @@ export default function ClassDetailView({
   const leadTeacher = classItem.teachers[0]?.fullName ?? null;
   const accent = classAccent(classItem.id);
   const capacity = classItem.capacity ?? null;
-
-  /** Roster and request changes affect this server-rendered page and the caches. */
-  const refreshClassData = () => {
-    router.refresh();
-    void queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all });
-  };
 
   return (
     <section className="flex flex-col gap-6 py-6">
@@ -218,6 +216,11 @@ export default function ClassDetailView({
         </FactGrid>
       </EntityHeader>
 
+      {/* A student's own work comes before the roster: it is why they opened
+          the page. Staff get no section here — their view of a class's tests is
+          the authoring list behind "Tests" in the header. */}
+      {viewerRole === "STUDENT" ? <ClassStudentTestsSection tests={myTests} /> : null}
+
       <ClassRosterSection
         classId={classItem.id}
         teachers={classItem.teachers}
@@ -226,15 +229,10 @@ export default function ClassDetailView({
         studentCount={studentCount}
         canManageTeachers={isAdmin}
         canManageStudents={canManage}
-        onRosterChange={refreshClassData}
       />
 
       {canManage ? (
-        <ClassRequestsSection
-          classId={classItem.id}
-          isAdmin={isAdmin}
-          onReviewed={refreshClassData}
-        />
+        <ClassRequestsSection classId={classItem.id} isAdmin={isAdmin} />
       ) : null}
 
       {isAdmin ? (

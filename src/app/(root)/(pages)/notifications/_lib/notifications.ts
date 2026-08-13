@@ -52,6 +52,14 @@ export function resolveNotificationHref(item: NotificationItem): string | null {
     const attemptId = typeof data.attemptId === "string" ? data.attemptId : null;
     if (!testId) return null;
 
+    // Import completion is authored for a teacher. It must open the editable
+    // draft and preserve the job id used by the import summary banner; the
+    // generic test fallback below is the student exam route.
+    if (type === "TEST_IMPORT_READY") {
+      const jobId = typeof data.jobId === "string" ? data.jobId : null;
+      return `/studio/tests/${testId}${jobId ? `?import=${encodeURIComponent(jobId)}` : ""}`;
+    }
+
     // A teacher: straight to the paper that was handed in, or to the register.
     if (type === "TEST_SUBMITTED" || type === "TEST_AUTO_SUBMITTED_TEACHER") {
       return classId

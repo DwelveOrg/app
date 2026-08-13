@@ -11,8 +11,6 @@ type AssignTeacherDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   classId: string;
-  /** Refreshes the server-rendered class after the roster changes. */
-  onAssigned: () => void;
 };
 
 /**
@@ -24,7 +22,6 @@ export default function AssignTeacherDialog({
   open,
   onOpenChange,
   classId,
-  onAssigned,
 }: AssignTeacherDialogProps) {
   const { t } = useTranslation();
   const [search, setSearch] = useState("");
@@ -52,7 +49,6 @@ export default function AssignTeacherDialog({
           toast.success(
             t("root.enrollment.assignTeacher.assignedToast", { name: person.fullName }),
           );
-          onAssigned();
         },
         onError: (error) =>
           toast.error(

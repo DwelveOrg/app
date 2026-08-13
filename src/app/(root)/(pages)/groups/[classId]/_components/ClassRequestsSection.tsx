@@ -9,8 +9,6 @@ type ClassRequestsSectionProps = {
   classId: string;
   /** Admins also review requests to teach the class; teachers see students only. */
   isAdmin: boolean;
-  /** Re-reads the server-rendered class after a request is approved/rejected. */
-  onReviewed?: () => void;
 };
 
 /**
@@ -24,7 +22,6 @@ type ClassRequestsSectionProps = {
 export default function ClassRequestsSection({
   classId,
   isAdmin,
-  onReviewed,
 }: ClassRequestsSectionProps) {
   const { t } = useTranslation();
 
@@ -42,7 +39,7 @@ export default function ClassRequestsSection({
         {t("root.classDetail.requests.title")}
       </h2>
 
-      <ClassRequestsPanel classId={classId} isAdmin={isAdmin} onReviewed={onReviewed} />
+      <ClassRequestsPanel classId={classId} isAdmin={isAdmin} />
     </section>
   );
 }

@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import ReportProblem from "@/components/Custom/ReportProblem";
+
 /**
  * The exam room — a separate environment, not another dashboard page.
  *
@@ -26,6 +28,13 @@ export const metadata: Metadata = {
 
 export default function ExamLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-dvh flex-col bg-sidebar text-foreground">{children}</div>
+    <div className="flex min-h-dvh flex-col bg-sidebar text-foreground">
+      {children}
+      {/* Present on the cover, the submitted screen and the result — and absent
+          on a live attempt, which `ReportProblem` enforces itself. A floating
+          control that opens a modal is exactly the invitation to leave the
+          screen that a `detectLeaveScreen: SUBMIT` delivery punishes. */}
+      <ReportProblem />
+    </div>
   );
 }

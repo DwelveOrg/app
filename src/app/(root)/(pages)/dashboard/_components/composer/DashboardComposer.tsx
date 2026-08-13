@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   AlertTriangle,
@@ -10,6 +10,7 @@ import {
   CalendarClock,
   Check,
   ClipboardList,
+  FileUp,
   GraduationCap,
   HelpCircle,
   School,
@@ -39,7 +40,15 @@ import type {
 } from "@/app/(root)/_lib/dashboard.schemas";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
 import { Button } from "@/components/ui/Button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Surface from "@/components/ui/Surface";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 import { cn } from "@/lib/utils";
 import { EMPTY_ART, type EmptyArtKind } from "../EmptyArt";
 import JoinCodeChip from "../JoinCodeChip";
@@ -920,6 +929,67 @@ function QuickActions({ ctx }: ModuleProps) {
   );
 }
 
+/* -------------------------------------------------------------------------- */
+/* Import a test from a PDF                                                   */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * The dashboard's entry into the PDF importer.
+ *
+ * Unlike the other quick actions this one cannot be a bare link: an import
+ * belongs to a class, and the dashboard is the one surface with no class in
+ * context. So the panel asks for the class here rather than dropping the
+ * teacher on a screen that immediately asks them to go back and pick one.
+ *
+ * It renders nothing when there are no classes yet — an importer with nowhere
+ * to import *to* is an invitation to a dead end, and the setup checklist is
+ * already telling them to create a class.
+ */
+function ImportTestPanel({ ctx }: ModuleProps) {
+  const { t } = useTranslation();
+  const classes = ctx.classPerformance?.classes ?? [];
+  const [classId, setClassId] = useState(() => classes[0]?.classId ?? "");
+
+  if (!classes.length) return null;
+
+  const selected = classes.some((row) => row.classId === classId)
+    ? classId
+    : classes[0].classId;
+
+  return (
+    <Panel title={t("root.dashboard.importTest.title")}>
+      <p className="text-sm leading-6 text-muted-foreground">
+        {t("root.dashboard.importTest.description")}
+      </p>
+
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Select value={selected} onValueChange={setClassId}>
+          <SelectTrigger
+            className="min-w-[10rem] flex-1"
+            aria-label={t("root.dashboard.importTest.classLabel")}
+          >
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {classes.map((row) => (
+              <SelectItem key={row.classId} value={row.classId}>
+                {row.className}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Button asChild>
+          <Link href={studioRoutes.importTest(selected)}>
+            <FileUp className="h-4 w-4" />
+            {t("root.dashboard.importTest.action")}
+          </Link>
+        </Button>
+      </div>
+    </Panel>
+  );
+}
+
 function DiscoverClasses({ ctx }: ModuleProps) {
   const { t } = useTranslation();
   return (
@@ -1094,6 +1164,18 @@ const REGISTRY: ModuleEntry[] = [
       maxSpan: 8,
     }),
     Component: RecentActivity,
+  },
+  {
+    id: "import-test",
+    roles: ["ADMIN", "TEACHER"],
+    // Sits with the other authoring shortcuts rather than at the top: a teacher
+    // arriving with a PDF is looking for it, and one who is not should see
+    // their figures first.
+    resolve: (ctx) =>
+      (ctx.classPerformance?.classes ?? []).length
+        ? { priority: 21, span: 4, minSpan: 3, maxSpan: 6 }
+        : null,
+    Component: ImportTestPanel,
   },
   {
     id: "quick",

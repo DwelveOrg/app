@@ -39,6 +39,11 @@ export const queryKeys = {
       [...queryKeys.tests.all, "validation", testId] as const,
     formats: () => [...queryKeys.tests.all, "formats"] as const,
   },
+  testImports: {
+    all: ["test-imports"] as const,
+    limits: () => [...queryKeys.testImports.all, "limits"] as const,
+    job: (jobId: string) => [...queryKeys.testImports.all, "job", jobId] as const,
+  },
   notifications: {
     all: ["notifications"] as const,
     status: () => [...queryKeys.notifications.all, "status"] as const,

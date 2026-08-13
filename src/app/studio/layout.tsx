@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 
+import ReportProblem from "@/components/Custom/ReportProblem";
+
 /**
  * The test studio — a separate environment, not another dashboard page.
  *
@@ -24,6 +26,9 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
   return (
     <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-sidebar text-foreground">
       {children}
+      {/* The studio drops the dashboard chrome, but a broken editor is exactly
+          what a maintainer needs a screenshot of. */}
+      <ReportProblem />
     </div>
   );
 }

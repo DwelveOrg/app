@@ -213,11 +213,14 @@ const testBaseShape = {
     .partial()
     .optional(),
   questionCount: z.number().optional(),
+  /** Submitted or graded attempts in the cross-class staff library. */
+  submissionCount: z.number().optional(),
 };
 
 /** A row in `GET /classes/:classId/tests`. */
 export const testSummarySchema = z.object(testBaseShape).passthrough();
 export type ApiTestSummary = z.infer<typeof testSummarySchema>;
+
 
 /** `GET /tests/:testId` - the full tree, including the answer key. */
 export const testDetailSchema = z

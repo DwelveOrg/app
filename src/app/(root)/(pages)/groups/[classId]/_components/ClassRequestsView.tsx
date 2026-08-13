@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -29,7 +28,6 @@ export default function ClassRequestsView({
   initialTab = "students",
 }: ClassRequestsViewProps) {
   const { t } = useTranslation();
-  const router = useRouter();
 
   return (
     <section className="flex flex-col gap-6 py-6">
@@ -50,12 +48,13 @@ export default function ClassRequestsView({
         </p>
       </header>
 
+      {/* Reviewing a request re-runs this server render as well as the
+          request-list queries — `useServerDataRefresh` owns both halves, so
+          this route does not have to remember to ask for one of them. */}
       <ClassRequestsPanel
         classId={classId}
         isAdmin={isAdmin}
         initialTab={initialTab}
-        // The class name and roster on this route are server-rendered too.
-        onReviewed={() => router.refresh()}
       />
     </section>
   );
