@@ -374,7 +374,7 @@ translation: {
             },
             classPerformance: { title: "Результаты по классам", average: "Средний балл", completed: "Итоговые результаты", emptyTitle: "Пока нет данных по классам", emptyDescription: "Средние баллы появятся после проверки и публикации результатов." },
             submissions: { title: "Статус отправки", range: "Последние 7 дней", onTime: "Вовремя", late: "Поздно", missing: "Не сдано", emptyTitle: "Нет недавних сроков", emptyDescription: "Здесь появятся тесты со сроком за последние семь дней." },
-            activity: { title: "Недавняя активность", emptyTitle: "Пока нет активности", emptyDescription: "Здесь появятся приглашения, запросы и обновления тестов." },
+            activity: { title: "Недавняя активность", seeAll: "Все", emptyTitle: "Пока нет активности", emptyDescription: "Здесь появятся приглашения, запросы и обновления тестов." },
             members: {
               title: "Участники по ролям",
               center: "участников",
@@ -880,6 +880,16 @@ translation: {
             submit: "Создать тест",
             tryAgain: "Попробовать снова",
             chooseAnother: "Выбрать другой файл",
+            formatDetected:
+              "Формат — SAT, IELTS или обычный тест — определяется по самой работе. Позже его можно изменить в настройках теста.",
+            cta: {
+              eyebrow: "AI",
+              title: "Превратите PDF в тест",
+              description:
+                "Загрузите прошлогоднюю работу или главу из сборника. Все вопросы, варианты и ответы будут считаны из неё — вы проверяете готовый черновик, а не набираете его.",
+              strip: "Загрузите работу — получите черновик",
+              action: "Собрать за меня",
+            },
             answerRule:
               "Ответы отмечаются только там, где они указаны на странице — галочка, выделенный вариант или лист ответов. Включите страницу с ответами в выбор, если она есть. Всё остальное останется незаполненным, чтобы вы выбрали сами.",
             choose: {
@@ -897,6 +907,7 @@ translation: {
               subheading_one: "В документе {{count}} страница.",
               subheading_few: "В документе {{count}} страницы.",
               subheading_many: "В документе {{count}} страниц.",
+              subheading_other: "В документе {{count}} страниц.",
               label: "Страницы",
               hint: "Выберите страницы ниже или введите их здесь.",
               gridLabel: "Выбор страниц для импорта",
@@ -907,6 +918,7 @@ translation: {
               count_one: "Выбрана {{count}} страница из {{max}}",
               count_few: "Выбрано {{count}} страницы из {{max}}",
               count_many: "Выбрано {{count}} страниц из {{max}}",
+              count_other: "Выбрано {{count}} страниц из {{max}}",
               atCap: "Это максимум за один импорт.",
             },
             maxQuestions: {
@@ -916,15 +928,19 @@ translation: {
             progress: {
               title: "Собираем тест",
               failedTitle: "Импорт остановлен",
+              failedHint: "Ничего не создано. Измените страницы и попробуйте снова.",
+              working: "Читаем ваш документ",
               cancel: "Отменить импорт",
               statusError: "Не удалось проверить импорт. Возможно, он всё ещё выполняется.",
               retryStatus: "Проверить снова",
               pages_one: "{{count}} страница",
               pages_few: "{{count}} страницы",
               pages_many: "{{count}} страниц",
+              pages_other: "{{count}} страниц",
               questions_one: "пока {{count}} вопрос",
               questions_few: "пока {{count}} вопроса",
               questions_many: "пока {{count}} вопросов",
+              questions_other: "пока {{count}} вопросов",
               questionsOf: "{{count}} из {{total}} вопросов",
               steps: {
                 uploading: "Загружаем файл",
@@ -937,11 +953,14 @@ translation: {
               title_one: "Из вашего PDF импортирован {{count}} вопрос.",
               title_few: "Из вашего PDF импортировано {{count}} вопроса.",
               title_many: "Из вашего PDF импортировано {{count}} вопросов.",
+              title_other: "Из вашего PDF импортировано {{count}} вопросов.",
               missingAnswers_one:
                 "У {{count}} вопроса ещё нет правильного ответа — укажите его перед публикацией.",
               missingAnswers_few:
                 "У {{count}} вопросов ещё нет правильного ответа — укажите их перед публикацией.",
               missingAnswers_many:
+                "У {{count}} вопросов ещё нет правильного ответа — укажите их перед публикацией.",
+              missingAnswers_other:
                 "У {{count}} вопросов ещё нет правильного ответа — укажите их перед публикацией.",
               allAnswered: "У каждого вопроса отмечен правильный ответ.",
               truncated:
@@ -1725,6 +1744,7 @@ translation: {
             groups: "Группы",
           },
           teachers: {
+            panelDescription: "Все, кто преподаёт в этой школе.",
             columns: {
               teacher: "Учитель",
               email: "Email",
@@ -1855,6 +1875,7 @@ translation: {
             classCount_few: "{{count}} класса",
             classCount_many: "{{count}} классов",
             classCount_other: "{{count}} классов",
+            panelDescription: "Все, кто зачислен в эту школу.",
             columns: {
               student: "Ученик",
               code: "Код",
@@ -2144,6 +2165,29 @@ translation: {
           },
           requests: {
             title: "Заявки",
+            panelDescription: "Кто ждёт зачисления в этот класс или права его вести.",
+          },
+          assignments: {
+            title: "Задания",
+          },
+          activity: {
+            title: "Активность класса",
+            refresh: "Обновить",
+            someone: "Кто-то",
+            late: "С опозданием",
+            awaitingMark: "Ожидает проверки",
+            emptyTitle: "Пока ничего не происходило",
+            emptyDescription:
+              "Сданные работы, новые ученики и опубликованные тесты появятся здесь, начиная с последних.",
+            errorTitle: "Не удалось загрузить активность класса",
+            errorDescription: "Что-то пошло не так на нашей стороне. Попробуйте снова.",
+            retry: "Попробовать снова",
+            events: {
+              TEST_SUBMITTED: "сдал(а)",
+              TEST_STARTED: "начал(а)",
+              STUDENT_JOINED: "присоединился(ась) к классу",
+              TEST_PUBLISHED: "опубликовал(а)",
+            },
           },
           removeStudent: {
             title: "Удалить {{name}} из класса?",
@@ -2178,10 +2222,12 @@ translation: {
           },
           teachers: {
             tab: "Учителя",
+            panelDescription: "Кто ведёт этот класс.",
             empty: "Учителя ещё не назначены.",
           },
           students: {
             tab: "Ученики",
+            panelDescription: "Кто зачислен в этот класс.",
             empty: "Ученики ещё не добавлены.",
           },
           edit: {
@@ -2615,6 +2661,43 @@ translation: {
         retry: "Повторить",
         backToAssignments: "К моим тестам",
         backToCover: "К тесту",
+        appearance: {
+          title: "Вид",
+          theme: "Цвета",
+          textSize: "Размер текста",
+          themes: {
+            paper: "Чёрным по белому",
+            slate: "Белым по чёрному",
+            contrast: "Жёлтым по чёрному",
+          },
+          sizes: {
+            sm: "Мелкий текст",
+            md: "Обычный текст",
+            lg: "Крупный текст",
+            xl: "Очень крупный текст",
+          },
+        },
+        sat: {
+          section: "Раздел",
+          questionOf: "Вопрос {{number}} из {{total}}",
+          hideTimer: "Скрыть",
+          showTimer: "Показать",
+          markForReview: "Отметить для проверки",
+          markedForReview: "Отмечен для проверки",
+          crossOut: "Вычеркнуть варианты",
+          crossOutHint: "Вычеркните варианты, которые вы исключили",
+          crossOutOption: "Вычеркнуть вариант {{label}}",
+          undoCrossOut: "Вернуть вариант {{label}}",
+          noStimulus: "Этот вопрос не связан с текстом.",
+        },
+        ielts: {
+          part: "Часть {{number}}",
+          partShort: "Часть {{number}}",
+          questionRange: "Вопросы {{from}}–{{to}}",
+          review: "К проверке",
+          reviewed: "Отмечен",
+          noPassage: "В этой части нет текста для чтения.",
+        },
         states: {
           forbidden: {
             title: "Этот тест вам недоступен",

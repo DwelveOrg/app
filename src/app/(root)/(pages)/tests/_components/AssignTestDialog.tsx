@@ -82,10 +82,7 @@ export default function AssignTestDialog({
             }),
           );
           closeAndReset(false);
-          // Straight into the copy: it is a draft that still needs publishing,
-          // and leaving the teacher on the library would hide that.
           router.push(studioRoutes.builder(created.id));
-          router.refresh();
         },
         onError: (error) =>
           toast.error(

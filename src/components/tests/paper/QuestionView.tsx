@@ -40,6 +40,8 @@ export default function QuestionView({
   result,
   disabled,
   displayNumber,
+  hideMeta,
+  struckOptionIds,
 }: QuestionRenderProps) {
   const { t } = useTranslation();
   const answered = isAnswered(question.answerKind, value);
@@ -59,34 +61,40 @@ export default function QuestionView({
       className="scroll-mt-24 space-y-3"
       aria-label={t("exam.paper.questionLabel", { number })}
     >
-      <header className="flex flex-wrap items-center gap-2">
-        <span
-          aria-hidden="true"
-          className={cn(
-            "inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-13 font-semibold tabular-nums",
-            review
-              ? markTone(result?.isCorrect, result?.pointsAwarded, question.points)
-              : answered
-                ? "bg-primary text-primary-foreground"
-                : "bg-muted text-muted-foreground",
+      {hideMeta && !review ? null : (
+        <header className="flex flex-wrap items-center gap-2">
+          {hideMeta ? null : (
+            <>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-13 font-semibold tabular-nums",
+                  review
+                    ? markTone(result?.isCorrect, result?.pointsAwarded, question.points)
+                    : answered
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground",
+                )}
+              >
+                {number}
+              </span>
+
+              <Badge variant="neutral" size="sm">
+                {t("exam.paper.points", { count: question.points })}
+              </Badge>
+            </>
           )}
-        >
-          {number}
-        </span>
 
-        <Badge variant="neutral" size="sm">
-          {t("exam.paper.points", { count: question.points })}
-        </Badge>
-
-        {review ? <MarkBadge result={result} points={question.points} /> : null}
-      </header>
+          {review ? <MarkBadge result={result} points={question.points} /> : null}
+        </header>
+      )}
 
       {/*
         The prompt renders the gap marker as a visible blank rather than four
         underscores. The teacher typed a placeholder; the student should see the
         space where their answer goes.
       */}
-      <p className="max-w-[68ch] text-15 leading-relaxed whitespace-pre-wrap text-foreground">
+      <p className="exam-prose max-w-[68ch] text-15 whitespace-pre-wrap text-foreground">
         {renderGaps(question.prompt)}
       </p>
 
@@ -115,6 +123,7 @@ export default function QuestionView({
         onChange={onChange}
         result={result}
         disabled={disabled}
+        struckOptionIds={struckOptionIds}
       />
 
       {keyText ? (

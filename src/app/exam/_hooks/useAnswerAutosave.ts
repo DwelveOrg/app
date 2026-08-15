@@ -43,48 +43,53 @@ export function useAnswerAutosave(attemptId: string) {
   /** Answers changed since the last successful flush, keyed by question. */
   const pendingRef = useRef<Map<string, AnswerValue | null>>(new Map());
   const timerRef = useRef<number | null>(null);
-  /** Guards against two flushes overlapping and racing on the same question. */
-  const inFlightRef = useRef(false);
+  const inFlightRef = useRef<Promise<boolean> | null>(null);
 
-  const flush = useCallback(async (): Promise<boolean> => {
-    if (inFlightRef.current) return false;
+  const saveNextBatch = useCallback(async (): Promise<boolean> => {
+    if (inFlightRef.current) return inFlightRef.current;
     if (pendingRef.current.size === 0) return true;
 
-    // Taken, not read: anything the student types during the request belongs to
-    // the *next* batch, and leaving it in the map would send it twice.
     const batch = [...pendingRef.current.entries()];
     pendingRef.current.clear();
-    inFlightRef.current = true;
     setState("saving");
 
-    try {
-      readSafeActionData(
-        await saveAnswersAction({
-          attemptId,
-          answers: batch.map(([questionId, value]) => ({ questionId, value })),
-        }),
-        "exam.errors.saveFailed",
-      );
-      setSavedAt(new Date());
-      setState(pendingRef.current.size > 0 ? "pending" : "saved");
-      return true;
-    } catch {
-      /*
-       * Put them back, but never over a newer value: the student may have
-       * changed the same question while the failed request was in flight, and
-       * restoring the old answer on top of it would silently undo their edit.
-       */
-      for (const [questionId, value] of batch) {
-        if (!pendingRef.current.has(questionId)) {
-          pendingRef.current.set(questionId, value);
+    const request = (async () => {
+      try {
+        readSafeActionData(
+          await saveAnswersAction({
+            attemptId,
+            answers: batch.map(([questionId, value]) => ({ questionId, value })),
+          }),
+          "exam.errors.saveFailed",
+        );
+        setSavedAt(new Date());
+        setState(pendingRef.current.size > 0 ? "pending" : "saved");
+        return true;
+      } catch {
+        for (const [questionId, value] of batch) {
+          if (!pendingRef.current.has(questionId)) {
+            pendingRef.current.set(questionId, value);
+          }
         }
+        setState("error");
+        return false;
       }
-      setState("error");
-      return false;
+    })();
+
+    inFlightRef.current = request;
+    try {
+      return await request;
     } finally {
-      inFlightRef.current = false;
+      if (inFlightRef.current === request) inFlightRef.current = null;
     }
   }, [attemptId]);
+
+  const flush = useCallback(async (): Promise<boolean> => {
+    while (inFlightRef.current || pendingRef.current.size > 0) {
+      if (!(await saveNextBatch())) return false;
+    }
+    return true;
+  }, [saveNextBatch]);
 
   const schedule = useCallback(() => {
     if (timerRef.current) window.clearTimeout(timerRef.current);
@@ -103,7 +108,10 @@ export function useAnswerAutosave(attemptId: string) {
 
   /** Sends everything now — on question change, before submitting, on hide. */
   const flushNow = useCallback(() => {
-    if (timerRef.current) window.clearTimeout(timerRef.current);
+    if (timerRef.current) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
     return flush();
   }, [flush]);
 
@@ -135,7 +143,5 @@ export function useAnswerAutosave(attemptId: string) {
     savedAt,
     queue,
     flushNow,
-    /** True while work is still owed to the server — gates the submit button. */
-    hasUnsaved: () => pendingRef.current.size > 0,
   };
 }

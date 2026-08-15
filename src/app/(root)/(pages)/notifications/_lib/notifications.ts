@@ -69,7 +69,7 @@ export function resolveNotificationHref(item: NotificationItem): string | null {
         : `/tests/${testId}/results${attemptId ? `/${attemptId}` : ""}`;
     }
     if (type === "TEST_PUBLISHED_TEACHER") {
-      return classId ? `/groups/${classId}/tests` : `/tests/${testId}/results`;
+      return classId ? `/groups/${classId}` : `/tests/${testId}/results`;
     }
 
     // A student: their own result if there is one, else the test's cover.

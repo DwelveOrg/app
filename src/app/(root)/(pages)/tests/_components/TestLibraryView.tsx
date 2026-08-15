@@ -32,25 +32,14 @@ import { useLibraryTestsQuery } from "@/app/(root)/_hooks/useTests";
 import AssignTestDialog, { type AssignableClass } from "./AssignTestDialog";
 import LibraryTestCard from "./LibraryTestCard";
 
-/** `Select` cannot hold an empty string, so "every class" needs a real value. */
 const ALL_CLASSES = "__all__";
 
 type TestLibraryViewProps = {
   formats: FormatBlueprintRegistry;
-  /** First page of the default tab, rendered on the server. */
   initialTests: LibraryTestsListResponse | null;
   classes: AssignableClass[];
 };
 
-/**
- * Every test the viewer has written, across classes, with the filters a
- * cross-class list needs and a class-scoped one cannot want.
- *
- * The status tabs match `/groups/[classId]/tests` deliberately — the same three
- * lifecycle stages, in the same order, so the two lists are read the same way.
- * What differs is the row: each card names its class, and each carries the
- * assign control that is the point of this page.
- */
 export default function TestLibraryView({
   formats,
   initialTests,
@@ -65,28 +54,15 @@ export default function TestLibraryView({
   const [assignTarget, setAssignTarget] =
     useState<ApiLibraryTestSummary | null>(null);
 
-  /**
-   * The server-rendered seed describes this page load, so it is spent once —
-   * the same rule as the class list. Left in place it would re-seed the default
-   * view after the cache entry expired and suppress the refetch a tab change is
-   * supposed to guarantee.
-   */
-  const [seed, setSeed] = useState(initialTests);
+  const [canUseInitialTests, setCanUseInitialTests] = useState(true);
 
-  /**
-   * Typing is debounced rather than sent per keystroke: each distinct term is
-   * its own cache entry and its own request, and a five-letter title would
-   * otherwise cost five.
-   */
   useEffect(() => {
     const next = searchInput.trim();
     if (next === search) return;
 
     const timer = setTimeout(() => {
       setSearch(next);
-      // A new term is a new result set, so the page resets and the seed — which
-      // describes the unfiltered first render — no longer applies.
-      setSeed(null);
+      setCanUseInitialTests(false);
       setPage(1);
     }, 300);
     return () => clearTimeout(timer);
@@ -105,16 +81,16 @@ export default function TestLibraryView({
       page,
       classId: effectiveClassId,
       search,
-      initialData: isDefaultView ? (seed ?? undefined) : undefined,
+      initialData:
+        isDefaultView && canUseInitialTests ? (initialTests ?? undefined) : undefined,
     });
 
   const tests = data?.tests ?? [];
   const meta = data?.meta;
   const isFiltered = Boolean(effectiveClassId || search);
 
-  /** Any move away from the first render spends the seed — see `seed` above. */
   const goToPage = (next: number) => {
-    setSeed(null);
+    setCanUseInitialTests(false);
     setPage(next);
   };
 
@@ -143,8 +119,6 @@ export default function TestLibraryView({
         items={TEST_STATUS_TABS.map((tab) => ({
           value: tab,
           label: t(`root.tests.status.${tab}`),
-          // Only the tab in view has a total — the endpoint returns one status
-          // at a time, so a number beside the others would be a wrong fact.
           count: tab === status ? meta?.total : undefined,
           showZeroCount: true,
           refresh: {

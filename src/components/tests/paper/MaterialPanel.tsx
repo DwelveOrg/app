@@ -60,7 +60,7 @@ export default function MaterialPanel({
       ) : null}
 
       {passage ? (
-        <div className="max-w-[68ch] space-y-3 text-15 leading-relaxed text-foreground">
+        <div className="exam-prose max-w-[68ch] space-y-3 text-15 leading-relaxed text-foreground">
           {paragraphs.map(({ label, text }) => (
             <p key={label} className="flex gap-3">
               {labelled && paragraphs.length > 1 ? (

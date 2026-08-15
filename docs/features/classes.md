@@ -36,7 +36,9 @@ POST   /classes/:classId/teachers
 DELETE /classes/:classId/teachers/:teacherId
 GET    /classes/:classId/assignable-students
 GET    /classes/:classId/assignable-teachers
+GET    /classes/:classId/activity
 GET    /schools/:schoolId/members
+GET    /schools/:schoolId/classes
 ```
 
 The add-to-class pickers are the two class-scoped `assignable-*` routes: they
@@ -72,8 +74,10 @@ Counts are visible to active school members. Roster rows, including `email`,
 
 - `/groups` is the class directory. For students it is grouped by the decision
   each class is waiting on: enter, awaiting approval, requestable, unavailable.
-- `/groups/[classId]` is the class detail page. Its people are one tabbed panel,
-  Teachers and Students, labelled with `class.counts`.
+- The School page is server-seeded for student and teacher class discovery;
+  React Query keeps request-driven changes current.
+- `/groups/[classId]` contains the assignments board, class overview, activity
+  feed, and separate counted Teachers and Students modal panels.
 - Requests are handled on the class page itself — students for assigned
   teachers, students and teachers for admins. `/groups/[classId]/requests`
   remains as the notification deep-link target.
@@ -83,19 +87,24 @@ Counts are visible to active school members. Roster rows, including `email`,
   change the teaching roster. Students see read-only class surfaces.
 - Every action a viewer is permitted is rendered directly. Keep an overflow menu
   only where it holds two or more independent actions.
-- Add test/add exam controls must stay coming-soon until exam frontend
-  mutations are wired.
+- Admins and assigned teachers author tests through the studio; the class page
+  owns the filterable assignments board.
+- Class activity is server-seeded and polls while visible. Teachers receive
+  attempt/publication rows only for tests they authored; admins receive all
+  class test activity.
 
 ## Discover Classes Replacement
 
 The Discover Classes UI is retired. Remove its tabs, links, mock data, and any
 calls to `GET /schools/:schoolId/classes/discover`.
 
-Use `GET /classes` as the class directory. For students, render entry/request
-actions only from backend-provided `canEnter`, `canRequest`,
-`studentEnrollmentStatus`, `enrollmentMode`, `capacity`, and
-`activeStudentCount` fields. See `school-profile-and-groups-ux.md` for the
-School-page Teachers tab and `/groups/[classId]` UX requirements.
+Use `GET /classes` for staff-owned class lists and
+`GET /schools/:schoolId/classes` for student/teacher discovery. Render
+entry/request actions only from backend-provided flags: student rows use
+`canEnter`, `canRequest`, `studentEnrollmentStatus`, `enrollmentMode`,
+`capacity`, and `activeStudentCount`; teacher rows use `canEnter`, `canRequest`,
+and `teacherRequestStatus`. See `school-profile-and-groups-ux.md` for the School
+page and `/groups/[classId]` UX requirements.
 
 ## Related Docs
 

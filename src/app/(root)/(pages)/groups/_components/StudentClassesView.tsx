@@ -6,7 +6,10 @@ import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
 import Skeleton from "@/components/ui/Skeleton";
-import type { DiscoverableClass } from "@/app/(root)/_lib/enrollment.schemas";
+import type {
+  DiscoverableClass,
+  StudentClassesResponse,
+} from "@/app/(root)/_lib/enrollment.schemas";
 import { useStudentClasses } from "@/app/(root)/_hooks/useEnrollment";
 import Empty from "../../_components/ui/Empty";
 import ClassesNav from "./ClassesNav";
@@ -14,6 +17,7 @@ import StudentClassCard from "./StudentClassCard";
 
 type StudentClassesViewProps = {
   schoolId: string | undefined;
+  initialData?: StudentClassesResponse;
   /**
    * `embedded` drops the page title and the Classes/Requests nav for hosts that
    * already provide them — the School page renders this inside its own tabs.
@@ -47,6 +51,7 @@ function groupFor(item: DiscoverableClass): ClassGroupKey {
 
 export default function StudentClassesView({
   schoolId,
+  initialData,
   variant = "page",
 }: StudentClassesViewProps) {
   const { t } = useTranslation();
@@ -59,7 +64,7 @@ export default function StudentClassesView({
     return () => window.clearTimeout(id);
   }, [searchInput]);
 
-  const query = useStudentClasses({ schoolId });
+  const query = useStudentClasses({ schoolId, initialData });
 
   const groups = useMemo(() => {
     const all = query.data?.classes ?? [];

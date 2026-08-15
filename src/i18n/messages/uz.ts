@@ -374,7 +374,7 @@ translation: {
             },
             classPerformance: { title: "Sinf boʻyicha natija", average: "Oʻrtacha", completed: "Yakuniy natijalar", emptyTitle: "Hali sinf natijasi yoʻq", emptyDescription: "Tekshirilgan yoki eʼlon qilingan natijalardan keyin sinf oʻrtachasi koʻrinadi." },
             submissions: { title: "Topshirish holati", range: "Oxirgi 7 kun", onTime: "Vaqtida", late: "Kech", missing: "Topshirilmagan", emptyTitle: "Yaqinda muddati tugagan test yoʻq", emptyDescription: "Oxirgi yetti kunda muddati tugagan testlar shu yerda koʻrinadi." },
-            activity: { title: "Soʻnggi faollik", emptyTitle: "Hali faollik yoʻq", emptyDescription: "Taklif, soʻrov va test yangiliklari shu yerda koʻrinadi." },
+            activity: { title: "Soʻnggi faollik", seeAll: "Barchasi", emptyTitle: "Hali faollik yoʻq", emptyDescription: "Taklif, soʻrov va test yangiliklari shu yerda koʻrinadi." },
             members: {
               title: "Rollar boʻyicha aʼzolar",
               center: "aʼzo",
@@ -874,6 +874,16 @@ translation: {
             submit: "Test yaratish",
             tryAgain: "Qayta urinish",
             chooseAnother: "Boshqa fayl tanlash",
+            formatDetected:
+              "Format — SAT, IELTS yoki oddiy test — hujjatning oʻzidan aniqlanadi. Keyinchalik test sozlamalarida oʻzgartirishingiz mumkin.",
+            cta: {
+              eyebrow: "AI",
+              title: "PDF’ni testga aylantiring",
+              description:
+                "Oʻtgan yilgi ish yoki toʻplam bobini yuklang. Har bir savol, variant va javob kaliti oʻsha yerdan oʻqiladi — siz tayyor qoralamani tekshirasiz, uni yozib chiqmaysiz.",
+              strip: "Ishni yuklang — qoralama qaytadi",
+              action: "Men uchun yigʻing",
+            },
             answerRule:
               "Javoblar faqat sahifada belgilangan joyda toʻldiriladi — belgi, qalin variant yoki javoblar kaliti. Testingizda javoblar sahifasi boʻlsa, uni ham tanlovga qoʻshing. Belgilanmagan savollar javobini oʻzingiz tanlaysiz.",
             choose: {
@@ -908,6 +918,8 @@ translation: {
             progress: {
               title: "Testingiz yigʻilmoqda",
               failedTitle: "Import toʻxtadi",
+              failedHint: "Hech narsa yaratilmadi. Sahifalarni oʻzgartirib, qayta urinib koʻring.",
+              working: "Hujjatingiz oʻqilmoqda",
               cancel: "Importni bekor qilish",
               statusError: "Import holatini tekshirib boʻlmadi. U hali davom etayotgan boʻlishi mumkin.",
               retryStatus: "Qayta tekshirish",
@@ -1696,6 +1708,7 @@ translation: {
             groups: "Guruhlar",
           },
           teachers: {
+            panelDescription: "Bu maktabda dars beradiganlarning barchasi.",
             columns: {
               teacher: "Oʻqituvchi",
               email: "Email",
@@ -1824,6 +1837,7 @@ translation: {
             noClasses: "Sinflar yoʻq",
             classCount_one: "{{count}} ta sinf",
             classCount_other: "{{count}} ta sinf",
+            panelDescription: "Bu maktabga qabul qilinganlarning barchasi.",
             columns: {
               student: "Oʻquvchi",
               code: "Kod",
@@ -2107,6 +2121,29 @@ translation: {
           },
           requests: {
             title: "Soʻrovlar",
+            panelDescription: "Bu sinfga qoʻshilish yoki dars berishni kutayotganlar.",
+          },
+          assignments: {
+            title: "Topshiriqlar",
+          },
+          activity: {
+            title: "Sinf faoliyati",
+            refresh: "Yangilash",
+            someone: "Kimdir",
+            late: "Kechikib",
+            awaitingMark: "Tekshirilishi kutilmoqda",
+            emptyTitle: "Hozircha hech narsa boʻlgani yoʻq",
+            emptyDescription:
+              "Topshirilgan ishlar, qoʻshilgan oʻquvchilar va eʼlon qilingan testlar shu yerda, eng yangisidan boshlab koʻrinadi.",
+            errorTitle: "Sinf faoliyatini yuklab boʻlmadi",
+            errorDescription: "Bizning tomonda nimadir xato ketdi. Qayta urinib koʻring.",
+            retry: "Qayta urinish",
+            events: {
+              TEST_SUBMITTED: "topshirdi:",
+              TEST_STARTED: "boshladi:",
+              STUDENT_JOINED: "sinfga qoʻshildi",
+              TEST_PUBLISHED: "eʼlon qildi:",
+            },
           },
           removeStudent: {
             title: "{{name}} sinfdan chiqarilsinmi?",
@@ -2141,10 +2178,12 @@ translation: {
           },
           teachers: {
             tab: "Oʻqituvchilar",
+            panelDescription: "Bu sinfda kim dars beradi.",
             empty: "Hali oʻqituvchilar tayinlanmagan.",
           },
           students: {
             tab: "Oʻquvchilar",
+            panelDescription: "Bu sinfga kim qabul qilingan.",
             empty: "Hali oʻquvchilar qoʻshilmagan.",
           },
           edit: {
@@ -2578,6 +2617,43 @@ translation: {
         retry: "Qayta urinish",
         backToAssignments: "Mening testlarimga",
         backToCover: "Testga qaytish",
+        appearance: {
+          title: "Koʻrinish",
+          theme: "Ranglar",
+          textSize: "Matn oʻlchami",
+          themes: {
+            paper: "Oq fonda qora",
+            slate: "Qora fonda oq",
+            contrast: "Qora fonda sariq",
+          },
+          sizes: {
+            sm: "Kichik matn",
+            md: "Oddiy matn",
+            lg: "Katta matn",
+            xl: "Juda katta matn",
+          },
+        },
+        sat: {
+          section: "Boʻlim",
+          questionOf: "{{total}} tadan {{number}}-savol",
+          hideTimer: "Yashirish",
+          showTimer: "Koʻrsatish",
+          markForReview: "Tekshirish uchun belgilash",
+          markedForReview: "Tekshirishga belgilandi",
+          crossOut: "Variantlarni chizib tashlash",
+          crossOutHint: "Siz istisno qilgan variantlarni chizib tashlang",
+          crossOutOption: "{{label}} variantini chizib tashlash",
+          undoCrossOut: "{{label}} variantini qaytarish",
+          noStimulus: "Bu savol mustaqil.",
+        },
+        ielts: {
+          part: "{{number}}-qism",
+          partShort: "{{number}}-qism",
+          questionRange: "{{from}}–{{to}} savollar",
+          review: "Tekshirish",
+          reviewed: "Belgilandi",
+          noPassage: "Bu qismda oʻqish matni yoʻq.",
+        },
         states: {
           forbidden: {
             title: "Bu test sizga ochiq emas",

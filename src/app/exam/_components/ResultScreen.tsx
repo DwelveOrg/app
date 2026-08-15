@@ -15,24 +15,6 @@ import { DUR, EASE_OUT, staggerContainer, staggerItem, stillVariants } from "@/l
 import { cn } from "@/lib/utils";
 import type { AttemptResultResponse } from "../_lib/attempts.schemas";
 
-/**
- * What a student sees after they submit.
- *
- * ## The shape of the page is decided by the teacher, not by this component
- *
- * `delivery` governs three independent things — whether a score is shown at
- * all, whether the answer key is shown, and when either becomes available — and
- * the server has already resolved them into the payload. A missing `breakdown`
- * means "no score", a missing `questions` means "no key". This renders what
- * arrived and never fills a gap with a default, because the default for an
- * answer key is not showing it.
- *
- * ## Not-yet-released is not an error
- *
- * A student who submitted an hour ago and is waiting on their teacher has done
- * nothing wrong. That state gets a real screen with the reason and, when the
- * server knows it, the time — not a 403 and not an empty page.
- */
 export default function ResultScreen({
   testId,
   result,
@@ -45,143 +27,154 @@ export default function ResultScreen({
 
   if (!result.released) {
     return (
-      <div className="mx-auto w-full max-w-lg px-4 py-16 text-center md:px-6">
-        <span
-          aria-hidden="true"
-          className="mx-auto grid size-14 place-items-center rounded-2xl bg-muted text-muted-foreground"
-        >
-          <Hourglass className="size-6" />
-        </span>
-        <h1 className="type-title mt-4 text-foreground">
-          {t("exam.result.pending.title")}
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {t(`exam.result.pending.${result.releaseMode}`)}
-        </p>
-        {result.availableAt ? (
-          <p className="mt-1 text-sm text-muted-foreground">
-            {t("exam.result.pending.availableAt", {
-              when: new Date(result.availableAt).toLocaleString(),
-            })}
+      <div className="exam-result-bg flex min-h-0 flex-1 items-center justify-center px-4 py-16">
+        <div className="w-full max-w-lg text-center">
+          <span
+            aria-hidden="true"
+            className="mx-auto grid size-20 place-items-center rounded-3xl bg-card text-muted-foreground shadow-elev-2"
+          >
+            <Hourglass className="size-9" />
+          </span>
+          <h1 className="type-title mt-6 text-foreground">
+            {t("exam.result.pending.title")}
+          </h1>
+          <p className="mt-2 text-15 text-muted-foreground">
+            {t(`exam.result.pending.${result.releaseMode}`)}
           </p>
-        ) : null}
-        <Button asChild variant="outline" className="mt-6">
-          <Link href="/assignments/exams">{t("exam.backToAssignments")}</Link>
-        </Button>
+          {result.availableAt ? (
+            <p className="mt-1 text-15 text-muted-foreground">
+              {t("exam.result.pending.availableAt", {
+                when: new Date(result.availableAt).toLocaleString(),
+              })}
+            </p>
+          ) : null}
+          <Button asChild variant="outline" size="lg" className="mt-8">
+            <Link href="/assignments/exams">{t("exam.backToAssignments")}</Link>
+          </Button>
+        </div>
       </div>
     );
   }
 
   const { attempt, breakdown } = result;
+  const score = attempt.score ?? 0;
+  const maxScore = attempt.maxScore ?? 0;
   const percentage =
-    attempt.maxScore > 0 ? Math.round((attempt.score / attempt.maxScore) * 100) : 0;
+    maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+
+  const tone = !breakdown
+    ? "neutral"
+    : attempt.passed === false
+      ? "danger"
+      : attempt.passed
+        ? "success"
+        : "neutral";
+  const tint =
+    tone === "danger"
+      ? "var(--destructive)"
+      : tone === "success"
+        ? "var(--success)"
+        : "var(--primary)";
 
   return (
     <motion.div
-      className="mx-auto w-full max-w-3xl space-y-6 px-4 py-8 md:px-6"
+      className="exam-result-bg min-h-0 flex-1"
+      style={{ "--result-tint": tint } as React.CSSProperties}
       variants={reduced ? stillVariants : staggerContainer}
       initial="hidden"
       animate="shown"
     >
-      <motion.header
-        variants={reduced ? stillVariants : staggerItem}
-        className="flex flex-wrap items-center gap-5"
-      >
-        {/*
-          The score is shown only when the teacher allowed it. Where they did
-          not, the page still confirms the submission — "we have your paper" is
-          the thing the student came to check.
-        */}
-        {breakdown ? (
-          <ScoreMeter
-            value={attempt.score}
-            max={attempt.maxScore}
-            tone={attempt.passed === false ? "danger" : attempt.passed ? "success" : "neutral"}
-          />
-        ) : (
-          <span
-            aria-hidden="true"
-            className="grid size-16 place-items-center rounded-2xl bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-success"
-          >
-            <CheckCircle2 className="size-7" />
-          </span>
-        )}
+      <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
+        <motion.header
+          variants={reduced ? stillVariants : staggerItem}
+          className="grid items-end gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)]"
+        >
+          {breakdown ? (
+            <ScoreMeter
+              value={score}
+              max={maxScore}
+              tone={tone}
+              size="lg"
+            />
+          ) : (
+            <span
+              aria-hidden="true"
+              className="grid size-24 place-items-center rounded-3xl bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-success"
+            >
+              <CheckCircle2 className="size-12" />
+            </span>
+          )}
 
-        <div className="min-w-0 flex-1">
-          <h1 className="type-title text-foreground">
-            {/*
-              The meter already carries the number, so the heading names what it
-              is rather than repeating it — "31 / 40" rendered twice side by side
-              is the same fact twice, and neither copy reads as the headline.
-            */}
-            {breakdown ? t("exam.result.yourScore") : t("exam.result.submitted")}
-          </h1>
+          <div className="min-w-0">
+            <h1 className="type-title text-foreground lg:text-[2.5rem] lg:leading-tight">
+              {breakdown ? t("exam.result.yourScore") : t("exam.result.submitted")}
+            </h1>
 
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {attempt.passed !== null ? (
-              <Badge variant={attempt.passed ? "success" : "destructive"} size="sm">
-                {attempt.passed ? (
-                  <CheckCircle2 aria-hidden="true" />
-                ) : (
-                  <XCircle aria-hidden="true" />
-                )}
-                {t(attempt.passed ? "exam.result.passed" : "exam.result.notPassed")}
-              </Badge>
-            ) : null}
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {breakdown && attempt.passed !== null ? (
+                <Badge variant={attempt.passed ? "success" : "destructive"} size="md">
+                  {attempt.passed ? (
+                    <CheckCircle2 aria-hidden="true" />
+                  ) : (
+                    <XCircle aria-hidden="true" />
+                  )}
+                  {t(attempt.passed ? "exam.result.passed" : "exam.result.notPassed")}
+                </Badge>
+              ) : null}
 
-            {breakdown ? (
-              <Badge variant="neutral" size="sm">
-                {t("exam.result.percentage", { percent: percentage })}
-              </Badge>
-            ) : null}
+              {breakdown ? (
+                <Badge variant="neutral" size="md">
+                  {t("exam.result.percentage", { percent: percentage })}
+                </Badge>
+              ) : null}
 
-            {attempt.isLate ? (
-              <Badge variant="warning" size="sm">
-                <CalendarClock aria-hidden="true" />
-                {t("exam.result.late")}
-              </Badge>
-            ) : null}
+              {attempt.isLate ? (
+                <Badge variant="warning" size="md">
+                  <CalendarClock aria-hidden="true" />
+                  {t("exam.result.late")}
+                </Badge>
+              ) : null}
 
-            {attempt.timeSpentSeconds ? (
-              <Badge variant="neutral" size="sm">
-                <Clock3 aria-hidden="true" />
-                {t("exam.result.timeSpent", {
-                  minutes: Math.round(attempt.timeSpentSeconds / 60),
-                })}
-              </Badge>
-            ) : null}
+              {attempt.timeSpentSeconds ? (
+                <Badge variant="neutral" size="md">
+                  <Clock3 aria-hidden="true" />
+                  {t("exam.result.timeSpent", {
+                    minutes: Math.round(attempt.timeSpentSeconds / 60),
+                  })}
+                </Badge>
+              ) : null}
+            </div>
           </div>
-        </div>
-      </motion.header>
+        </motion.header>
 
-      {breakdown ? (
-        <motion.div variants={reduced ? stillVariants : staggerItem}>
-          <Surface padding="md">
-            <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-              <Tally label={t("exam.result.correct")} value={breakdown.correct} tone="success" />
-              <Tally
-                label={t("exam.result.incorrect")}
-                value={breakdown.incorrect}
-                tone="danger"
-              />
-              <Tally
-                label={t("exam.result.unanswered")}
-                value={breakdown.unanswered}
-                tone="muted"
-              />
-              {/*
-                Kept separate from "incorrect". A student with three unmarked
-                essays reading "3 incorrect" would believe they had failed them.
-              */}
-              <Tally
-                label={t("exam.result.pendingManual")}
-                value={breakdown.pendingManual}
-                tone="muted"
-              />
-            </dl>
+        {breakdown ? (
+          <motion.dl
+            variants={reduced ? stillVariants : staggerItem}
+            className="mt-10 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"
+          >
+            <Tally label={t("exam.result.correct")} value={breakdown.correct} tone="success" />
+            <Tally
+              label={t("exam.result.incorrect")}
+              value={breakdown.incorrect}
+              tone="danger"
+            />
+            <Tally
+              label={t("exam.result.unanswered")}
+              value={breakdown.unanswered}
+              tone="muted"
+            />
+            <Tally
+              label={t("exam.result.pendingManual")}
+              value={breakdown.pendingManual}
+              tone="muted"
+            />
+          </motion.dl>
+        ) : null}
 
-            {breakdown.sections.length > 1 ? (
-              <ul className="mt-4 space-y-2 border-t border-border pt-4">
+        {breakdown && breakdown.sections.length > 1 ? (
+          <motion.section variants={reduced ? stillVariants : staggerItem} className="mt-6">
+            <Surface padding="lg">
+              <ul className="grid gap-5 md:grid-cols-2">
                 {breakdown.sections.map((section) => (
                   <SectionBar
                     key={section.id}
@@ -192,35 +185,38 @@ export default function ResultScreen({
                   />
                 ))}
               </ul>
-            ) : null}
-          </Surface>
-        </motion.div>
-      ) : null}
-
-      {result.questions?.length ? (
-        <motion.section variants={reduced ? stillVariants : staggerItem} className="space-y-3">
-          <h2 className="type-heading text-foreground">{t("exam.result.review")}</h2>
-          <Surface padding="none" divided>
-            {result.questions.map((question) => (
-              <ReviewRow key={question.id} question={question} />
-            ))}
-          </Surface>
-        </motion.section>
-      ) : null}
-
-      <motion.div
-        variants={reduced ? stillVariants : staggerItem}
-        className="flex flex-wrap gap-3"
-      >
-        <Button asChild variant="outline">
-          <Link href="/assignments/exams">{t("exam.backToAssignments")}</Link>
-        </Button>
-        {attempt.attemptNumber < attempt.attemptsAllowed ? (
-          <Button asChild>
-            <Link href={`/exam/${testId}`}>{t("exam.result.tryAgain")}</Link>
-          </Button>
+            </Surface>
+          </motion.section>
         ) : null}
-      </motion.div>
+
+        {result.questions?.length ? (
+          <motion.section
+            variants={reduced ? stillVariants : staggerItem}
+            className="mt-10 space-y-4"
+          >
+            <h2 className="type-section text-foreground">{t("exam.result.review")}</h2>
+            <div className="grid gap-3 lg:grid-cols-2">
+              {result.questions.map((question) => (
+                <ReviewRow key={question.id} question={question} />
+              ))}
+            </div>
+          </motion.section>
+        ) : null}
+
+        <motion.div
+          variants={reduced ? stillVariants : staggerItem}
+          className="mt-10 flex flex-wrap gap-3"
+        >
+          <Button asChild variant="outline" size="lg">
+            <Link href="/assignments/exams">{t("exam.backToAssignments")}</Link>
+          </Button>
+          {attempt.attemptNumber < attempt.attemptsAllowed ? (
+            <Button asChild size="lg">
+              <Link href={`/exam/${testId}`}>{t("exam.result.tryAgain")}</Link>
+            </Button>
+          ) : null}
+        </motion.div>
+      </div>
     </motion.div>
   );
 }
@@ -235,11 +231,11 @@ function Tally({
   tone: "success" | "danger" | "muted";
 }) {
   return (
-    <div>
-      <dt className="text-2xs text-muted-foreground">{label}</dt>
+    <Surface padding="md" className="flex flex-col justify-between gap-2">
+      <dt className="text-13 text-muted-foreground">{label}</dt>
       <dd
         className={cn(
-          "type-section tabular-nums",
+          "text-[2rem] leading-none font-bold tabular-nums",
           tone === "success" && "text-success",
           tone === "danger" && "text-destructive",
           tone === "muted" && "text-foreground",
@@ -247,7 +243,7 @@ function Tally({
       >
         {value}
       </dd>
-    </div>
+    </Surface>
   );
 }
 
@@ -265,15 +261,15 @@ function SectionBar({
   const percent = max > 0 ? Math.round((score / max) * 100) : 0;
 
   return (
-    <li className="space-y-1">
-      <div className="flex items-baseline justify-between gap-3 text-13">
-        <span className="min-w-0 truncate text-foreground">{title}</span>
-        <span className="shrink-0 tabular-nums text-muted-foreground">
+    <li className="space-y-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="min-w-0 truncate text-15 font-medium text-foreground">{title}</span>
+        <span className="shrink-0 text-15 tabular-nums text-muted-foreground">
           {score} / {max}
         </span>
       </div>
       <div
-        className="h-1.5 overflow-hidden rounded-full bg-muted"
+        className="h-2 overflow-hidden rounded-full bg-muted"
         role="img"
         aria-label={`${title}: ${percent}%`}
       >
@@ -297,19 +293,18 @@ function ReviewRow({
 }) {
   const { t } = useTranslation();
   const answer = useMemo(() => describe(question.yourAnswer), [question.yourAnswer]);
-  // The key has its own shapes, so it gets its own describer first.
   const key = useMemo(
     () => describeAnswerKey(question.correctAnswer) ?? describe(question.correctAnswer),
     [question.correctAnswer],
   );
 
   return (
-    <div className="flex flex-wrap items-start gap-3 px-4 py-3">
+    <Surface padding="md" className="flex items-start gap-3">
       <span
         aria-hidden="true"
         className={cn(
-          "inline-flex size-7 shrink-0 items-center justify-center rounded-full text-13 font-semibold tabular-nums",
-          question.isCorrect === null
+          "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-13 font-semibold tabular-nums",
+          question.isCorrect == null
             ? "bg-muted text-muted-foreground"
             : question.isCorrect
               ? "bg-[var(--success)] text-[var(--primary-foreground)]"
@@ -319,30 +314,29 @@ function ReviewRow({
         {question.questionNumber}
       </span>
 
-      <div className="min-w-0 flex-1 space-y-1">
-        <p className="text-13 text-foreground">{question.prompt}</p>
-        <p className="text-2xs text-muted-foreground">
+      <div className="min-w-0 flex-1 space-y-1.5">
+        <p className="text-15 text-foreground">{question.prompt}</p>
+        <p className="text-13 text-muted-foreground">
           {t("exam.result.yourAnswerIs", {
             answer: answer || t("exam.paper.notAnswered"),
           })}
         </p>
-        {/*
-          The key appears only when the payload carried one — which the server
-          does only when `showCorrectAnswers` is on. There is no client-side
-          switch here to get wrong.
-        */}
         {key ? (
-          <p className="text-2xs text-success">{t("exam.result.correctAnswerIs", { answer: key })}</p>
+          <p className="text-13 text-success">
+            {t("exam.result.correctAnswerIs", { answer: key })}
+          </p>
         ) : null}
         {question.feedback ? (
-          <p className="text-2xs text-foreground">{question.feedback}</p>
+          <p className="text-13 text-foreground">{question.feedback}</p>
         ) : null}
       </div>
 
-      <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
-        {question.pointsAwarded} / {question.points}
-      </span>
-    </div>
+      {question.pointsAwarded != null && question.points != null ? (
+        <span className="shrink-0 text-13 tabular-nums text-muted-foreground">
+          {question.pointsAwarded} / {question.points}
+        </span>
+      ) : null}
+    </Surface>
   );
 }
 

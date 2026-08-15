@@ -208,18 +208,13 @@ export const violationResponseSchema = z.object({
 export type ViolationResponse = z.infer<typeof violationResponseSchema>;
 
 export const submitResponseSchema = z.object({
-  attempt: z
-    .object({
-      id: z.string(),
-      status: attemptStatusSchema,
-      submittedAt: z.string().nullable().default(null),
-      score: z.number().default(0),
-      maxScore: z.number().default(0),
-      passed: z.boolean().nullable().default(null),
-      isLate: z.boolean().default(false),
-      timeSpentSeconds: z.number().nullable().default(null),
-    })
-    .passthrough(),
+  attempt: z.object({
+    id: z.string(),
+    status: attemptStatusSchema,
+    submittedAt: z.string().nullable().default(null),
+    isLate: z.boolean().default(false),
+    timeSpentSeconds: z.number().nullable().default(null),
+  }),
   resultAvailable: z.boolean().default(false),
 });
 export type SubmitResponse = z.infer<typeof submitResponseSchema>;
@@ -249,14 +244,13 @@ export const attemptResultResponseSchema = z.discriminatedUnion("released", [
         status: attemptStatusSchema,
         submittedAt: z.string().nullable().default(null),
         timeSpentSeconds: z.number().nullable().default(null),
-        score: z.number().default(0),
-        maxScore: z.number().default(0),
-        passed: z.boolean().nullable().default(null),
+        score: z.number().optional(),
+        maxScore: z.number().optional(),
+        passed: z.boolean().nullable().optional(),
         isLate: z.boolean().default(false),
         attemptNumber: z.number().default(1),
         attemptsAllowed: z.number().default(1),
-      })
-      .passthrough(),
+      }),
     /** Present only when `delivery.showScore`. */
     breakdown: z
       .object({
@@ -276,11 +270,6 @@ export const attemptResultResponseSchema = z.discriminatedUnion("released", [
           .default([]),
       })
       .optional(),
-    /**
-     * Present only when `delivery.showCorrectAnswers`. This *is* the answer
-     * key, so its absence is the enforcement, not a `showKey` flag the client
-     * is trusted to honour.
-     */
     questions: z
       .array(
         z.object({
@@ -288,9 +277,9 @@ export const attemptResultResponseSchema = z.discriminatedUnion("released", [
           questionNumber: z.number(),
           prompt: z.string(),
           answerKind: z.string(),
-          points: z.number(),
-          pointsAwarded: z.number().default(0),
-          isCorrect: z.boolean().nullable().default(null),
+          points: z.number().optional(),
+          pointsAwarded: z.number().optional(),
+          isCorrect: z.boolean().nullable().optional(),
           yourAnswer: answerValueSchema.nullable().default(null),
           // The key, not an answer — a different shape. See `answerKeySchema`.
           correctAnswer: answerKeySchema.nullable().optional(),

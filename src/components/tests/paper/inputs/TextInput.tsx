@@ -54,13 +54,13 @@ export default function TextInput({
           {...shared}
           rows={10}
           placeholder={readOnly ? undefined : t("exam.paper.writePlaceholder")}
-          className="max-w-[68ch] leading-relaxed"
+          className="exam-prose max-w-[68ch] leading-relaxed"
         />
       ) : (
         <Input
           {...shared}
           placeholder={readOnly ? undefined : t("exam.paper.answerPlaceholder")}
-          className="max-w-md"
+          className="exam-prose max-w-md"
         />
       )}
 

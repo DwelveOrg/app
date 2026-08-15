@@ -107,7 +107,7 @@ export default function ResultsView({
     >
       <motion.header variants={reduced ? stillVariants : staggerItem}>
         <Link
-          href={`/groups/${classId}/tests`}
+          href={`/groups/${classId}`}
           className="text-sm text-muted-foreground transition hover:text-foreground"
         >
           {t("root.tests.list.title")}

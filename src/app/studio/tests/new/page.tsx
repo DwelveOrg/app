@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { getUser } from "@/app/(root)/_utils/getUser";
 import { getClass } from "@/app/(root)/_utils/getClass";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 import { getTestFormats } from "@/app/(root)/_utils/getTestFormats";
 import StudioError, { StudioForbidden } from "../../_components/StudioError";
 import NewTestScreen from "./_components/NewTestScreen";
@@ -29,7 +30,7 @@ export default async function Page({ searchParams }: PageProps) {
 
   const user = await getUser();
   const viewerRole = user?.schoolRole ?? null;
-  const exitHref = `/groups/${classId}/tests`;
+  const exitHref = studioRoutes.classTests(classId);
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
     return (

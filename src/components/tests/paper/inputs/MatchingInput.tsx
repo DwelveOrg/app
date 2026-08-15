@@ -83,7 +83,7 @@ export default function MatchingInput({
       {rightItems.length > 0 ? (
         <ul className="space-y-1 rounded-xl border border-border bg-muted/50 p-3">
           {rightItems.map((item) => (
-            <li key={item.key} className="flex gap-2 text-13 text-foreground">
+            <li key={item.key} className="exam-prose flex gap-2 text-13 text-foreground">
               <span
                 aria-hidden="true"
                 className="inline-flex size-5 shrink-0 items-center justify-center rounded bg-card text-2xs font-semibold text-muted-foreground"
@@ -105,7 +105,9 @@ export default function MatchingInput({
 
           return (
             <li key={option.id} className="flex flex-wrap items-center gap-3 p-3">
-              <span className="min-w-0 flex-1 text-15 text-foreground">{option.text}</span>
+              <span className="exam-prose min-w-0 flex-1 text-15 text-foreground">
+                {option.text}
+              </span>
 
               <Select
                 value={picked}

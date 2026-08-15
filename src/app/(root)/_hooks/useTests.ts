@@ -163,7 +163,11 @@ export function useTestValidationQuery({
 
 function useInvalidateTests() {
   const queryClient = useQueryClient();
-  return () => queryClient.invalidateQueries({ queryKey: queryKeys.tests.all });
+  return () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.tests.all }),
+      queryClient.invalidateQueries({ queryKey: queryKeys.classes.activitiesAll() }),
+    ]);
 }
 
 /** `POST /classes/:classId/tests` - creates a DRAFT and returns its id. */

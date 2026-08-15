@@ -416,6 +416,7 @@ translation: {
             },
             activity: {
               title: "Recent activity",
+              seeAll: "See all",
               emptyTitle: "No recent activity",
               emptyDescription: "Invitations, requests and test updates will appear here.",
             },
@@ -918,6 +919,16 @@ translation: {
             submit: "Create test",
             tryAgain: "Try again",
             chooseAnother: "Choose a different file",
+            formatDetected:
+              "The format — SAT, IELTS or a plain quiz — is recognised from the paper itself. You can change it later in the test's settings.",
+            cta: {
+              eyebrow: "AI",
+              title: "Turn a PDF into a test",
+              description:
+                "Upload a past paper or a workbook chapter. Every question, option and answer key is read out of it — you review a finished draft instead of typing it.",
+              strip: "Upload a paper and get a draft back",
+              action: "Build it for me",
+            },
             answerRule:
               "Answers are filled in only where the page marks them — a ticked box, a bold option, or an answer key. Include your answer-key page in the selection if your test has one. Anything unmarked is left for you to choose.",
             choose: {
@@ -952,6 +963,8 @@ translation: {
             progress: {
               title: "Building your test",
               failedTitle: "The import stopped",
+              failedHint: "Nothing was created. You can change the pages and try again.",
+              working: "Reading your document",
               cancel: "Cancel this import",
               statusError: "We could not check the import. It may still be running.",
               retryStatus: "Check again",
@@ -1746,6 +1759,7 @@ translation: {
               joined: "Joined",
               actions: "Actions",
             },
+            panelDescription: "Everyone teaching at this school.",
             emptyTitle: "No teachers yet",
             emptyDescription:
               "Invite a teacher with an email-bound link. They join by accepting it — you never create the account.",
@@ -1868,6 +1882,7 @@ translation: {
             noClasses: "No classes",
             classCount_one: "{{count}} class",
             classCount_other: "{{count}} classes",
+            panelDescription: "Everyone enrolled at this school.",
             columns: {
               student: "Student",
               code: "Code",
@@ -2150,6 +2165,29 @@ translation: {
           },
           requests: {
             title: "Requests",
+            panelDescription: "People waiting to join or teach this class.",
+          },
+          assignments: {
+            title: "Assignments",
+          },
+          activity: {
+            title: "Class activity",
+            refresh: "Refresh",
+            someone: "Someone",
+            late: "Late",
+            awaitingMark: "Awaiting marking",
+            emptyTitle: "Nothing has happened yet",
+            emptyDescription:
+              "Submissions, students joining and papers going live all show up here, newest first.",
+            errorTitle: "Couldn't load class activity",
+            errorDescription: "Something went wrong on our side. Please try again.",
+            retry: "Try again",
+            events: {
+              TEST_SUBMITTED: "submitted",
+              TEST_STARTED: "started",
+              STUDENT_JOINED: "joined the class",
+              TEST_PUBLISHED: "published",
+            },
           },
           removeStudent: {
             title: "Remove {{name}} from this class?",
@@ -2185,10 +2223,12 @@ translation: {
           },
           teachers: {
             tab: "Teachers",
+            panelDescription: "Who teaches this class.",
             empty: "No teachers assigned yet.",
           },
           students: {
             tab: "Students",
+            panelDescription: "Who is enrolled in this class.",
             empty: "No students enrolled yet.",
           },
           edit: {
@@ -2636,6 +2676,43 @@ translation: {
         retry: "Try again",
         backToAssignments: "Back to my tests",
         backToCover: "Back to the test",
+        appearance: {
+          title: "Display",
+          theme: "Colours",
+          textSize: "Text size",
+          themes: {
+            paper: "Black on white",
+            slate: "White on black",
+            contrast: "Yellow on black",
+          },
+          sizes: {
+            sm: "Small text",
+            md: "Standard text",
+            lg: "Large text",
+            xl: "Extra large text",
+          },
+        },
+        sat: {
+          section: "Section",
+          questionOf: "Question {{number}} of {{total}}",
+          hideTimer: "Hide",
+          showTimer: "Show",
+          markForReview: "Mark for Review",
+          markedForReview: "Marked for Review",
+          crossOut: "Cross out answer choices",
+          crossOutHint: "Cross out the choices you have ruled out",
+          crossOutOption: "Cross out choice {{label}}",
+          undoCrossOut: "Undo cross out for choice {{label}}",
+          noStimulus: "This question stands on its own.",
+        },
+        ielts: {
+          part: "Part {{number}}",
+          partShort: "Part {{number}}",
+          questionRange: "Questions {{from}}–{{to}}",
+          review: "Review",
+          reviewed: "Marked",
+          noPassage: "This part has no reading passage.",
+        },
         states: {
           forbidden: {
             title: "This test is not open to you",

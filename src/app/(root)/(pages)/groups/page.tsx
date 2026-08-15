@@ -1,6 +1,7 @@
 import RoleEmptyState from "../_components/ui/RoleEmptyState";
 import { getUser } from "../../_utils/getUser";
 import { getClasses } from "../../_utils/getClasses";
+import { getStudentSchoolClasses } from "../../_utils/getStudentSchoolClasses";
 import ClassesView from "./_components/ClassesView";
 import StudentClassesView from "./_components/StudentClassesView";
 import { toClassCardItem } from "./_lib/mapClass";
@@ -22,7 +23,10 @@ export default async function Page() {
   // `GET /schools/:schoolId/classes` carries those flags — `GET /classes`
   // returns active enrolments alone, which cannot express the other states.
   if (user.schoolRole === "STUDENT") {
-    return <StudentClassesView schoolId={user.schoolId} />;
+    const initialData = user.schoolId
+      ? await getStudentSchoolClasses(user.schoolId)
+      : undefined;
+    return <StudentClassesView schoolId={user.schoolId} initialData={initialData} />;
   }
 
   // Staff: `GET /classes` is the caller's own class list — teaching assignments

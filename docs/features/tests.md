@@ -11,9 +11,9 @@
 The test builder lets teachers and admins author assessments **inside a class**, in
 several exam formats, and publish them. This document is the frontend contract.
 
-Students have no test UI in this pass. They receive a notification when a test is
-published for their class, and that notification links to the class page. Taking
-tests comes in a later pass.
+Students receive published tests through Assignments and through their class
+page. Staff authoring and student taking share the backend paper contract but
+use separate author/taker payloads.
 
 The backend contract this UI codes against is
 `backend_nestJS/docs/features/tests.md`. Read it first — the question-type
@@ -26,12 +26,14 @@ Tests nest under the existing class detail route. `/groups` is already in
 
 ```txt
 /tests                               cross-class library (ADMIN + TEACHER)
-/groups/[classId]/tests             test list      (ADMIN + TEACHER)
-/groups/[classId]/tests/[testId]    the builder
+/groups/[classId]                    class assignments board
+/groups/[classId]/tests              compatibility redirect to the class page
+/studio/tests/new?class=[classId]    create a draft
+/studio/tests/[testId]               the builder
 ```
 
-Creation is a **dialog on the list page**, not a route — it matches
-`CreateClassDialog` and drops the teacher straight into the builder.
+The class assignments board is server-seeded and uses React Query for status
+filters and pagination. Creation and PDF import are studio routes.
 
 Add `tests: "root.pages.tests"` to `ROUTE_LABEL_KEYS` in
 `src/app/(root)/_constants/routes.ts` so the breadcrumb renders.
@@ -44,13 +46,9 @@ caller may author in; the copy opens in the studio as an unpublished draft.
 
 ### Entry point
 
-`ClassDetailView.tsx` currently nests its "Add test" dropdown inside `{isAdmin ? …}`
-and fires `notifySoon("root.classDetail.actions.addTest")`. Move that item into the
-existing `canManage` branch so teachers see it, and replace `notifySoon` with
-navigation to `/groups/[classId]/tests`.
-
-The mock `/assignments/exams` page, its hardcoded `examItems`, and the locked
-"Assignments" sidebar item are **not touched** by this change.
+`ClassDetailView.tsx` exposes Add test to admins and assigned teachers. The
+assignments board, lifecycle filters, roster/request panels, and activity feed
+all live on `/groups/[classId]`; old test-list links redirect there.
 
 ## Data Layer
 
@@ -245,7 +243,8 @@ edge — that ring is what makes the problem findable, and it only works while n
 - Use design tokens (`bg-[var(--card)]`, `border-[var(--border)]`), not raw palette
   classes. Do not copy `ExamCard`'s `slate-*` styling.
 - Add every visible string to the `en`, `ru`, and `uz` catalogs in the same change.
-- `router.refresh()` after mutations so server-rendered class data re-pulls.
+- Invalidate the centralized React Query keys after mutations; do not add a
+  second component-owned copy of server-seeded list data.
 
 ## Internationalization
 
@@ -281,9 +280,9 @@ Walk the flow: teacher → class → "Add test" → pick SAT → builder → add
 `SAT_RW_MCQ` from the SAT tab and a `SHORT_ANSWER` from the Basic tab → save →
 reload and confirm the tree round-trips with stable ids → publish with a deliberate
 error to see the issue list → fix → publish → confirm a student account receives the
-notification and that it links to the class page → confirm a student hitting
-`/groups/[classId]/tests` directly is refused. Repeat the builder smoke test in `ru`
-and `uz` to catch missing keys.
+notification and that it links to the class page → confirm
+`/groups/[classId]/tests` redirects to `/groups/[classId]`. Repeat the builder
+smoke test in `ru` and `uz` to catch missing keys.
 
 ## Related Docs
 

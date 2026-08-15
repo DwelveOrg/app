@@ -9,18 +9,6 @@ import {
 import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
 import TestLibraryView from "./_components/TestLibraryView";
 
-/**
- * The test library: every test the viewer has authored, across all their classes
- * (ADMIN + TEACHER).
- *
- * `/groups/[classId]/tests` answers "what is set for this class" and stays the
- * place a class is managed from. This page answers "what have I written", which
- * is the question asked when reusing a paper — and the only place a test can be
- * handed to a second class without opening every class in turn.
- *
- * Students never reach this: the backend answers them 403 and remains the
- * authorization boundary; the check below only decides which UI to draw.
- */
 export default async function Page() {
   const user = await getUser();
   const viewerRole = user?.schoolRole ?? null;

@@ -1,6 +1,7 @@
 import { getUser } from "@/app/(root)/_utils/getUser";
 import { getTest } from "@/app/(root)/_utils/getTest";
 import { getTestFormats } from "@/app/(root)/_utils/getTestFormats";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 import StudioError, { StudioForbidden } from "../../_components/StudioError";
 import TestBuilder from "../../_components/TestBuilder";
 
@@ -48,7 +49,7 @@ export default async function Page({ params }: PageProps) {
     return (
       <StudioError
         reason="error"
-        exitHref={`/groups/${result.test.classId}/tests`}
+        exitHref={studioRoutes.classTests(result.test.classId)}
         exitLabel="Back to tests"
         title={result.test.title}
       />

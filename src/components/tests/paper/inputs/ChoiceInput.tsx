@@ -35,6 +35,7 @@ export default function ChoiceInput({
   result,
   disabled,
   multiple,
+  struckOptionIds,
 }: QuestionRenderProps & { multiple: boolean }) {
   const { t } = useTranslation();
   const readOnly = mode !== "answer" || disabled;
@@ -79,6 +80,7 @@ export default function ChoiceInput({
         const picked = chosen.has(option.id);
         const isKey = showKey && correct.has(option.id);
         const wrongPick = showKey && picked && !correct.has(option.id);
+        const struck = struckOptionIds?.has(option.id) ?? false;
 
         return (
           <li key={option.id}>
@@ -94,6 +96,7 @@ export default function ChoiceInput({
                 isKey && "border-success/50 bg-[color-mix(in_srgb,var(--success)_8%,transparent)]",
                 wrongPick &&
                   "border-destructive/50 bg-[color-mix(in_srgb,var(--destructive)_7%,transparent)]",
+                struck && "opacity-55",
               )}
             >
               <input
@@ -114,12 +117,20 @@ export default function ChoiceInput({
                   picked
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border bg-muted text-muted-foreground",
+                  struck && "line-through",
                 )}
               >
                 {option.label || optionLabel(index)}
               </span>
 
-              <span className="min-w-0 flex-1 text-15 text-foreground">{option.text}</span>
+              <span
+                className={cn(
+                  "exam-prose min-w-0 flex-1 text-15 text-foreground",
+                  struck && "line-through decoration-2",
+                )}
+              >
+                {option.text}
+              </span>
 
               {/* Icon plus words, so the mark survives a greyscale printout. */}
               {isKey ? (

@@ -5,8 +5,8 @@ import { useTranslation } from "react-i18next";
 
 import { useClassJoinRequests } from "@/app/(root)/_hooks/useEnrollment";
 import { useTeacherRequests } from "@/app/(root)/_hooks/useTeacherRequests";
-import Badge from "@/components/ui/badge";
-import { Button } from "@/components/ui/Button";
+import PanelDialog from "@/app/(root)/_components/PanelDialog";
+import ClassRequestsPanel from "./ClassRequestsPanel";
 
 type ClassRequestsButtonProps = {
   classId: string;
@@ -14,13 +14,6 @@ type ClassRequestsButtonProps = {
   isAdmin: boolean;
 };
 
-/**
- * The class header's way into the request queues, with the number waiting.
- *
- * It jumps to the Requests section on this same page — requests are reviewed
- * where the class is, not only from a notification. The counts come from the
- * same queries the section uses, so React Query serves both from one fetch.
- */
 export default function ClassRequestsButton({
   classId,
   isAdmin,
@@ -32,19 +25,18 @@ export default function ClassRequestsButton({
 
   const pending =
     (studentRequests.data?.pages[0]?.meta.total ?? 0) +
-    (teacherRequests.data?.pages[0]?.meta.total ?? 0);
+    (isAdmin ? (teacherRequests.data?.pages[0]?.meta.total ?? 0) : 0);
 
   return (
-    <Button variant="outline" size="lg" asChild>
-      <a href="#class-requests">
-        <Inbox className="size-4" />
-        {t("root.classDetail.requests.title")}
-        {pending > 0 ? (
-          <Badge variant="primary" size="xs" shape="count">
-            {pending}
-          </Badge>
-        ) : null}
-      </a>
-    </Button>
+    <PanelDialog
+      icon={Inbox}
+      label={t("root.classDetail.requests.title")}
+      count={pending}
+      emphasis
+      description={t("root.classDetail.requests.panelDescription")}
+      size="lg"
+    >
+      <ClassRequestsPanel classId={classId} isAdmin={isAdmin} />
+    </PanelDialog>
   );
 }

@@ -3,7 +3,7 @@
 The studio is where teachers and admins write a test and decide how it will be
 delivered. It replaces the in-dashboard builder described in
 [tests.md](./tests.md); that document still holds for the **data layer**, the
-catalogue contract, and the list page, none of which changed.
+catalogue contract, and the cross-class library.
 
 Backend contract for the authoring half: `backend_nestJS/docs/features/tests.md`.
 Backend state for the delivery and publishing half — **shipped on both sides** —
@@ -24,10 +24,10 @@ the route changes.
 /studio/tests/[testId]/publish      the publish wizard
 ```
 
-`/studio` is in `protectedRoutes`. The class-scoped list stays where it was
-(`/groups/[classId]/tests`) because it is class management, not authoring; it
-links into the studio. `/groups/[classId]/tests/[testId]` is a
-`permanentRedirect` — the URL is in bookmarks and in history.
+`/studio` is in `protectedRoutes`. The class-scoped assignments board lives on
+`/groups/[classId]` and links into the studio. `/groups/[classId]/tests`
+redirects to that board for older bookmarks; result and attempt-review routes
+remain nested below `/groups/[classId]/tests/[testId]/results`.
 
 ## Every question type looks like itself
 
