@@ -10,7 +10,6 @@ import {
   CalendarClock,
   Check,
   ClipboardList,
-  FileUp,
   GraduationCap,
   HelpCircle,
   School,
@@ -48,7 +47,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Surface from "@/components/ui/Surface";
-import { studioRoutes } from "@/app/(root)/_constants/tests";
+import AiImportCta from "@/app/(root)/_components/AiImportCta";
 import { cn } from "@/lib/utils";
 import { EMPTY_ART, type EmptyArtKind } from "../EmptyArt";
 import JoinCodeChip from "../JoinCodeChip";
@@ -814,31 +813,39 @@ function Upcoming({ ctx }: ModuleProps) {
 
 function RecentActivity({ ctx }: ModuleProps) {
   const { t, i18n } = useTranslation();
-  const items = (ctx.feed?.recent ?? []).slice(0, 6);
+  const items = (ctx.feed?.recent ?? []).slice(0, 4);
   return (
     <Panel
       title={t("root.dashboard.modules.activity.title")}
-      bodyClassName="p-2.5 md:p-3"
+      bodyClassName="p-2 md:p-2.5"
       align={items.length > 2 ? "start" : "center"}
+      aside={
+        items.length ? (
+          <Link
+            href="/notifications"
+            className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          >
+            {t("root.dashboard.modules.activity.seeAll")}
+          </Link>
+        ) : null
+      }
     >
       {items.length ? (
-        <ul className="space-y-1">
+        <ul>
           {items.map((item) => (
             <li key={item.id}>
               <Link
                 href={item.href ?? "/notifications"}
-                className="flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/60"
+                className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 hover:bg-muted/60"
               >
-                <Bell className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-foreground">
-                    {i18n.exists(item.title) ? t(item.title) : item.title}
-                  </p>
-                  <RelativeTime
-                    date={item.at}
-                    className="mt-0.5 block text-xs text-muted-foreground"
-                  />
-                </div>
+                <Bell className="size-3.5 shrink-0 text-primary" />
+                <span className="min-w-0 flex-1 truncate text-13 text-foreground">
+                  {i18n.exists(item.title) ? t(item.title) : item.title}
+                </span>
+                <RelativeTime
+                  date={item.at}
+                  className="shrink-0 text-2xs text-muted-foreground"
+                />
               </Link>
             </li>
           ))}
@@ -957,36 +964,29 @@ function ImportTestPanel({ ctx }: ModuleProps) {
     : classes[0].classId;
 
   return (
-    <Panel title={t("root.dashboard.importTest.title")}>
-      <p className="text-sm leading-6 text-muted-foreground">
-        {t("root.dashboard.importTest.description")}
-      </p>
-
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <Select value={selected} onValueChange={setClassId}>
-          <SelectTrigger
-            className="min-w-[10rem] flex-1"
-            aria-label={t("root.dashboard.importTest.classLabel")}
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {classes.map((row) => (
-              <SelectItem key={row.classId} value={row.classId}>
-                {row.className}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Button asChild>
-          <Link href={studioRoutes.importTest(selected)}>
-            <FileUp className="h-4 w-4" />
-            {t("root.dashboard.importTest.action")}
-          </Link>
-        </Button>
-      </div>
-    </Panel>
+    <AiImportCta
+      classId={selected}
+      className="h-full"
+      secondaryAction={
+        classes.length > 1 ? (
+          <Select value={selected} onValueChange={setClassId}>
+            <SelectTrigger
+              className="min-w-[10rem]"
+              aria-label={t("root.dashboard.importTest.classLabel")}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {classes.map((row) => (
+                <SelectItem key={row.classId} value={row.classId}>
+                  {row.className}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        ) : null
+      }
+    />
   );
 }
 

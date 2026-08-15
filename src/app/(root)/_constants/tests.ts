@@ -11,16 +11,6 @@ import type { TestStatus } from "@/app/(root)/_lib/tests.schemas";
 import type { BadgeVariant } from "@/components/ui/badge";
 
 /**
- * Constants shared by the two surfaces a test appears on: the class-scoped list
- * (`/groups/[classId]/tests`) and the authoring studio (`/studio/tests/…`).
- *
- * They live here rather than in either route because a value that both read is
- * a value that will drift the moment it is copied — the status tint in
- * particular is drawn by a badge on the list, a badge in the studio top bar,
- * and a dot in the outline rail.
- */
-
-/**
  * Status tabs on the test list.
  *
  * Published leads because it is the class's live state: the tests students can
@@ -100,10 +90,9 @@ export const questionAnchorId = (id: string) => `test-question-${id}`;
  */
 export const studioRoutes = {
   newTest: (classId: string) => `/studio/tests/new?class=${encodeURIComponent(classId)}`,
-  /** Creating a test from a PDF rather than from a blank format blueprint. */
   importTest: (classId: string) =>
     `/studio/tests/import?class=${encodeURIComponent(classId)}`,
   builder: (testId: string) => `/studio/tests/${testId}`,
   publish: (testId: string) => `/studio/tests/${testId}/publish`,
-  classTests: (classId: string) => `/groups/${classId}/tests`,
+  classTests: (classId: string) => `/groups/${classId}`,
 } as const;

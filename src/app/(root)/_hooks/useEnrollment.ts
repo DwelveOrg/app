@@ -19,6 +19,7 @@ import type {
   LeaveClassInput,
   RejectEnrollmentInput,
   RequestJoinClassInput,
+  StudentClassesResponse,
 } from "@/app/(root)/_lib/enrollment.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
@@ -51,9 +52,11 @@ export function useStudentOverview(schoolId: string | undefined) {
 export function useStudentClasses({
   schoolId,
   enabled = true,
+  initialData,
 }: {
   schoolId: string | undefined;
   enabled?: boolean;
+  initialData?: StudentClassesResponse;
 }) {
   // The school directory is returned in one shot (no server pagination/search),
   // so this is a plain query and the view filters locally.
@@ -61,6 +64,7 @@ export function useStudentClasses({
     queryKey: queryKeys.enrollment.studentClasses(schoolId ?? ""),
     queryFn: () => getStudentClassesAction(schoolId as string),
     enabled: Boolean(schoolId) && enabled,
+    initialData,
   });
 }
 

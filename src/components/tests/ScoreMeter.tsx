@@ -49,7 +49,7 @@ export default function ScoreMeter({
   /** The mark that decides pass or fail, if the test has one. */
   passingScore?: number | null;
   tone?: ScoreTone;
-  size?: "sm" | "md";
+  size?: "sm" | "md" | "lg";
   className?: string;
 }) {
   const { t } = useTranslation();
@@ -70,12 +70,16 @@ export default function ScoreMeter({
         : "var(--chart-1)";
 
   return (
-    <div className={cn("min-w-40", className)}>
+    <div className={cn(size === "lg" ? "min-w-64" : "min-w-40", className)}>
       <p
         className={cn(
           "font-semibold text-foreground",
           // Proportional figures, deliberately: this is a headline, not a column.
-          size === "md" ? "text-[2.5rem] leading-none" : "type-section",
+          size === "lg"
+            ? "text-[clamp(3.5rem,9vw,6rem)] leading-[0.95] tracking-tight"
+            : size === "md"
+              ? "text-[2.5rem] leading-none"
+              : "type-section",
         )}
       >
         {value}
@@ -88,7 +92,7 @@ export default function ScoreMeter({
       <div
         className={cn(
           "relative mt-2 overflow-hidden rounded-full",
-          size === "md" ? "h-2" : "h-1.5",
+          size === "lg" ? "h-3" : size === "md" ? "h-2" : "h-1.5",
         )}
         // The unfilled track: a light step of the fill's own hue.
         style={{ background: `color-mix(in srgb, ${fill} 15%, var(--muted))` }}
@@ -117,7 +121,12 @@ export default function ScoreMeter({
       </div>
 
       {thresholdPercent !== null ? (
-        <p className="mt-1.5 text-2xs text-muted-foreground tabular-nums">
+        <p
+          className={cn(
+            "mt-1.5 text-muted-foreground tabular-nums",
+            size === "lg" ? "text-13" : "text-2xs",
+          )}
+        >
           {t("tests.score.passAt", { score: passingScore })}
         </p>
       ) : null}

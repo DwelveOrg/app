@@ -17,6 +17,7 @@ import type {
   CancelTeacherRequestInput,
   RejectTeacherRequestInput,
   RequestToTeachInput,
+  TeacherClassesResponse,
 } from "@/app/(root)/_lib/teacher-requests.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
@@ -36,14 +37,17 @@ const MUTATION_FALLBACK = "Something went wrong. Please try again.";
 export function useTeacherClasses({
   schoolId,
   enabled = true,
+  initialData,
 }: {
   schoolId: string | undefined;
   enabled?: boolean;
+  initialData?: TeacherClassesResponse;
 }) {
   return useQuery({
     queryKey: queryKeys.enrollment.teacherClasses(schoolId ?? ""),
     queryFn: () => getTeacherClassesAction(schoolId as string),
     enabled: Boolean(schoolId) && enabled,
+    initialData,
   });
 }
 

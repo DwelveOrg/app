@@ -1,18 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, FileText, Sparkles, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
-import type { TestFormatsResponse } from "@/app/(root)/_lib/tests.schemas";
 import { TEST_LIMITS } from "@/app/(root)/_lib/tests.actions.schemas";
 import { formatPageRange } from "@/app/(root)/_lib/test-import.actions.schemas";
 import { testImportErrorCodeSchema } from "@/app/(root)/_lib/test-import.schemas";
-import { formatIcon, studioRoutes } from "@/app/(root)/_constants/tests";
-import { humanizeToken, translateKey } from "@/app/(root)/_lib/test-labels";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 import {
   useCancelTestImportMutation,
   useCreateTestImportMutation,
@@ -31,29 +29,15 @@ import { loadPdf, PdfLoadError } from "../_lib/pdf";
 import ImportProgress from "./ImportProgress";
 import PagePicker from "./PagePicker";
 
-/**
- * Creating a test from a PDF.
- *
- * One screen, three states, matching the three sentences of the promise:
- * *upload a PDF → say which pages → get a ready test*. There is no wizard
- * chrome, because picking pages **is** the second step and pressing the button
- * is the last thing the teacher does.
- *
- * The document is parsed in the browser, so the page grid appears immediately
- * and an over-long file is refused before a byte is uploaded. Only when the
- * teacher confirms does the file leave the machine.
- */
 
 type Stage = "choose" | "pages" | "working";
 
 export default function ImportScreen({
   classId,
   className,
-  catalog,
 }: {
   classId: string;
   className: string | null;
-  catalog: TestFormatsResponse;
 }) {
   const { t } = useTranslation();
   const router = useRouter();
@@ -78,8 +62,6 @@ export default function ImportScreen({
     [limits, t],
   );
 
-  const formats = useMemo(() => Object.entries(catalog.formats), [catalog.formats]);
-
   const [stage, setStage] = useState<Stage>("choose");
   const [file, setFile] = useState<File | null>(null);
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
@@ -92,7 +74,6 @@ export default function ImportScreen({
   const redirectedJobRef = useRef<string | null>(null);
   const [selectedPages, setSelectedPages] = useState<number[]>([]);
   const [title, setTitle] = useState("");
-  const [format, setFormat] = useState(() => formats[0]?.[0] ?? "SIMPLE_QUIZ");
   const [maxQuestions, setMaxQuestions] = useState<string>("");
   const [jobId, setJobId] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
@@ -138,7 +119,7 @@ export default function ImportScreen({
             ? Array.from({ length: loaded.pageCount }, (_, index) => index + 1)
             : [],
         );
-        setTitle((current) => current || candidate.name.replace(/\.pdf$/i, ""));
+        setTitle(candidate.name.replace(/\.pdf$/i, ""));
         setStage("pages");
       } catch (error) {
         if (requestId !== openRequestRef.current) return;
@@ -193,7 +174,6 @@ export default function ImportScreen({
         pages: formatPageRange(selectedPages),
         maxQuestions: Number.isInteger(parsed) ? parsed : undefined,
         title: title.trim() || undefined,
-        format,
       },
       {
         onSuccess: ({ jobId: created }) => {
@@ -277,7 +257,7 @@ export default function ImportScreen({
             />
           ) : null}
 
-          {stage === "pages" && document ? (
+          {stage !== "choose" && document ? (
             <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
               <div className="min-w-0 space-y-6">
                 <div>
@@ -301,7 +281,7 @@ export default function ImportScreen({
               <aside className="space-y-4 lg:sticky lg:top-6 lg:self-start">
                 <Surface padding="md" className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <FormatMark icon={formatIcon(format)} />
+                    <FormatMark icon={FileText} />
                     <div className="min-w-0">
                       <p className="type-label truncate text-foreground">
                         {title.trim() || t("root.tests.import.untitled")}
@@ -325,11 +305,6 @@ export default function ImportScreen({
                     )}
                   </Field>
 
-                  {/*
-                    The limit is a labelled number, never a silent clamp. A
-                    teacher who can see "up to 100" before starting will not
-                    discover it as a truncated test afterwards.
-                  */}
                   <Field
                     label={t("root.tests.import.maxQuestions.label")}
                     hint={t("root.tests.import.maxQuestions.hint", {
@@ -359,35 +334,15 @@ export default function ImportScreen({
                     )}
                   </Field>
 
-                  <fieldset>
-                    <legend className="type-micro mb-1.5 text-muted-foreground">
-                      {t("root.tests.create.formatLabel")}
-                    </legend>
-                    <div className="grid gap-1.5">
-                      {formats.map(([value, entry]) => (
-                        <label
-                          key={value}
-                          className={cn(
-                            "interactive-flat flex cursor-pointer items-center gap-2 rounded-lg border px-2.5 py-1.5 text-xs outline-none",
-                            "focus-within:ring-2 focus-within:ring-ring/40",
-                            value === format
-                              ? "border-primary/45 bg-accent text-accent-foreground"
-                              : "border-border bg-card text-foreground hover:border-primary/25 hover:bg-muted",
-                          )}
-                        >
-                          <input
-                            type="radio"
-                            name="format"
-                            value={value}
-                            checked={value === format}
-                            onChange={() => setFormat(value)}
-                            className="sr-only"
-                          />
-                          {translateKey(t, entry.labelKey, humanizeToken(value))}
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
+                  <div className="flex items-start gap-2 rounded-lg bg-muted px-2.5 py-2">
+                    <Sparkles
+                      className="mt-0.5 size-3.5 shrink-0 text-primary"
+                      aria-hidden="true"
+                    />
+                    <p className="text-2xs leading-relaxed text-muted-foreground">
+                      {t("root.tests.import.formatDetected")}
+                    </p>
+                  </div>
                 </Surface>
 
                 <Button
@@ -410,60 +365,56 @@ export default function ImportScreen({
             </div>
           ) : null}
 
-          {stage === "working" ? (
-            <div className="mx-auto max-w-lg py-6">
-              <Surface padding="lg" className="space-y-6">
-                <ImportProgress
-                  job={job}
-                  fileName={file?.name ?? ""}
-                  onCancel={failed ? undefined : cancel}
-                  canceling={cancelImport.isPending}
-                />
-
-                {jobQueryFailed ? (
-                  <div className="space-y-3 border-t border-border pt-4">
-                    <p className="text-sm text-foreground">
-                      {t("root.tests.import.progress.statusError")}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      loading={refreshingJob}
-                      onClick={() => void retryJob()}
-                    >
-                      {t("root.tests.import.progress.retryStatus")}
-                    </Button>
-                  </div>
-                ) : null}
-
-                {failed ? (
-                  <div className="space-y-3 border-t border-border pt-4">
-                    <p className="text-sm text-foreground">
-                      {t(`root.tests.import.errors.${job?.errorCode ?? "EXTRACTION_FAILED"}`, {
-                        max: limits.maxDocumentPages,
-                        size: Math.round(limits.maxBytes / (1024 * 1024)),
-                        pages: limits.maxSelectedPages,
-                      })}
-                    </p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setJobId(null);
-                        setStage("pages");
-                      }}
-                    >
-                      {t("root.tests.import.tryAgain")}
-                    </Button>
-                  </div>
-                ) : null}
-              </Surface>
-            </div>
-          ) : null}
         </div>
       </div>
+
+      <ImportProgress
+        open={stage === "working"}
+        job={job}
+        fileName={file?.name ?? ""}
+        onCancel={failed ? undefined : cancel}
+        canceling={cancelImport.isPending}
+      >
+        {jobQueryFailed ? (
+          <div className="space-y-3 border-t border-border pt-4">
+            <p className="text-sm text-foreground">
+              {t("root.tests.import.progress.statusError")}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              loading={refreshingJob}
+              onClick={() => void retryJob()}
+            >
+              {t("root.tests.import.progress.retryStatus")}
+            </Button>
+          </div>
+        ) : null}
+
+        {failed ? (
+          <div className="space-y-3 border-t border-border pt-4">
+            <p className="text-sm text-foreground">
+              {t(`root.tests.import.errors.${job?.errorCode ?? "EXTRACTION_FAILED"}`, {
+                max: limits.maxDocumentPages,
+                size: Math.round(limits.maxBytes / (1024 * 1024)),
+                pages: limits.maxSelectedPages,
+              })}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setJobId(null);
+                setStage("pages");
+              }}
+            >
+              {t("root.tests.import.tryAgain")}
+            </Button>
+          </div>
+        ) : null}
+      </ImportProgress>
     </>
   );
 }

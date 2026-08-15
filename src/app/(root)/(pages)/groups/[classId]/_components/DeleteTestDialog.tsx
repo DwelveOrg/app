@@ -14,17 +14,10 @@ type DeleteTestDialogProps = {
   onOpenChange: (open: boolean) => void;
   testId: string;
   title: string;
-  /** Drafts are deleted; anything else is archived. Say which. */
   status: TestStatus;
-  /** Set when deleting from the builder, which cannot stay on a dead test. */
   redirectOnSuccess?: string;
 };
 
-/**
- * Confirms removal of a test. `DELETE /tests/:testId` deletes a draft outright
- * but archives a published one, so the copy changes with the status rather than
- * promising something the backend will not do.
- */
 export default function DeleteTestDialog({
   open,
   onOpenChange,
@@ -49,7 +42,6 @@ export default function DeleteTestDialog({
           toast.success(t(`root.tests.${scope}.success`, { title }));
           onOpenChange(false);
           if (redirectOnSuccess) router.push(redirectOnSuccess);
-          router.refresh();
         },
         onError: (error) =>
           toast.error(

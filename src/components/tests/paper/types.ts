@@ -63,4 +63,6 @@ export type QuestionRenderProps = {
    * share with each other.
    */
   displayNumber?: number;
+  hideMeta?: boolean;
+  struckOptionIds?: Set<string>;
 };

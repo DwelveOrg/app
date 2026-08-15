@@ -98,17 +98,57 @@ accusation they know is wrong.
 **Every rule is stated on the cover screen, in the second person, before the
 attempt starts.** That is the difference between a rule and a trap.
 
-### The two layouts
+### Three rooms, one attempt
 
-`ALL_AT_ONCE` scrolls the whole paper with **each passage sticky beside its own
-questions** — grouped by material, so the sticky column ends where the passage
-stops being relevant rather than following the student into the next one.
-`ONE_AT_A_TIME` shows a single question and *removes* Back when
-`allowBackNavigation` is off; a permanently disabled control is a promise the
-exam is not going to keep.
+The paper's **format decides the environment**. `AttemptRuntime` owns the
+attempt — answers, autosave, clock, integrity guard, submit — and passes all of
+it to an environment component that owns only the layout
+(`_components/environments/`, contract in `types.ts`). That line exists because
+a second implementation of *when an answer reaches the server* is the one
+duplication this feature cannot survive.
 
-The question navigator is present at every breakpoint — a grid on `lg`, a pinned
-bar below it. Knowing what you have not answered is not a desktop luxury.
+| Format | Room | Shape |
+|---|---|---|
+| `SAT` | `SatEnvironment` | Bluebook: module header left, centred countdown with a Hide control, split stimulus \| question, "Mark for Review", ABC cross-out, bottom bar with "Question X of Y" opening the grid upward |
+| `IELTS` | `IeltsEnvironment` | Computer-delivered IELTS: a **part** at a time, split passage \| all that part's questions, numbered strip along the bottom grouped by part, per-question "Review" |
+| everything else | `QuizEnvironment` | The product's own layout, honouring both `navigationMode` values |
+
+`environmentForFormat` falls back to `quiz` for an unknown format, so a new
+backend format renders correctly rather than failing to compile somewhere far
+away.
+
+**Every room is a full-height column**: header, one scrolling body region,
+footer. Nothing scrolls under the chrome — which is what fixes the old
+single-scroll page, where the sticky header floated over the paper and jumping
+to a question put it behind the bar.
+
+**The navigator is at the bottom in all three**, because that is where both real
+applications put it and because a right-hand column spends width a passage needs
+on something consulted a few times an hour. When `allowBackNavigation` is off it
+is *locked* to earlier questions as well — a grid that jumps to question 3 would
+otherwise walk around the rule Back is enforcing. Back is removed rather than
+disabled, for the same reason it always was: a permanently disabled control is a
+promise the exam is not going to keep.
+
+`ALL_AT_ONCE` (quiz only) scrolls the whole paper with **each passage sticky
+beside its own questions** — grouped by material, so the sticky column ends where
+the passage stops being relevant rather than following the student into the next
+one. SAT and IELTS are inherently paged and stay paged whatever the delivery
+says: an SAT that scrolls is not an SAT, and nothing is lost, since every
+question is one press away in the grid.
+
+### Appearance
+
+Theme and text size, in **every** format — `ExamAppearanceMenu`, persisted per
+environment. Both real applications offer it, and the reason to change either is
+the student, the screen and the room, never the exam board.
+
+Three rooms — black on white, white on black, yellow on black — implemented by
+re-scoping the token layer on one wrapper (`[data-exam-theme]` in
+`globals.css`), so every component inside repaints without knowing a theme
+exists. Each palette is **self-contained**: it restates every token it depends
+on rather than inheriting the app theme, and all three are asserted by
+`npm run check:contrast` alongside `:root` and `.dark`.
 
 ## Results
 

@@ -56,20 +56,23 @@ function ReportProblemLauncher() {
         aria-label={t("report.launcher")}
         title={t("report.launcher")}
         className={cn(
-          "group fixed right-4 bottom-24 z-40 flex items-center gap-2 md:right-6 md:bottom-6",
-          "rounded-full border border-border bg-card px-3.5 py-3 text-muted-foreground shadow-elev-3",
-          "transition hover:border-primary/40 hover:text-foreground",
+          "group fixed right-4 bottom-24 z-40 inline-flex items-center md:right-6 md:bottom-6",
+          "size-12 justify-center rounded-full border border-border bg-card text-muted-foreground shadow-elev-3",
+          "transition-[width,border-color,color] duration-[var(--dur-2)] ease-[var(--ease-out-quint)]",
+          "hover:border-primary/40 hover:text-foreground",
           "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none",
+          "md:hover:w-auto md:hover:justify-start md:hover:pr-4 md:hover:pl-3.5",
+          "md:focus-visible:w-auto md:focus-visible:justify-start md:focus-visible:pr-4 md:focus-visible:pl-3.5",
         )}
       >
         <LifeBuoy className="size-5 shrink-0" aria-hidden="true" />
         {/*
           Collapsed to the mark until hover, so the control is reachable from
           every screen without occupying a labelled slot on every screen. The
-          transition runs on max-width rather than width because the label has
-          no fixed measure across three languages.
+          label is `hidden` while collapsed — not merely zero-width — so it
+          contributes no gap, which is what made the circle look wrong before.
         */}
-        <span className="hidden max-w-0 overflow-hidden whitespace-nowrap text-13 font-medium opacity-0 transition-[max-width,opacity] duration-[var(--dur-2)] group-hover:max-w-[12rem] group-hover:opacity-100 group-focus-visible:max-w-[12rem] group-focus-visible:opacity-100 md:inline">
+        <span className="hidden whitespace-nowrap text-13 font-medium md:group-hover:ml-2 md:group-hover:inline md:group-focus-visible:ml-2 md:group-focus-visible:inline">
           {t("report.launcher")}
         </span>
       </button>

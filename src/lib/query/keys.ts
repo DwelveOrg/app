@@ -21,6 +21,11 @@ export const queryKeys = {
       [...queryKeys.classes.all, "assignable-teachers", classId] as const,
     assignableTeachers: (classId: string, filters: { search: string; limit: number }) =>
       [...queryKeys.classes.assignableTeachersAll(classId), filters] as const,
+    activitiesAll: () => [...queryKeys.classes.all, "activity"] as const,
+    activityAll: (classId: string) =>
+      [...queryKeys.classes.activitiesAll(), classId] as const,
+    activity: (classId: string, limit: number) =>
+      [...queryKeys.classes.activityAll(classId), limit] as const,
   },
   tests: {
     all: ["tests"] as const,

@@ -24,8 +24,13 @@ Three entry points, because a teacher holding a PDF arrives from three places:
 | Route | Entry |
 |---|---|
 | `/studio/tests/new?class=<classId>` | a panel beside the format picker — this is the screen where a teacher decides *how* a test comes into existence |
-| `/groups/[classId]/tests` | an **Import PDF** button beside **New test** |
-| `/dashboard` | a panel with a class picker, since the dashboard has no class in context |
+| `/groups/[classId]` | `AiImportCta` on the assignments board: a hero panel while the board is empty, a one-line strip once it is not |
+| `/dashboard` | the same `AiImportCta`, with a class picker beside it since the dashboard has no class in context |
+
+The two board entry points are the *same component* deliberately. It used to be
+an outline button captioned **Import**, indistinguishable from Back — which is
+how you label a data-migration tool, and teachers read past it and typed their
+questions out by hand instead.
 
 All three land on `/studio/tests/import?class=<classId>`, which is inside the
 studio shell for the same reason `/studio/tests/new` is: it creates a test that
@@ -39,7 +44,25 @@ One screen, no wizard chrome. Picking pages *is* the second step.
 |---|---|
 | `choose` | a dropzone. The file is read in the browser — nothing is uploaded yet |
 | `pages` | the page grid, the question-count field, and the answer rule. Primary action: **Create test** |
-| `working` | the vertical loader, until it redirects into the builder |
+| `working` | a **non-dismissible dialog** over the page selection — the stage list plus a bar that keeps moving — until it redirects into the builder |
+
+The page selection stays mounted underneath the dialog, so a failed import
+returns the teacher to the same grid with the same pages still ticked. Escape
+and outside-clicks do not close it: dismissing it would not stop the job, so the
+two ways out are the job finishing and **Cancel this import**, which aborts it.
+
+### The format is not asked for
+
+There is no format picker on this screen. It asked the teacher to classify a
+document the model was about to read end to end. The extraction's outline pass
+returns `detectedFormat` — SAT / IELTS / SIMPLE_QUIZ / CUSTOM, on positive
+evidence in the pages, defaulting to `SIMPLE_QUIZ` — and the backend applies it
+whenever the request omits `format`, which this screen always does. An explicit
+format from any other caller still wins, and the builder's settings can correct
+a wrong guess.
+
+This matters beyond the upload screen: the format decides which environment a
+student sits the paper in (`docs/features/test-taking.md`).
 
 ## Choosing pages
 

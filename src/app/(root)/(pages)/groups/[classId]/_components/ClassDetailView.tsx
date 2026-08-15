@@ -17,18 +17,25 @@ import { useTranslation } from "react-i18next";
 
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import type { ApiClass } from "@/app/(root)/_lib/classes.schemas";
+import type { ClassActivityResponse } from "@/app/(root)/_lib/class-activity.schemas";
+import type {
+  FormatBlueprintRegistry,
+  TestsListResponse,
+} from "@/app/(root)/_lib/tests.schemas";
 import type { StudentTestRow } from "@/app/exam/_lib/attempts.schemas";
 import { Button } from "@/components/ui/Button";
 import EntityHeader from "@/app/(root)/_components/EntityHeader";
 import FactGrid, { Fact } from "@/app/(root)/_components/FactGrid";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
+import { studioRoutes } from "@/app/(root)/_constants/tests";
 import { classAccent } from "../../_constants";
 import { enrollmentModeLabelKeys } from "../../_lib/enrollmentLabels";
 import EditClassDialog from "../../_components/EditClassDialog";
 import DeleteClassDialog from "../../_components/DeleteClassDialog";
+import ClassActivitySection from "./ClassActivitySection";
+import ClassAssignmentsBoard from "./ClassAssignmentsBoard";
+import ClassPeopleButtons from "./ClassPeopleButtons";
 import ClassRequestsButton from "./ClassRequestsButton";
-import ClassRequestsSection from "./ClassRequestsSection";
-import ClassRosterSection from "./ClassRosterSection";
 import ClassStudentTestsSection from "./ClassStudentTestsSection";
 import LeaveClassDialog from "./LeaveClassDialog";
 
@@ -40,28 +47,20 @@ type ClassDetailViewProps = {
   schoolId: string | undefined;
   /** The viewer's own tests for this class. Empty for anyone but a student. */
   myTests: StudentTestRow[];
+  formats: FormatBlueprintRegistry;
+  initialTests?: TestsListResponse;
+  initialActivity?: ClassActivityResponse;
 };
 
-/**
- * The class page: identity first, then an overview of the class facts, then
- * what the class asks of the viewer — assigned tests for a student, the request
- * queue for staff — and who else is in it.
- *
- * The order is deliberate and role-dependent. A student's work outranks the
- * roster: they came to find out what is due, not who their classmates are.
- *
- * Every action the viewer is allowed is a direct, labelled control in the
- * header. There is no overflow menu: a three-dot button that hides two items
- * costs a click and a guess to reach what a visible button states outright, and
- * the actions it used to hold are either shown here or reachable from the page
- * they belong to. The backend still authorizes every mutation.
- */
 export default function ClassDetailView({
   classItem,
   isAdmin,
   viewerRole,
   schoolId,
   myTests,
+  formats,
+  initialTests,
+  initialActivity,
 }: ClassDetailViewProps) {
   const { t } = useTranslation();
   const [editOpen, setEditOpen] = useState(false);
@@ -115,13 +114,23 @@ export default function ClassDetailView({
           // empty flex item between the description and the fact grid.
           canManage || leaveRole ? (
             <>
+              <ClassPeopleButtons
+                classId={classItem.id}
+                teachers={classItem.teachers}
+                students={classItem.students}
+                teacherCount={teacherCount}
+                studentCount={studentCount}
+                canManageTeachers={isAdmin}
+                canManageStudents={canManage}
+              />
+
               {canManage ? (
                 <>
                   <ClassRequestsButton classId={classItem.id} isAdmin={isAdmin} />
 
                   {/* Teachers author tests too, so this is not admin-only. */}
                   <Button variant="outline" size="lg" asChild>
-                    <Link href={`/groups/${classItem.id}/tests`}>
+                    <Link href={studioRoutes.newTest(classItem.id)}>
                       <FileText className="size-4" />
                       {t("root.classDetail.actions.addTest")}
                     </Link>
@@ -216,24 +225,22 @@ export default function ClassDetailView({
         </FactGrid>
       </EntityHeader>
 
-      {/* A student's own work comes before the roster: it is why they opened
-          the page. Staff get no section here — their view of a class's tests is
-          the authoring list behind "Tests" in the header. */}
-      {viewerRole === "STUDENT" ? <ClassStudentTestsSection tests={myTests} /> : null}
+      {viewerRole === "STUDENT" ? (
+        <ClassStudentTestsSection tests={myTests} />
+      ) : (
+        <ClassAssignmentsBoard
+          classId={classItem.id}
+          formats={formats}
+          canAuthor={canManage}
+          initialTests={initialTests}
+        />
+      )}
 
-      <ClassRosterSection
+      <ClassActivitySection
         classId={classItem.id}
-        teachers={classItem.teachers}
-        students={classItem.students}
-        teacherCount={teacherCount}
-        studentCount={studentCount}
-        canManageTeachers={isAdmin}
-        canManageStudents={canManage}
+        enabled={canManage}
+        initialData={initialActivity}
       />
-
-      {canManage ? (
-        <ClassRequestsSection classId={classItem.id} isAdmin={isAdmin} />
-      ) : null}
 
       {isAdmin ? (
         <>

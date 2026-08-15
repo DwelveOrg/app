@@ -95,7 +95,9 @@ export default function OrderingInput({
 
                 {handle}
 
-                <span className="min-w-0 flex-1 text-15 text-foreground">{option.text}</span>
+                <span className="exam-prose min-w-0 flex-1 text-15 text-foreground">
+                  {option.text}
+                </span>
 
                 {readOnly ? null : (
                   <>

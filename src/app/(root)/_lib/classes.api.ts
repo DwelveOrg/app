@@ -4,6 +4,7 @@ import type { z } from "zod";
 
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
+import { classActivityResponseSchema } from "./class-activity.schemas";
 import {
   assignableStudentsResponseSchema,
   assignableTeachersResponseSchema,
@@ -26,6 +27,17 @@ type BackendRequester = <TSchema extends z.ZodTypeAny>(
 /** `GET /classes` - backend returns only classes the caller may see. */
 export function getClassesRequest(requestJson: BackendRequester = authedBackendJson) {
   return requestJson("/classes", { responseSchema: classesResponseSchema });
+}
+
+export function listClassActivityRequest(
+  classId: string,
+  query: { limit?: number },
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/classes/${classId}/activity`, {
+    query,
+    responseSchema: classActivityResponseSchema,
+  });
 }
 
 /** `GET /classes/:id` - one class, visible to the caller. */

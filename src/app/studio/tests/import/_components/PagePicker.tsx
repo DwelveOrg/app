@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useId, useMemo, useRef, useState } from "react";
 import { Info } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { PDFDocumentProxy } from "pdfjs-dist";
@@ -11,7 +11,6 @@ import {
 } from "@/app/(root)/_lib/test-import.actions.schemas";
 import type { TestImportLimits } from "@/app/(root)/_lib/test-import.schemas";
 import { Button } from "@/components/ui/Button";
-import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
 import Surface from "@/components/ui/Surface";
 import { cn } from "@/lib/utils";
@@ -44,6 +43,7 @@ export default function PagePicker({
   onChange: (pages: number[]) => void;
 }) {
   const { t } = useTranslation();
+  const rangeFieldId = useId();
   const lastToggledRef = useRef<number | null>(null);
 
   /** Local text state so a half-typed range does not fight the grid. */
@@ -104,63 +104,62 @@ export default function PagePicker({
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <Field
-          label={t("root.tests.import.pages.label")}
-          hint={t("root.tests.import.pages.hint")}
-          size="sm"
-          className="min-w-[16rem] flex-1"
-        >
-          {({ id }) => (
-            <Input
-              id={id}
-              value={rangeText}
-              inputMode="numeric"
-              placeholder="1-4, 7, 11-13"
-              onChange={(event) => {
-                const next = event.target.value;
-                setRangeDraft(next);
-                onChange(parsePageRange(next, pageCount).slice(0, limits.maxSelectedPages));
-              }}
-              onBlur={() => setRangeDraft(null)}
-            />
-          )}
-        </Field>
+      <div>
+        <div className="mb-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <label htmlFor={rangeFieldId} className="text-xs font-medium text-foreground">
+            {t("root.tests.import.pages.label")}
+          </label>
 
-        <div className="flex items-center gap-2 pb-1">
-          <Button type="button" variant="ghost" size="sm" onClick={selectAll}>
-            {pageCount > limits.maxSelectedPages
-              ? t("root.tests.import.pages.selectFirst", {
-                  max: limits.maxSelectedPages,
-                })
-              : t("root.tests.import.pages.selectAll")}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => commit([])}
-            disabled={selected.length === 0}
-          >
-            {t("root.tests.import.pages.clear")}
-          </Button>
+          <div className="-my-1 flex items-center gap-1">
+            <Button type="button" variant="ghost" size="xs" onClick={selectAll}>
+              {pageCount > limits.maxSelectedPages
+                ? t("root.tests.import.pages.selectFirst", {
+                    max: limits.maxSelectedPages,
+                  })
+                : t("root.tests.import.pages.selectAll")}
+            </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              size="xs"
+              onClick={() => commit([])}
+              disabled={selected.length === 0}
+            >
+              {t("root.tests.import.pages.clear")}
+            </Button>
+          </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <p
-          className={cn(
-            "text-xs font-medium",
-            atCap ? "text-foreground" : "text-muted-foreground",
-          )}
-        >
-          {countLabel}
-        </p>
-        {atCap ? (
-          <p className="text-2xs text-muted-foreground">
-            {t("root.tests.import.pages.atCap", { max: limits.maxSelectedPages })}
+        <Input
+          id={rangeFieldId}
+          value={rangeText}
+          inputMode="numeric"
+          placeholder="1-4, 7, 11-13"
+          aria-describedby={`${rangeFieldId}-hint`}
+          onChange={(event) => {
+            const next = event.target.value;
+            setRangeDraft(next);
+            onChange(parsePageRange(next, pageCount).slice(0, limits.maxSelectedPages));
+          }}
+          onBlur={() => setRangeDraft(null)}
+        />
+
+        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1">
+          <p id={`${rangeFieldId}-hint`} className="text-2xs text-muted-foreground">
+            {t("root.tests.import.pages.hint")}
           </p>
-        ) : null}
+          <p
+            className={cn(
+              "text-2xs font-medium tabular-nums",
+              atCap ? "text-foreground" : "text-muted-foreground",
+            )}
+          >
+            {countLabel}
+            {atCap
+              ? ` · ${t("root.tests.import.pages.atCap", { max: limits.maxSelectedPages })}`
+              : null}
+          </p>
+        </div>
       </div>
 
       {/*

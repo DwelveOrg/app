@@ -45,6 +45,12 @@ function resolve(vars) {
 const light = resolve(block(":root"));
 const dark = resolve({ ...block(":root"), ...block("\\.dark") });
 
+const EXAM_ROOMS = ["paper", "slate", "contrast"];
+const examThemes = EXAM_ROOMS.map((room) => [
+  `EXAM: ${room}`,
+  resolve({ ...block(":root"), ...block(`\\[data-exam-theme="${room}"\\]`) }),
+]);
+
 /* ---------------------------------------------------------------------------
    Colour parsing.
 
@@ -255,9 +261,12 @@ function unableToCheck(label, reason) {
 for (const [name, vars] of [
   ["LIGHT", light],
   ["DARK", dark],
+  ...examThemes,
 ]) {
+  const examRoom = name.startsWith("EXAM:");
   console.log(`\n\x1b[1m${name}\x1b[0m`);
   for (const [fgTok, bgTok, min, label] of CHECKS) {
+    if (examRoom && /sidebar|chart|brand/.test(`${fgTok}${bgTok}`)) continue;
     const fg = vars[fgTok];
     const bg = vars[bgTok];
     if (!fg || !bg) {
@@ -280,6 +289,7 @@ for (const [name, vars] of [
   }
 
   for (const [aTok, bTok, minDeg, label] of HUE_GUARDS) {
+    if (name === "EXAM: contrast") break;
     const a = vars[aTok];
     const b = vars[bTok];
     if (!a || !b) {

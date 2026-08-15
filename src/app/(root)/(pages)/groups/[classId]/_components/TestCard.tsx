@@ -20,16 +20,10 @@ import Badge from "@/components/ui/badge";
 
 type TestCardProps = {
   test: ApiTestSummary;
-  /** The blueprint registry, so the format badge reads as its own label. */
   formats: FormatBlueprintRegistry;
-  onRequestDelete: (test: ApiTestSummary) => void;
+  onRequestDelete?: (test: ApiTestSummary) => void;
 };
 
-/**
- * One test in the class list: what it is, how big it is, and where it stands.
- * The whole card is a link into the studio; the row of controls sits outside
- * that link so a duplicate or delete never navigates by accident.
- */
 export default function TestCard({
   test,
   formats,
@@ -52,11 +46,6 @@ export default function TestCard({
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="type-heading min-w-0 text-foreground">
-              {/*
-                The link stretches over the whole card so the card body is the click target that
-                `Surface interactive` promises, while the controls in the footer sit above it in
-                the stacking order and stay independently clickable.
-              */}
               <Link
                 href={studioRoutes.builder(test.id)}
                 className="block truncate rounded-sm outline-none before:absolute before:inset-0 before:rounded-2xl hover:underline focus-visible:ring-2 focus-visible:ring-ring/40"
@@ -110,7 +99,6 @@ export default function TestCard({
         ) : null}
       </dl>
 
-      {/* `relative` lifts the controls above the title link's stretched hit area. */}
       <div className="relative flex flex-wrap items-center gap-2 border-t border-border pt-3">
         <Button asChild size="sm">
           <Link href={studioRoutes.builder(test.id)}>
@@ -120,13 +108,6 @@ export default function TestCard({
           </Link>
         </Button>
 
-        {/*
-          Results are the point of publishing, so the way to them is on the card
-          rather than inside the studio. Drafts have none — a link to an empty
-          register is a promise the page cannot keep — and archived tests keep
-          theirs, because a finished term's marks are exactly what gets looked
-          up later.
-        */}
         {test.status === "DRAFT" ? null : (
           <Button asChild size="sm" variant="outline">
             <Link href={`/groups/${test.classId}/tests/${test.id}/results`}>
@@ -138,17 +119,19 @@ export default function TestCard({
 
         <DuplicateTestButton testId={test.id} />
 
-        <Button
-          size="sm"
-          variant="ghost"
-          className="ml-auto text-muted-foreground hover:text-destructive"
-          onClick={() => onRequestDelete(test)}
-        >
-          <Trash2 className="size-3.5" />
-          {test.status === "DRAFT"
-            ? t("root.tests.list.actions.delete")
-            : t("root.tests.list.actions.archive")}
-        </Button>
+        {onRequestDelete ? (
+          <Button
+            size="sm"
+            variant="ghost"
+            className="ml-auto text-muted-foreground hover:text-destructive"
+            onClick={() => onRequestDelete(test)}
+          >
+            <Trash2 className="size-3.5" />
+            {test.status === "DRAFT"
+              ? t("root.tests.list.actions.delete")
+              : t("root.tests.list.actions.archive")}
+          </Button>
+        ) : null}
       </div>
     </Surface>
   );

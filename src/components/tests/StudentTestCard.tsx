@@ -186,7 +186,7 @@ function StateBadge({ test }: { test: StudentTestRow }) {
 
   if (attempt?.resultAvailable && attempt.score != null && attempt.maxScore != null) {
     return (
-      <Badge variant="success" size="sm">
+      <Badge variant="neutral" size="sm">
         {attempt.score} / {attempt.maxScore}
       </Badge>
     );

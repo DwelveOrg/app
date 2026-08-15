@@ -21,7 +21,7 @@ type PageProps = { params: Promise<{ classId: string; testId: string }> };
 export default async function Page({ params }: PageProps) {
   const { classId, testId } = await params;
   const user = await getUser();
-  const backHref = `/groups/${classId}/tests`;
+  const backHref = `/groups/${classId}`;
 
   // The backend is the authorization boundary; this only picks the UI.
   if (user?.schoolRole !== "ADMIN" && user?.schoolRole !== "TEACHER") {

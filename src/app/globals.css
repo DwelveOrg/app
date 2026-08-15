@@ -251,6 +251,155 @@
   --elev-brand: 0 8px 26px -8px color-mix(in srgb, var(--brand) 50%, transparent);
 }
 
+
+[data-exam-theme="paper"] {
+  --background: #F7F6F3;
+  --foreground: #14140F;
+  --card: #FFFFFF;
+  --card-foreground: #14140F;
+  --popover: #FFFFFF;
+  --popover-foreground: #14140F;
+  --muted: #EFEDE7;
+  --muted-foreground: #5B594F;
+  --secondary: #EFEDE7;
+  --secondary-foreground: #2A2822;
+  --border: #DCD9D0;
+  --input: #DCD9D0;
+  --primary: #5F40D5;
+  --primary-hover: #4F32BE;
+  --primary-foreground: #FFFFFF;
+  --ring: #7B5FF0;
+  --accent: #E8E4FB;
+  --accent-foreground: #3F2A9B;
+  --success: #25793A;
+  --success-foreground: #FFFFFF;
+  --warning: #B45309;
+  --warning-foreground: #FFFFFF;
+  --destructive: #BE2E22;
+  --destructive-foreground: #FFFFFF;
+  --info: #00728F;
+  --info-foreground: #FFFFFF;
+  --selection: #FBEFC0;
+  --selection-foreground: #14140F;
+  --overlay: rgb(20 18 30 / 0.34);
+  --shadow-tint: 20 18 30;
+  --elev-1:
+    0 1px 2px rgb(var(--shadow-tint) / 0.05),
+    0 1px 1px rgb(var(--shadow-tint) / 0.04);
+  --elev-2:
+    0 2px 4px -1px rgb(var(--shadow-tint) / 0.06),
+    0 4px 12px -2px rgb(var(--shadow-tint) / 0.06);
+  --elev-3:
+    0 6px 12px -4px rgb(var(--shadow-tint) / 0.08),
+    0 12px 28px -8px rgb(var(--shadow-tint) / 0.10);
+  --elev-4:
+    0 12px 24px -8px rgb(var(--shadow-tint) / 0.10),
+    0 28px 56px -16px rgb(var(--shadow-tint) / 0.14);
+}
+
+[data-exam-theme="slate"] {
+  --background: #0C0C10;
+  --foreground: #ECEBF1;
+  --card: #16161C;
+  --card-foreground: #ECEBF1;
+  --popover: #1D1D25;
+  --popover-foreground: #ECEBF1;
+  --muted: #22222B;
+  --muted-foreground: #A2A0AD;
+  --secondary: #22222B;
+  --secondary-foreground: #ECEBF1;
+  --border: #30303A;
+  --input: #30303A;
+  --primary: #A191FF;
+  --primary-hover: #B9ADFF;
+  --primary-foreground: #15102F;
+  --ring: #A191FF;
+  --accent: #2D2948;
+  --accent-foreground: #C3B8FF;
+  --success: #5FCB63;
+  --success-foreground: #08210F;
+  --warning: #F0B23C;
+  --warning-foreground: #2A1B05;
+  --destructive: #FF7A70;
+  --destructive-foreground: #2A0C0A;
+  --info: #4FC4E0;
+  --info-foreground: #05222B;
+  --selection: #34275E;
+  --selection-foreground: #ECEBF1;
+  --overlay: rgb(0 0 0 / 0.6);
+  --shadow-tint: 0 0 0;
+  --elev-1:
+    0 1px 2px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.035);
+  --elev-2:
+    0 2px 6px -1px rgb(0 0 0 / 0.6),
+    0 6px 16px -4px rgb(0 0 0 / 0.5),
+    inset 0 1px 0 rgb(255 255 255 / 0.045);
+  --elev-3:
+    0 8px 18px -6px rgb(0 0 0 / 0.7),
+    0 16px 36px -12px rgb(0 0 0 / 0.6),
+    inset 0 1px 0 rgb(255 255 255 / 0.055);
+  --elev-4:
+    0 16px 32px -10px rgb(0 0 0 / 0.75),
+    0 36px 72px -20px rgb(0 0 0 / 0.65),
+    inset 0 1px 0 rgb(255 255 255 / 0.07);
+}
+
+[data-exam-theme="contrast"] {
+  --background: #000000;
+  --foreground: #FFE566;
+  --card: #000000;
+  --card-foreground: #FFE566;
+  --popover: #0A0A0A;
+  --popover-foreground: #FFE566;
+  --muted: #1A1A00;
+  --muted-foreground: #E3CB50;
+  --secondary: #1A1A00;
+  --secondary-foreground: #FFE566;
+  --border: #FFE566;
+  --input: #FFE566;
+  --primary: #FFE566;
+  --primary-hover: #FFF0A0;
+  --primary-foreground: #000000;
+  --ring: #FFFFFF;
+  --accent: #2E2A00;
+  --accent-foreground: #FFE566;
+  --success: #7CFF8A;
+  --success-foreground: #000000;
+  --warning: #FFC24D;
+  --warning-foreground: #000000;
+  --destructive: #FF8F84;
+  --destructive-foreground: #000000;
+  --info: #7FE4FF;
+  --info-foreground: #000000;
+  --selection: #FFE566;
+  --selection-foreground: #000000;
+  --overlay: rgb(0 0 0 / 0.8);
+  --shadow-tint: 0 0 0;
+  --elev-1: 0 0 0 1px #FFE566;
+  --elev-2: 0 0 0 1px #FFE566;
+  --elev-3: 0 0 0 2px #FFE566;
+  --elev-4: 0 0 0 2px #FFE566;
+}
+
+[data-exam-size="sm"] {
+  --exam-text: 0.9375rem;
+}
+[data-exam-size="md"] {
+  --exam-text: 1.0625rem;
+}
+[data-exam-size="lg"] {
+  --exam-text: 1.1875rem;
+}
+[data-exam-size="xl"] {
+  --exam-text: 1.375rem;
+}
+
+[data-exam-size] .exam-prose {
+  font-size: var(--exam-text, 1.0625rem);
+  line-height: 1.65;
+}
+
 @theme inline {
   --font-sans: var(--font-dwelve-sans);
   --font-serif: var(--font-dwelve-serif);
@@ -522,6 +671,23 @@
     radial-gradient(42% 38% at 6% 4%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%);
 }
 
+
+.exam-result-bg {
+  background-color: var(--background);
+  background-image:
+    radial-gradient(
+      62% 46% at 78% -8%,
+      color-mix(in srgb, var(--result-tint, var(--primary)) 14%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      46% 40% at 4% 2%,
+      color-mix(in srgb, var(--primary) 9%, transparent),
+      transparent 70%
+    );
+  background-attachment: fixed;
+}
+
 /* ============================================================================
    Keyframes
    ========================================================================= */
@@ -584,6 +750,49 @@
   background-size: 220% 100%;
   background-repeat: no-repeat;
   animation: mock-shimmer 1.5s ease-in-out infinite;
+}
+
+
+@keyframes working-bar-drift {
+  from {
+    background-position: 0% 50%;
+  }
+  to {
+    background-position: -200% 50%;
+  }
+}
+
+@keyframes working-bar-sheen {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(300%);
+  }
+}
+
+.working-bar-fill {
+  background-image: linear-gradient(
+    90deg,
+    var(--primary) 0%,
+    color-mix(in oklab, var(--primary) 55%, var(--info)) 22%,
+    color-mix(in oklab, var(--primary) 70%, white) 45%,
+    var(--primary) 68%,
+    color-mix(in oklab, var(--primary) 60%, var(--chart-4)) 100%
+  );
+  background-size: 300% 100%;
+  animation: working-bar-drift 3.2s linear infinite;
+}
+
+.working-bar-sheen {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgb(255 255 255 / 0.45) 50%,
+    transparent 100%
+  );
+  width: 33%;
+  animation: working-bar-sheen 1.9s var(--ease-out-quint) infinite;
 }
 
 /* Continuous use-case ribbon on the landing hero. The track holds two identical
@@ -672,8 +881,14 @@
   .animate-accordion-down,
   .animate-accordion-up,
   .mock-shimmer,
-  .landing-marquee-track {
+  .landing-marquee-track,
+  .working-bar-fill,
+  .working-bar-sheen {
     animation: none;
+  }
+
+  .working-bar-sheen {
+    display: none;
   }
 
   .interactive,
