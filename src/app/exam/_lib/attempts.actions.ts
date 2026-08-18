@@ -6,6 +6,7 @@ import {
   getAttemptRequest,
   getAttemptResultRequest,
   listMyTestsRequest,
+  rateExperienceRequest,
   reportViolationRequest,
   saveAnswersRequest,
   startAttemptRequest,
@@ -13,6 +14,7 @@ import {
 } from "./attempts.api";
 import {
   attemptIdSchema,
+  rateExperienceSchema,
   reportViolationSchema,
   saveAnswersSchema,
   startAttemptSchema,
@@ -149,6 +151,26 @@ export const submitAttemptAction = actionClient
   .action(async ({ parsedInput }) => {
     try {
       return await submitAttemptRequest(parsedInput.attemptId);
+    } catch (error) {
+      throw new ActionError(mapAttemptError(error));
+    }
+  });
+
+/**
+ * How the sitting felt, from the result screen.
+ *
+ * Failure here is deliberately quiet at the call site: a student who cannot
+ * submit an opinion about the software has still finished their exam, and an
+ * error dialog over their result would make the survey feel like part of it.
+ */
+export const rateExperienceAction = actionClient
+  .inputSchema(rateExperienceSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      return await rateExperienceRequest(parsedInput.attemptId, {
+        rating: parsedInput.rating,
+        comment: parsedInput.comment,
+      });
     } catch (error) {
       throw new ActionError(mapAttemptError(error));
     }

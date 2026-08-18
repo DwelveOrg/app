@@ -11,6 +11,7 @@ import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
 import ScoreMeter from "@/components/tests/ScoreMeter";
+import ExperienceRating from "./ExperienceRating";
 import { DUR, EASE_OUT, staggerContainer, staggerItem, stillVariants } from "@/lib/motion";
 import { cn } from "@/lib/utils";
 import type { AttemptResultResponse } from "../_lib/attempts.schemas";
@@ -203,9 +204,25 @@ export default function ResultScreen({
           </motion.section>
         ) : null}
 
+        {/*
+          Asked after the result, never before it — see ExperienceRating. It
+          sits above the navigation so it is the last thing on the page rather
+          than something to scroll back for, and below the paper review so it
+          never stands between a student and their marks.
+        */}
+        <motion.section
+          variants={reduced ? stillVariants : staggerItem}
+          className="mt-10"
+        >
+          <ExperienceRating
+            attemptId={attempt.id}
+            initialRating={attempt.experienceRating}
+          />
+        </motion.section>
+
         <motion.div
           variants={reduced ? stillVariants : staggerItem}
-          className="mt-10 flex flex-wrap gap-3"
+          className="mt-8 flex flex-wrap gap-3"
         >
           <Button asChild variant="outline" size="lg">
             <Link href="/assignments/exams">{t("exam.backToAssignments")}</Link>

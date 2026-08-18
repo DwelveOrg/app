@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { GraduationCap, Inbox, Plus, Users } from "lucide-react";
+import { GraduationCap, Inbox, Plus, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { Button } from "@/components/ui/Button";
-import type { SchoolRosterMember } from "@/app/(authentication)/_lib/api.schemas";
+import type {
+  SchoolBlocklistEntry,
+  SchoolRosterMember,
+  TeacherInviteSummary,
+} from "@/app/(authentication)/_lib/api.schemas";
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
 import type { StudentClassesResponse } from "@/app/(root)/_lib/enrollment.schemas";
@@ -15,6 +19,7 @@ import Empty from "../../_components/ui/Empty";
 import ClassGrid from "../../groups/_components/ClassGrid";
 import type { ClassItem } from "../../groups/_types";
 import CreateClassDialog from "./CreateClassDialog";
+import SchoolAccessTab from "./SchoolAccessTab";
 import SchoolStudentsTab from "./SchoolStudentsTab";
 import SchoolTeachersTab from "./SchoolTeachersTab";
 import MyClassRequestsView from "../../groups/_components/MyClassRequestsView";
@@ -25,6 +30,7 @@ type SchoolDirectorySectionProps = {
   classItems: ClassItem[];
   students: StudentItem[];
   teachers: SchoolRosterMember[];
+  admins: SchoolRosterMember[];
   teachersError: boolean;
   isAdmin: boolean;
   schoolId: string | undefined;
@@ -32,12 +38,20 @@ type SchoolDirectorySectionProps = {
   requestCount?: number;
   studentClasses?: StudentClassesResponse;
   teacherClasses?: TeacherClassesResponse;
+  teacherInvites: TeacherInviteSummary[];
+  teacherInvitesError: boolean;
+  blocklist: SchoolBlocklistEntry[];
+  blocklistError: boolean;
+  viewerMemberId: string | undefined;
+  viewerIsOwner: boolean;
+  viewerCanManageAdmins: boolean;
 };
 
 export default function SchoolDirectorySection({
   classItems,
   students,
   teachers,
+  admins,
   teachersError,
   isAdmin,
   schoolId,
@@ -45,6 +59,13 @@ export default function SchoolDirectorySection({
   requestCount,
   studentClasses,
   teacherClasses,
+  teacherInvites,
+  teacherInvitesError,
+  blocklist,
+  blocklistError,
+  viewerMemberId,
+  viewerIsOwner,
+  viewerCanManageAdmins,
 }: SchoolDirectorySectionProps) {
   const { t } = useTranslation();
   const [createOpen, setCreateOpen] = useState(false);
@@ -77,6 +98,28 @@ export default function SchoolDirectorySection({
                 size="lg"
               >
                 <SchoolStudentsTab students={students} />
+              </PanelDialog>
+
+              {/* Who can do what, plus the two lists that decide who gets in:
+                  outstanding teacher invites and the blocklist. */}
+              <PanelDialog
+                icon={ShieldCheck}
+                label={t("root.schoolPage.access.title")}
+                description={t("root.schoolPage.access.panelDescription")}
+                size="lg"
+              >
+                <SchoolAccessTab
+                  admins={admins}
+                  teachers={teachers}
+                  invites={teacherInvites}
+                  blocklist={blocklist}
+                  invitesError={teacherInvitesError}
+                  blocklistError={blocklistError}
+                  membersError={teachersError}
+                  viewerMemberId={viewerMemberId}
+                  viewerIsOwner={viewerIsOwner}
+                  viewerCanManageAdmins={viewerCanManageAdmins}
+                />
               </PanelDialog>
             </>
           ) : null}

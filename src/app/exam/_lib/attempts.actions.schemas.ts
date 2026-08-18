@@ -43,5 +43,12 @@ export const reportViolationSchema = z.object({
 });
 export type ReportViolationInput = z.infer<typeof reportViolationSchema>;
 
+export const rateExperienceSchema = z.object({
+  attemptId: z.string().min(1),
+  rating: z.number().int().min(1).max(5),
+  comment: z.string().trim().max(1000).optional(),
+});
+export type RateExperienceInput = z.infer<typeof rateExperienceSchema>;
+
 export const attemptIdSchema = z.object({ attemptId: z.string().min(1) });
 export type AttemptIdInput = z.infer<typeof attemptIdSchema>;

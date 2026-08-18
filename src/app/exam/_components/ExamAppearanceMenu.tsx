@@ -105,7 +105,9 @@ export default function ExamAppearanceMenu({
                         ? "border-primary/50 bg-accent text-accent-foreground"
                         : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
                     )}
-                    style={{ fontSize: `${0.75 + index * 0.125}rem` }}
+                    // Mirrors the --exam-text ramp in globals.css: the swatch has
+                    // to preview the jump the student is about to get.
+                    style={{ fontSize: `${0.6875 + index * 0.1875}rem` }}
                   >
                     A
                   </button>

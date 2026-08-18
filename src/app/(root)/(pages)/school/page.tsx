@@ -2,6 +2,7 @@ import RoleEmptyState from "../_components/ui/RoleEmptyState";
 import { getUser } from "../../_utils/getUser";
 import { getSchool } from "../../_utils/getSchool";
 import { getSchoolMembers } from "../../_utils/getSchoolMembers";
+import { getSchoolBlocklist, getTeacherInvites } from "../../_utils/getSchoolAccess";
 import { getClasses } from "../../_utils/getClasses";
 import { getStudents } from "../../_utils/getStudents";
 import { getStudentOverview } from "../../_utils/getStudentOverview";
@@ -39,6 +40,8 @@ export default async function Page() {
     studentOverview,
     studentClasses,
     teacherClasses,
+    teacherInvites,
+    blocklist,
   ] = await Promise.all([
     isAdmin ? getClasses() : Promise.resolve([]),
     user?.schoolId ? getSchoolMembers(user.schoolId) : null,
@@ -50,15 +53,28 @@ export default async function Page() {
     isTeacher && user?.schoolId
       ? getTeacherSchoolClasses(user.schoolId)
       : Promise.resolve(undefined),
+    // Both are ADMIN-gated on the backend, so they are only worth asking for
+    // when the viewer is one; for everyone else they stay `null` and the
+    // Access panel is not rendered at all.
+    isAdmin && user?.schoolId ? getTeacherInvites(user.schoolId) : Promise.resolve(null),
+    isAdmin && user?.schoolId ? getSchoolBlocklist(user.schoolId) : Promise.resolve(null),
   ]);
   const items = classes.map((item) => toClassCardItem(item, user?.memberId));
 
   // `GET /schools/:schoolId/members` returns populated rows only to admins; for
   // everyone else `members` is `[]` and only the counts above are usable.
-  const teachers = isAdmin
-    ? (schoolMembers?.members ?? []).filter((member) => member.role === "TEACHER")
-    : [];
+  const roster = isAdmin ? (schoolMembers?.members ?? []) : [];
+  const teachers = roster.filter((member) => member.role === "TEACHER");
+  const admins = roster.filter((member) => member.role === "ADMIN");
   const teachersError = isAdmin && schoolMembers === null;
+
+  // The viewer's own membership row carries the two facts that decide what the
+  // Access panel offers. Read from the roster rather than the session, because
+  // the session's role claim predates the owner/permission split and a promoted
+  // admin should not have to log out and back in to see their new controls.
+  const viewerMembership = roster.find((member) => member.memberId === user?.memberId);
+  const viewerIsOwner = viewerMembership?.isOwner ?? false;
+  const viewerCanManageAdmins = viewerMembership?.canManageAdmins ?? false;
 
   const classCount = detail.counts?.classes ?? classes.length;
 
@@ -92,6 +108,7 @@ export default async function Page() {
         classItems={items}
         students={students}
         teachers={teachers}
+        admins={admins}
         teachersError={teachersError}
         isAdmin={isAdmin}
         schoolId={user?.schoolId}
@@ -99,6 +116,13 @@ export default async function Page() {
         requestCount={studentOverview?.counts.pendingRequests}
         studentClasses={studentClasses}
         teacherClasses={teacherClasses}
+        teacherInvites={teacherInvites?.invites ?? []}
+        teacherInvitesError={isAdmin && teacherInvites === null}
+        blocklist={blocklist?.entries ?? []}
+        blocklistError={isAdmin && blocklist === null}
+        viewerMemberId={user?.memberId}
+        viewerIsOwner={viewerIsOwner}
+        viewerCanManageAdmins={viewerCanManageAdmins}
       />
     </section>
   );

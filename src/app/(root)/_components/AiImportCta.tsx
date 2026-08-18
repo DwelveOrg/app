@@ -50,10 +50,21 @@ export default function AiImportCta({
     );
   }
 
+  /*
+    The hero, as a banner rather than a column.
+
+    The panel fills whatever grid cell it lands in, and on a wide dashboard that
+    is the full 12 columns — at which point a stacked layout gave a one-sentence
+    pitch a 1200px measure and pushed the button and the class picker onto a line
+    of their own underneath. Text is capped at a readable measure and the actions
+    sit beside it from `md` up, so the card gets wider without getting emptier.
+    The short blurb carries the promise; the long version of the explanation
+    belongs on the importer screen, where the user has already said yes.
+  */
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-2xl border border-primary/25 p-5 sm:p-6",
+        "relative overflow-hidden rounded-2xl border border-primary/25 p-4 sm:p-5",
         "bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))]",
         className,
       )}
@@ -63,27 +74,31 @@ export default function AiImportCta({
         className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_70%)] blur-xl"
       />
 
-      <div className="relative flex flex-wrap items-start gap-4">
-        <SparkTile size="md" />
+      <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex min-w-0 items-start gap-3">
+          <SparkTile size="md" />
 
-        <div className="min-w-0 flex-1">
-          <p className="type-micro text-primary">{t("root.tests.import.cta.eyebrow")}</p>
-          <h3 className="type-heading mt-1 text-foreground">
-            {t("root.tests.import.cta.title")}
-          </h3>
-          <p className="mt-1 max-w-prose text-sm leading-relaxed text-muted-foreground">
-            {t("root.tests.import.cta.description")}
-          </p>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Button asChild size="lg" className="shadow-elev-brand">
-              <Link href={href}>
-                <Wand2 className="size-4" />
-                {t("root.tests.import.cta.action")}
-              </Link>
-            </Button>
-            {secondaryAction}
+          <div className="min-w-0">
+            <p className="type-micro text-primary">{t("root.tests.import.cta.eyebrow")}</p>
+            <h3 className="type-heading mt-0.5 text-foreground">
+              {t("root.tests.import.cta.title")}
+            </h3>
+            <p className="mt-1 max-w-[46ch] text-13 leading-relaxed text-muted-foreground">
+              {t("root.tests.import.cta.short")}
+            </p>
           </div>
+        </div>
+
+        {/* `shrink-0` keeps the picker at its own width instead of stretching
+            across the card the way a block-level select did. */}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          <Button asChild size="lg" className="shadow-elev-brand">
+            <Link href={href}>
+              <Wand2 className="size-4" />
+              {t("root.tests.import.cta.action")}
+            </Link>
+          </Button>
+          {secondaryAction}
         </div>
       </div>
     </div>

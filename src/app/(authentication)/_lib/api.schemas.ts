@@ -135,6 +135,10 @@ export const schoolRosterMemberSchema = z
     email: z.string(),
     teacherProfileId: z.string().nullable(),
     studentProfileId: z.string().nullable(),
+    /** The school's creator. Exactly one per school, and not transferable. */
+    isOwner: z.boolean().default(false),
+    /** Whether this admin may promote teachers. Always true for the owner. */
+    canManageAdmins: z.boolean().default(false),
     createdAt: z.union([z.string(), z.date()]).optional(),
     updatedAt: z.union([z.string(), z.date()]).optional(),
   })
@@ -168,6 +172,45 @@ export const acceptTeacherInviteResponseSchema = z
   })
   .passthrough();
 
+/**
+ * Outstanding teacher invites. The link itself is absent by design — only its
+ * hash is stored — so an admin who needs a usable link reissues the invite,
+ * which mints a new token and invalidates the old one.
+ */
+export const teacherInviteListResponseSchema = z
+  .object({
+    invites: z.array(
+      z
+        .object({
+          id: z.string(),
+          invitedEmail: z.string(),
+          expiresAt: z.union([z.string(), z.date()]),
+          expired: z.boolean().default(false),
+          createdAt: z.union([z.string(), z.date()]).optional(),
+        })
+        .passthrough(),
+    ),
+  })
+  .passthrough();
+
+export const schoolBlocklistResponseSchema = z
+  .object({
+    entries: z.array(
+      z
+        .object({
+          id: z.string(),
+          email: z.string(),
+          fullName: z.string().nullable().default(null),
+          userId: z.string().nullable().default(null),
+          reason: z.string().nullable().default(null),
+          blockedBy: z.string().nullable().default(null),
+          createdAt: z.union([z.string(), z.date()]).optional(),
+        })
+        .passthrough(),
+    ),
+  })
+  .passthrough();
+
 export const teacherInviteResponseSchema = z
   .object({
     invite: z
@@ -198,3 +241,7 @@ export type SchoolMembersResponse = z.infer<typeof schoolMembersResponseSchema>;
 export type JoinSchoolResponse = z.infer<typeof joinSchoolResponseSchema>;
 export type AcceptTeacherInviteResponse = z.infer<typeof acceptTeacherInviteResponseSchema>;
 export type TeacherInviteResponse = z.infer<typeof teacherInviteResponseSchema>;
+export type TeacherInviteListResponse = z.infer<typeof teacherInviteListResponseSchema>;
+export type TeacherInviteSummary = TeacherInviteListResponse["invites"][number];
+export type SchoolBlocklistResponse = z.infer<typeof schoolBlocklistResponseSchema>;
+export type SchoolBlocklistEntry = SchoolBlocklistResponse["entries"][number];

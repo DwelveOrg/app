@@ -22,8 +22,10 @@ import {
   healthResponseSchema,
   joinSchoolResponseSchema,
   leaveSchoolResponseSchema,
+  schoolBlocklistResponseSchema,
   schoolDetailResponseSchema,
   schoolMembersResponseSchema,
+  teacherInviteListResponseSchema,
   teacherInviteResponseSchema,
   type AcceptTeacherInviteResponse,
   type AuthResponse,
@@ -37,9 +39,13 @@ import {
   type HealthResponse,
   type JoinSchoolResponse,
   type LeaveSchoolResponse,
+  type SchoolBlocklistEntry,
+  type SchoolBlocklistResponse,
   type SchoolDetailResponse,
   type SchoolMembersResponse,
+  type TeacherInviteListResponse,
   type TeacherInviteResponse,
+  type TeacherInviteSummary,
 } from "./api.schemas";
 
 type BackendRequester = <TSchema extends z.ZodTypeAny>(
@@ -61,9 +67,13 @@ export type {
   HealthResponse,
   JoinSchoolResponse,
   LeaveSchoolResponse,
+  SchoolBlocklistEntry,
+  SchoolBlocklistResponse,
   SchoolDetailResponse,
   SchoolMembersResponse,
+  TeacherInviteListResponse,
   TeacherInviteResponse,
+  TeacherInviteSummary,
 };
 
 export function loginRequest(input: LoginFormField) {
@@ -248,6 +258,85 @@ export function createTeacherInviteRequest(
     method: "POST",
     body,
     responseSchema: teacherInviteResponseSchema,
+  });
+}
+
+/** `GET /schools/:schoolId/invites/teacher` — outstanding invites, without links. */
+export function listTeacherInvitesRequest(
+  schoolId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/invites/teacher`, {
+    responseSchema: teacherInviteListResponseSchema,
+  });
+}
+
+/**
+ * `POST /schools/:schoolId/invites/teacher/:inviteId/reissue` — mints a fresh
+ * token for an outstanding invite and returns the usable link. The previous
+ * link stops working, which is why this is a deliberate action and not a read.
+ */
+export function reissueTeacherInviteRequest(
+  schoolId: string,
+  inviteId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/invites/teacher/${inviteId}/reissue`, {
+    method: "POST",
+    responseSchema: teacherInviteResponseSchema,
+  });
+}
+
+export function revokeTeacherInviteRequest(
+  schoolId: string,
+  inviteId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/invites/teacher/${inviteId}`, {
+    method: "DELETE",
+  });
+}
+
+/** `PATCH /schools/:schoolId/members/:memberId/role` — promote or demote. */
+export function updateMemberRoleRequest(
+  schoolId: string,
+  memberId: string,
+  body: { role: "ADMIN" | "TEACHER"; canManageAdmins?: boolean },
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/members/${memberId}/role`, {
+    method: "PATCH",
+    body,
+  });
+}
+
+export function listSchoolBlocklistRequest(
+  schoolId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/blocklist`, {
+    responseSchema: schoolBlocklistResponseSchema,
+  });
+}
+
+export function addSchoolBlocklistEntryRequest(
+  schoolId: string,
+  body: { memberId?: string; email?: string; reason?: string },
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/blocklist`, {
+    method: "POST",
+    body,
+  });
+}
+
+export function removeSchoolBlocklistEntryRequest(
+  schoolId: string,
+  entryId: string,
+  requestJson: BackendRequester = backendJson,
+) {
+  return requestJson(`/schools/${schoolId}/blocklist/${entryId}`, {
+    method: "DELETE",
   });
 }
 
