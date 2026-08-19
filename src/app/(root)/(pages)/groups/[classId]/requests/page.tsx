@@ -11,16 +11,18 @@ type PageProps = {
 };
 
 /**
- * Class join-requests management. Teachers and admins only — students manage
- * their own requests from `/groups/requests`. The backend is the real security
- * boundary; this gate just hides the surface from students.
+ * Class join-requests management. Owner and admins only — approving a request
+ * is a membership decision, and the backend refuses it for anyone else.
+ * Students manage their own requests from `/groups/requests`. The backend is
+ * the real security boundary; this gate just keeps the surface off the screens
+ * that cannot act on it.
  */
 export default async function Page({ params, searchParams }: PageProps) {
   const { classId } = await params;
   const { tab } = await searchParams;
   const user = await getUser();
 
-  if (user?.schoolRole !== "ADMIN" && user?.schoolRole !== "TEACHER") {
+  if (user?.schoolRole !== "ADMIN") {
     redirect("/groups");
   }
 
@@ -42,7 +44,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     <ClassRequestsView
       classId={classId}
       className={result.class.name}
-      isAdmin={user.schoolRole === "ADMIN"}
+      isAdmin
       initialTab={tab === "teachers" ? "teachers" : "students"}
     />
   );

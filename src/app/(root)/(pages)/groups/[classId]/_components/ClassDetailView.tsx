@@ -124,18 +124,18 @@ export default function ClassDetailView({
                 canManageStudents={canManage}
               />
 
-              {canManage ? (
-                <>
-                  <ClassRequestsButton classId={classItem.id} isAdmin={isAdmin} />
+              {/* Admitting people is an owner/admin decision, so the request
+                  queue is theirs; the backend refuses it for teachers. */}
+              {isAdmin ? <ClassRequestsButton classId={classItem.id} isAdmin /> : null}
 
-                  {/* Teachers author tests too, so this is not admin-only. */}
-                  <Button variant="outline" size="lg" asChild>
-                    <Link href={studioRoutes.newTest(classItem.id)}>
-                      <FileText className="size-4" />
-                      {t("root.classDetail.actions.addTest")}
-                    </Link>
-                  </Button>
-                </>
+              {canManage ? (
+                /* Teachers author tests too, so this is not admin-only. */
+                <Button variant="outline" size="lg" asChild>
+                  <Link href={studioRoutes.newTest(classItem.id)}>
+                    <FileText className="size-4" />
+                    {t("root.classDetail.actions.addTest")}
+                  </Link>
+                </Button>
               ) : null}
 
               {isAdmin ? (

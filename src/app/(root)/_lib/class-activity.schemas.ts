@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-
 export const classActivityTypeSchema = z.enum([
   "TEST_SUBMITTED",
   "TEST_STARTED",
@@ -27,6 +26,14 @@ export const classActivityItemSchema = z
     isLate: z.boolean().nullable().optional(),
     score: z.number().nullable().optional(),
     maxScore: z.number().nullable().optional(),
+    /**
+     * `GRADED` is a final mark; `SUBMITTED` means the score covers only the
+     * auto-marked questions and a person still owes the rest. Without this the
+     * feed cannot tell a low score from an unfinished one.
+     */
+    attemptStatus: z.enum(["SUBMITTED", "GRADED"]).nullable().optional(),
+    percentage: z.number().nullable().optional(),
+    passed: z.boolean().nullable().optional(),
   })
   .passthrough();
 export type ClassActivityItem = z.infer<typeof classActivityItemSchema>;

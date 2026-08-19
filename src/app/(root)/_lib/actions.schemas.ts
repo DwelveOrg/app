@@ -59,6 +59,47 @@ export const inviteTeacherSchema = z.object({
 export type InviteTeacherInput = z.infer<typeof inviteTeacherSchema>;
 
 /**
+ * `PATCH /schools/:schoolId/members/:memberId/role`.
+ *
+ * `canManageAdmins` is only meaningful when promoting, and the backend forces
+ * it to `false` for anyone but the owner — the client is not trusted with it.
+ */
+export const updateMemberRoleSchema = z.object({
+  memberId: z.string().min(1),
+  role: z.enum(["ADMIN", "TEACHER"]),
+  canManageAdmins: z.boolean().optional(),
+});
+
+export type UpdateMemberRoleInput = z.infer<typeof updateMemberRoleSchema>;
+
+/** `POST /schools/:schoolId/blocklist` — by member, or by bare email. */
+export const blockFromSchoolSchema = z
+  .object({
+    memberId: z.string().min(1).optional(),
+    email: z.string().trim().toLowerCase().email("Enter a valid email address").optional(),
+    reason: z.string().trim().max(500).optional(),
+  })
+  .refine((value) => Boolean(value.memberId) !== Boolean(value.email), {
+    message: "Choose either a member or an email address",
+    path: ["email"],
+  });
+
+export type BlockFromSchoolInput = z.infer<typeof blockFromSchoolSchema>;
+
+export const unblockFromSchoolSchema = z.object({
+  entryId: z.string().min(1),
+});
+
+export type UnblockFromSchoolInput = z.infer<typeof unblockFromSchoolSchema>;
+
+/** `POST|DELETE /schools/:schoolId/invites/teacher/:inviteId`. */
+export const teacherInviteIdSchema = z.object({
+  inviteId: z.string().min(1),
+});
+
+export type TeacherInviteIdInput = z.infer<typeof teacherInviteIdSchema>;
+
+/**
  * `DELETE /schools/:schoolId`. The schoolId is read from the trusted session in
  * the action, so this only needs to satisfy the safe-action input boundary.
  */

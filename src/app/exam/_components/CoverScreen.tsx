@@ -68,6 +68,8 @@ export default function CoverScreen({
 
   const resuming = Boolean(activeAttempt);
   const attemptsLeft = Math.max(0, delivery.attemptsAllowed - attemptsUsed);
+  /** A fresh sitting of a paper this student has already finished once. */
+  const retaking = !resuming && attemptsUsed > 0;
   const blocked = state !== "AVAILABLE" && state !== "IN_PROGRESS";
   const needsHonorCode = delivery.requireHonorCode && !accepted && !resuming;
 
@@ -178,8 +180,12 @@ export default function CoverScreen({
           disabled={blocked || needsHonorCode}
           onClick={() => void start()}
         >
-          {resuming ? <RotateCcw /> : <Play />}
-          {resuming ? t("exam.cover.resume") : t("exam.cover.start")}
+          {resuming || retaking ? <RotateCcw /> : <Play />}
+          {resuming
+            ? t("exam.cover.resume")
+            : retaking
+              ? t("exam.result.tryAgain")
+              : t("exam.cover.start")}
         </Button>
 
         {blocked ? (

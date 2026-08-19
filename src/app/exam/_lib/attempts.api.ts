@@ -8,6 +8,7 @@ import type { AnswerValue } from "@/lib/tests/answers";
 import {
   attemptResponseSchema,
   attemptResultResponseSchema,
+  rateExperienceResponseSchema,
   saveAnswersResponseSchema,
   studentTestsResponseSchema,
   submitResponseSchema,
@@ -138,6 +139,25 @@ export function submitAttemptRequest(
   return requestJson(`/attempts/${attemptId}/submit`, {
     method: "POST",
     responseSchema: submitResponseSchema,
+  });
+}
+
+/**
+ * `POST /attempts/:attemptId/experience` — how the sitting felt, 1-5.
+ *
+ * Rates the experience of taking the test, not the test's difficulty and not
+ * the student's own performance. The backend only accepts it once the attempt
+ * is in, and a second call overwrites the first.
+ */
+export function rateExperienceRequest(
+  attemptId: string,
+  body: { rating: number; comment?: string },
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/attempts/${attemptId}/experience`, {
+    method: "POST",
+    body,
+    responseSchema: rateExperienceResponseSchema,
   });
 }
 

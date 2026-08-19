@@ -114,15 +114,27 @@ function Action({ test, opensAt }: { test: StudentTestRow; opensAt: Date | null 
   const { t } = useTranslation();
 
   switch (test.state) {
-    case "AVAILABLE":
+    case "AVAILABLE": {
+      // A retake-eligible test is AVAILABLE even though an earlier attempt is
+      // already marked, so the result of that attempt has to stay reachable
+      // from here — it is the only place the student can get back to it.
+      const retaking = test.attemptsUsed > 0;
       return (
         <>
           <Button asChild size="sm">
             <Link href={`/exam/${test.id}`}>
-              <Play />
-              {t("exam.cover.start")}
+              {retaking ? <RotateCcw /> : <Play />}
+              {retaking ? t("exam.result.tryAgain") : t("exam.cover.start")}
             </Link>
           </Button>
+          {retaking && test.lastAttempt?.resultAvailable ? (
+            <Button asChild size="sm" variant="outline">
+              <Link href={`/exam/${test.id}/result/${test.lastAttempt.id}`}>
+                <CheckCircle2 />
+                {t("root.exams.seeResult")}
+              </Link>
+            </Button>
+          ) : null}
           {test.attemptsAllowed > 1 ? (
             <span className="text-2xs text-muted-foreground">
               {t("exam.cover.attemptsLeft", {
@@ -132,6 +144,7 @@ function Action({ test, opensAt }: { test: StudentTestRow; opensAt: Date | null 
           ) : null}
         </>
       );
+    }
 
     case "IN_PROGRESS":
       return (

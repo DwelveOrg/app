@@ -36,6 +36,13 @@ const ICONS: Record<ClassActivityType, LucideIcon> = {
   TEST_PUBLISHED: Send,
 };
 
+const EVENT_KEYS = {
+  TEST_SUBMITTED: "root.classDetail.activity.events.TEST_SUBMITTED",
+  TEST_STARTED: "root.classDetail.activity.events.TEST_STARTED",
+  STUDENT_JOINED: "root.classDetail.activity.events.STUDENT_JOINED",
+  TEST_PUBLISHED: "root.classDetail.activity.events.TEST_PUBLISHED",
+} as const satisfies Record<ClassActivityType, string>;
+
 const TONES: Record<ClassActivityType, string> = {
   TEST_SUBMITTED: "bg-[color-mix(in_srgb,var(--success)_14%,transparent)] text-success",
   TEST_STARTED: "bg-[color-mix(in_srgb,var(--info)_14%,transparent)] text-info",
@@ -125,7 +132,12 @@ function ActivityRow({
   const { t } = useTranslation();
   const Icon = ICONS[item.type];
   const name = item.actor?.fullName ?? t("root.classDetail.activity.someone");
-  const marked = item.score != null && item.maxScore != null;
+  // A submitted attempt carries its score whether or not marking has finished,
+  // so the feed can show the result on the row that announces the submission —
+  // which is the whole reason a teacher opens this list.
+  const scored =
+    item.type === "TEST_SUBMITTED" && item.score != null && item.maxScore != null;
+  const provisional = scored && item.attemptStatus !== "GRADED";
   const testHref = item.test
     ? item.type === "TEST_SUBMITTED" && item.attemptId
       ? `/groups/${classId}/tests/${item.test.id}/results/${item.attemptId}`
@@ -150,7 +162,7 @@ function ActivityRow({
         <p className="text-sm text-foreground">
           <span className="font-medium">{name}</span>{" "}
           <span className="text-muted-foreground">
-            {t(`root.classDetail.activity.events.${item.type}`)}
+            {t(EVENT_KEYS[item.type])}
           </span>{" "}
           {item.test && testHref ? (
             <Link
@@ -171,14 +183,53 @@ function ActivityRow({
             </Badge>
           ) : null}
 
-          {marked ? (
-            <span className="text-2xs tabular-nums text-muted-foreground">
-              {item.score} / {item.maxScore}
-            </span>
+          {scored ? (
+            <>
+              {/*
+                The mark itself, plus the percentage — the number a teacher
+                scans a feed for. Tone follows the pass flag when there is one;
+                a part-marked attempt stays neutral, because colouring an
+                incomplete score green or red asserts an outcome nobody has
+                decided yet.
+              */}
+              <Badge
+                variant={
+                  provisional || item.passed == null
+                    ? "neutral"
+                    : item.passed
+                      ? "success"
+                      : "destructive"
+                }
+                size="xs"
+              >
+                <span className="tabular-nums">
+                  {item.score} / {item.maxScore}
+                </span>
+                {item.percentage != null ? (
+                  <span className="tabular-nums opacity-80">· {item.percentage}%</span>
+                ) : null}
+              </Badge>
+
+              {provisional ? (
+                <span className="text-2xs text-muted-foreground">
+                  {t("root.classDetail.activity.partiallyMarked")}
+                </span>
+              ) : null}
+            </>
           ) : item.type === "TEST_SUBMITTED" ? (
             <span className="text-2xs text-muted-foreground">
               {t("root.classDetail.activity.awaitingMark")}
             </span>
+          ) : null}
+
+          {/* The submission row is the natural way into the marked paper. */}
+          {item.type === "TEST_SUBMITTED" && testHref ? (
+            <Link
+              href={testHref}
+              className="text-2xs font-medium text-primary underline-offset-4 hover:underline"
+            >
+              {t("root.classDetail.activity.viewResult")}
+            </Link>
           ) : null}
         </div>
       </div>

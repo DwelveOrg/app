@@ -382,22 +382,35 @@
   --elev-4: 0 0 0 2px #FFE566;
 }
 
+/*
+  The four steps a student can pick during an attempt.
+
+  The ramp is deliberately wide: the old one moved 2px per step, which is below
+  the threshold at which a reader notices anything changed, so the control read
+  as broken. Each step is now ~20% larger than the one before it — small enough
+  to stay a comfort setting, large enough that pressing the button is visibly
+  worth doing. Line height eases off as the type grows, the way it should.
+*/
 [data-exam-size="sm"] {
-  --exam-text: 0.9375rem;
+  --exam-text: 0.875rem;
+  --exam-leading: 1.7;
 }
 [data-exam-size="md"] {
   --exam-text: 1.0625rem;
+  --exam-leading: 1.65;
 }
 [data-exam-size="lg"] {
-  --exam-text: 1.1875rem;
+  --exam-text: 1.3125rem;
+  --exam-leading: 1.6;
 }
 [data-exam-size="xl"] {
-  --exam-text: 1.375rem;
+  --exam-text: 1.625rem;
+  --exam-leading: 1.5;
 }
 
 [data-exam-size] .exam-prose {
   font-size: var(--exam-text, 1.0625rem);
-  line-height: 1.65;
+  line-height: var(--exam-leading, 1.65);
 }
 
 @theme inline {
@@ -532,6 +545,57 @@
   h2,
   h3 {
     text-wrap: balance;
+  }
+
+  /*
+    Anything you can press looks pressable.
+
+    Tailwind v4's Preflight leaves `<button>` on the browser default, which is
+    an arrow — so every control in the product showed a text-editing or arrow
+    cursor unless its call site remembered `cursor-pointer`. Roughly fifty did;
+    the rest did not, and the inconsistency read as some buttons being disabled.
+
+    Stated once here instead of per component, because "is this pressable" is a
+    property of the element, not a styling decision any individual call site
+    should get to make differently. The selectors cover the four ways this UI
+    builds a control: real buttons, `asChild` links rendered as buttons, Radix
+    primitives that expose `role`, and the label-wrapped inputs used for
+    checkboxes and radios.
+
+    `:disabled` and `aria-disabled` are excluded and given `not-allowed`, which
+    is the one case where a different cursor is the correct answer rather than
+    an oversight.
+  */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"]:not([aria-disabled="true"]),
+  [role="radio"]:not([aria-disabled="true"]),
+  [role="option"]:not([aria-disabled="true"]),
+  [role="menuitem"]:not([aria-disabled="true"]),
+  [role="menuitemcheckbox"]:not([aria-disabled="true"]),
+  [role="menuitemradio"]:not([aria-disabled="true"]),
+  [role="switch"]:not([aria-disabled="true"]),
+  [role="checkbox"]:not([aria-disabled="true"]),
+  summary,
+  label:has(> input[type="checkbox"]:not(:disabled)),
+  label:has(> input[type="radio"]:not(:disabled)),
+  select:not(:disabled),
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="range"]:not(:disabled),
+  input[type="file"]:not(:disabled),
+  input[type="color"]:not(:disabled),
+  input[type="submit"]:not(:disabled),
+  input[type="reset"]:not(:disabled),
+  ::file-selector-button {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled="true"],
+  select:disabled,
+  input:disabled {
+    cursor: not-allowed;
   }
 }
 

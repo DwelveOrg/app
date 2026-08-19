@@ -48,10 +48,12 @@ import {
 } from "@/components/ui/select";
 import Surface from "@/components/ui/Surface";
 import AiImportCta from "@/app/(root)/_components/AiImportCta";
+import SupportCta from "@/app/(root)/_components/SupportCta";
 import { cn } from "@/lib/utils";
 import { EMPTY_ART, type EmptyArtKind } from "../EmptyArt";
 import JoinCodeChip from "../JoinCodeChip";
 import Panel from "../Panel";
+import ChartTypeToggle, { useChartType } from "./ChartTypeToggle";
 import ClassPerformanceChart from "./ClassPerformanceChart";
 import SegmentDonut from "./SegmentDonut";
 import SubmissionsChart from "./SubmissionsChart";
@@ -632,14 +634,20 @@ function NextUp({ ctx }: ModuleProps) {
 
 function PerformanceTrend({ ctx }: ModuleProps) {
   const { t } = useTranslation();
+  const { type, setType } = useChartType();
+  const hasPoints = Boolean(ctx.trend?.points.length);
+
   return (
     <Panel
       title={t("root.dashboard.trend.titleRole", {
         role: t(`root.dashboard.roles.${ctx.role.toLowerCase()}`),
       })}
+      // Only offered when there is something to draw: a form switch over an
+      // empty state is three ways to look at nothing.
+      aside={hasPoints ? <ChartTypeToggle value={type} onChange={setType} /> : undefined}
     >
       {ctx.trend?.points.length ? (
-        <TrendChart points={ctx.trend.points} />
+        <TrendChart points={ctx.trend.points} type={type} />
       ) : (
         <EmptyNote
           art="trend"
@@ -1006,6 +1014,23 @@ function DiscoverClasses({ ctx }: ModuleProps) {
 }
 
 /* -------------------------------------------------------------------------- */
+/* Getting help                                                               */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Reaching a person: support, and reporting something broken.
+ *
+ * Every role gets it. The floating report button is still there and still the
+ * fastest route from a broken screen, but it is one unlabelled circle — a user
+ * who has never hovered it does not know the product accepts reports at all,
+ * and "where do I ask for help" is not a question anyone should have to hunt
+ * for. This is the answer stated once, on the page everyone lands on.
+ */
+function GettingHelp() {
+  return <SupportCta />;
+}
+
+/* -------------------------------------------------------------------------- */
 /* Registry                                                                   */
 /* -------------------------------------------------------------------------- */
 
@@ -1182,6 +1207,15 @@ const REGISTRY: ModuleEntry[] = [
     roles: ["ADMIN", "TEACHER", "STUDENT"],
     resolve: () => ({ priority: 20, span: 12 }),
     Component: QuickActions,
+  },
+  {
+    id: "support",
+    roles: ["ADMIN", "TEACHER", "STUDENT"],
+    // Last on the page on purpose: help is what you look for after the thing
+    // you came to do, so it sits at the foot rather than competing with the
+    // figures at the top.
+    resolve: () => ({ priority: 10, span: 12 }),
+    Component: GettingHelp,
   },
 ];
 

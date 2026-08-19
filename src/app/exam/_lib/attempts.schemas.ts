@@ -250,7 +250,14 @@ export const attemptResultResponseSchema = z.discriminatedUnion("released", [
         isLate: z.boolean().default(false),
         attemptNumber: z.number().default(1),
         attemptsAllowed: z.number().default(1),
-      }),
+        /**
+         * Whatever this student already said about the sitting itself, so the
+         * screen asks once rather than on every visit to the result.
+         */
+        experienceRating: z.number().nullable().optional(),
+        experienceComment: z.string().nullable().optional(),
+      })
+      .passthrough(),
     /** Present only when `delivery.showScore`. */
     breakdown: z
       .object({
@@ -290,3 +297,18 @@ export const attemptResultResponseSchema = z.discriminatedUnion("released", [
   }),
 ]);
 export type AttemptResultResponse = z.infer<typeof attemptResultResponseSchema>;
+
+/** `POST /attempts/:attemptId/experience`. */
+export const rateExperienceResponseSchema = z
+  .object({
+    success: z.boolean().default(true),
+    experience: z
+      .object({
+        rating: z.number().nullable().default(null),
+        comment: z.string().nullable().default(null),
+        ratedAt: z.string().nullable().default(null),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+export type RateExperienceResponse = z.infer<typeof rateExperienceResponseSchema>;
