@@ -2441,6 +2441,7 @@ translation: {
           },
         },
         notifications: {
+          resolutionNote: "Biz nima qildik",
           title: "Bildirishnomalar",
           summary: {
             some: "{{count}} ta oʻqilmagan bildirishnoma",
@@ -2483,6 +2484,14 @@ translation: {
             loginGreeting: {
               title: "Qaytganingiz bilan",
               description: "Dwelve hisobingizga muvaffaqiyatli kirdingiz.",
+            },
+            reportResolved: {
+              title: "Siz xabar bergan muammo tuzatildi",
+              description: "Xabar berganingiz uchun rahmat — muammo hal qilindi.",
+            },
+            reportDismissed: {
+              title: "Xabaringizni koʻrib chiqdik",
+              description: "Yuborganingizni oʻrgandik va bu boʻyicha oʻzgartirish kiritmaymiz.",
             },
             schoolCreated: {
               title: "Maktab yaratildi",

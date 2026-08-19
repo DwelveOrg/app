@@ -2486,6 +2486,7 @@ translation: {
           },
         },
         notifications: {
+          resolutionNote: "What we did",
           title: "Notifications",
           summary: {
             some: "{{count}} unread notifications",
@@ -2528,6 +2529,14 @@ translation: {
             loginGreeting: {
               title: "Welcome back",
               description: "You have successfully signed in to Dwelve.",
+            },
+            reportResolved: {
+              title: "The problem you reported is fixed",
+              description: "Thanks for telling us — the issue you reported has been resolved.",
+            },
+            reportDismissed: {
+              title: "We reviewed your report",
+              description: "We looked into what you sent and are not making a change for it.",
             },
             schoolCreated: {
               title: "School created",

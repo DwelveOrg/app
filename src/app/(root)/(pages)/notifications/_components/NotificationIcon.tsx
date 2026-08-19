@@ -1,6 +1,7 @@
 import {
   Bell,
   CalendarClock,
+  CircleSlash,
   CreditCard,
   GraduationCap,
   NotebookPen,
@@ -8,6 +9,7 @@ import {
   Sparkles,
   TriangleAlert,
   Users,
+  Wrench,
 } from "lucide-react";
 
 type NotificationIconProps = {
@@ -23,6 +25,10 @@ type NotificationIconProps = {
 export function NotificationIcon({ type, className }: Readonly<NotificationIconProps>) {
   const value = type.toLowerCase();
 
+  // Anchored: only a notification *about a problem report*, not anything whose
+  // type happens to contain the word (a lab report, a progress report).
+  if (/^report_resolved/.test(value)) return <Wrench className={className} />;
+  if (/^report_dismissed/.test(value)) return <CircleSlash className={className} />;
   if (/assignment|homework|task/.test(value)) return <NotebookPen className={className} />;
   if (/grade|result|score|exam/.test(value)) return <GraduationCap className={className} />;
   if (/invit|join[_-]?request/.test(value)) return <Users className={className} />;
