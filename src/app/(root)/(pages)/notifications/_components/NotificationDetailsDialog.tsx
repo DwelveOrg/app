@@ -20,12 +20,30 @@ type NotificationDetailsDialogProps = {
   onClose: () => void;
 };
 
+/**
+ * The note an operator wrote when they closed a problem report.
+ *
+ * Read off `data` rather than baked into `bodyKey`, because it is the one part
+ * of the notification that is not translatable boilerplate — it is a sentence a
+ * person on the Dwelve team typed about this specific report, and it is the only
+ * reason the reporter opens this dialog at all.
+ */
+function resolutionNoteOf(notification: NotificationItem | null) {
+  if (!notification?.type.startsWith("REPORT_")) return null;
+
+  const note = (notification.data as Record<string, unknown> | null | undefined)
+    ?.resolutionNote;
+
+  return typeof note === "string" && note.trim() ? note.trim() : null;
+}
+
 export function NotificationDetailsDialog({
   notification,
   onClose,
 }: Readonly<NotificationDetailsDialogProps>) {
   const { t } = useTranslation();
   const category = notification ? getNotificationCategory(notification.type) : "system";
+  const resolutionNote = resolutionNoteOf(notification);
 
   return (
     <AlertDialog
@@ -60,6 +78,17 @@ export function NotificationDetailsDialog({
             />
           ) : null}
         </AlertDialogHeader>
+
+        {resolutionNote ? (
+          <div className="mt-4 rounded-xl border border-border bg-muted/50 p-3.5 text-left">
+            <p className="type-caption mb-1.5 font-medium text-muted-foreground">
+              {t("root.notifications.resolutionNote")}
+            </p>
+            <p className="whitespace-pre-wrap text-13 leading-relaxed text-foreground">
+              {resolutionNote}
+            </p>
+          </div>
+        ) : null}
       </AlertDialogContent>
     </AlertDialog>
   );

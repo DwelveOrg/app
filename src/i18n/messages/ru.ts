@@ -2485,6 +2485,7 @@ translation: {
           },
         },
         notifications: {
+          resolutionNote: "Что мы сделали",
           title: "Уведомления",
           summary: {
             some: "{{count}} непрочитанных уведомлений",
@@ -2527,6 +2528,14 @@ translation: {
             loginGreeting: {
               title: "С возвращением",
               description: "Вы успешно вошли в Dwelve.",
+            },
+            reportResolved: {
+              title: "Проблема, о которой вы сообщили, исправлена",
+              description: "Спасибо, что сообщили — вопрос из вашего обращения решён.",
+            },
+            reportDismissed: {
+              title: "Мы рассмотрели ваше обращение",
+              description: "Мы изучили то, что вы прислали, и не будем вносить изменения.",
             },
             schoolCreated: {
               title: "Школа создана",
