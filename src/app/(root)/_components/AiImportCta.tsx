@@ -53,52 +53,67 @@ export default function AiImportCta({
   /*
     The hero, as a banner rather than a column.
 
-    The panel fills whatever grid cell it lands in, and on a wide dashboard that
-    is the full 12 columns — at which point a stacked layout gave a one-sentence
-    pitch a 1200px measure and pushed the button and the class picker onto a line
-    of their own underneath. Text is capped at a readable measure and the actions
-    sit beside it from `md` up, so the card gets wider without getting emptier.
-    The short blurb carries the promise; the long version of the explanation
-    belongs on the importer screen, where the user has already said yes.
+    Every breakpoint here is a *container* query, not a viewport one, and that is
+    the whole point. The panel fills whatever grid cell it lands in: the full
+    twelve columns on a class page, four of twelve on the dashboard. Viewport
+    breakpoints cannot tell those apart, so `md:flex-row` turned on for a 350px
+    dashboard cell too — the `shrink-0` action column took its ~350px and left
+    the text a sliver, which set Uzbek and Russian one word per line. Sizing off
+    the panel's own width means the banner lays out from what it actually has.
+
+    Text is capped at a readable measure and the actions sit beside it once the
+    panel is wide enough to hold both. The short blurb carries the promise; the
+    long version belongs on the importer screen, where the user has said yes.
+
+    `@container` sits on a bare wrapper rather than on the panel itself, and it
+    has to: a container cannot query *itself*, only its descendants can query
+    it. With both on one element the panel's own `@md:p-5` resolved against an
+    ancestor container that does not exist and silently never applied — the
+    padding measured 16px at every width. Splitting them also makes every
+    threshold below read the cell's full width instead of the width minus this
+    panel's own padding, which is the number worth reasoning about.
   */
   return (
-    <div
-      className={cn(
-        "relative overflow-hidden rounded-2xl border border-primary/25 p-4 sm:p-5",
-        "bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))]",
-        className,
-      )}
-    >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_70%)] blur-xl"
-      />
+    <div className={cn("@container", className)}>
+      <div
+        className={cn(
+          "relative h-full overflow-hidden rounded-2xl border border-primary/25 p-4 @md:p-5",
+          "bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))]",
+        )}
+      >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_70%)] blur-xl"
+        />
 
-      <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex min-w-0 items-start gap-3">
-          <SparkTile size="md" />
+        <div className="relative flex flex-col gap-4 @2xl:flex-row @2xl:items-center @2xl:justify-between">
+          <div className="flex min-w-0 items-start gap-3">
+            <SparkTile size="md" />
 
-          <div className="min-w-0">
-            <p className="type-micro text-primary">{t("root.tests.import.cta.eyebrow")}</p>
-            <h3 className="type-heading mt-0.5 text-foreground">
-              {t("root.tests.import.cta.title")}
-            </h3>
-            <p className="mt-1 max-w-[46ch] text-13 leading-relaxed text-muted-foreground">
-              {t("root.tests.import.cta.short")}
-            </p>
+            <div className="min-w-0">
+              <p className="type-micro text-primary">{t("root.tests.import.cta.eyebrow")}</p>
+              <h3 className="type-heading mt-0.5 text-foreground">
+                {t("root.tests.import.cta.title")}
+              </h3>
+              <p className="mt-1 max-w-[46ch] text-13 leading-relaxed text-muted-foreground">
+                {t("root.tests.import.cta.short")}
+              </p>
+            </div>
           </div>
-        </div>
 
-        {/* `shrink-0` keeps the picker at its own width instead of stretching
-            across the card the way a block-level select did. */}
-        <div className="flex shrink-0 flex-wrap items-center gap-2">
-          <Button asChild size="lg" className="shadow-elev-brand">
-            <Link href={href}>
-              <Wand2 className="size-4" />
-              {t("root.tests.import.cta.action")}
-            </Link>
-          </Button>
-          {secondaryAction}
+          {/* Narrow panel: the actions stack and go full width, which is a better
+              target than two half-width controls squeezed onto one line. Wide
+              panel: `shrink-0` keeps them at their own width instead of stretching
+              across the card the way a block-level select did. */}
+          <div className="flex flex-col gap-2 @md:flex-row @md:flex-wrap @md:items-center @2xl:shrink-0">
+            <Button asChild size="lg" className="w-full shadow-elev-brand @md:w-auto">
+              <Link href={href}>
+                <Wand2 className="size-4" />
+                {t("root.tests.import.cta.action")}
+              </Link>
+            </Button>
+            {secondaryAction}
+          </div>
         </div>
       </div>
     </div>

@@ -979,7 +979,7 @@ function ImportTestPanel({ ctx }: ModuleProps) {
         classes.length > 1 ? (
           <Select value={selected} onValueChange={setClassId}>
             <SelectTrigger
-              className="min-w-[10rem]"
+              className="w-full @md:w-auto @md:min-w-[10rem]"
               aria-label={t("root.dashboard.importTest.classLabel")}
             >
               <SelectValue />
@@ -1193,12 +1193,13 @@ const REGISTRY: ModuleEntry[] = [
   {
     id: "import-test",
     roles: ["ADMIN", "TEACHER"],
-    // Sits with the other authoring shortcuts rather than at the top: a teacher
-    // arriving with a PDF is looking for it, and one who is not should see
-    // their figures first.
+    // Above the feeds, below the figures. Down beside the quick actions it was
+    // the last thing on the page before the footer, which is the wrong place
+    // for the one shortcut that saves a teacher an evening of typing; at the
+    // very top it would shout over the numbers they came to read.
     resolve: (ctx) =>
       (ctx.classPerformance?.classes ?? []).length
-        ? { priority: 21, span: 4, minSpan: 3, maxSpan: 6 }
+        ? { priority: 60, span: 4, minSpan: 3, maxSpan: 6 }
         : null,
     Component: ImportTestPanel,
   },
