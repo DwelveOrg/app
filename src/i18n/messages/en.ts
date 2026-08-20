@@ -3070,10 +3070,9 @@ translation: {
             progress: "Progress tracking",
           },
           scene: {
-            alt: "A tower of five floating decks — lesson material, AI drafting, teacher approval, the class, and analytics — with a pulse of light carrying a test from material to graded results",
+            alt: "An exam paper floating in three-quarter view: row by row the student's chosen answer fills in and a tick lands beside it, then a score ring closes and reads 92 percent",
             quiz: "Weekly quiz",
             graded: "Graded",
-            average: "Class average",
           },
         },
         ai: {
@@ -3218,8 +3217,12 @@ translation: {
           title: "Replace paper tests with smarter online exams",
           subtitle:
             "Create tests faster, share them easily, and see results instantly — without printing, manual grading, or messy spreadsheets.",
+          eyebrow: "Get started",
           primary: "Start for free",
           secondary: "See how it works",
+          point1: "Free while Dwelve is in early access — no card, no quote, no sales call.",
+          point2: "Nothing to install. Teachers work in the browser, students sit tests on any device.",
+          point3: "Your first test can be written, reviewed and live in a single free period.",
         },
         footer: {
           description: "Create, share, and grade school tests online in minutes with instant analytics.",
