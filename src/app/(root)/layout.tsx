@@ -1,5 +1,6 @@
 import SideBar from "@/app/(root)/_components/Sidebar";
 import ReportProblem from "@/components/Custom/ReportProblem";
+import ShellBackdrop from "@/components/Custom/ShellBackdrop";
 import { getUser } from "@/app/(root)/_utils/getUser";
 
 export const dynamic = "force-dynamic";
@@ -20,8 +21,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     // light-mode panels had to be separated by a border alone because they were the lighter surface.
     <div className="flex h-dvh min-h-0 overflow-hidden bg-background text-foreground md:h-screen">
       <SideBar schoolRole={user?.schoolRole ?? null} />
-      <div className="layout-enter relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        <main className="content-scroll min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 md:pb-0">
+      <div className="layout-enter relative isolate flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        {/* The canvas itself. It sits in the content column rather than behind
+            the whole shell because the sidebar is its own surface (`--sidebar`)
+            and should not be lit from underneath. The column does not scroll —
+            `main` inside it does — so the field stays put and costs nothing on
+            scroll. */}
+        <ShellBackdrop />
+
+        <main className="content-scroll relative z-10 min-h-0 min-w-0 flex-1 overflow-y-auto pb-24 md:pb-0">
           <div className="mx-auto w-full min-w-0 max-w-[1180px] px-4 py-6 md:px-8 md:py-8">
             {children}
           </div>

@@ -8,7 +8,10 @@ export default function NoMembershipState() {
   const { t } = useTranslation();
 
   return (
-    <section className="flex min-h-[52vh] items-center justify-center">
+    // This *is* the page — there is nothing else on it — so it centres in the
+    // room it actually has rather than in an arbitrary 52vh, which parked the
+    // three cards in the upper third and left the rest reading as a hole.
+    <section className="flex min-h-[calc(100dvh-9rem)] items-center justify-center">
       <div className="w-full max-w-2xl text-center">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
           {t("root.dashboard.empty.eyebrow")}

@@ -736,6 +736,176 @@
 }
 
 
+/* ----------------------------------------------------------------------------
+   The authenticated canvas: ruled paper under drifting light.
+
+   `--background` on its own is one flat colour, and the pages that show the
+   most of it are the ones that have the least on them — a fresh account with no
+   membership renders three cards and then half a screen of nothing. A shell
+   that only looks finished once it is full is a shell that greets every new
+   user at its worst.
+
+   The gesture is borrowed, not invented: the auth panel already carries glow
+   orbs over ruled paper, and calls the ruling "the one figurative gesture, and
+   the only one that is on-brand for a testing product". This is that same
+   surface at a fraction of the volume — the panel is a brand moment and shouts;
+   the canvas is a task surface and must stay under everything.
+
+   Everything is CSS on purpose. An always-on ambient field runs on every page
+   of an app used on school hardware, so the budget is essentially zero: the
+   ruling and the orbs paint once, and only `transform` moves afterwards, which
+   the compositor handles without a repaint and without the main thread. That
+   also rules out `filter: blur()` on a moving layer — the orbs get their soft
+   edge from a gradient that reaches zero inside the element, which is free.
+
+   The loops are 52s and 71s, deliberately co-prime-ish and started out of
+   phase, so the field never visibly repeats and never visibly *moves*: at that
+   rate it is a few pixels a second. You are meant to notice the room is alive,
+   never to catch it breathing. Under reduced motion the orbs simply stop and
+   the field stays — a still canvas is the fallback, not a blank one.
+
+   Contrast: text does sit directly on this canvas (page headings, empty
+   states). Peak accumulated tint is ~9% of --brand, where --muted-foreground
+   still measures 5.1:1 against --background. The orb cores are parked outside
+   the box so only their falloff ever reaches content.
+   ------------------------------------------------------------------------- */
+
+.shell-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* For a shell whose own box scrolls (onboarding): pin to the viewport instead,
+   so the field stays put under the content rather than sliding away with it. */
+.shell-backdrop[data-anchor="viewport"] {
+  position: fixed;
+}
+
+/* Ruled, and faintly gridded across it — a page, not a texture. Horizontals
+   carry more weight than verticals because that is what ruling is; an even
+   grid reads as graph paper, which is a different (and busier) object. */
+.shell-backdrop-rules {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--foreground) 5.5%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--foreground) 3%, transparent) 1px,
+      transparent 1px
+    );
+  background-size: 30px 30px;
+  /* Clean at the top, where every page puts its heading, and fully present
+     lower down, where the empty pages leave their hole. */
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 100%);
+  mask-image: linear-gradient(to bottom, transparent 0%, #000 34%, #000 100%);
+}
+
+.dark .shell-backdrop-rules {
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--foreground) 7%, transparent) 1px,
+      transparent 1px
+    ),
+    linear-gradient(
+      to right,
+      color-mix(in srgb, var(--foreground) 4%, transparent) 1px,
+      transparent 1px
+    );
+}
+
+.shell-backdrop-orb {
+  position: absolute;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  will-change: transform;
+  animation-iteration-count: infinite;
+  /* Sine-ish in and out. Nothing here should ever arrive or depart. */
+  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+.shell-backdrop-orb-lead {
+  top: -34%;
+  right: -16%;
+  width: clamp(30rem, 58vw, 62rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--brand) 15%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 9%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 3%, transparent) 62%,
+    transparent 78%
+  );
+  animation-name: shell-orb-lead;
+  animation-duration: 52s;
+}
+
+.shell-backdrop-orb-trail {
+  bottom: -38%;
+  left: -18%;
+  width: clamp(26rem, 50vw, 54rem);
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--brand) 12%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 7%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 2%, transparent) 62%,
+    transparent 78%
+  );
+  animation-name: shell-orb-trail;
+  animation-duration: 71s;
+  animation-delay: -19s;
+}
+
+/* Violet reads dimmer against a near-black canvas — the same correction
+   `.dark .landing-shell-bg` makes, for the same reason. */
+.dark .shell-backdrop-orb-lead {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--brand) 20%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 12%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 4%, transparent) 62%,
+    transparent 78%
+  );
+}
+
+.dark .shell-backdrop-orb-trail {
+  background: radial-gradient(
+    circle at center,
+    color-mix(in srgb, var(--brand) 16%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 9%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 3%, transparent) 62%,
+    transparent 78%
+  );
+}
+
+@keyframes shell-orb-lead {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(-7%, 6%, 0) scale(1.14);
+  }
+}
+
+@keyframes shell-orb-trail {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(8%, -6%, 0) scale(1.1);
+  }
+}
+
+
 /* Ambient bloom behind the hero scene (landing `MainPage`).
 
    The hero canvas sits in a clipped box, so any wash that still carries alpha
@@ -993,8 +1163,14 @@
   .mock-shimmer,
   .landing-marquee-track,
   .working-bar-fill,
-  .working-bar-sheen {
+  .working-bar-sheen,
+  .shell-backdrop-orb {
     animation: none;
+  }
+
+  /* A held layer costs memory for motion that is no longer happening. */
+  .shell-backdrop-orb {
+    will-change: auto;
   }
 
   .working-bar-sheen {
