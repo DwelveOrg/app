@@ -736,6 +736,52 @@
 }
 
 
+/* Ambient bloom behind the hero scene (landing `MainPage`).
+
+   The hero canvas sits in a clipped box, so any wash that still carries alpha
+   when it reaches that box gets sliced into a visible rectangle — which is
+   exactly what the previous two-layer glow did (a 92%/84% ellipse that only
+   reached `transparent` at ~68% of the width, i.e. past the edge). Both ramps
+   below therefore finish at zero *inside* the element: the core dies at 36%/32%
+   of the box and the halo at 49%/47%, so every edge and corner lands on the
+   page background untouched, in either theme.
+
+   The stop ladder (1 → .88 → .66 → .42 → .22 → .08 → 0) is a cosine-ish falloff
+   rather than the browser's straight line between two stops: a linear ramp on a
+   near-black canvas reads as a flat disc with a rim, this reads as light. */
+.hero-bloom {
+  --bloom-core: 28%;
+  --bloom-halo: 12%;
+  background-image:
+    radial-gradient(
+      36% 32% at 50% 45%,
+      color-mix(in srgb, var(--brand) var(--bloom-core), transparent) 0%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-core) * 0.88), transparent) 18%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-core) * 0.66), transparent) 36%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-core) * 0.42), transparent) 54%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-core) * 0.22), transparent) 72%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-core) * 0.08), transparent) 88%,
+      transparent 100%
+    ),
+    radial-gradient(
+      49% 47% at 50% 48%,
+      color-mix(in srgb, var(--brand) var(--bloom-halo), transparent) 0%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-halo) * 0.88), transparent) 18%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-halo) * 0.66), transparent) 36%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-halo) * 0.42), transparent) 54%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-halo) * 0.22), transparent) 72%,
+      color-mix(in srgb, var(--brand) calc(var(--bloom-halo) * 0.08), transparent) 88%,
+      transparent 100%
+    );
+}
+
+/* Same reasoning as `.dark .landing-shell-bg`: the violet reads dimmer against
+   near-black, so the halo carries a little more of it while the core holds. */
+.dark .hero-bloom {
+  --bloom-core: 28%;
+  --bloom-halo: 15%;
+}
+
 .exam-result-bg {
   background-color: var(--background);
   background-image:
