@@ -101,17 +101,12 @@ function MainPage() {
             fenced to this box. */}
         <motion.div className="relative" {...fade(0.15)}>
           <div className="relative mx-auto aspect-square w-full max-w-[600px] overflow-hidden sm:aspect-[5/4] lg:aspect-square">
-            {/* Brand glow / WebGL fallback backdrop — two layers for depth: a soft
-                frame-wide violet fill under a brighter, concentrated core behind the
-                sheet + chart. Also the graceful fallback when WebGL is unavailable. */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_12%,transparent),transparent_74%)] dark:bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_15%,transparent),transparent_74%)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_30%,transparent),transparent_66%)] dark:bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_28%,transparent),transparent_66%)]"
-            />
+            {/* Brand glow / WebGL fallback backdrop: a concentrated core behind the
+                sheet + chart inside a wider halo. `.hero-bloom` (globals.css) owns
+                the ramps, because both have to reach zero alpha before this box's
+                `overflow-hidden` clips them — otherwise the wash ends in a visible
+                rectangle. Also the graceful fallback when WebGL is unavailable. */}
+            <div aria-hidden="true" className="hero-bloom pointer-events-none absolute inset-0" />
             {/* Labels are drawn onto the 3D surfaces themselves (see HeroScene),
                 so the narrative reads as part of the model, not as floating tags. */}
             <HeroScene
