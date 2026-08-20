@@ -300,17 +300,15 @@ translation: {
             action: "Browse classes",
           },
           support: {
-            eyebrow: "Help",
+            title: "Need a hand?",
+            description:
+              "Ask us about your school, billing, or something you cannot do — or report something broken, and your screenshot and the page you were on come along automatically.",
             contact: {
-              title: "Contact support",
-              description: "A question about your school, billing, or something you cannot do? Write to us and we will answer.",
               email: "Email us",
-              telegram: "Message on Telegram",
+              telegram: "Telegram",
               telegramHint: "Usually the fastest reply",
             },
             report: {
-              title: "Report a problem",
-              description: "Something broken, missing, or worth changing. Your screenshot and the page you were on come along automatically.",
               bug: "Report a bug",
               bugHint: "Something is not working",
               idea: "Suggest an idea",
@@ -994,7 +992,6 @@ translation: {
               title: "Building your test",
               failedTitle: "The import stopped",
               failedHint: "Nothing was created. You can change the pages and try again.",
-              working: "Reading your document",
               cancel: "Cancel this import",
               statusError: "We could not check the import. It may still be running.",
               retryStatus: "Check again",
@@ -1007,7 +1004,7 @@ translation: {
                 uploading: "Uploading your file",
                 analyzing: "Reading the pages",
                 extracting: "Finding questions",
-                building: "Building your test",
+                building: "Saving your draft",
               },
             },
             banner: {

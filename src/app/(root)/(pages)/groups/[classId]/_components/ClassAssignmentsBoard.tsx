@@ -64,6 +64,20 @@ export default function ClassAssignmentsBoard({
 
   return (
     <section aria-labelledby="class-assignments-heading" className="flex flex-col gap-5">
+      {/* Ahead of the heading, not behind the status tabs.
+
+          Sitting under the tab row it was the fourth thing on the section and
+          read as a footnote to whichever tab happened to be open, even though
+          it has nothing to do with the filter. Here it is the first offer a
+          teacher meets after the class identity, which is when "I have a paper
+          to turn into a test" is actually on their mind. */}
+      {canAuthor ? (
+        <AiImportCta
+          classId={classId}
+          variant={!isPending && tests.length === 0 ? "hero" : "strip"}
+        />
+      ) : null}
+
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="class-assignments-heading" className="type-section text-foreground">
           {t("root.classDetail.assignments.title")}
@@ -86,13 +100,6 @@ export default function ClassAssignmentsBoard({
           }))}
         />
       </div>
-
-      {canAuthor ? (
-        <AiImportCta
-          classId={classId}
-          variant={!isPending && tests.length === 0 ? "hero" : "strip"}
-        />
-      ) : null}
 
       {isPending ? (
         <div className="grid gap-3 lg:grid-cols-2" aria-busy="true">
@@ -138,7 +145,11 @@ export default function ClassAssignmentsBoard({
           data-pending={isFetching ? "true" : undefined}
         >
           {tests.map((test) => (
-            <motion.div key={test.id} variants={reduced ? stillVariants : staggerItem}>
+            <motion.div
+              key={test.id}
+              variants={reduced ? stillVariants : staggerItem}
+              className="h-full"
+            >
               <TestCard
                 test={test}
                 formats={formats}

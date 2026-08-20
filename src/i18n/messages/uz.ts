@@ -274,17 +274,15 @@ translation: {
             action: "Sinflarni ko'rish",
           },
           support: {
-            eyebrow: "Yordam",
+            title: "Yordam kerakmi?",
+            description:
+              "Maktab, toʻlov yoki bajarib boʻlmayotgan narsa haqida soʻrang — yoki nosozlik haqida xabar bering: skrinshot va siz boʻlgan sahifa oʻzi biriktiriladi.",
             contact: {
-              title: "Qoʻllab-quvvatlashga murojaat",
-              description: "Maktab, toʻlov yoki bajarib boʻlmayotgan narsa haqida savolingiz bormi? Yozing — javob beramiz.",
               email: "Pochta orqali yozish",
-              telegram: "Telegramda yozish",
+              telegram: "Telegram",
               telegramHint: "Odatda eng tez javob",
             },
             report: {
-              title: "Muammo haqida xabar berish",
-              description: "Biror narsa ishlamayapti, yetishmayapti yoki yaxshilash mumkin. Skrinshot va sahifa oʻzi biriktiriladi.",
               bug: "Xatolik haqida xabar",
               bugHint: "Biror narsa ishlamayapti",
               idea: "Gʻoya taklif qilish",
@@ -949,7 +947,6 @@ translation: {
               title: "Testingiz yigʻilmoqda",
               failedTitle: "Import toʻxtadi",
               failedHint: "Hech narsa yaratilmadi. Sahifalarni oʻzgartirib, qayta urinib koʻring.",
-              working: "Hujjatingiz oʻqilmoqda",
               cancel: "Importni bekor qilish",
               statusError: "Import holatini tekshirib boʻlmadi. U hali davom etayotgan boʻlishi mumkin.",
               retryStatus: "Qayta tekshirish",
@@ -962,7 +959,7 @@ translation: {
                 uploading: "Fayl yuklanmoqda",
                 analyzing: "Sahifalar oʻqilmoqda",
                 extracting: "Savollar topilmoqda",
-                building: "Test yigʻilmoqda",
+                building: "Qoralama saqlanmoqda",
               },
             },
             banner: {

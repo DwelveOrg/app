@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Loader2, Sparkles, X } from "lucide-react";
+import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
 import Dialog from "@/app/(root)/_components/Dialog";
@@ -84,9 +85,8 @@ export default function ImportProgress({
           : t("root.tests.import.progress.title")
       }
       description={fileName}
-      contentClassName="max-w-lg"
     >
-      <div className="space-y-5">
+      <div className="space-y-4">
         {failed ? (
           <p className="flex items-center gap-2 text-13 text-destructive">
             <span className="grid size-5 shrink-0 place-items-center rounded-full bg-destructive/10">
@@ -101,10 +101,11 @@ export default function ImportProgress({
         <ol className="relative space-y-0">
           {STEPS.map((step, index) => {
             const state = stepState(step, status);
+            const detail = stepDetail(t, step.key, state, job);
             const isLast = index === STEPS.length - 1;
 
             return (
-              <li key={step.key} className="relative flex gap-3 pb-5 last:pb-0">
+              <li key={step.key} className="relative flex gap-3 pb-4 last:pb-0">
                 {!isLast ? (
                   <span
                     aria-hidden
@@ -133,10 +134,14 @@ export default function ImportProgress({
                   )}
                 </span>
 
-                <div className="min-w-0 flex-1 pt-px">
+                {/* Label left, figure right — the numbers the backend reports
+                    are the only thing that changes while you wait, so they read
+                    as a live column instead of a second line under the label.
+                    It is also what fills the width the dialog actually has. */}
+                <div className="flex min-w-0 flex-1 items-baseline justify-between gap-3 pt-px">
                   <p
                     className={cn(
-                      "text-sm",
+                      "min-w-0 text-sm",
                       state === "waiting"
                         ? "text-muted-foreground"
                         : "font-medium text-foreground",
@@ -144,7 +149,12 @@ export default function ImportProgress({
                   >
                     {t(`root.tests.import.progress.steps.${step.key}`)}
                   </p>
-                  <StepDetail stepKey={step.key} state={state} job={job} />
+
+                  {detail ? (
+                    <p className="shrink-0 text-2xs tabular-nums text-muted-foreground">
+                      {detail}
+                    </p>
+                  ) : null}
                 </div>
               </li>
             );
@@ -154,7 +164,7 @@ export default function ImportProgress({
         {children}
 
         {!failed && onCancel ? (
-          <div className="border-t border-border pt-4">
+          <div className="border-t border-border pt-3.5">
             <button
               type="button"
               onClick={onCancel}
@@ -175,9 +185,11 @@ function WorkingBar({ percent }: { percent: number }) {
   const clamped = Math.min(100, Math.max(4, Math.round(percent)));
 
   return (
-    <div className="space-y-2">
+    <div className="flex items-center gap-2.5">
+      <Sparkles className="size-3.5 shrink-0 text-primary" aria-hidden="true" />
+
       <div
-        className="relative h-2.5 overflow-hidden rounded-full bg-muted"
+        className="relative h-2 flex-1 overflow-hidden rounded-full bg-muted"
         role="progressbar"
         aria-valuemin={0}
         aria-valuemax={100}
@@ -192,53 +204,39 @@ function WorkingBar({ percent }: { percent: number }) {
         </div>
       </div>
 
-      <p className="flex items-center gap-1.5 text-2xs text-muted-foreground">
-        <Sparkles className="size-3 text-primary" aria-hidden="true" />
-        {t("root.tests.import.progress.working")}
-        <span className="ml-auto tabular-nums">{Math.round(percent)}%</span>
-      </p>
+      <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
+        {Math.round(percent)}%
+      </span>
     </div>
   );
 }
 
 /**
- * The number under an active step.
+ * The figure beside a step, or nothing.
  *
- * Only rendered where the backend actually has a figure — a step that invents
+ * Only produced where the backend actually has one — a step that invents
  * "0 of 0" while it waits is worse than one that says nothing.
  */
-function StepDetail({
-  stepKey,
-  state,
-  job,
-}: {
-  stepKey: string;
-  state: StepState;
-  job: TestImportJob | undefined;
-}) {
-  const { t } = useTranslation();
+function stepDetail(
+  t: TFunction,
+  stepKey: string,
+  state: StepState,
+  job: TestImportJob | undefined,
+): string | null {
   if (!job || state === "waiting") return null;
 
   if (stepKey === "analyzing" && job.pageCount) {
-    return (
-      <p className="mt-0.5 text-2xs text-muted-foreground">
-        {t("root.tests.import.progress.pages", { count: job.pageCount })}
-      </p>
-    );
+    return t("root.tests.import.progress.pages", { count: job.pageCount });
   }
 
   if (stepKey === "extracting" && job.questionCount != null) {
     const found = job.questionsFound ?? null;
-    return (
-      <p className="mt-0.5 text-2xs text-muted-foreground">
-        {found
-          ? t("root.tests.import.progress.questionsOf", {
-              count: job.questionCount,
-              total: found,
-            })
-          : t("root.tests.import.progress.questions", { count: job.questionCount })}
-      </p>
-    );
+    return found
+      ? t("root.tests.import.progress.questionsOf", {
+          count: job.questionCount,
+          total: found,
+        })
+      : t("root.tests.import.progress.questions", { count: job.questionCount });
   }
 
   return null;
