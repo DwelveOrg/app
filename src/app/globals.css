@@ -952,6 +952,60 @@
   --bloom-halo: 15%;
 }
 
+/* ----------------------------------------------------------------------------
+   The closing band.
+
+   The landing page spends nine sections on the product's own surfaces — canvas,
+   card, hairline — and then has to end. `.cta-band` is the one place it goes
+   fully brand: a deep violet slab that reads as the bottom of the document
+   rather than as one more panel on it.
+
+   It is the same slab in both themes on purpose. Everything above it inverts
+   between light and dark; if this inverted too, the page would end on a bright
+   lilac block in dark mode, which is the loudest thing on a near-black page and
+   says "banner", not "conclusion". Fixing the surface also fixes its contrast
+   maths once: white sits at ~15:1 on the light theme's ramp and ~12:1 on the
+   dark one, so the copy on it can be plain white in both and never be measured
+   again.
+
+   Three layers in one declaration: a luminous violet falling across the
+   top-right corner, a second bloom rising from the bottom-left, and the deep
+   base under both. The blooms are what keep a dark slab from reading as a hole.
+   ------------------------------------------------------------------------- */
+
+.cta-band {
+  background-color: var(--brand-violet-900);
+  background-image:
+    radial-gradient(
+      62% 66% at 84% -12%,
+      color-mix(in srgb, var(--brand-violet-300) 34%, transparent) 0%,
+      color-mix(in srgb, var(--brand-violet-300) 16%, transparent) 34%,
+      color-mix(in srgb, var(--brand-violet-300) 5%, transparent) 62%,
+      transparent 82%
+    ),
+    radial-gradient(
+      52% 58% at 4% 106%,
+      color-mix(in srgb, var(--brand-violet) 30%, transparent) 0%,
+      color-mix(in srgb, var(--brand-violet) 14%, transparent) 36%,
+      color-mix(in srgb, var(--brand-violet) 4%, transparent) 64%,
+      transparent 84%
+    ),
+    linear-gradient(140deg, var(--brand-violet-900) 0%, var(--brand-ink) 100%);
+}
+
+/* Ruling, over the band.
+
+   The auth panel already establishes ruled paper as the product's one
+   figurative gesture, and the only one that is on-brand for a testing platform.
+   This is that surface at a whisper: 1px lines at ~5% white, masked so they
+   fade out well before the band's edges and never meet a corner. */
+.cta-rules {
+  background-image: linear-gradient(to bottom, rgb(255 255 255 / 0.055) 1px, transparent 1px);
+  background-size: 100% 2.125rem;
+  -webkit-mask-image: radial-gradient(76% 82% at 50% 46%, #000 0%, #000 32%, transparent 100%);
+  mask-image: radial-gradient(76% 82% at 50% 46%, #000 0%, #000 32%, transparent 100%);
+}
+
 .exam-result-bg {
   background-color: var(--background);
   background-image:

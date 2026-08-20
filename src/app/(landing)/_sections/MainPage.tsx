@@ -95,10 +95,9 @@ function MainPage() {
           </div>
         </motion.div>
 
-        {/* Right: 3D hero scene — the pipeline tower: five stacked decks
-            (material → AI draft → approval → class → analytics) on a glowing
-            spine, one short pulse riding bottom → top. Pointer interaction is
-            fenced to this box. */}
+        {/* Right: the 3D hero scene — one answer sheet being marked. Row by row
+            the chosen bubble fills and a tick lands, then a score ring closes
+            beside the page. Pointer interaction is fenced to this box. */}
         <motion.div className="relative" {...fade(0.15)}>
           <div className="relative mx-auto aspect-square w-full max-w-[600px] overflow-hidden sm:aspect-[5/4] lg:aspect-square">
             {/* Brand glow / WebGL fallback backdrop: a concentrated core behind the
@@ -107,16 +106,14 @@ function MainPage() {
                 `overflow-hidden` clips them — otherwise the wash ends in a visible
                 rectangle. Also the graceful fallback when WebGL is unavailable. */}
             <div aria-hidden="true" className="hero-bloom pointer-events-none absolute inset-0" />
-            {/* Labels are drawn onto the 3D surfaces themselves (see HeroScene),
-                so the narrative reads as part of the model, not as floating tags. */}
+            {/* The two labels are painted into the model itself — the title onto
+                the page, the pill beside the score ring — so the copy reads as
+                part of the object rather than as tags floating over it. */}
             <HeroScene
               className="absolute inset-0 h-full w-full"
               labels={{
                 quiz: t("landing.main.scene.quiz"),
-                review: t("landing.teacherControl.stepReview"),
-                approved: t("landing.teacherControl.stepApprove"),
                 graded: t("landing.main.scene.graded"),
-                average: t("landing.main.scene.average"),
               }}
             />
             <span className="sr-only">{t("landing.main.scene.alt")}</span>

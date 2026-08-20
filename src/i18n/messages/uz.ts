@@ -3011,10 +3011,9 @@ translation: {
             progress: "Rivojlanish kuzatuvi",
           },
           scene: {
-            alt: "Beshta muallaq paneldan iborat minora — oʻquv materiali, sunʼiy intellekt qoralamasi, oʻqituvchi tasdigʻi, sinf va tahlillar — boʻylab yorugʻlik impulsi testni materialdan tayyor baholargacha olib oʻtadi",
+            alt: "Imtihon varaqasi uch chorak burchakda muallaq turadi: qator-qator oʻquvchi tanlagan javob boʻyaladi va yonida belgi paydo boʻladi, soʻng natija halqasi yopilib, 92 foizni koʻrsatadi",
             quiz: "Haftalik test",
             graded: "Baholandi",
-            average: "Sinf oʻrtachasi",
           },
         },
         ai: {
@@ -3159,8 +3158,12 @@ translation: {
           title: "Qogʻoz testlarni aqlli onlayn imtihonlarga almashtiring",
           subtitle:
             "Testlarni tezroq tuzing, oson ulashing va natijalarni darhol koʻring — chop etish, qoʻlda baholash va chalkash jadvallarsiz.",
+          eyebrow: "Ishni boshlash",
           primary: "Bepul boshlash",
           secondary: "Qanday ishlashini koʻring",
+          point1: "Dwelve erta kirish bosqichida turgan vaqtda bepul — karta ham, hisob-faktura ham, savdo qoʻngʻirogʻi ham kerak emas.",
+          point2: "Hech narsa oʻrnatilmaydi. Oʻqituvchi brauzerda ishlaydi, oʻquvchi testni istalgan qurilmadan topshiradi.",
+          point3: "Birinchi testni bitta tanaffusda tuzib, tekshirib, eʼlon qilsa boʻladi.",
         },
         footer: {
           description: "Maktab testlarini bir necha daqiqada onlayn yarating, ulashing va baholang.",

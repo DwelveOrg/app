@@ -45,6 +45,18 @@ const buttonVariants = cva(
         /** Identity moment — landing nav, hero, CTA. Violet, glowing, white label in both themes. */
         brand:
           "border-transparent bg-[image:var(--brand-gradient)] text-white shadow-elev-brand hover:brightness-108 hover:shadow-elev-3",
+        /**
+         * For a button sitting *on* a brand-filled surface — the landing's closing
+         * band, the auth panel. `brand` disappears there (violet on violet) and
+         * `outline` inverts with the theme, which is wrong: those surfaces are deep
+         * violet in *both* themes, so their button must be light in both. Hence a
+         * literal white fill and the brand ink, rather than theme tokens that flip.
+         */
+        inverse:
+          "border-transparent bg-white text-brand-ink shadow-elev-2 hover:bg-white/90 hover:shadow-elev-3 focus-visible:border-white focus-visible:ring-white/45",
+        /** Its quiet partner on the same surfaces: a hairline, no fill. */
+        "inverse-ghost":
+          "border-white/30 text-white hover:border-white/55 hover:bg-white/10 focus-visible:border-white focus-visible:ring-white/45",
       },
       size: {
         xs: "h-7 gap-1 rounded-md px-2 text-2xs [&_svg:not([class*='size-'])]:size-3",
