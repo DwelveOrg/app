@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { GraduationCap, UsersRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { classAccent } from "../_constants";
@@ -70,18 +71,20 @@ export default function ClassCard({ item }: ClassCardProps) {
         </div>
       </div>
 
-      {item.teacher ? (
-        <p className="mt-4 truncate text-sm text-muted-foreground">{item.teacher}</p>
-      ) : (
-        <p className="mt-4 truncate text-sm text-muted-foreground/60">
-          {t("root.classes.card.noTeacher")}
-        </p>
-      )}
+      <p
+        className={`mt-4 flex items-center gap-1.5 truncate text-sm ${
+          item.teacher ? "text-muted-foreground" : "text-muted-foreground/60"
+        }`}
+      >
+        <GraduationCap className="h-4 w-4 shrink-0" aria-hidden="true" />
+        <span className="truncate">{item.teacher || t("root.classes.card.noTeacher")}</span>
+      </p>
 
       <div className="mt-4 flex flex-1 items-end justify-between">
-        <span className="inline-flex items-center rounded-lg bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+        <Badge variant="neutral" size="md">
+          <UsersRound className="h-3.5 w-3.5" aria-hidden="true" />
           {t("root.classes.card.students", { count: item.studentCount })}
-        </span>
+        </Badge>
         <span
           className={`text-xs font-semibold ${
             isActive ? "text-success" : "text-muted-foreground"
