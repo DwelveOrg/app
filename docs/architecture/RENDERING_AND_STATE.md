@@ -278,6 +278,10 @@ through `backendJson`, which sets `cache: "no-store"` by default.
 `loading.tsx` gives you streaming for free — add one to any route whose server fetch is slow enough
 to notice.
 
+The proxy marks protected, authentication, and invite-link responses
+`private, no-store`; do not override that with page-level public caching. Public
+landing responses remain eligible for CDN caching.
+
 ---
 
 ## 8. Session and the proxy

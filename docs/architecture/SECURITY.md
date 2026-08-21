@@ -17,7 +17,8 @@ src/app/(authentication)/_constants/session.ts
 
 Rules:
 
-- `SESSION_SECRET` must come from the environment in production.
+- `SESSION_SECRET` must come from the environment and contain at least 32
+  characters in production.
 - Do not expose access or refresh tokens to client components.
 - Do not store auth tokens in `localStorage`.
 - Rotate the encrypted session after the backend returns fresh school-aware
@@ -53,6 +54,24 @@ Rules:
 - Keep URL fields restricted to safe web protocols when they may later render as
   image or link sources.
 - Use translation keys for UI copy rather than user-provided strings.
+
+## Browser Boundary
+
+Every route receives a Content Security Policy that limits scripts to this
+origin plus Google Identity Services, blocks plugins and framing, restricts
+forms/base URLs, and limits workers/media/connect targets. The static landing
+page requires Next's documented non-nonce policy; inline scripts/styles remain
+allowed, so React escaping and the rule against raw backend HTML remain
+mandatory.
+
+Authenticated, authentication, and teacher-invite responses are marked
+`private, no-store` in `src/proxy.ts`. Public marketing pages remain cacheable
+at the CDN. Baseline HSTS, MIME-sniffing, referrer, opener, frame, and browser
+feature policies live in `next.config.ts`.
+
+Server-side backend requests carry a generated `X-Request-Id`. The API validates
+or replaces it and returns/logs the same ID, enabling safe correlation without
+putting tokens or query strings in logs.
 
 ## Environment And Secrets
 
