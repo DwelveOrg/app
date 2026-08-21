@@ -81,18 +81,18 @@ function ReviewMock() {
   }, [reviewing]);
 
   return (
-    <div ref={ref} className="rounded-[28px] bg-muted p-3 sm:p-5 dark:bg-white/5">
+    <div ref={ref} className="rounded-2xl bg-muted p-3 sm:p-5 dark:bg-white/5">
       <div className="rounded-2xl bg-card p-5 shadow-elev-4">
         {/* Header: draft tag + review status flipping to approved */}
         <div className="flex items-center justify-between">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground">
+          <span className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground">
             {t("landing.ai.mock.tag")}
           </span>
           <AnimatePresence mode="wait" initial={false}>
             {approved ? (
               <motion.span
                 key="approved"
-                className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-2.5 py-1 text-2xs font-semibold text-success"
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-success/10 px-2.5 py-1 text-2xs font-semibold text-success"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
@@ -104,7 +104,7 @@ function ReviewMock() {
             ) : (
               <motion.span
                 key="review"
-                className="inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-2.5 py-1 text-2xs font-semibold text-warning"
+                className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-warning/10 px-2.5 py-1 text-2xs font-semibold text-warning"
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 4 }}
@@ -196,13 +196,22 @@ function ReviewMock() {
             {t("landing.teacherControl.remove")}
           </span>
           <motion.span
-            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 px-3 py-1.5 text-xs font-semibold text-white"
+            /*
+             * This is a picture of the product's own primary button, so it has to be the
+             * product's own primary button: ink, flat, `--radius-lg`. It was a violet gradient
+             * under a violet glow, which advertised an interface the app no longer has — a
+             * marketing mock that disagrees with the real screen is worse than no mock.
+             *
+             * The confirm pulse survives, because that beat is the point of the animation; only
+             * the coloured halo it pulsed *with* is gone.
+             */
+            className="ml-auto inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"
             initial={false}
             animate={{
               scale: approved && !reduce ? [1, 1.06, 1] : 1,
               boxShadow: approved
-                ? "0 10px 26px -6px color-mix(in srgb, var(--brand) 75%, transparent)"
-                : "0 8px 20px -6px color-mix(in srgb, var(--brand) 60%, transparent)",
+                ? "0 4px 10px -3px rgb(var(--shadow-tint) / 0.22)"
+                : "0 1px 2px rgb(var(--shadow-tint) / 0.12)",
             }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
           >

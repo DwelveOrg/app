@@ -102,9 +102,9 @@ export function PathStep({
             onClick={() => onChange(id)}
             aria-pressed={selected}
             className={cn(
-              "group flex min-h-52 flex-col items-start rounded-2xl border bg-card p-6 text-left shadow-elev-1 transition-all",
-              "hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elev-2",
-              selected ? "border-primary ring-2 ring-primary/25" : "border-border",
+              "group interactive-flat flex min-h-52 flex-col items-start rounded-2xl border bg-card p-6 text-left shadow-elev-1",
+              "hover:border-foreground/30 hover:bg-muted/40",
+              selected ? "border-foreground/60 ring-2 ring-ring/30" : "border-border",
             )}
           >
             <span

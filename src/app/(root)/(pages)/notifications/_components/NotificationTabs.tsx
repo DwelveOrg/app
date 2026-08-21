@@ -40,7 +40,7 @@ export function NotificationTabs({ active, onChange, unreadCount }: Readonly<Not
             aria-selected={isActive}
             onClick={() => onChange(filter.value)}
             className={cn(
-              "inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-muted",
+              "inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-[var(--radius-pill)] px-4 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-muted",
               isActive
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "border border-border bg-card text-muted-foreground hover:bg-muted hover:text-foreground",
@@ -50,7 +50,7 @@ export function NotificationTabs({ active, onChange, unreadCount }: Readonly<Not
             {showBadge ? (
               <span
                 className={cn(
-                  "inline-flex h-5 min-w-[20px] items-center justify-center rounded-full px-1.5 text-2xs font-bold leading-none",
+                  "inline-flex h-5 min-w-[20px] items-center justify-center rounded-[var(--radius-pill)] px-1.5 text-2xs font-bold leading-none",
                   isActive
                     ? "bg-primary-foreground/20 text-primary-foreground"
                     : "bg-destructive text-destructive-foreground",

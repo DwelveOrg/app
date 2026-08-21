@@ -175,14 +175,17 @@ assume a two-part name. `Avatar` handles one-word and multi-word names alike.
 
 From design-system §1 and §2, restated because they are content rules as much as design ones:
 
-- **Manrope is the only font in the authenticated app**, and it carries latin, latin-ext, and
-  cyrillic. Everything — headings, tables, student names, answers — is Manrope.
-- **DM Serif Display is Latin-only marketing display.** It must never render Russian, Uzbek names,
-  user-generated content, dashboard UI, table data, badges, inputs, or report-card names. It is
-  allowed in exactly two places: the landing display headings and the auth panel headline.
-- **Uzbek Latin uses the turned comma U+02BB `ʻ`** for `oʻ` and `gʻ` — never a straight apostrophe
-  `'` and never a right single quote `'`. The `uz` catalog has 781 correct instances and zero
-  straight-apostrophe violations; keep it that way.
+- **IBM Plex Sans is the only UI font in the authenticated app**, and it carries latin, latin-ext,
+  and cyrillic. Headings, tables, student names and answers are all Plex Sans.
+- **IBM Plex Mono carries figures**, via the `numeric` and `type-micro` utilities — scores, marks,
+  durations, counts, test codes, timestamps. It also carries cyrillic, so a mono label is safe in
+  Russian and Uzbek.
+- **IBM Plex Serif is display only** — landing headings and the auth panel headline. Unlike the
+  DM Serif Display it replaced, it carries cyrillic, so the old "never render Russian in the serif"
+  hazard no longer exists. It is still a display face: keep it off dashboard UI, table data, badges,
+  inputs, and report-card student names, for hierarchy reasons rather than coverage ones.
+- **Manrope is loaded for the wordmark and nothing else** (latin, 700). It must never be used as a
+  UI face.
 
 Test strings to paste into any component that renders user text:
 

@@ -23,9 +23,17 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        /** The action accent — "current", "selected", "your role". */
+        /**
+         * Selection / current state — "current", "selected", "your role".
+         *
+         * Fill and label are both the ink. This paired a wash of --primary with
+         * `text-accent-foreground`, which was coherent only while --primary was
+         * itself the violet; once action moved to ink it rendered violet type on
+         * a grey wash. Same defect the sidebar's active row had, same fix: a
+         * selected thing reads by value, and nothing on it disagrees.
+         */
         primary:
-          "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-accent-foreground",
+          "bg-[color-mix(in_srgb,var(--foreground)_10%,transparent)] text-foreground",
         /** Identity, not state. Reserve for brand moments. */
         brand: "bg-[color-mix(in_srgb,var(--brand)_14%,transparent)] text-brand",
         /** The quiet default — counts, "soon", type labels. */
@@ -42,15 +50,28 @@ const badgeVariants = cva(
         /** Solid — for the one badge on screen that must be seen (unread count). */
         solid: "bg-destructive text-destructive-foreground",
       },
+      /*
+       * Radius comes from `--radius-pill`, not from `rounded-full`.
+       *
+       * A badge is a *label on a thing*, and a half-circle label is a decision —
+       * one that was being made 45 times a screen by default. Squaring it lets
+       * the badge sit in the same geometric family as the card it annotates and
+       * the button beside it, which is what makes a set of controls read as one
+       * system. The token means the whole product's chips change shape from one
+       * line if that call is ever reversed.
+       */
       size: {
-        xs: "h-4 rounded-full px-1.5 text-3xs",
-        sm: "h-5 rounded-full px-2 text-2xs",
-        md: "h-6 rounded-full px-2.5 text-xs",
+        xs: "h-4 rounded-[var(--radius-pill)] px-1.5 text-3xs",
+        sm: "h-5 rounded-[var(--radius-pill)] px-2 text-2xs",
+        md: "h-6 rounded-[var(--radius-pill)] px-2.5 text-xs",
       },
-      /** `count` keeps a circle until the number needs more room. */
+      /** `count` stays square-ish and grows only when the number needs the room. */
       shape: {
         pill: "",
-        count: "min-w-5 px-1 tabular-nums",
+        /* `numeric` puts the figure in the mono face with tabular digits — an
+           unread count that changes width as it climbs is the one badge on
+           screen guaranteed to be re-read. */
+        count: "numeric min-w-5 px-1",
       },
       uppercase: {
         true: "uppercase tracking-[0.06em]",

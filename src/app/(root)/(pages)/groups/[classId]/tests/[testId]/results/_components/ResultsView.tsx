@@ -366,7 +366,7 @@ function StudentRow({
           <>
             <p
               className={cn(
-                "type-heading tabular-nums",
+                "numeric type-heading",
                 row.passed === false ? "text-destructive" : "text-foreground",
               )}
             >

@@ -37,7 +37,7 @@ export default function CallToAction() {
   return (
     <section id="cta" className="w-full scroll-mt-24 px-4 py-24 sm:px-6 md:py-32">
       <motion.div
-        className="cta-band relative mx-auto max-w-6xl overflow-hidden rounded-[2rem] px-6 py-14 sm:px-12 sm:py-16 lg:px-16 lg:py-20"
+        className="cta-band relative mx-auto max-w-6xl overflow-hidden rounded-3xl px-6 py-14 sm:px-12 sm:py-16 lg:px-16 lg:py-20"
         initial={{ opacity: 0, y: shouldReduceMotion ? 0 : 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.35 }}

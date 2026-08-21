@@ -79,7 +79,7 @@ export default function QuestionDifficultyRow({
       >
         <span
           aria-hidden="true"
-          className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold tabular-nums text-muted-foreground"
+          className="numeric mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-muted text-2xs font-semibold text-muted-foreground"
         >
           {stat.questionNumber}
         </span>

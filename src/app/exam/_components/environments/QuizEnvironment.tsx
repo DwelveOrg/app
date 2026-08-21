@@ -63,7 +63,7 @@ export default function QuizEnvironment({
   const renderQuestion = (item: PaperItem) => (
     <Surface key={item.question.id} padding="md" className="space-y-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="grid size-7 shrink-0 place-items-center rounded-full bg-muted text-13 font-bold tabular-nums text-foreground">
+        <span className="numeric grid size-7 shrink-0 place-items-center rounded-[var(--radius-pill)] bg-muted text-13 font-bold text-foreground">
           {item.index + 1}
         </span>
         <ReviewToggle

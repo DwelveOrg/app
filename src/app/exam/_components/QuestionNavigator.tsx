@@ -59,7 +59,7 @@ export default function QuestionNavigator({
                 onClick={() => onJump(index)}
                 className={cn(
                   "interactive-flat relative grid h-9 w-full cursor-pointer place-items-center rounded-md",
-                  "text-13 font-semibold tabular-nums outline-none",
+                  "numeric text-13 font-semibold outline-none",
                   "focus-visible:ring-2 focus-visible:ring-ring/50",
                   entry.answered
                     ? "bg-primary text-primary-foreground hover:bg-primary-hover"

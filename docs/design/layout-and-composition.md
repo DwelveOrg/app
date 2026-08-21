@@ -75,12 +75,17 @@ a cached deadline.
 
 ### Public
 
-Landing uses `landing-shell-bg` (two radial brand washes, dropped and rebalanced in dark) with its
-own `Navbar` and `Footer`. Auth is a plain full-height wrapper; the split panel lives in
-`AuthSplitLayout`.
+Landing uses `landing-shell-bg` with its own `Navbar` and `Footer`. Auth is a plain full-height
+wrapper; the split panel lives in `AuthSplitLayout`.
 
-The landing page is the **only** place `type-display` and `variant="brand"` buttons appear, and the
-only place `DM Serif Display` is allowed to render.
+The landing page is the **only** place `type-display` and `variant="brand"` buttons appear, and —
+with the auth panel headline — the only place the serif renders.
+
+> **Changed (v4).** `landing-shell-bg` used to carry two large radial washes of brand light bleeding
+> in from the corners. They are gone and nothing replaces them: a soft corner glow is atmosphere
+> applied to a page that has not earned any, and it is the first thing every generated landing page
+> reaches for. The page has a hero, nine sections and a deep violet closing band to carry its
+> identity. The class is kept as a named seam.
 
 ---
 
@@ -225,16 +230,31 @@ Spacing comes from the Tailwind scale. The recurring values, so a new panel matc
 | Button groups | `gap-2` (tight) / `gap-3` (page actions) |
 | Badge / pill rows | `gap-2` |
 
-Radius is a token ladder off `--radius: 0.75rem`: `rounded-md`(10) · `rounded-lg`(12) ·
-`rounded-xl`(14) · `rounded-2xl`(16) · up to `rounded-4xl`. Practically:
+Radius is **seven explicit steps** declared in `globals.css` as `--r-1` … `--r-7` and mapped onto
+the Tailwind names in `@theme inline`: `rounded-sm`(2) · `rounded-md`(3) · `rounded-lg`(4) ·
+`rounded-xl`(5) · `rounded-2xl`(6) · `rounded-3xl`(8) · `rounded-4xl`(10). Practically:
 
 - `rounded-2xl` — cards and panels (`Surface radius="lg"`)
 - `rounded-xl` — inputs, icon chips, inner tiles, nav rows
 - `rounded-lg` — buttons, menu items, small controls
-- `rounded-full` — badges, avatars, the sidebar's active rail
+- `rounded-[var(--radius-pill)]` — badges, chips, tags, and any small labelled token
+- `rounded-full` — **genuine circles only**: avatars, status dots, spinners, radio buttons, switch
+  thumbs, progress-bar caps, stepper nodes, and the A/B/C/D answer bubbles
 
 Never mix radii inside one component. A `rounded-xl` input inside a `rounded-2xl` card is correct;
 a `rounded-lg` input beside a `rounded-xl` one is not.
+
+> **Changed (v4).** The ladder was six offsets hung off a single `--radius: 0.75rem` base, so a
+> retune could only *shift* the curve and never change its shape — and it broke outright below a 5px
+> base, where `calc(--radius - 4px)` went negative. The steps are literals now and the ramp is the
+> knob.
+>
+> `--radius-pill` is separate on purpose. 104 hand-written `rounded-full` call sites were the single
+> loudest tell in the old UI: a product where every chip, tag and badge is a half-circle reads as
+> generated, because a person choosing a pill chooses it *somewhere*, not everywhere. Chips route
+> through the token; things that are actually round keep `rounded-full`. **`rounded-full` on
+> something containing a number or a word is now a bug** — see `Badge`, or the question-number chips
+> in `QuestionView` / `QuestionNavigator`.
 
 ---
 

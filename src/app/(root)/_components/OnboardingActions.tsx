@@ -189,8 +189,7 @@ function EntryCard({
       <span
         aria-hidden="true"
         className={cn(
-          "grid size-11 shrink-0 place-items-center rounded-xl transition-transform duration-[var(--dur-2)] ease-[var(--ease-out-quint)] [&_svg]:size-5",
-          "group-hover:-translate-y-0.5",
+          "grid size-11 shrink-0 place-items-center rounded-lg transition-colors duration-[var(--dur-2)] ease-[var(--ease-out-quint)] [&_svg]:size-5",
           featured
             ? "bg-[image:var(--brand-gradient)] text-primary-foreground shadow-elev-brand"
             : "bg-muted text-muted-foreground group-hover:bg-accent group-hover:text-accent-foreground",
@@ -220,7 +219,7 @@ function EntryCard({
       */}
       <span
         className={cn(
-          "mt-3 inline-flex w-fit rounded-full px-2 py-0.5 text-2xs font-medium",
+          "mt-3 inline-flex w-fit rounded-[var(--radius-pill)] px-2 py-0.5 text-2xs font-medium",
           featured ? "bg-primary/12 text-primary" : "bg-muted text-muted-foreground",
         )}
       >
@@ -232,12 +231,12 @@ function EntryCard({
   const className = cn(
     "group relative flex h-full w-full cursor-pointer flex-col items-start rounded-2xl border p-4 text-left outline-none",
     "transition-[border-color,background-color,box-shadow,transform] duration-[var(--dur-2)] ease-[var(--ease-out-quint)]",
-    "hover:-translate-y-0.5 hover:shadow-elev-2",
+    "hover:shadow-elev-1",
     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
     "has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-ring has-[a:focus-visible]:ring-offset-2 has-[a:focus-visible]:ring-offset-background",
     featured
-      ? "border-primary/30 bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))] hover:border-primary/50"
-      : "border-border bg-card hover:border-primary/35 hover:bg-accent/40",
+      ? "border-foreground/25 bg-[color-mix(in_srgb,var(--foreground)_4%,var(--card))] hover:border-foreground/45"
+      : "border-border bg-card hover:border-foreground/25 hover:bg-muted/50",
   );
 
   return (

@@ -107,7 +107,7 @@ export default function TrendChart({
         active && payload?.length ? (
           <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-elev-3">
             <p className="text-xs text-muted-foreground">{String(label)}</p>
-            <p className="mt-0.5 text-sm font-semibold tabular-nums text-foreground">
+            <p className="numeric mt-0.5 text-sm font-semibold text-foreground">
               {Math.round(Number(payload[0].value))}%
             </p>
           </div>

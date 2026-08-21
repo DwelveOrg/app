@@ -252,7 +252,7 @@ function Tally({
       <dt className="text-13 text-muted-foreground">{label}</dt>
       <dd
         className={cn(
-          "text-[2rem] leading-none font-bold tabular-nums",
+          "numeric text-[2rem] leading-none font-bold",
           tone === "success" && "text-success",
           tone === "danger" && "text-destructive",
           tone === "muted" && "text-foreground",
@@ -320,7 +320,7 @@ function ReviewRow({
       <span
         aria-hidden="true"
         className={cn(
-          "inline-flex size-8 shrink-0 items-center justify-center rounded-full text-13 font-semibold tabular-nums",
+          "numeric inline-flex size-8 shrink-0 items-center justify-center rounded-[var(--radius-pill)] text-13 font-semibold",
           question.isCorrect == null
             ? "bg-muted text-muted-foreground"
             : question.isCorrect

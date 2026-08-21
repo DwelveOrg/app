@@ -301,7 +301,7 @@ export default function AttemptReview({
                             })
                           }
                         />
-                        <span className="tabular-nums">/ {item.question.points}</span>
+                        <span className="numeric">/ {item.question.points}</span>
                       </label>
 
                       {entry?.gradedAt ? (

@@ -70,7 +70,7 @@ function SettledNote({ title, items }: { title: string; items: string[] }) {
           {items.map((item) => (
             <li
               key={item}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"
+              className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] border border-border bg-card px-3 py-1.5 text-xs font-semibold"
             >
               <Check className="size-3.5 text-success" />
               {item}
@@ -99,7 +99,7 @@ function DestinationGrid({ keys }: { keys: string[] }) {
         <Link
           key={key}
           href={HREFS[key] ?? "/dashboard"}
-          className="group rounded-2xl border border-border bg-card p-5 shadow-elev-1 transition-all hover:-translate-y-0.5 hover:border-primary/50 hover:shadow-elev-2"
+          className="group interactive-flat rounded-2xl border border-border bg-card p-5 shadow-elev-1 hover:border-foreground/30 hover:bg-muted/40"
         >
           <p className="text-sm font-semibold text-foreground">
             {t(`onboarding.destinations.${key}.title`)}
