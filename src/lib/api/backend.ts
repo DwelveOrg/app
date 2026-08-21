@@ -160,6 +160,10 @@ export async function backendJson(
     headers.set("Accept", "application/json");
   }
 
+  if (!headers.has("X-Request-Id")) {
+    headers.set("X-Request-Id", crypto.randomUUID());
+  }
+
   const shouldSerializeJson = isJsonBody(body);
 
   if (shouldSerializeJson && !headers.has("Content-Type")) {

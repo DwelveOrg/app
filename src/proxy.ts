@@ -23,14 +23,33 @@ export default async function proxy(req: NextRequest){
     const session = await decryptSession(cookie)
 
     if(isProtectedRoute && !session?.userId){
-        return NextResponse.redirect(new URL('/login', req.url))
+        return withSensitiveResponseHeaders(
+            NextResponse.redirect(new URL('/login', req.url)),
+        )
     }
 
     if(isPublicRoute && session?.userId){
-        return NextResponse.redirect(new URL('/dashboard', req.url))
+        return withSensitiveResponseHeaders(
+            NextResponse.redirect(new URL('/dashboard', req.url)),
+        )
     }
 
-    return withRefreshedSession(req, session);
+    const response = await withRefreshedSession(req, session);
+    const carriesSensitiveState =
+        isProtectedRoute ||
+        isPublicRoute ||
+        path.startsWith('/invite/teacher/') ||
+        Boolean(session?.userId);
+
+    return carriesSensitiveState
+        ? withSensitiveResponseHeaders(response)
+        : response;
+}
+
+function withSensitiveResponseHeaders(response: NextResponse) {
+    response.headers.set('Cache-Control', 'private, no-store, max-age=0');
+    response.headers.set('Pragma', 'no-cache');
+    return response;
 }
 
 /**
