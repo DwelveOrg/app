@@ -1,23 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { SITE_URL } from "@/lib/seo";
-
-const PRIVATE_ROUTE_PREFIXES = [
-  "/api/",
-  "/assignments",
-  "/dashboard",
-  "/exam",
-  "/groups",
-  "/invite",
-  "/notifications",
-  "/onboarding",
-  "/profile",
-  "/school",
-  "/schools",
-  "/settings",
-  "/studio",
-  "/tests",
-] as const;
+import { PRIVATE_ROUTE_PREFIXES } from "@/lib/seo-routes";
 
 export default function robots(): MetadataRoute.Robots {
   return {
