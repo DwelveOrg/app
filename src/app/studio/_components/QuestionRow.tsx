@@ -201,7 +201,7 @@ function QuestionRow({
         <span
           aria-hidden="true"
           className={cn(
-            "inline-flex h-6 items-center gap-1 rounded-full px-2 text-2xs font-semibold tabular-nums",
+            "inline-flex h-6 items-center gap-1 rounded-[var(--radius-pill)] px-2 text-2xs font-semibold tabular-nums",
             accent?.chip ?? "bg-muted text-muted-foreground",
           )}
         >

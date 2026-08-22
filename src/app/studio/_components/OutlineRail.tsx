@@ -272,7 +272,7 @@ function OutlineButton({
     >
       {leading}
       {typeof number === "number" ? (
-        <span className="w-5 shrink-0 text-right text-3xs tabular-nums">{number}</span>
+        <span className="numeric w-5 shrink-0 text-right text-3xs">{number}</span>
       ) : null}
       <span className="min-w-0 flex-1 truncate">{label}</span>
       {/*

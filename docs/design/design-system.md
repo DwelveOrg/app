@@ -50,18 +50,33 @@ Never use straight apostrophes for Uzbek `oʻ` / `gʻ`; use U+02BB `ʻ`.
 
 | Role | Font | Usage |
 |---|---|---|
-| UI / body / data | **Manrope** (400/500/600/700; latin, latin-ext, cyrillic) | Everything in the product: headings, body, labels, buttons, tables, inputs, student names, scores, dashboards, user-generated content |
-| Marketing display | **DM Serif Display** (400) | Landing display headings and the auth panel headline only — controlled, Latin-only copy |
+| UI / body | **IBM Plex Sans** (400/500/600/700; latin, latin-ext, cyrillic) | Every interface surface: headings, body, labels, buttons, tables, inputs, student names, user-generated content |
+| Figures / meta | **IBM Plex Mono** (400/500/600; latin, latin-ext, cyrillic) | Scores, marks, durations, counts, percentages, test codes, timestamps, and the `type-micro` label — via the `numeric` and `type-micro` utilities |
+| Marketing display | **IBM Plex Serif** (400/500) | Landing display headings and the auth panel headline only |
+| Wordmark | **Manrope** (700; latin) | The `DwelveLogo` lockup and nothing else |
 
 Rules:
 
-- Manrope is the only font in the authenticated app. Product UI does not need display/body pairing;
-  one well-tuned sans carries every role.
-- DM Serif Display must never render Russian, Uzbek names, user-generated content, dashboard UI,
-  table data, cards, badges, inputs, or report-card student names.
+- **One family, three voices.** Sans, Mono and Serif are one design, so the UI, the figures and the
+  display face agree with each other instead of being three unrelated picks. Plex was drawn for
+  technical and institutional contexts, which is what this product is.
+- **All three carry `cyrillic`**, which is not optional — the UI ships in en / ru / uz. Unlike the
+  previous pairing, the display face is no longer Latin-only, so there is no longer a font that must
+  be kept away from Russian or Uzbek text.
+- **Figures that must line up use `numeric`**, not a bare `tabular-nums`. A column of marks in the UI
+  face reads as prose; in mono with tabular figures it reads as data. In a grading product that is
+  correctness, not decoration.
+- **The wordmark does not follow the UI face.** It is Manrope 700 via `font-wordmark`, because the
+  delivered logo artwork is a raster whose lettering CSS cannot restyle — if the wordmark tracked
+  `font-sans`, retyping the product would silently redraw the logo. Driven by
+  `BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`.
 - Do not introduce Inter, Geist, Montserrat, or DM Sans as competing product fonts.
-- The **wordmark** is Manrope 700, not the serif. The delivered logo artwork uses a bold geometric
-  sans and the wordmark must match it. Driven by `BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`.
+
+> **Changed (v4).** This section previously specified **Manrope** for everything plus **DM Serif
+> Display** for a single headline, with a standing warning that the serif was Latin-only and must
+> never render Cyrillic. Manrope is a soft geometric grotesque — pleasant, ubiquitous, and the
+> default warmth that makes an interface read as template rather than as product. The Plex family
+> replaces both, adds a mono tier the product never had, and retires the Latin-only hazard.
 
 ### Type scale
 
@@ -109,24 +124,33 @@ Cap body prose at 65–75ch. Tables and dense data may run wider.
 
 ## 3. Colour system
 
-**One hue, one system.** Violet is identity *and* action: the logo, the wordmark, the auth panel and
-the landing bloom, and also every button, focus ring, selection and active nav row. Separation comes
-from luminance and surface, not from a second accent.
+**Two jobs, split.** `--primary` is **ink** — what you press: buttons, selected rows, checked boxes,
+active tabs. `--brand` is **violet** — who this is: the mark, the auth panel, the closing band, the
+focus ring. Colour beyond that means *state* (success / warning / destructive) or *data* (the chart
+ramp), and nothing else.
 
-> **Changed 4 August 2026 (v3).** This section previously described two accents — violet for identity,
-> teal for action — enforced by the rule *"if a violet element is clickable, it is wrong."* That rule
-> is **deleted**, not restated. It was policing a split the product's own assets never honoured: the
-> logo is a raster with violet baked in and cannot be recoloured by CSS, `HeroScene` was entirely
-> violet, and the auth panel is a violet gradient. The split existed in the token file and nowhere
-> else. Violet is now both, and there is no rule left to break.
+> **Changed (v4).** v3 made violet identity *and* action — "one hue does everything". What that
+> produced was a product where every affordance on every screen was the brand colour, and a screen
+> where everything is emphasised is a screen where nothing is. It also put the loudest hue in the
+> palette on the most repeated element in the interface.
 >
-> Two consequences are load-bearing:
-> - `--brand` and `--primary` are the same value. **Do not re-fork them.**
-> - `--info` moved off blue to **cyan**. Violet-as-action and blue-as-informational sit ~24° apart in
->   OKLCH, close enough to confuse a "Submit" with a notice. The hue guard in
->   `scripts/check-contrast.mjs` enforces the gap and will fail the build if it closes again.
+> v3 was right about what it was reacting to: v2's violet/teal split ("if a violet element is
+> clickable, it is wrong") policed a rule the assets never honoured, and deleting it was correct.
+> The mistake was concluding that one hue should do both jobs, rather than that the **action colour
+> should stop being a hue at all**.
 >
-> Teal is not gone — it was demoted to `--chart-2`, where it survives as data without implying
+> Consequences that are load-bearing:
+> - `--brand` and `--primary` are **now different and must stay different.** v3's note here said the
+>   opposite; code that assumes they are equal predates v4.
+> - A near-black primary is a position, not a retreat to greyscale. It makes the button read as the
+>   object you act on, and it frees the violet to mean something when it does appear.
+> - `--info` stays **cyan**. v3 moved it off blue because a violet *action* sat too close to a blue
+>   notice. The action is neutral now, but `--brand` is still violet and still appears beside
+>   notices, so the gap is still wanted — the hue guards in `scripts/check-contrast.mjs` now measure
+>   it from `--brand` rather than `--primary`. (Measuring from `--primary` would have silently
+>   passed forever, because a neutral has no hue to guard.)
+>
+> Teal is not gone — it lives at `--chart-2`, where it survives as data without implying
 > "clickable".
 
 ### 3.1 Light — cool near-white, near-black ink

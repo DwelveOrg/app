@@ -39,7 +39,7 @@ function MainPage() {
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-2">
         {/* Left: copy */}
         <motion.div className="flex flex-col items-start text-left" {...fade(0)}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-accent-foreground">
+          <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-accent-foreground">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />

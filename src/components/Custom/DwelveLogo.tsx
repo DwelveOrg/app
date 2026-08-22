@@ -58,7 +58,7 @@ export default function DwelveLogo({ variant = "panel", className = "" }: Dwelve
           />
         </>
       )}
-      {/* Wordmark — Manrope 700 to match the delivered mark; style and size from brand constants. */}
+      {/* Wordmark — Manrope 700 to match the delivered mark, independent of the UI face; style and size from brand constants. */}
       <span className={`${BRAND_WORDMARK_CLASSES} ${textClass}`}>
         {BRAND_NAME}
       </span>

@@ -124,7 +124,17 @@ function AnalyticsPanel({ reduced }: Readonly<{ reduced: boolean }>) {
             return (
               <div key={bar.band} className="flex h-full flex-1 flex-col justify-end gap-2">
                 <motion.div
-                  className={`w-full rounded-t-md ${isPeak ? "bg-primary" : "bg-primary/35"}`}
+                  /*
+                   * Data reads from the CHART RAMP, not from --primary.
+                   *
+                   * These bars were `bg-primary` / `bg-primary/35`, which worked only for as long
+                   * as --primary happened to be the brand violet. The moment the action colour
+                   * moved to ink the whole histogram turned greyscale with one black column —
+                   * a chart is not an affordance, and colouring it with the affordance token
+                   * couples "what does a button look like" to "what does a score distribution
+                   * look like". --chart-1 is the token that means *first data series*.
+                   */
+                  className={`w-full rounded-t-md ${isPeak ? "bg-chart-1" : "bg-chart-1/30"}`}
                   // Height is inline because it is data, not design. `transformOrigin: bottom`
                   // makes the grow-in read as a bar rising from the axis rather than inflating.
                   style={{ height: `${bar.height}%`, transformOrigin: "bottom" }}
@@ -137,7 +147,7 @@ function AnalyticsPanel({ reduced }: Readonly<{ reduced: boolean }>) {
                     ease: [0.22, 1, 0.36, 1],
                   }}
                 />
-                <span className="text-center text-3xs tabular-nums text-muted-foreground sm:text-2xs">
+                <span className="numeric text-center text-3xs text-muted-foreground sm:text-2xs">
                   {bar.band}
                 </span>
               </div>
@@ -156,7 +166,7 @@ function AnalyticsPanel({ reduced }: Readonly<{ reduced: boolean }>) {
             {t("landing.analytics.mock.missedQuestion")}
           </p>
         </div>
-        <span className="inline-flex shrink-0 items-center rounded-full bg-destructive/10 px-2.5 py-1 text-2xs font-semibold text-destructive">
+        <span className="inline-flex shrink-0 items-center rounded-[var(--radius-pill)] bg-destructive/10 px-2.5 py-1 text-2xs font-semibold text-destructive">
           {t("landing.analytics.mock.missedRate")}
         </span>
       </div>

@@ -66,7 +66,7 @@ export default function OrderingEditor({
 
                 <span
                   aria-hidden="true"
-                  className="grid size-6 shrink-0 place-items-center rounded-full bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-2xs font-semibold text-primary tabular-nums"
+                  className="numeric grid size-6 shrink-0 place-items-center rounded-[var(--radius-pill)] bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-2xs font-semibold text-primary"
                 >
                   {index + 1}
                 </span>

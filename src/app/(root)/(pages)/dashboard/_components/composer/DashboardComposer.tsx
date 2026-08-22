@@ -212,7 +212,7 @@ function KpiStrip({ ctx }: ModuleProps) {
           </p>
           <p
             className={cn(
-              "mt-3 text-2xl font-bold tracking-tight tabular-nums",
+              "numeric mt-3 text-2xl font-bold tracking-tight",
               tile.available ? "text-foreground" : "text-muted-foreground",
             )}
           >
@@ -499,7 +499,7 @@ function NeedsAttention({ ctx }: ModuleProps) {
                 <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
                   {t(`root.dashboard.attention.${key}`)}
                 </span>
-                <span className="shrink-0 text-lg font-bold tabular-nums text-foreground">
+                <span className="numeric shrink-0 text-lg font-bold text-foreground">
                   {value}
                 </span>
               </Link>

@@ -187,7 +187,7 @@ export default function ReportProblemDialog({
                 aria-pressed={kind === option}
                 onClick={() => setKind(option)}
                 className={cn(
-                  "interactive-flat rounded-full border px-3 py-1.5 text-13 font-medium transition",
+                  "interactive-flat rounded-[var(--radius-pill)] border px-3 py-1.5 text-13 font-medium transition",
                   kind === option
                     ? "border-primary bg-primary/10 text-foreground"
                     : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",

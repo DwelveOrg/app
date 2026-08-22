@@ -153,7 +153,7 @@ export default function IeltsEnvironment({
                 )}
               >
                 <div className="mb-3 flex flex-wrap items-center gap-3">
-                  <span className="grid size-7 shrink-0 place-items-center rounded-full border border-border text-13 font-bold tabular-nums text-foreground">
+                  <span className="numeric grid size-7 shrink-0 place-items-center rounded-[var(--radius-pill)] border border-border text-13 font-bold text-foreground">
                     {item.index + 1}
                   </span>
                   <ReviewToggle

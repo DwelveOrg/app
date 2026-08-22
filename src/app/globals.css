@@ -5,37 +5,84 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================================
-   Dwelve design tokens — v3 · violet monobrand
+   Dwelve design tokens — v4 · ink action, violet identity
 
-   ONE hue does everything. Violet is identity *and* action: the logo, the
-   wordmark, the auth panel, and every button, focus ring, selection and active
-   nav row. Separation comes from luminance and surface, not from a second
-   accent.
+   TWO jobs, deliberately split, because they are different jobs:
 
-   Why the two-accent system was retired: v2 spent a documented rule policing a
-   violet/teal split ("if a violet element is clickable, it is wrong") that the
-   assets themselves never honoured. The logo is a raster with violet baked in
-   and cannot be recoloured by CSS; the hero scene is entirely violet; the auth
-   panel is a violet gradient. The split existed in the token file and nowhere
-   else, so the rule is deleted rather than restated.
+     --primary  = INK.    What you press. A button, a selected row, a checked
+                          box, an active tab. Repeated hundreds of times in a
+                          working day, therefore quiet, therefore near-black
+                          (near-white in dark).
+     --brand    = VIOLET. Who this is. The mark, the auth panel, the closing
+                          band, the focus ring. A handful of moments in the whole
+                          product, therefore allowed to be loud.
+
+   This reverses v3, which is worth stating plainly because v3 argued the
+   opposite at length. v3's premise was "one hue does everything: violet is
+   identity *and* action". What that produced was a product where every
+   affordance on every screen was the brand colour — and a screen where
+   everything is emphasised is a screen where nothing is. It also put the
+   loudest hue in the palette on the most repeated element in the interface.
+
+   v3 was right about the thing it was reacting to. v2 policed a violet/teal
+   split ("if a violet element is clickable, it is wrong") that the assets never
+   honoured — the logo is a raster with violet baked in, the hero scene is
+   violet, the auth panel is violet. Deleting that rule was correct. The mistake
+   was concluding that one hue should therefore do both jobs, rather than that
+   the *action* colour should stop being a hue at all.
 
    Consequences that are load-bearing:
-   - --brand and --primary are the same value. Do not re-fork them.
-   - --info moved off blue to CYAN. A violet action beside a blue "info" badge
-     is confusable; the hue guard in scripts/check-contrast.mjs enforces the gap.
-   - The chart ramp keeps violet at slot 1 and demotes teal to slot 2, so teal
-     survives as *data* while no longer implying "clickable".
+   - --brand and --primary are NOW DIFFERENT and must stay different. v3's note
+     here said the opposite; if you find code assuming they are equal, that code
+     predates v4.
+   - Colour means state (success / warning / destructive) or data (the chart
+     ramp). Those are the two places a user needs hue to carry meaning. An
+     affordance is not one of them.
+   - --info stays CYAN. v3 moved it off blue because a violet *action* sat too
+     close to a blue notice; the action is neutral now, but --brand is still
+     violet and still appears beside notices, so the gap is still wanted. The
+     hue guards in scripts/check-contrast.mjs measure it from --brand.
+   - Depth is a hairline plus surface value, not shadow. See the elevation ramp:
+     resting levels are nearly flat and only genuinely floating chrome casts.
+   - Nothing moves on hover (--lift: 0).
 
    The two themes are different characters, not inversions. Light is a cool
    near-white under near-black ink; dark is a violet-leaning near-black. Surfaces
-   step *up* toward the content, and unlike v2 the step is actually visible:
-   --background → --card is 1.07:1 here, against v2's 1.027:1 — roughly a third
-   of a just-noticeable difference, which is why v2's light depth was carried
-   entirely by border and shadow.
+   step *up* toward the content, and the step is visible: --background → --card
+   is 1.07:1, roughly a third of a just-noticeable difference, which is why the
+   hairline still does most of the separating.
    ========================================================================= */
 
 :root {
-  --radius: 0.75rem;
+  /* --- Geometry ----------------------------------------------------------
+     The radius ramp is SEVEN EXPLICIT STEPS, not `calc(--radius ± Npx)`.
+
+     The old scale was one 12px base with six offsets hung off it, which meant a
+     retune could only *shift* the curve, never change its shape — and it
+     bottomed out badly: at any base under 5px, `--radius-sm` went negative.
+     A design language decides how a corner behaves at 4px *and* at 24px
+     independently, so the steps are literals and the ramp is the knob.
+
+     `--radius-pill` is separate on purpose. 104 hand-written `rounded-full`
+     call sites were the single loudest tell in the old UI — a product where
+     every chip, tag, badge and button end is a half-circle reads as generated,
+     because a person choosing a pill chooses it *somewhere*, not everywhere.
+     Routing the shared primitives through this token means "are chips pills"
+     is one line, while genuine circles (avatars, status dots, spinners) keep
+     their own `rounded-full` and are unaffected.
+     ---------------------------------------------------------------------- */
+  --r-1: 2px;
+  --r-2: 3px;
+  --r-3: 4px;
+  --r-4: 5px;
+  --r-5: 6px;
+  --r-6: 8px;
+  --r-7: 10px;
+  --radius-pill: 4px;
+
+  /* Kept because shadcn primitives and a few call sites still read it. It is an
+     alias for the middle of the ramp, not the source the ramp derives from. */
+  --radius: var(--r-3);
 
   /* --- Brand === action. One hue, one token pair. ------------------------ */
   --brand: #5F40D5;
@@ -45,7 +92,13 @@
   --brand-violet-600: #5F40D5;
   --brand-violet-800: #452BA5;
   --brand-violet-900: #241757;
-  --brand-gradient: linear-gradient(135deg, #8163FF 0%, #5F40D5 100%);
+  /* Flat, despite the name. The token stays a `linear-gradient` so the handful
+     of `bg-[image:var(--brand-gradient)]` call sites keep working untouched,
+     but both stops are the same colour: a 135deg violet-to-violet ramp on a
+     button is the most reproduced AI-design cliche there is, and it was on the
+     product's primary CTA. One flat, confident violet says the same thing
+     without the costume. */
+  --brand-gradient: linear-gradient(0deg, #5F40D5 0%, #5F40D5 100%);
 
   /* --- Surfaces: cool near-white, stepping *up* toward the content -------
      Neutrals sit on the same hue axis as the ink (~295) rather than v2's yellow
@@ -66,16 +119,37 @@
   --border: #E2E2E7;
   --input: #E2E2E7;
 
-  /* --- Action: violet ----------------------------------------------------
-     #5F40D5 carries white at ~6.6:1 — more headroom than v2's teal managed
-     (5.8:1), so a 14px semibold label clears AA as *normal* text with room to
-     spare. The brighter --ring is for focus only, where 3:1 against the
-     adjacent surface is the bar. */
-  --primary: #5F40D5;
-  --primary-hover: #4F32BE;
+  /* --- Action: INK. Identity stays violet. -------------------------------
+     The monobrand's premise was "one hue does everything: violet is identity
+     *and* action". That is what made a whole product's worth of buttons violet,
+     and a screen where every affordance is the brand colour is the same screen
+     where nothing is emphasised. It also put the loudest hue in the palette on
+     the most repeated element.
+
+     So the two jobs split, and they split along the axis that actually matters:
+
+       --primary  = ink.    What you press. Repeated hundreds of times a day,
+                            therefore quiet, therefore near-black.
+       --brand    = violet. Who this is. The mark, the auth panel, the closing
+                            band — a handful of moments, therefore loud.
+
+     Ink is not a retreat to greyscale. A near-black primary is a deliberate
+     position: it makes the button read as *the object you act on* rather than
+     as decoration, and it frees the violet to mean something when it appears.
+     Colour is then reserved for state (success / warning / destructive) and for
+     data (the chart ramp) — the two places a user needs hue to carry meaning.
+
+     #16161A carries white at ~17:1, so the AA headroom the old violet had to
+     argue for is not a consideration here at any weight or size.
+
+     --ring stays violet. Focus is the one interaction where identity showing up
+     is correct: it is rare, it is the user's own doing, and it must not be
+     confusable with the ink it outlines. */
+  --primary: #16161A;
+  --primary-hover: #33333D;
   --primary-foreground: #FFFFFF;
-  --ring: #7B5FF0;
-  --accent: #EDEEFF;
+  --ring: #5F40D5;
+  --accent: #EDEBFB;
   --accent-foreground: #4A34AD;
 
   /* --- Semantic ----------------------------------------------------------
@@ -126,26 +200,42 @@
   /* --- Scrim shared by every dialog, sheet and popover backdrop ----------- */
   --overlay: rgb(20 18 30 / 0.34);
 
-  /* --- Elevation ---------------------------------------------------------
-     Tinted with the violet-leaning ink, not a neutral slate — a shadow that
-     disagrees with its surface temperature is what makes "soft depth" read as
-     grime. */
+  /* --- Elevation: a shadow now means "this is in front of the page" --------
+     Every resting panel in the product carried a shadow, so a shadow told you
+     nothing — a page of forty cards, each softly lifted off the canvas, is the
+     texture people mean by "floaty". Depth spent on everything is depth spent
+     on nothing.
+
+     The ramp is now split by *kind*, not by degree:
+
+       1–2  resting surfaces — cards, panels, rows, inputs, buttons.
+            Nearly flat. A hairline draws the edge; a one-pixel contact shadow
+            keeps the panel from looking printed onto the canvas. That is all.
+       3–4  genuinely floating chrome — menus, popovers, dialogs, sheets.
+            Full depth, and *more* separation at 4 than before, because these
+            are the only things that should ever look detached, and they need
+            to win against whatever they cover.
+
+     The gap between 2 and 3 is deliberately a cliff rather than a step. It is
+     the line between "on the page" and "over the page", and it should be
+     legible at a glance. */
   --shadow-tint: 20 18 30;
   --elev-1:
-    0 1px 2px rgb(var(--shadow-tint) / 0.05),
-    0 1px 1px rgb(var(--shadow-tint) / 0.04);
+    0 1px 1px rgb(var(--shadow-tint) / 0.035);
   --elev-2:
-    0 2px 4px -1px rgb(var(--shadow-tint) / 0.06),
-    0 4px 12px -2px rgb(var(--shadow-tint) / 0.06);
+    0 1px 1px rgb(var(--shadow-tint) / 0.04),
+    0 2px 5px -2px rgb(var(--shadow-tint) / 0.05);
   --elev-3:
-    0 6px 12px -4px rgb(var(--shadow-tint) / 0.08),
-    0 12px 28px -8px rgb(var(--shadow-tint) / 0.10);
+    0 4px 8px -3px rgb(var(--shadow-tint) / 0.08),
+    0 12px 26px -8px rgb(var(--shadow-tint) / 0.10);
   --elev-4:
-    0 12px 24px -8px rgb(var(--shadow-tint) / 0.10),
-    0 28px 56px -16px rgb(var(--shadow-tint) / 0.14);
-  /* --brand === --primary under the monobrand, so the v2 --elev-primary (which
-     had zero consumers) and --elev-brand were the same shadow. One token now. */
-  --elev-brand: 0 8px 24px -8px color-mix(in srgb, var(--brand) 55%, transparent);
+    0 10px 20px -6px rgb(var(--shadow-tint) / 0.12),
+    0 30px 60px -18px rgb(var(--shadow-tint) / 0.18);
+  /* No longer a coloured glow. A violet halo under a violet button is the
+     "generated" signature in one declaration: it is light with no source,
+     and it is the reason the old CTA looked like a sticker. `brand` surfaces
+     get the same honest contact shadow as everything else. */
+  --elev-brand: var(--elev-2);
 
   /* --- Motion ------------------------------------------------------------ */
   /* 120–260ms across the board. Users are mid-task; nobody should wait for
@@ -154,7 +244,18 @@
   --dur-2: 180ms;
   --dur-3: 260ms;
   --dur-4: 360ms;
-  --lift: -2px;
+
+  /* Nothing rises to meet the cursor.
+
+     `interactive` translated every hoverable surface up 2px, so passing the
+     pointer across a dashboard made the whole page twitch card by card. A 2px
+     move is also below the threshold where it reads as intent — it reads as
+     instability. Hover is now carried by the hairline and the fill going one
+     step darker, which is a change you can see without anything moving.
+
+     The token is kept rather than the rule deleted, so re-enabling travel stays
+     a one-line change that every `interactive` call site follows. */
+  --lift: 0px;
 }
 
 /* ============================================================================
@@ -173,7 +274,7 @@
   --brand-violet-600: #8E72FF;
   --brand-violet-800: #6A4FF0;
   --brand-violet-900: #2E2270;
-  --brand-gradient: linear-gradient(135deg, #C9BCFF 0%, #8E72FF 100%);
+  --brand-gradient: linear-gradient(0deg, #7C5CF0 0%, #7C5CF0 100%);
 
   --background: #0B0B0E;
   --foreground: #EEEDF2;
@@ -190,13 +291,16 @@
   --border: #2D2C35;
   --input: #2D2C35;
 
-  /* Dark keeps the bright-fill / deep-ink logic v2 already had right — a
-     luminous violet under near-black type, not white-on-mid-violet. */
-  --primary: #A191FF;
-  --primary-hover: #B9ADFF;
-  --primary-foreground: #15102F;
+  /* Ink inverts to bone. Same rule as light: the thing you press is the
+     highest-contrast neutral on the canvas, not the brand hue. --ring keeps the
+     violet, which reads *better* here than in light — a luminous accent on
+     near-black is exactly where this hue is strongest, and focus is the one
+     place it earns the attention. */
+  --primary: #EDECF2;
+  --primary-hover: #FFFFFF;
+  --primary-foreground: #121217;
   --ring: #A191FF;
-  --accent: #2D2948;
+  --accent: #262238;
   --accent-foreground: #C3B8FF;
 
   --success: #5FCB63;
@@ -232,23 +336,26 @@
 
   --overlay: rgb(0 0 0 / 0.6);
 
+  /* Same split as light — resting flat, floating deep — but the dark ramp keeps
+     its inner top hairline at every level, because on a near-black canvas a cast
+     shadow is nearly invisible and the highlight edge is what actually reads as
+     a raised surface. Levels 1 and 2 are now *only* that edge plus a whisper of
+     contact; the real casting starts at 3, where things genuinely float. */
   --shadow-tint: 0 0 0;
   --elev-1:
-    0 1px 2px rgb(0 0 0 / 0.5),
-    inset 0 1px 0 rgb(255 255 255 / 0.035);
+    inset 0 1px 0 rgb(255 255 255 / 0.03);
   --elev-2:
-    0 2px 6px -1px rgb(0 0 0 / 0.6),
-    0 6px 16px -4px rgb(0 0 0 / 0.5),
-    inset 0 1px 0 rgb(255 255 255 / 0.045);
+    0 1px 2px rgb(0 0 0 / 0.4),
+    inset 0 1px 0 rgb(255 255 255 / 0.04);
   --elev-3:
-    0 8px 18px -6px rgb(0 0 0 / 0.7),
-    0 16px 36px -12px rgb(0 0 0 / 0.6),
+    0 6px 14px -5px rgb(0 0 0 / 0.7),
+    0 16px 34px -12px rgb(0 0 0 / 0.6),
     inset 0 1px 0 rgb(255 255 255 / 0.055);
   --elev-4:
-    0 16px 32px -10px rgb(0 0 0 / 0.75),
-    0 36px 72px -20px rgb(0 0 0 / 0.65),
+    0 14px 30px -8px rgb(0 0 0 / 0.8),
+    0 40px 78px -22px rgb(0 0 0 / 0.7),
     inset 0 1px 0 rgb(255 255 255 / 0.07);
-  --elev-brand: 0 8px 26px -8px color-mix(in srgb, var(--brand) 50%, transparent);
+  --elev-brand: var(--elev-2);
 }
 
 
@@ -416,15 +523,20 @@
 @theme inline {
   --font-sans: var(--font-dwelve-sans);
   --font-serif: var(--font-dwelve-serif);
-  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  /* Lockup-only. See the note in layout.tsx: the wordmark must keep matching
+     the raster mark it sits beside, so it does not follow the UI face. */
+  --font-wordmark: var(--font-dwelve-wordmark), var(--font-dwelve-sans), sans-serif;
+  --font-mono: var(--font-dwelve-mono), ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  /* Straight aliases onto the ramp, so `rounded-xl` in any of the ~280 existing
+     call sites re-tunes from this one place instead of needing a JSX edit. */
+  --radius-sm: var(--r-1);
+  --radius-md: var(--r-2);
+  --radius-lg: var(--r-3);
+  --radius-xl: var(--r-4);
+  --radius-2xl: var(--r-5);
+  --radius-3xl: var(--r-6);
+  --radius-4xl: var(--r-7);
 
   /* The two sizes below the Tailwind scale that this UI genuinely needs. */
   --text-3xs: 0.625rem;
@@ -612,27 +724,34 @@
    narrow panel looks broken, not responsive, and users sit at a steady DPI.
    ========================================================================= */
 
+/*
+ * Weight comes *down* as size goes up, which is the opposite of what the old
+ * scale did. A 56px headline at 700 is shouting at a size that is already loud;
+ * the mass does the emphasis and the weight only adds noise. Plex at 600 holds
+ * the line with more air inside the letterforms and reads deliberate rather
+ * than default-bold.
+ */
 @utility type-display {
   font-size: clamp(2.25rem, 5.2vw, 3.5rem);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.032em;
+  font-weight: 600;
   text-wrap: balance;
 }
 
 @utility type-title {
   font-size: 1.75rem;
-  line-height: 1.18;
-  letter-spacing: -0.022em;
-  font-weight: 700;
+  line-height: 1.16;
+  letter-spacing: -0.024em;
+  font-weight: 600;
   text-wrap: balance;
 }
 
 @utility type-section {
   font-size: 1.25rem;
-  line-height: 1.28;
-  letter-spacing: -0.018em;
-  font-weight: 700;
+  line-height: 1.26;
+  letter-spacing: -0.019em;
+  font-weight: 600;
   text-wrap: balance;
 }
 
@@ -663,20 +782,48 @@
   font-weight: 400;
 }
 
+/*
+ * The small uppercase label — section eyebrows, table headers, status keys.
+ *
+ * It was 11px semibold sans at 0.06em, which is the default "small caps label"
+ * every generated interface reaches for and which, in a soft geometric sans,
+ * turns into an undifferentiated grey bar. In mono at 500 with real tracking it
+ * becomes what it is actually for: a key, a machine-side annotation, something
+ * you read as *metadata* rather than as a quiet heading. Mono also fixes the
+ * width problem uppercase sans has — every label now sets on the same rhythm.
+ */
 @utility type-micro {
+  font-family: var(--font-mono);
   font-size: 0.6875rem;
   line-height: 1;
-  letter-spacing: 0.06em;
-  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-weight: 500;
   text-transform: uppercase;
+}
+
+/*
+ * Figures that must line up: scores, marks, durations, counts, percentages,
+ * test codes, timestamps.
+ *
+ * `tabular-nums` alone was already hand-written at 36 call sites and only ever
+ * fixed half the problem — the digits stopped jumping but still sat in the UI
+ * face, so a column of scores read as prose. This puts them in Plex Mono with
+ * tabular figures and a touch of negative tracking to keep mono from feeling
+ * loose beside the sans around it.
+ */
+@utility numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
 /* ============================================================================
    Interaction
 
-   `interactive` is the one tactile recipe: a surface lifts on hover and settles
-   under the pointer on press. Defined once so the whole product presses the
-   same way, and so tuning the feel is a one-line change.
+   `interactive` is the one tactile recipe. It no longer travels: `--lift` is 0,
+   so hover is carried by the border and fill while the box holds still, and only
+   `:active` moves. Defined once so the whole product presses the same way, and
+   so tuning the feel is a one-line change.
    ========================================================================= */
 
 @utility interactive {
@@ -720,19 +867,21 @@
   background-color: var(--background);
 }
 
+/*
+   The landing canvas carried two big corner washes of brand light. They are
+   gone, and nothing replaces them.
+
+   A pair of soft radial glows bleeding in from the corners is the marketing-page
+   half of the same tell as the shell orbs — atmosphere applied to a page that
+   has not earned any, and the first thing every generated landing page reaches
+   for. This page has a hero, nine sections and a deep violet closing band to
+   carry its identity; the ground all of that sits on should be ground.
+
+   Kept as its own class rather than folded into `bg-background` so the landing
+   shell keeps a named seam, if it ever wants a treatment again.
+*/
 .landing-shell-bg {
   background-color: var(--background);
-  background-image:
-    radial-gradient(58% 52% at 84% -6%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 70%),
-    radial-gradient(42% 38% at 6% 4%, color-mix(in srgb, var(--primary) 7%, transparent), transparent 70%);
-}
-
-/* On a near-black canvas the same washes glare, so both drop and the violet
-   one leads — the landing page is where identity, not action, is the subject. */
-.dark .landing-shell-bg {
-  background-image:
-    radial-gradient(58% 52% at 84% -6%, color-mix(in srgb, var(--brand) 13%, transparent), transparent 70%),
-    radial-gradient(42% 38% at 6% 4%, color-mix(in srgb, var(--primary) 8%, transparent), transparent 70%);
 }
 
 
@@ -822,90 +971,6 @@
     );
 }
 
-.shell-backdrop-orb {
-  position: absolute;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  will-change: transform;
-  animation-iteration-count: infinite;
-  /* Sine-ish in and out. Nothing here should ever arrive or depart. */
-  animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
-}
-
-.shell-backdrop-orb-lead {
-  top: -34%;
-  right: -16%;
-  width: clamp(30rem, 58vw, 62rem);
-  background: radial-gradient(
-    circle at center,
-    color-mix(in srgb, var(--brand) 15%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 9%, transparent) 34%,
-    color-mix(in srgb, var(--brand) 3%, transparent) 62%,
-    transparent 78%
-  );
-  animation-name: shell-orb-lead;
-  animation-duration: 52s;
-}
-
-.shell-backdrop-orb-trail {
-  bottom: -38%;
-  left: -18%;
-  width: clamp(26rem, 50vw, 54rem);
-  background: radial-gradient(
-    circle at center,
-    color-mix(in srgb, var(--brand) 12%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 7%, transparent) 34%,
-    color-mix(in srgb, var(--brand) 2%, transparent) 62%,
-    transparent 78%
-  );
-  animation-name: shell-orb-trail;
-  animation-duration: 71s;
-  animation-delay: -19s;
-}
-
-/* Violet reads dimmer against a near-black canvas — the same correction
-   `.dark .landing-shell-bg` makes, for the same reason. */
-.dark .shell-backdrop-orb-lead {
-  background: radial-gradient(
-    circle at center,
-    color-mix(in srgb, var(--brand) 20%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 12%, transparent) 34%,
-    color-mix(in srgb, var(--brand) 4%, transparent) 62%,
-    transparent 78%
-  );
-}
-
-.dark .shell-backdrop-orb-trail {
-  background: radial-gradient(
-    circle at center,
-    color-mix(in srgb, var(--brand) 16%, transparent) 0%,
-    color-mix(in srgb, var(--brand) 9%, transparent) 34%,
-    color-mix(in srgb, var(--brand) 3%, transparent) 62%,
-    transparent 78%
-  );
-}
-
-@keyframes shell-orb-lead {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(-7%, 6%, 0) scale(1.14);
-  }
-}
-
-@keyframes shell-orb-trail {
-  0%,
-  100% {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  50% {
-    transform: translate3d(8%, -6%, 0) scale(1.1);
-  }
-}
-
-
 /* Ambient bloom behind the hero scene (landing `MainPage`).
 
    The hero canvas sits in a clipped box, so any wash that still carries alpha
@@ -920,8 +985,8 @@
    rather than the browser's straight line between two stops: a linear ramp on a
    near-black canvas reads as a flat disc with a rim, this reads as light. */
 .hero-bloom {
-  --bloom-core: 28%;
-  --bloom-halo: 12%;
+  --bloom-core: 9%;
+  --bloom-halo: 4%;
   background-image:
     radial-gradient(
       36% 32% at 50% 45%,
@@ -948,8 +1013,8 @@
 /* Same reasoning as `.dark .landing-shell-bg`: the violet reads dimmer against
    near-black, so the halo carries a little more of it while the core holds. */
 .dark .hero-bloom {
-  --bloom-core: 28%;
-  --bloom-halo: 15%;
+  --bloom-core: 13%;
+  --bloom-halo: 6%;
 }
 
 /* ----------------------------------------------------------------------------
@@ -1217,14 +1282,8 @@
   .mock-shimmer,
   .landing-marquee-track,
   .working-bar-fill,
-  .working-bar-sheen,
-  .shell-backdrop-orb {
+  .working-bar-sheen {
     animation: none;
-  }
-
-  /* A held layer costs memory for motion that is no longer happening. */
-  .shell-backdrop-orb {
-    will-change: auto;
   }
 
   .working-bar-sheen {

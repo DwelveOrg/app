@@ -39,10 +39,17 @@ const SIDEBAR_WIDTH = "w-[264px]";
  */
 const ROW_BASE =
   "interactive-flat group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-15 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
-// Active is a soft action tint plus a left rail — the rail is what survives at a glance when the
+// Active is a wash of the ink plus a left rail — the rail is what survives at a glance when the
 // tint sits on an already-tinted sidebar. A lift is deliberately absent: nav rows must never move.
+//
+// The label used to be `text-accent-foreground`, i.e. violet, over a wash of --primary. That paired
+// correctly only while --primary *was* the violet; once action moved to ink the row rendered a grey
+// fill under violet type and a black rail, which is three different answers to "what colour is
+// selected". Selection now reads the way the rest of the new depth model reads — by value, not by
+// hue: the fill steps toward the ink, the label goes to full-strength --foreground, and the rail is
+// the same ink. Nothing on the row disagrees with anything else on it.
 const ROW_ACTIVE =
-  "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-accent-foreground font-semibold tracking-[0.01em] shadow-elev-1";
+  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-foreground font-semibold tracking-[0.01em]";
 const ROW_IDLE = "text-muted-foreground hover:bg-muted hover:text-foreground";
 
 function NavIcon({ icon: Icon, color }: { icon: LucideIcon; color?: string }) {

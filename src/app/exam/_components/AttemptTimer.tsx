@@ -45,7 +45,7 @@ export default function AttemptTimer({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-13 font-semibold tabular-nums transition-colors duration-[var(--dur-2)]",
+        "numeric inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] px-2.5 py-1 text-13 font-semibold transition-colors duration-[var(--dur-2)]",
         warning
           ? "bg-[color-mix(in_srgb,var(--warning)_16%,transparent)] text-warning"
           : "bg-muted text-foreground",

@@ -6,16 +6,19 @@ import { cn } from "@/lib/utils";
  * A flat `--background` is only ever as good as the page in front of it, and
  * the pages that show the most of it are the ones with the least on them: a
  * fresh account with no membership renders three cards and then half a screen
- * of white. This puts a floor under that — faintly ruled paper with two slow
- * washes of brand light moving across it.
+ * of white. This puts a floor under that — faintly ruled paper, and nothing else.
+ *
+ * The two drifting orbs of brand light that used to cross it are gone. Slow
+ * violet blobs behind a UI are the most legible "generated" tell there is:
+ * light with no source, motion with no cause, present on every screen of a
+ * product whose actual job is marking papers. What survives is the ruling,
+ * which is the part that was ever doing work — it is structural, it is what an
+ * assessment product is *made of*, and it holds still.
  *
  * It is a server component with no props to speak of and no client JavaScript,
- * because everything it does lives in `globals.css` (`.shell-backdrop*`). The
- * motion is CSS keyframes on `transform` alone, which the compositor runs
- * without the main thread — the point being that this is on every page of an
- * app used on school hardware, so it has to cost nothing to be worth having.
- * The design notes, the contrast budget, and the reduced-motion fallback are
- * all documented beside the CSS.
+ * because everything it does lives in `globals.css` (`.shell-backdrop*`). With
+ * the orbs removed there is no animation left at all, so the reduced-motion
+ * case and the default case are now the same screen.
  *
  * Deliberately absent from the studio and the exam room. Both set their canvas
  * to `--sidebar` precisely so the surface announces "different rules here", and
@@ -40,8 +43,6 @@ export default function ShellBackdrop({
       className={cn("shell-backdrop", className)}
     >
       <span className="shell-backdrop-rules" />
-      <span className="shell-backdrop-orb shell-backdrop-orb-lead" />
-      <span className="shell-backdrop-orb shell-backdrop-orb-trail" />
     </div>
   );
 }

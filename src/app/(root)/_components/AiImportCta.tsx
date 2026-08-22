@@ -81,10 +81,6 @@ export default function AiImportCta({
           "bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))]",
         )}
       >
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-16 -right-10 size-56 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--primary)_26%,transparent),transparent_70%)] blur-xl"
-        />
 
         <div className="relative flex flex-col gap-4 @2xl:flex-row @2xl:items-center @2xl:justify-between">
           <div className="flex min-w-0 items-start gap-3">

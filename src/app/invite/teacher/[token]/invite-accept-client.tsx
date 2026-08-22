@@ -49,10 +49,6 @@ export default function InviteAcceptClient({
 
   return (
     <div className="app-shell-bg relative flex min-h-screen w-full flex-col items-center justify-center overflow-hidden px-6 py-12">
-      {/* Ambient brand glow */}
-      <div className="pointer-events-none absolute -top-32 left-1/2 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-primary/12 blur-[90px]" />
-      <div className="pointer-events-none absolute -bottom-24 right-10 h-72 w-72 rounded-full bg-primary/8 blur-[80px]" />
-
       <div className="relative z-10 w-full max-w-[440px]">
         <div className="mb-8 flex justify-center">
           <DwelveLogo variant="form" />

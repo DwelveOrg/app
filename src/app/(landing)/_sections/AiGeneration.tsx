@@ -73,7 +73,7 @@ function AiMock() {
   const questions = [t("landing.ai.mock.q1"), t("landing.ai.mock.q2")];
 
   return (
-    <div ref={ref} className="rounded-[28px] bg-muted p-3 sm:p-5 dark:bg-white/5">
+    <div ref={ref} className="rounded-2xl bg-muted p-3 sm:p-5 dark:bg-white/5">
       <div className="rounded-2xl bg-card p-5 shadow-elev-4">
         {/* Uploaded source file — spinner while analysing, then a settled check */}
         <div className="flex items-center gap-3 rounded-xl border border-border bg-muted p-3 dark:bg-white/5">
@@ -153,7 +153,7 @@ function AiMock() {
             {t("landing.ai.mock.heading")}
           </p>
           <motion.span
-            className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground"
+            className="inline-flex items-center gap-1.5 rounded-[var(--radius-pill)] bg-accent px-2.5 py-1 text-2xs font-semibold text-accent-foreground"
             initial={false}
             animate={{ opacity: ready ? 1 : 0.4, scale: ready ? 1 : 0.9 }}
             transition={{ type: "spring", stiffness: 420, damping: 22 }}

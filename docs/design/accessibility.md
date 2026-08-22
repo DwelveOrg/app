@@ -172,8 +172,10 @@ a content one.
   Russian and Uzbek run considerably longer than English and a clipped school name loses meaning.
   `Fact` values *do* truncate, because they are short values in fixed-width tiles.
 - Text must survive 200% zoom and reflow without horizontal scrolling.
-- Manrope carries latin, latin-ext, and cyrillic. Never render Russian or user-generated text in DM
-  Serif Display.
+- The whole IBM Plex family in use here — Sans, Mono and Serif — carries latin, latin-ext, and
+  cyrillic, so no face in the product has a coverage hazard. (The previous pairing did: DM Serif
+  Display was Latin-only and had to be kept away from Russian and Uzbek.) Manrope is loaded only for
+  the wordmark and renders exactly one Latin string.
 - Use the turned comma U+02BB `ʻ` for Uzbek `oʻ` / `gʻ`, never a straight apostrophe.
 
 Full rules: [content-and-i18n.md](./content-and-i18n.md).

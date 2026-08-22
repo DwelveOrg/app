@@ -134,7 +134,7 @@ export function SchoolProfileForm({ selectedSchool }: Readonly<SchoolProfileForm
               {role.classes.map((cls) => (
                 <li
                   key={cls.assignmentId}
-                  className="inline-flex items-center rounded-full bg-card px-2.5 py-1 text-xs font-medium text-foreground"
+                  className="inline-flex items-center rounded-[var(--radius-pill)] bg-card px-2.5 py-1 text-xs font-medium text-foreground"
                 >
                   {cls.name}
                 </li>

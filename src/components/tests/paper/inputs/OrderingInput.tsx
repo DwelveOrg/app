@@ -88,7 +88,7 @@ export default function OrderingInput({
               >
                 <span
                   aria-hidden="true"
-                  className="inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-2xs font-semibold tabular-nums text-muted-foreground"
+                  className="numeric inline-flex size-6 shrink-0 items-center justify-center rounded-[var(--radius-pill)] bg-muted text-2xs font-semibold text-muted-foreground"
                 >
                   {index + 1}
                 </span>

@@ -48,6 +48,7 @@ shell, not because they are provisional. Import them by alias:
 | A form label + hint + error | `Field` | a hand-written `<label>` + `<p>` |
 | Any text entry | `Input` / `Textarea` | a raw `<input>` |
 | A status pill / count chip / tag | `Badge` | an inline `rounded-full` span |
+| A number chip (question index, order index) | `rounded-[var(--radius-pill)]` + `numeric` | `rounded-full` around a figure |
 | A person / class / school circle | `Avatar` | a hand-rolled initials div |
 | A tab row | `TabBar` | `tabs.tsx` (that's the Radix primitive; `TabBar` is the product control) |
 | A theme/language/view switch | `Segmented` | a `Select` |
@@ -88,7 +89,7 @@ accepts `onSubmit`.
 | `padding` | `none` · `sm` (16) · `md` (20) · `lg` (20→24 at `sm`) | `md` | Forced to `none` when `divided` |
 | `radius` | `md` (`rounded-xl`) · `lg` (`rounded-2xl`) | `lg` | |
 | `elevation` | `0` · `1` · `2` · `3` | `1` | Dialogs use `shadow-elev-4` directly |
-| `interactive` | boolean | `false` | Hover lift + press settle + primary edge |
+| `interactive` | boolean | `false` | Hover darkens the hairline and steps the fill; nothing moves (`--lift: 0`) |
 | `divided` | boolean | `false` | Children become `divide-y` rows |
 
 Variant meanings:
@@ -158,9 +159,10 @@ Links:
 <Button asChild variant="outline"><Link href="/dashboard">Back</Link></Button>
 ```
 
-> **Stale comment in the file.** `Button.tsx`'s header still says "teal is action, violet is
-> identity". That rule was deleted in design-system v3 — violet is both. Ignore the comment; the
-> classes are correct.
+> **Accent rule (v4).** `default` is the **ink** button and is the answer for every ordinary
+> primary action. `brand` is the violet one and is reserved for the landing and auth surfaces where
+> the button *is* the brand moment — using it for a routine "Save" is what made every screen read as
+> a brand page. `Button.tsx`'s header states the same rule; it and the classes now agree.
 
 ### `CopyButton` — `@/components/ui/CopyButton`
 
@@ -645,6 +647,7 @@ the question of whether the product control should have grown a variant instead.
 | `{pending ? <Spinner/> : <Save/>}` | `<Button loading={pending}><Save/>…</Button>` |
 | A hand-written `<label>` + error `<p>` | `<Field label error>` |
 | An inline `rounded-full` status span | `<Badge>` |
+| `className="tabular-nums"` on a bare figure | `className="numeric"` (mono + tabular) |
 | A second component that looks the same | one component with a prop |
 | Copying a primitive to add one prop | add the prop |
 | `dark:` overrides on a token-driven colour | fix the token |

@@ -63,10 +63,6 @@ export default function SupportCta({ className }: { className?: string }) {
         className,
       )}
     >
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -top-16 -right-12 size-48 rounded-full bg-[radial-gradient(circle,color-mix(in_srgb,var(--info)_22%,transparent),transparent_70%)] blur-xl"
-      />
 
       <div className="relative flex flex-col gap-5">
         <div className="flex flex-col gap-4 @xl:flex-row @xl:items-start @xl:justify-between">

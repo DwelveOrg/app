@@ -68,7 +68,7 @@ export default function QuestionView({
               <span
                 aria-hidden="true"
                 className={cn(
-                  "inline-flex h-7 min-w-7 items-center justify-center rounded-full px-2 text-13 font-semibold tabular-nums",
+                  "numeric inline-flex h-7 min-w-7 items-center justify-center rounded-[var(--radius-pill)] px-2 text-13 font-semibold",
                   review
                     ? markTone(result?.isCorrect, result?.pointsAwarded, question.points)
                     : answered

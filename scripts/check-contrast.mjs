@@ -234,10 +234,25 @@ function hueOf(value) {
   return { chroma: C, hue: h, neutral: C < NEUTRAL_C };
 }
 
+/*
+ * Measured from --brand, not --primary.
+ *
+ * These guards existed to stop the loudest hue in the palette from being
+ * confusable with a status colour. They named --primary because, under the v3
+ * monobrand, --primary WAS that hue. v4 made the action colour neutral — and a
+ * neutral scores N/A here by design, so two of these three guards quietly
+ * stopped asserting anything the moment the palette changed.
+ *
+ * The risk did not go away with them: --brand is still violet and still lands
+ * beside a "correct" green and an informational cyan (badges, chart legends,
+ * the auth panel). So the guards follow the hue rather than the token that used
+ * to carry it. `--success` vs `--destructive` is unchanged — that pair is about
+ * the one distinction a student cannot afford to misread.
+ */
 const HUE_GUARDS = [
-  ["--primary", "--success", 30, "action teal vs correct-answer green"],
+  ["--brand", "--success", 30, "brand violet vs correct-answer green"],
   ["--success", "--destructive", 60, "correct vs incorrect"],
-  ["--primary", "--info", 25, "action vs informational"],
+  ["--brand", "--info", 25, "brand violet vs informational cyan"],
 ];
 
 let failures = 0;
