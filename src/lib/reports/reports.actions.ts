@@ -1,11 +1,11 @@
 "use server";
 
 import { BackendApiError, BackendResponseValidationError } from "@/lib/api/backend";
+import { UPLOAD_MAX_BYTES } from "@/lib/uploads/limits";
 import { createReportRequest } from "./reports.api";
 import {
   REPORT_MESSAGE_MAX,
   REPORT_MESSAGE_MIN,
-  REPORT_SCREENSHOT_MAX_BYTES,
   REPORT_SCREENSHOT_TYPES,
   reportKindSchema,
 } from "./reports.schemas";
@@ -13,7 +13,8 @@ import {
 const GENERIC_ERROR = "Could not send your report. Please try again.";
 const NETWORK_ERROR = "Unable to reach Dwelve. Please check your connection.";
 const TOO_SHORT = `Please describe the problem in at least ${REPORT_MESSAGE_MIN} characters.`;
-const SCREENSHOT_TOO_BIG = "That screenshot is too large. The limit is 8 MB.";
+const SCREENSHOT_TOO_BIG =
+  "That screenshot is too large to send. Please attach a smaller image.";
 const SCREENSHOT_WRONG_TYPE = "Screenshots must be a JPEG, PNG, or WebP image.";
 
 /**
@@ -42,7 +43,11 @@ export async function submitReportAction(
   const hasScreenshot = screenshot instanceof File && screenshot.size > 0;
 
   if (hasScreenshot) {
-    if (screenshot.size > REPORT_SCREENSHOT_MAX_BYTES) {
+    // The transport budget, not the picker's 8 MB: by the time a file is here
+    // it has already survived the platform's body limit, so anything above this
+    // came from a caller that skipped the dialog's re-encode step. Refuse it
+    // with a message rather than let it fail as an opaque 413 further out.
+    if (screenshot.size > UPLOAD_MAX_BYTES) {
       return { error: SCREENSHOT_TOO_BIG };
     }
     if (!REPORT_SCREENSHOT_TYPES.includes(screenshot.type as never)) {
@@ -94,6 +99,9 @@ function getActionError(error: unknown) {
     }
     if (error.status === 401) {
       return "Your session expired. Please sign in again and resend this.";
+    }
+    if (error.status === 413) {
+      return SCREENSHOT_TOO_BIG;
     }
     return GENERIC_ERROR;
   }

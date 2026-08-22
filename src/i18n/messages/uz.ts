@@ -23,6 +23,8 @@ translation: {
         screenshotLabel: "Skrinshot",
         screenshotCta: "Skrinshot biriktiring yoki joylashtiring",
         screenshotHint: "PNG, JPEG yoki WebP, 8 MB gacha. Nusxadan joylash ham ishlaydi.",
+        screenshotPreparing: "Skrinshot tayyorlanmoqda…",
+        screenshotOptimised: "{{to}} — yuborish uchun {{from}} dan kichraytirildi",
         screenshotPreviewAlt: "Biriktirilgan skrinshot",
         pastedImage: "Joylashtirilgan skrinshot",
         removeScreenshot: "Skrinshotni olib tashlash",
@@ -35,6 +37,8 @@ translation: {
           tooShort: "Muammoni kamida {{count}} ta belgida tasvirlab bering.",
           tooLarge: "Skrinshot juda katta. Chegara 8 MB.",
           wrongType: "Skrinshot PNG, JPEG yoki WebP formatida boʻlishi kerak.",
+          unreadable: "Bu rasmni oʻqib boʻlmadi. Boshqasini tanlang.",
+          transport: "Hisobotni yuborib boʻlmadi. Qayta urinib koʻring yoki skrinshotni olib tashlab, faqat xabarni yuboring.",
         },
       },
       onboarding: {
@@ -61,6 +65,12 @@ translation: {
           selected: "Tanlandi",
           success: "Ruxsat tasdiqlandi",
           error: "Bu qadamni bajarib boʻlmadi. Qayta urinib koʻring.",
+          changePath: "Oʻzgartirish",
+          noPath: {
+            title: "Avval qanday qoʻshilishingizni tanlang",
+            description: "Bu qadam siz maktab yaratayotganingizni, kod kiritayotganingizni yoki taklifnomadan foydalanayotganingizni bilishi kerak.",
+            action: "Tanlovga qaytish",
+          },
           steps: {
             welcome: {
               nav: "Tanishuv",

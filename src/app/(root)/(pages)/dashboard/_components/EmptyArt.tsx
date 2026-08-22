@@ -17,7 +17,17 @@ import { cn } from "@/lib/utils";
 
 type ArtProps = { className?: string };
 
-const wrap = "h-28 w-full max-w-[15rem] shrink-0";
+/*
+   80px, not 112px.
+
+   These drawings preview the shape of the data a panel will hold, which is
+   worth doing at a glance and not worth doing at scale. At `h-28` an empty
+   panel stood ~230px tall, and because panels stretch to their row, one empty
+   panel set the height for every populated panel beside it — a single activity
+   row was being centred in a quarter of a screen. The illustration still reads
+   perfectly at this size; the row no longer costs what a chart costs.
+*/
+const wrap = "h-20 w-full max-w-[13rem] shrink-0";
 
 /** A trend line finding its way — for score/performance panels. */
 export function TrendArt({ className }: ArtProps) {

@@ -74,13 +74,21 @@ const settingsRedirects = [
 const nextConfig: NextConfig = {
   // Never expose the framework fingerprint in the `X-Powered-By` header.
   poweredByHeader: false,
-  // Report screenshots and PDF imports pass through Server Actions before
-  // reaching Nest. Next otherwise rejects them above its 1 MB default before
-  // the feature-level validation can run. The extra megabyte covers the
-  // multipart envelope around the largest supported PDF (20 MB).
+  // Report screenshots, class pictures and PDF imports pass through Server
+  // Actions before reaching Nest, so Next's 1 MB default has to move.
+  //
+  // It moves to the *hosting platform's* ceiling and no further. This used to
+  // read `21mb`, chosen to fit the importer's 20 MB PDF, and that number was
+  // unreachable: Vercel refuses any serverless request body over 4.5 MB with a
+  // `413 FUNCTION_PAYLOAD_TOO_LARGE` generated at the edge, before Next is
+  // invoked at all. Raising Next's own limit past it changed nothing in
+  // production and actively hid the bug in development, where there is no edge
+  // — an 8 MB screenshot uploaded fine locally and silently failed on
+  // dwelve.uz. Matching the two means a local run fails exactly where a
+  // deployed one does. Keep this in step with `PLATFORM_REQUEST_MAX_BYTES`.
   experimental: {
     serverActions: {
-      bodySizeLimit: "21mb",
+      bodySizeLimit: "4.5mb",
     },
   },
   // No remote image hosts. The auth panels used to hotlink Unsplash; their visuals are now

@@ -54,7 +54,7 @@ export default function ImportScreen({
       return code.success
         ? t(`root.tests.import.errors.${code.data}`, {
             max: limits.maxDocumentPages,
-            size: Math.round(limits.maxBytes / (1024 * 1024)),
+            size: Math.floor(limits.maxBytes / (1024 * 1024)),
             pages: limits.maxSelectedPages,
           })
         : message || t("root.tests.errorGeneric");
@@ -127,7 +127,7 @@ export default function ImportScreen({
         toast.error(
           t(`root.tests.import.errors.${code}`, {
             max: limits.maxDocumentPages,
-            size: Math.round(limits.maxBytes / (1024 * 1024)),
+            size: Math.floor(limits.maxBytes / (1024 * 1024)),
           }),
         );
       } finally {
@@ -223,12 +223,21 @@ export default function ImportScreen({
         }
         actions={
           stage === "pages" ? (
+            // The button that actually starts the model. It carries the same
+            // lit treatment as the entry points that lead here, so a teacher
+            // recognises "this one costs a quota and takes a minute" before
+            // pressing it. Disabled controls drop the glow: light on a button
+            // that does nothing is a lie.
             <Button
               type="button"
               size="sm"
               onClick={submit}
               disabled={!canSubmit}
               loading={createImport.isPending}
+              className={cn(
+                canSubmit && !createImport.isPending && "ai-glow ai-sheen",
+                "bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105",
+              )}
             >
               {t("root.tests.import.submit")}
               <ArrowRight />
@@ -251,7 +260,7 @@ export default function ImportScreen({
             <ChooseFile
               opening={opening}
               inputRef={fileInputRef}
-              maxMb={Math.round(limits.maxBytes / (1024 * 1024))}
+              maxMb={Math.floor(limits.maxBytes / (1024 * 1024))}
               maxPages={limits.maxDocumentPages}
               onPick={openFile}
             />
@@ -397,7 +406,7 @@ export default function ImportScreen({
             <p className="text-sm text-foreground">
               {t(`root.tests.import.errors.${job?.errorCode ?? "EXTRACTION_FAILED"}`, {
                 max: limits.maxDocumentPages,
-                size: Math.round(limits.maxBytes / (1024 * 1024)),
+                size: Math.floor(limits.maxBytes / (1024 * 1024)),
                 pages: limits.maxSelectedPages,
               })}
             </p>

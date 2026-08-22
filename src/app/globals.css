@@ -971,6 +971,313 @@
     );
 }
 
+/* ----------------------------------------------------------------------------
+   Making the ruled canvas alive without making it noisy.
+
+   Three layers, in order of how much they are allowed to be noticed:
+
+   1. `.shell-backdrop-rules` drifts one cell over 90 seconds. One cell, so the
+      loop is seamless — the pattern at 30px offset is the pattern at 0. At
+      0.33px/s it is under the threshold where the eye registers movement, which
+      is the point: the page is never *seen* moving, it is only never quite
+      where you left it.
+
+   2. `.shell-backdrop-motes` are four grid-aligned squares that fade up, travel
+      one short leg, and fade out. Squares rather than circles, snapped to the
+      ruling's own rhythm, because the metaphor is paper and not lava — a round
+      blob drifting behind a UI is the exact "generated" tell this canvas was
+      once stripped bare to avoid.
+
+   3. `.shell-backdrop-pointer` is the only bright thing, and the only one the
+      user causes. It is a wash of brand light centred on the cursor plus a few
+      pixels of counter-parallax on the whole field, so moving the mouse moves
+      the room very slightly against it. It fades out when the cursor leaves the
+      window rather than parking mid-page.
+
+   Everything animates `transform` and `opacity` only. Nothing here blurs: the
+   soft edges are gradients that reach zero inside their own box, which costs
+   nothing on the compositor. Peak added tint is ~7% of --brand at the cursor,
+   well inside the contrast headroom the ruling was measured against.
+   ------------------------------------------------------------------------- */
+
+.shell-backdrop-rules {
+  animation: shell-rules-drift 90s linear infinite;
+  /* The pointer layer publishes its parallax here; 0 until a cursor exists. */
+  translate: var(--shell-shift-x, 0px) var(--shell-shift-y, 0px);
+  transition: translate 600ms cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform;
+}
+
+@keyframes shell-rules-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-30px, -30px, 0);
+  }
+}
+
+.shell-backdrop-motes {
+  position: absolute;
+  inset: 0;
+}
+
+.shell-backdrop-motes i {
+  position: absolute;
+  display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  opacity: 0;
+  background-image: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--brand) 22%, transparent),
+    color-mix(in srgb, var(--brand) 4%, transparent) 70%,
+    transparent
+  );
+  /* Staggered by index rather than randomised, so server and client agree and
+     the four never travel as a group. The durations are mutually awkward
+     numbers, so the set does not visibly resynchronise. */
+  animation: shell-mote-float calc(38s + var(--mote) * 9s) ease-in-out infinite;
+  animation-delay: calc(var(--mote) * -11s);
+  left: calc(12% + var(--mote) * 23%);
+  top: calc(70% - var(--mote) * 9%);
+  will-change: transform, opacity;
+}
+
+@keyframes shell-mote-float {
+  0%,
+  100% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  18% {
+    opacity: 0.55;
+  }
+  70% {
+    opacity: 0.35;
+  }
+  85% {
+    opacity: 0;
+  }
+  100% {
+    transform: translate3d(30px, -120px, 0) rotate(8deg);
+  }
+}
+
+.dark .shell-backdrop-motes i {
+  background-image: linear-gradient(
+    140deg,
+    color-mix(in srgb, var(--brand) 34%, transparent),
+    color-mix(in srgb, var(--brand) 7%, transparent) 70%,
+    transparent
+  );
+}
+
+/* The cursor's own light. Positioned in viewport fractions written by
+   `ShellBackdropMotion`, defaulting to dead centre so the first paint before any
+   pointer event is not a corner. */
+.shell-backdrop-pointer {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 700ms ease-out;
+  background-image: radial-gradient(
+    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    color-mix(in srgb, var(--brand) 7%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 4%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 1.5%, transparent) 62%,
+    transparent 100%
+  );
+}
+
+.shell-backdrop[data-tracking="true"] .shell-backdrop-pointer {
+  opacity: 1;
+}
+
+/* The counter-parallax the ruling reads. Signed so the field leans *away* from
+   the cursor: the light appears to sit above the paper rather than to drag it.
+   Scoped to the tracking state so the ruling settles back to centre when the
+   cursor leaves, instead of holding the last lean. */
+.shell-backdrop[data-tracking="true"] {
+  --shell-shift-x: calc((var(--pointer-x, 0.5) - 0.5) * -14px);
+  --shell-shift-y: calc((var(--pointer-y, 0.5) - 0.5) * -14px);
+}
+
+.dark .shell-backdrop-pointer {
+  background-image: radial-gradient(
+    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    color-mix(in srgb, var(--brand) 12%, transparent) 0%,
+    color-mix(in srgb, var(--brand) 7%, transparent) 34%,
+    color-mix(in srgb, var(--brand) 2.5%, transparent) 62%,
+    transparent 100%
+  );
+}
+
+/* The still canvas is the fallback, not a blank one: the ruling and the motes
+   stay exactly where they are, and nothing travels. */
+@media (prefers-reduced-motion: reduce) {
+  .shell-backdrop-rules {
+    animation: none;
+    translate: none;
+    transition: none;
+  }
+
+  .shell-backdrop-motes i {
+    animation: none;
+    opacity: 0.28;
+  }
+}
+
+/* ----------------------------------------------------------------------------
+   The AI controls, lit.
+
+   Everywhere the product hands a document to a model — "Import from PDF" on the
+   dashboard and the class page, the importer's own submit — carries the same
+   treatment, so a teacher learns the look once and recognises it everywhere.
+   These are the only controls in the product that glow; that is what makes the
+   glow mean something rather than decorate something.
+
+   The light is built from radial gradients, not `filter: blur()`. A blurred
+   layer has to be re-rasterised whenever what is under it changes, and these
+   sit on buttons that move, focus and re-label. A gradient that reaches zero
+   inside its own box gives the same soft edge for free, and the only thing that
+   ever animates is `opacity` and `transform` on an already-painted layer, which
+   the compositor owns.
+
+   Two states, deliberately: a slow resting breath that says "this one is
+   different", and a brighter, tighter response on hover and focus that says
+   "yes, this one". The rest state peaks below the button's own shadow so it
+   reads as spill rather than as a second control behind the first.
+   ------------------------------------------------------------------------- */
+
+.ai-glow {
+  position: relative;
+}
+
+/*
+   The halo is a `box-shadow` on a pseudo-element that exactly covers the
+   control, not a gradient behind it.
+
+   The gradient version was wrong in a way worth recording. Painting a bloom
+   *under* a control needs the pseudo-element at `z-index: -1`, and a negative
+   z-index child paints behind its parent's **content** but in front of its
+   parent's **background** — so on a solid brand-gradient button the light
+   landed on the button's face, where it is the same colour as the face and
+   therefore invisible, and never reached the page around it. Isolating the
+   element did not help; it is what forced that painting order.
+
+   A box-shadow is defined to render entirely outside the border box, so it
+   cannot touch the face no matter what stacking context it lands in, and it
+   follows `border-radius: inherit` around the corners for free. Only `opacity`
+   and `transform` animate; the shadow itself is rasterised once.
+*/
+.ai-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0.75;
+  box-shadow:
+    0 0 22px 2px color-mix(in srgb, var(--brand) 75%, transparent),
+    0 10px 44px 8px color-mix(in srgb, var(--brand) 45%, transparent);
+  animation: ai-glow-breathe 5.5s ease-in-out infinite;
+  transition:
+    opacity 220ms ease-out,
+    transform 220ms ease-out;
+}
+
+.ai-glow:hover::before,
+.ai-glow:focus-visible::before,
+.ai-glow:focus-within::before {
+  opacity: 1;
+  animation-play-state: paused;
+  transform: scale(1.045);
+}
+
+@keyframes ai-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(0.985);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.015);
+  }
+}
+
+/* A single pass of light across the control's face on hover — the one gesture
+   that reads as "something is being generated" without a spinner, because it
+   travels. It runs once per hover rather than looping: a permanent shimmer on a
+   button is a casino, and this is a teacher's Tuesday. */
+/*
+   No `overflow: hidden` here, deliberately. It is the obvious way to keep a
+   sweep inside a rounded control and it would silently kill the halo: a
+   clipping ancestor clips its own pseudo-elements too, so `.ai-glow` and
+   `.ai-sheen` on the same button would cancel each other. The sweep is already
+   contained without it — `::after` carries `border-radius: inherit`, so its
+   gradient is clipped to the control's own rounded box.
+*/
+.ai-sheen {
+  position: relative;
+}
+
+.ai-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  background-image: linear-gradient(
+    105deg,
+    transparent 35%,
+    color-mix(in srgb, white 34%, transparent) 50%,
+    transparent 65%
+  );
+  background-size: 220% 100%;
+  background-position: 130% 0;
+}
+
+.ai-sheen:hover::after,
+.ai-sheen:focus-visible::after {
+  animation: ai-sheen-sweep 720ms ease-out;
+}
+
+@keyframes ai-sheen-sweep {
+  from {
+    opacity: 1;
+    background-position: 130% 0;
+  }
+  to {
+    opacity: 0;
+    background-position: -30% 0;
+  }
+}
+
+/* The mark on the tile keeps a ring of its own, so the icon is lit even where a
+   button is not the thing being looked at. Tighter, because a 48px square with
+   a button's halo would read as the brighter of the two. */
+.ai-glow-tile::before {
+  box-shadow:
+    0 0 14px 0 color-mix(in srgb, var(--brand) 65%, transparent),
+    0 4px 22px 3px color-mix(in srgb, var(--brand) 32%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-glow::before {
+    animation: none;
+    opacity: 0.6;
+  }
+
+  .ai-sheen:hover::after,
+  .ai-sheen:focus-visible::after {
+    animation: none;
+  }
+}
+
 /* Ambient bloom behind the hero scene (landing `MainPage`).
 
    The hero canvas sits in a clipped box, so any wash that still carries alpha

@@ -13,6 +13,7 @@ import type {
   CreateTestImportInput,
   TestImportJobIdInput,
 } from "@/app/(root)/_lib/test-import.actions.schemas";
+import { UPLOAD_MAX_BYTES } from "@/lib/uploads/limits";
 import {
   FALLBACK_IMPORT_LIMITS,
   isTerminalImportStatus,
@@ -69,7 +70,22 @@ export function useTestImportLimitsQuery() {
   // document on the first render, so a limits object that can be `undefined`
   // would push a null-check into every call site for a state that never
   // usefully occurs.
-  return { ...query, data: query.data ?? FALLBACK_IMPORT_LIMITS };
+  const data = query.data ?? FALLBACK_IMPORT_LIMITS;
+
+  return {
+    ...query,
+    data: {
+      ...data,
+      // The backend will happily accept a 20 MB PDF, but the browser cannot
+      // deliver one: the upload rides a Server Action, and the hosting platform
+      // rejects any request body over `PLATFORM_REQUEST_MAX_BYTES` at the edge,
+      // before Next — and therefore before Nest — sees it. Advertising the
+      // backend's number sent teachers to a 413 that surfaced as nothing at
+      // all. Clamp it here, once, so the picker's copy, its refusal, and its
+      // error messages all quote a limit that is actually reachable.
+      maxBytes: Math.min(data.maxBytes, UPLOAD_MAX_BYTES),
+    },
+  };
 }
 
 /**
