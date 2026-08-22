@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { SITE_URL } from "./src/lib/seo";
+
 /**
  * Baseline security response headers applied to every route. These defend
  * against clickjacking, MIME-sniffing, referrer leakage, and abuse of powerful
@@ -21,6 +23,8 @@ const securityHeaders = [
   },
 ];
 
+const canonicalRedirectHosts = ["www.dwelve.uz", "dwelve.vercel.app"] as const;
+
 const nextConfig: NextConfig = {
   // Never expose the framework fingerprint in the `X-Powered-By` header.
   poweredByHeader: false,
@@ -28,6 +32,14 @@ const nextConfig: NextConfig = {
   // rendered from design tokens, so nothing outside this origin is loaded.
   images: {
     remotePatterns: [],
+  },
+  async redirects() {
+    return canonicalRedirectHosts.map((host) => ({
+      source: "/:path*",
+      has: [{ type: "host" as const, value: host }],
+      destination: `${SITE_URL}/:path*`,
+      permanent: true,
+    }));
   },
   async headers() {
     return [
