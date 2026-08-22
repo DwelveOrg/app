@@ -150,8 +150,10 @@ vestibular sensitivity should not have the exam paper slide sideways every time 
 question.
 
 - `globals.css` neutralises `layout-enter`, both accordion animations, `mock-shimmer`, the landing
-  marquee, and — importantly — the `interactive` / `interactive-flat` transforms. **The tactile lift
-  is a transform like any other.**
+  marquee, and the `interactive` / `interactive-flat` press transforms. **A press transform is a
+  transform like any other.** There is less to neutralise than there was — `--lift` is `0`, so hover
+  no longer travels for anyone, and the ambient orbs that used to drift behind every authenticated
+  page are gone rather than merely paused.
 - For `motion` components use `useReducedMotion()` with `motionVariants()`, `motionTransition()`, or
   `stillVariants` from `@/lib/motion`. The still set reaches the same end state instantly, so content
   still arrives — it just arrives at once.

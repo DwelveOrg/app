@@ -484,9 +484,10 @@ with; adding a destination means editing it. Rules it enforces, which any change
 
 - **Weight is the state signal, never size.** Idle `font-normal`, active `font-semibold`. A size
   change would reflow the sidebar on every navigation.
-- Active rows carry a soft primary tint **plus a left rail** — the rail is what survives at a glance
-  on an already-tinted sidebar.
-- Rows use `interactive-flat`. A lifting nav row is a layout shift.
+- Active rows carry an 8% wash of `--foreground` with `--foreground` text **plus an ink left rail** —
+  the rail is what survives at a glance on an already-tinted sidebar. Fill, label and rail are all
+  the ink; nothing on the row disagrees with anything else on it.
+- Rows use `interactive-flat`.
 - Below `md` it collapses to a fixed bottom bar; the content column reserves `pb-24`.
 
 ---

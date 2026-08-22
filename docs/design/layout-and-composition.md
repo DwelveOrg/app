@@ -264,14 +264,18 @@ Depth model (design-system §4): **a hairline defines an edge, elevation separat
 
 | Level | Utility | Use |
 |---|---|---|
-| 1 | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page |
-| 2 | `shadow-elev-2` | Hover on an interactive card; sticky chrome |
-| 3 | `shadow-elev-3` | Dropdowns, popovers, sticky action bars |
-| 4 | `shadow-elev-4` | Dialogs, toasts |
-| — | `shadow-elev-brand` | The coloured glow under a `brand` button |
+| 1 | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
+| 2 | `shadow-elev-2` | Resting, slightly forward: sticky chrome, raised tiles |
+| 3 | `shadow-elev-3` | **Floating:** dropdowns, popovers, sticky action bars |
+| 4 | `shadow-elev-4` | **Floating:** dialogs, toasts, sheets |
+| — | `shadow-elev-brand` | Alias of `--elev-2`; no longer a coloured glow |
 
 **Levels are earned.** Most of a page lives at 1. Two adjacent panels at different levels means one
 of them is wrong. A raw `shadow-[…]` is a bug.
+
+**1–2 rest, 3–4 float**, and the gap between them is a cliff rather than a step — that is the line
+between "on the page" and "over the page". Hover never changes a card's elevation; see
+design-system §4.
 
 Z-index has exactly four rungs in use — do not invent a fifth:
 

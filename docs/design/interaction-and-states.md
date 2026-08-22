@@ -20,16 +20,23 @@ component.**
 | State | Signal | Where it comes from |
 |---|---|---|
 | Default | Resting treatment | the variant |
-| Hover | Colour shift; `interactive` lifts `-2px`, `interactive-flat` doesn't move | the `interactive` utilities |
+| Hover | Border goes to an ink edge, fill steps one notch. **Nothing moves** (`--lift: 0`) | the `interactive` utilities |
 | Focus-visible | `ring-3 ring-ring/40` (or `ring-2` on smaller controls) | never removed, never `outline-none` alone |
-| Active / press | Settles to 0 (lift) or `scale(0.99)` (flat) | the `interactive` utilities |
+| Active / press | `translateY(--lift)` (interactive) or `scale(0.99)` (flat) | the `interactive` utilities |
 | Disabled | `opacity-50` + `pointer-events-none`, or `opacity-60 cursor-not-allowed` for inputs | `disabled:` variants |
 | Loading | `Button loading` — spinner replaces icons, label stays, `aria-busy` | the primitive |
 
 Rules:
 
-- **`interactive` vs `interactive-flat`.** `interactive` for cards and buttons. `interactive-flat`
-  for list rows, nav items, tabs — anything where a 2px lift would read as a layout shift.
+- **Hover does not travel, and does not change elevation.** `--lift` is `0`: hover used to raise
+  every hoverable surface 2px, so crossing a dashboard made the page ripple card by card, and 2px is
+  below the threshold where travel reads as intent rather than as instability. A resting card also
+  no longer gains a shadow on hover — depth levels 1–2 are nearly flat and a shadow now means "this
+  is in front of the page". The signal is the hairline and the fill, which you can see on a still
+  screen. See design-system §4 and §5.
+- **`interactive` vs `interactive-flat`.** `interactive` for cards and buttons; `interactive-flat`
+  for list rows, nav items, tabs. With `--lift: 0` the two differ only in their press response
+  (translate vs `scale(0.99)`).
 - **Never remove a focus ring.** `outline-none` is only ever paired with an explicit
   `focus-visible:ring-*`.
 - **Disabled needs a reason the user can see.** A disabled submit with no error message and no hint
@@ -257,8 +264,8 @@ Rules:
 - **No page-load choreography.** The app loads into a task. `layout-enter` is 260ms, once.
 - Leaving is quicker than arriving (`DUR.press` out, `DUR.reveal` in) — a deletion is a decision the
   moment it's pressed, and holding the row on screen reads as lag.
-- **`prefers-reduced-motion` is not optional.** Every animation needs a still equivalent, including
-  the tactile lift, which is a transform like any other. `globals.css` neutralises `interactive`,
+- **`prefers-reduced-motion` is not optional.** Every animation needs a still equivalent.
+  `globals.css` neutralises `interactive`,
   `interactive-flat`, and all keyframes; for `motion` components use `useReducedMotion()` with
   `motionVariants()` / `motionTransition()` / `stillVariants`.
 - A `layoutId` must be unique per mounted control, or two `TabBar`s / `Segmented`s share one sliding

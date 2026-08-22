@@ -171,9 +171,13 @@ into this file. Read the relevant document before making UI changes:
 
 Key reminders only:
 
-- use the approved sans font (Manrope) for app UI and all user-generated text
-- use the display serif only for controlled Latin-only marketing/logo text
+- use the approved sans font (IBM Plex Sans) for app UI and all user-generated text
+- use `numeric` for figures that must line up — scores, marks, durations, counts, codes
+- use the display serif (IBM Plex Serif) only for marketing display and the auth headline
+- the wordmark is Manrope 700 via `font-wordmark`; it does **not** follow the UI face
 - do not introduce competing fonts without updating the design system
+- `--primary` is ink (what you press); `--brand` is violet (who this is). They are different tokens
+  and must stay different. Charts read from the `--chart-*` ramp, never from `--primary`.
 - `npm run check:contrast` must stay green after any change to the token layer
 
 ---

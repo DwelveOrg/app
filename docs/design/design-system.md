@@ -240,8 +240,11 @@ being the action colour.
 | `--chart-4` | `#C2317A` rose | `#F2789F` |
 | `--chart-5` | `#1D5FD1` blue | `#79A9FF` |
 
-Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — under
-the monobrand this is the pairing to watch, not chart-2/chart-5 as in v2.
+Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — this is
+the pairing to watch, not chart-2/chart-5 as in v2.
+
+**Charts read from this ramp, never from `--primary`.** The landing histogram used `bg-primary` and
+turned greyscale with one black bar the moment action became ink. A chart is not an affordance.
 
 ### 3.5 Accessibility gate
 
@@ -257,18 +260,27 @@ gate green (see §9).
 
 Structure comes from two things: a **hairline** defines an edge, **elevation** separates a layer.
 
+The ramp is split by **kind**, not by degree:
+
 | Token | Utility | Use |
 |---|---|---|
-| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page |
-| `--elev-2` | `shadow-elev-2` | Hover on an interactive card; sticky chrome |
-| `--elev-3` | `shadow-elev-3` | Dropdowns, popovers, sticky action bars |
-| `--elev-4` | `shadow-elev-4` | Dialogs, toasts |
-| `--elev-primary` / `--elev-brand` | `shadow-elev-primary` / `-brand` | The coloured glow under a primary or brand button |
+| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
+| `--elev-2` | `shadow-elev-2` | Resting, slightly forward: sticky chrome, raised tiles |
+| `--elev-3` | `shadow-elev-3` | **Floating:** dropdowns, popovers, sticky action bars |
+| `--elev-4` | `shadow-elev-4` | **Floating:** dialogs, toasts, sheets |
+| `--elev-brand` | `shadow-elev-brand` | Alias of `--elev-2`. Kept so existing call sites resolve. |
 
 Rules:
 
-- **Light shadows are tinted with the warm ink (`28 24 20`), not a neutral slate.** A shadow that
-  disagrees with its surface temperature reads as grime.
+- **The gap between 2 and 3 is a cliff, not a step.** It is the line between "on the page" and "over
+  the page" and should be legible at a glance. Levels 1–2 are nearly flat; the hairline draws the
+  panel and a single contact pixel keeps it off the canvas. Only 3–4 genuinely cast.
+- **Hover does not change elevation.** A resting card that gains a shadow on hover is the old model;
+  hover is carried by the border and the fill now. See §5.
+- **`--elev-brand` is no longer a coloured glow.** A violet halo under a violet button is light with
+  no source — it is what made the old CTA read as a sticker. It resolves to `--elev-2`.
+- **Light shadows are tinted with the violet-leaning ink (`20 18 30`), not a neutral slate.** A
+  shadow that disagrees with its surface temperature reads as grime.
 - **Dark elevation is a shadow *plus* a top inner hairline.** Cast shadows barely register on a
   near-black canvas; the `inset 0 1px 0 rgb(255 255 255 / …)` highlight edge is what actually makes
   a dark panel look raised.
@@ -288,7 +300,7 @@ it is the reference for how to render one **without** three nested boxes:
   (`-mx-5 sm:-mx-6`) and separates itself with a `border-t` hairline, so the rule reads as a
   division of the section rather than the top of another box.
 - A **question** is a flat row in a `divide-y` list. It carries no border, no ring, and no
-  `interactive` lift — a row of form inputs is not clickable and must not look it.
+  `interactive` treatment — a row of form inputs is not clickable and must not look it.
 - **Only the invalid state draws an edge.** A question a publish check flagged gets the ring, which
   is what makes it findable; if everything is boxed, nothing is.
 
@@ -311,18 +323,27 @@ comes from rhythm instead of from three competing borders at three competing rad
 - Motion conveys **state**, not personality. State change, feedback, loading, reveal — nothing else.
 - No page-load choreography. The app loads into a task.
 - Ease out. No bounce, no elastic.
-- `prefers-reduced-motion` is not optional. Every animation needs a still equivalent — including the
-  tactile lift, which is a transform like any other. `globals.css` neutralises `interactive`,
-  `interactive-flat`, and all keyframe animations under the query.
+- `prefers-reduced-motion` is not optional. Every animation needs a still equivalent. `globals.css`
+  neutralises `interactive`, `interactive-flat`, and all keyframe animations under the query. (There
+  is less to neutralise than there was: hover no longer travels, so the reduced-motion screen and the
+  default screen are now the same screen for most surfaces.)
 
 ### Interaction recipe
 
 Two utilities carry every tactile affordance, so the whole product presses the same way and the feel
 is a one-line change:
 
-- **`interactive`** — lifts `--lift` (-2px) on hover, settles to 0 on press. For cards and buttons.
-- **`interactive-flat`** — same timing, no travel; scales to 0.99 on press. For list rows, nav items,
-  and anything where a 2px lift would read as a layout shift.
+- **`interactive`** — hover shifts colour and border; `:active` translates by `--lift`. For cards
+  and buttons.
+- **`interactive-flat`** — same timing; `:active` scales to 0.99 instead. For list rows, nav items,
+  tabs.
+
+**`--lift` is `0`.** It used to be `-2px` on hover, so moving a pointer across a dashboard made the
+page twitch card by card — and 2px is below the threshold where travel reads as intent rather than
+as instability. Hover is now carried by the hairline going to an ink edge and the fill stepping one
+notch, which is a change you can see on a still screen. The token is kept rather than the rule
+deleted, so re-enabling travel stays a one-line change. With `--lift: 0` the two utilities differ
+only in their press response.
 
 Every interactive component ships **default, hover, focus-visible, active, disabled, and loading**.
 Shipping half of these is shipping an unfinished component.
@@ -360,10 +381,13 @@ content column; each page owns its own header.
 - Content is centred in `max-w-[1180px]` with `px-4 py-6 md:px-8 md:py-8`.
 - Below `md` the sidebar collapses to a fixed bottom navigation bar; the content column reserves
   `pb-24`.
-- **Nav row state:** active is a soft teal tint (`--accent`) with `--accent-foreground` text at
-  `font-semibold`; idle is `--muted-foreground` at `font-normal`; hover shifts colour only. **Weight
-  is the state signal, never size** — a size change would reflow the sidebar on every navigation.
-- Rows use `interactive-flat`, not `interactive`. A lifting nav row is a layout shift.
+- **Nav row state:** active is an 8% wash of `--foreground` with `--foreground` text at
+  `font-semibold` and an ink left rail; idle is `--muted-foreground` at `font-normal`; hover shifts
+  colour only. **Weight is the state signal, never size** — a size change would reflow the sidebar on
+  every navigation. (This read "a soft teal tint" through v2 and a `--primary` wash under
+  `--accent-foreground` through v3; the latter rendered violet type on a grey fill once action moved
+  to ink. Selection reads by value, and nothing on the row disagrees with anything else on it.)
+- Rows use `interactive-flat`, not `interactive`.
 
 ---
 
