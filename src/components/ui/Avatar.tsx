@@ -77,7 +77,12 @@ export default function Avatar({
       aria-hidden={src ? undefined : true}
       className={cn(
         avatarVariants({ size, shape }),
-        !src && tint === "brand" && "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-accent-foreground",
+        // Reads from --brand, not --primary. This is the DEFAULT tint for every avatar in the
+        // product, and it mixed a wash of --primary with `text-accent-foreground` — coherent only
+        // while --primary was itself the violet. Once action moved to ink, every default avatar
+        // became violet initials on a grey wash. A tint named `brand` should have been on the brand
+        // token regardless; this is now the same pairing Badge's `brand` variant ships.
+        !src && tint === "brand" && "bg-[color-mix(in_srgb,var(--brand)_14%,transparent)] text-brand",
         !src && tint === "neutral" && "bg-muted text-muted-foreground",
         className,
       )}
