@@ -3,13 +3,10 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
-  ArrowLeft,
   ArrowRight,
   GraduationCap,
   MailCheck,
   School,
-  ShieldCheck,
-  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -36,48 +33,38 @@ const PATHS: Array<{ id: AccessPath; icon: LucideIcon }> = [
   { id: "teacher", icon: MailCheck },
 ];
 
-export function WelcomeStep({ firstName }: { firstName: string }) {
+/**
+ * The three rules that make the rest of the product make sense, sat under the
+ * opening screen's call to action.
+ *
+ * This used to be a two-column block: three bordered cards plus an aside that
+ * greeted the user by name and repeated that nothing is permanent. The hero
+ * above now does the greeting, so the aside was saying it twice — and the cards
+ * were competing with the one button the screen actually wants pressed. What is
+ * left is the information, quietened: no borders, no fills, no icons repeated
+ * three times, just three short paragraphs on a rule.
+ */
+export function WelcomeStep() {
   const { t } = useTranslation();
   const points = ["role", "invite", "later"];
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:gap-12">
-      <div className="min-w-0">
-        <p className="max-w-[60ch] text-base leading-7 text-muted-foreground">
-          {t("onboarding.access.welcome.body")}
-        </p>
-
-        <ul className="mt-8 grid gap-3 sm:grid-cols-3 lg:max-w-3xl">
-          {points.map((key) => (
-            <li
-              key={key}
-              className="rounded-2xl border border-border bg-card p-5 shadow-elev-1"
-            >
-              <span className="inline-flex size-9 items-center justify-center rounded-lg bg-accent text-primary">
-                <ShieldCheck className="size-4" />
-              </span>
-              <p className="mt-4 text-sm font-semibold text-foreground">
-                {t(`onboarding.access.welcome.points.${key}.title`)}
-              </p>
-              <p className="mt-1.5 type-caption leading-5 text-muted-foreground">
-                {t(`onboarding.access.welcome.points.${key}.description`)}
-              </p>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="rounded-2xl border border-border bg-muted/60 p-6">
-        <span className="inline-flex size-10 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Sparkles className="size-5" />
-        </span>
-        <p className="mt-4 text-sm font-semibold text-foreground">
-          {t("onboarding.access.welcome.asideTitle", { name: firstName })}
-        </p>
-        <p className="mt-2 type-caption leading-6 text-muted-foreground">
-          {t("onboarding.access.welcome.asideBody")}
-        </p>
-      </div>
+    <div className="border-t border-border pt-8">
+      <p className="text-center type-micro text-muted-foreground">
+        {t("onboarding.access.welcome.body")}
+      </p>
+      <ul className="mt-7 grid gap-6 sm:grid-cols-3 sm:gap-8">
+        {points.map((key) => (
+          <li key={key}>
+            <p className="text-sm font-semibold text-foreground">
+              {t(`onboarding.access.welcome.points.${key}.title`)}
+            </p>
+            <p className="mt-1.5 type-caption leading-5 text-muted-foreground">
+              {t(`onboarding.access.welcome.points.${key}.description`)}
+            </p>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -145,12 +132,10 @@ export function PathStep({
 
 export function ConnectStep({
   path,
-  onBack,
   onConnected,
   disabled,
 }: {
   path: AccessPath;
-  onBack: () => void;
   onConnected: () => void;
   disabled: boolean;
 }) {
@@ -254,13 +239,12 @@ export function ConnectStep({
           </Field>
         )}
 
-        <div className="flex flex-wrap gap-2 pt-2">
-          <Button type="button" variant="outline" onClick={onBack} disabled={busy}>
-            <ArrowLeft className="size-4" />
-            {t("onboarding.actions.back")}
-          </Button>
-          <Button type="submit" disabled={busy}>
-            {busy ? t("onboarding.actions.working") : t("onboarding.actions.continue")}
+        {/* Only the submit. Going back is the chrome bar's job now, and a
+            second control beside the one that creates the membership made the
+            form read as optional. */}
+        <div className="pt-2">
+          <Button type="submit" disabled={busy} loading={busy}>
+            {t("onboarding.actions.continue")}
             <ArrowRight className="size-4" />
           </Button>
         </div>
