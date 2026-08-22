@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Sparkles, Wand2 } from "lucide-react";
+import { ArrowRight, FileText, ListChecks, Sparkles, Wand2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { studioRoutes } from "@/app/(root)/_constants/tests";
@@ -28,8 +28,9 @@ export default function AiImportCta({
         href={href}
         className={cn(
           "group interactive-flat relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3",
-          "border border-primary/25 bg-[color-mix(in_srgb,var(--primary)_7%,var(--card))]",
-          "hover:border-primary/45 hover:bg-[color-mix(in_srgb,var(--primary)_11%,var(--card))]",
+          "border border-brand/30 bg-[linear-gradient(105deg,color-mix(in_srgb,var(--brand)_15%,var(--card)),color-mix(in_srgb,var(--brand)_5%,var(--card)))]",
+          "before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:size-32 before:rounded-full before:bg-brand/20 before:blur-3xl",
+          "hover:border-brand/55 hover:bg-[linear-gradient(105deg,color-mix(in_srgb,var(--brand)_20%,var(--card)),color-mix(in_srgb,var(--brand)_7%,var(--card)))]",
           "outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
           className,
         )}
@@ -45,7 +46,7 @@ export default function AiImportCta({
           </p>
         </div>
 
-        <ArrowRight className="size-4 shrink-0 text-primary transition-transform group-hover:translate-x-0.5" />
+        <ArrowRight className="relative size-4 shrink-0 text-brand transition-transform group-hover:translate-x-0.5" />
       </Link>
     );
   }
@@ -77,10 +78,18 @@ export default function AiImportCta({
     <div className={cn("@container", className)}>
       <div
         className={cn(
-          "relative h-full overflow-hidden rounded-2xl border border-primary/25 p-4 @md:p-5",
-          "bg-[color-mix(in_srgb,var(--primary)_8%,var(--card))]",
+          "relative h-full overflow-hidden rounded-2xl border border-brand/35 p-4 shadow-elev-2 @md:p-5",
+          "bg-[linear-gradient(115deg,color-mix(in_srgb,var(--brand)_17%,var(--card)),color-mix(in_srgb,var(--brand)_6%,var(--card))_52%,var(--card))]",
         )}
       >
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -left-16 -top-20 size-48 rounded-full bg-brand/20 blur-3xl"
+        />
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute -bottom-20 right-8 size-44 rounded-full bg-brand/10 blur-3xl"
+        />
 
         <div className="relative flex flex-col gap-4 @2xl:flex-row @2xl:items-center @2xl:justify-between">
           <div className="flex min-w-0 items-start gap-3">
@@ -94,6 +103,7 @@ export default function AiImportCta({
               <p className="mt-1 max-w-[46ch] text-13 leading-relaxed text-muted-foreground">
                 {t("root.tests.import.cta.short")}
               </p>
+              <PdfToTestPreview />
             </div>
           </div>
 
@@ -102,7 +112,11 @@ export default function AiImportCta({
               panel: `shrink-0` keeps them at their own width instead of stretching
               across the card the way a block-level select did. */}
           <div className="flex flex-col gap-2 @md:flex-row @md:flex-wrap @md:items-center @2xl:shrink-0">
-            <Button asChild size="lg" className="w-full shadow-elev-brand @md:w-auto">
+            <Button
+              asChild
+              size="lg"
+              className="w-full bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105 @md:w-auto"
+            >
               <Link href={href}>
                 <Wand2 className="size-4" />
                 {t("root.tests.import.cta.action")}
@@ -126,7 +140,7 @@ function SparkTile({ size }: { size: "sm" | "md" }) {
         size === "sm" ? "size-9 [&_svg]:size-4" : "size-12 [&_svg]:size-5",
       )}
     >
-      <Wand2 />
+      <FileText className={cn(size === "sm" ? "size-4" : "size-5")} />
       <Sparkles
         className={cn(
           "absolute text-primary-foreground/90",
@@ -134,6 +148,26 @@ function SparkTile({ size }: { size: "sm" | "md" }) {
         )}
       />
     </span>
+  );
+}
+
+/** A compact, non-interactive trace of the result a teacher will get. */
+function PdfToTestPreview() {
+  const { t } = useTranslation();
+
+  return (
+    <div aria-hidden="true" className="mt-3 hidden items-center gap-2.5 text-2xs @xl:flex">
+      <span className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-card/70 px-2 py-1 text-muted-foreground shadow-elev-1">
+        <FileText className="size-3 text-brand" />
+        PDF
+      </span>
+      <ArrowRight className="size-3 text-brand/70" />
+      <span className="flex items-center gap-1.5 rounded-lg border border-brand/20 bg-card/70 px-2 py-1 font-medium text-foreground shadow-elev-1">
+        <ListChecks className="size-3 text-brand" />
+        12
+      </span>
+      <span className="text-muted-foreground">{t("root.tests.import.cta.draft")}</span>
+    </div>
   );
 }
 
