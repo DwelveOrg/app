@@ -189,9 +189,10 @@ Full rules: [content-and-i18n.md](./content-and-i18n.md).
 The exam room has accessibility requirements the rest of the product doesn't, because the cost of
 getting it wrong is a lost attempt rather than a lost click.
 
-- **A browser capability must never lock a student out.** `useIntegrityGuard` checks
-  `screenfull.isEnabled`; if the Fullscreen API is unavailable, the attempt proceeds. Losing a
-  precaution is a better outcome than losing an exam.
+- **A browser capability must never lock a student out.** Fullscreen is requested from the trusted
+  Start/Resume gesture. A refreshed attempt pauses behind a keyboard-trapped retry dialog. If the
+  API is unavailable the attempt proceeds; if a trusted retry is rejected, an explicit continue
+  path appears. Losing a precaution is a better outcome than losing an exam.
 - **The timer must be perceivable without colour**, and must not rely on an animation.
 - **Question navigation is directional on purpose** (`paperTurnVariants`) — but the reduced-motion
   path must still make the change obvious, so the state and the navigator update regardless.

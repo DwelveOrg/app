@@ -19,6 +19,7 @@ import { useExamAppearance } from "../_hooks/useExamAppearance";
 import { useIntegrityGuard } from "../_hooks/useIntegrityGuard";
 import AttemptTimer from "./AttemptTimer";
 import ExamAppearanceMenu from "./ExamAppearanceMenu";
+import FullscreenGate from "./FullscreenGate";
 import IntegrityOverlay from "./IntegrityOverlay";
 import type { NavigatorEntry } from "./QuestionNavigator";
 import SaveIndicator from "./SaveIndicator";
@@ -256,9 +257,20 @@ export default function AttemptRuntime({ initial }: { initial: AttemptResponse }
         onConfirm={() => void submit("student")}
       />
 
+      <FullscreenGate
+        open={integrity.fullscreenRequired && !integrity.notice}
+        unavailable={integrity.fullscreenUnavailable}
+        onEnter={integrity.requestFullscreen}
+        onContinue={integrity.continueWithoutFullscreen}
+      />
+
       <IntegrityOverlay
         notice={integrity.notice}
-        onDismiss={integrity.dismissNotice}
+        onDismiss={() => {
+          const restoreFullscreen = integrity.notice?.type === "FULLSCREEN_EXIT";
+          integrity.dismissNotice();
+          if (restoreFullscreen) void integrity.requestFullscreen();
+        }}
         transition={{ duration: DUR.reveal, ease: EASE_OUT }}
         reduced={reduced}
       />

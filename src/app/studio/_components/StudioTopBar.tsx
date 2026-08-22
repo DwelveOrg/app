@@ -34,7 +34,7 @@ export default function StudioTopBar({
   identity: ReactNode;
   /** Status badge and save state — facts, not controls. */
   status?: ReactNode;
-  /** Optional middle slot: the wizard puts its step rail here. */
+  /** Optional middle slot for route-specific status or navigation. */
   center?: ReactNode;
   actions?: ReactNode;
   /**

@@ -23,11 +23,9 @@ import { cn } from "@/lib/utils";
 /**
  * What the student will actually experience, restated from the current draft.
  *
- * This panel is the reason the wizard is a route and not a dialog. Eighteen
- * switches produce a behaviour no one can hold in their head, and the failure
- * mode is specific and bad: a teacher turns on "end the attempt when the
- * student leaves the screen" while meaning "warn them", and finds out when a
- * class of thirty submits blank papers because a notification stole focus.
+ * This panel is the reason publishing is a route and not a dialog. Even three
+ * rule profiles resolve to several concrete behaviours, and the teacher needs
+ * to verify their combined effect before notifying a class.
  *
  * So every choice is mirrored here in the second person, live, in the order the
  * student meets it. It is deliberately prose-shaped rather than a settings

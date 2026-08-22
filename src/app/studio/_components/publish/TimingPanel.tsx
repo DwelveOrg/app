@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarClock, Clock3, Repeat } from "lucide-react";
+import { CalendarClock, Clock3, Repeat, Target } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type { TestDelivery } from "@/app/(root)/_lib/test-delivery";
@@ -20,11 +20,11 @@ export type TimingValues = {
 const DEFAULT_DURATION_MINUTES = 60;
 
 /**
- * The three questions every published test has to answer: how long, when, and
- * how many goes.
+ * The four values a delivery mode cannot infer: how long, when, how many goes,
+ * and the pass mark.
  *
  * Everything else about how a test behaves is a refinement of a mode the
- * teacher already picked, and lives behind the disclosure below. These three do
+ * teacher already picked, and lives in the rule profiles below. These values do
  * not: no preset can guess that this quiz is fifteen minutes and opens on
  * Thursday, so they are the only settings on the page that are always visible.
  *
@@ -37,6 +37,9 @@ export default function TimingPanel({
   onChange,
   delivery,
   onDeliveryChange,
+  passingScore,
+  onPassingScoreChange,
+  totalPoints,
   windowError,
   settingsLocked = false,
 }: {
@@ -44,12 +47,16 @@ export default function TimingPanel({
   onChange: (next: Partial<TimingValues>) => void;
   delivery: TestDelivery;
   onDeliveryChange: (next: Partial<TestDelivery>) => void;
+  passingScore: number | null;
+  onPassingScoreChange: (value: number | null) => void;
+  totalPoints: number;
   windowError: boolean;
   /** Published tests may update delivery rules, but not Test-row settings. */
   settingsLocked?: boolean;
 }) {
   const { t } = useTranslation();
   const timed = values.durationMinutes != null;
+  const passingInvalid = passingScore != null && passingScore > totalPoints;
 
   return (
     <Surface padding="none" elevation={0} className="divide-y divide-border">
@@ -155,6 +162,36 @@ export default function TimingPanel({
           />
         }
       />
+
+      <SettingRow
+        icon={<Target />}
+        title={t("root.tests.settings.passingScore")}
+        description={t("root.tests.publish.results.passingHint", { total: totalPoints })}
+        control={
+          <Input
+            type="number"
+            min={0}
+            max={totalPoints}
+            size="sm"
+            className="w-20"
+            disabled={settingsLocked}
+            aria-label={t("root.tests.settings.passingScore")}
+            aria-invalid={passingInvalid || undefined}
+            value={passingScore ?? ""}
+            onChange={(event) =>
+              onPassingScoreChange(
+                event.target.value === "" ? null : Math.max(0, Number(event.target.value)),
+              )
+            }
+          />
+        }
+      >
+        {passingInvalid ? (
+          <p role="alert" className="text-xs text-destructive">
+            {t("root.tests.publish.results.passingTooHigh", { total: totalPoints })}
+          </p>
+        ) : null}
+      </SettingRow>
     </Surface>
   );
 }

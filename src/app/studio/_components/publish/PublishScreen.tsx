@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import type { ApiTestDetail, TestValidationIssue } from "@/app/(root)/_lib/tests.schemas";
 import {
   DELIVERY_PRESETS,
-  matchPreset,
   type DeliveryPresetName,
   type TestDelivery,
 } from "@/app/(root)/_lib/test-delivery";
@@ -25,17 +24,9 @@ import Surface from "@/components/ui/Surface";
 import FormatMark from "@/components/tests/FormatMark";
 import StudioTopBar from "../StudioTopBar";
 import { formatDateTime, toIsoOrNull, toLocalInputValue } from "../../_lib/datetime";
-import {
-  duringSummary,
-  integritySummary,
-  resultsSummary,
-} from "../../_lib/deliverySummary";
-import AdvancedSettings, { type AdvancedGroupId } from "./AdvancedSettings";
 import DeliveryModeCards from "./DeliveryModeCards";
-import DuringPanel from "./DuringPanel";
-import IntegrityPanel from "./IntegrityPanel";
 import ReadinessBanner from "./ReadinessBanner";
-import ResultsPanel from "./ResultsPanel";
+import RuleProfiles from "./RuleProfiles";
 import StudentPreview from "./StudentPreview";
 import TimingPanel, { type TimingValues } from "./TimingPanel";
 
@@ -58,12 +49,13 @@ import TimingPanel, { type TimingValues } from "./TimingPanel";
  *    button and nothing else.
  * 2. **How students take it** — Practice / Standard / Proctored, at full size.
  *    For most tests this is the entire interaction.
- * 3. **When** — the three things no mode can guess: how long, what window, how
- *    many attempts.
- * 4. **Everything else** — three closed disclosures, each reading back its own
- *    state so collapsing them hides detail rather than consequence.
+ * 3. **Essentials** — the four values no mode can guess: how long, what window,
+ *    how many attempts, and the pass mark.
+ * 4. **Fine-tuning** — three intent-level rules for question flow,
+ *    supervision, and results. Each choice owns a coherent set of low-level
+ *    delivery fields, so the screen cannot create contradictory combinations.
  *
- * The right-hand panel restates the whole draft in the second person, live.
+ * The right-hand panel restates the resulting student experience live.
  *
  * Nothing is written until Publish. Abandoning the page changes nothing, which
  * is why the unsaved-changes guard is on edits rather than on arrival.
@@ -81,7 +73,6 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
   });
   const [shuffleQuestions, setShuffleQuestions] = useState(test.shuffleQuestions ?? false);
   const [passingScore, setPassingScore] = useState<number | null>(test.passingScore ?? null);
-  const [openGroups, setOpenGroups] = useState<AdvancedGroupId[]>([]);
   const [touched, setTouched] = useState(false);
   /**
    * Not `publish.isSuccess`: a rejected publish also resolves successfully — it
@@ -142,11 +133,28 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
   const updateTiming = (next: Partial<TimingValues>) => {
     markEdited();
     setTiming((current) => ({ ...current, ...next }));
+
+    if (Object.hasOwn(next, "durationMinutes")) {
+      const durationMinutes = next.durationMinutes ?? null;
+      setDelivery((current) => ({
+        ...current,
+        showTimer: durationMinutes != null,
+        timeWarningMinutes:
+          durationMinutes != null && durationMinutes > 1
+            ? Math.min(5, durationMinutes - 1)
+            : null,
+        autoSubmitOnExpiry: durationMinutes != null,
+      }));
+    }
   };
 
   const applyPreset = (preset: DeliveryPresetName) => {
     markEdited();
-    setDelivery(DELIVERY_PRESETS[preset]);
+    const durationMinutes =
+      preset === "practice" ? null : (timing.durationMinutes ?? 60);
+    setDelivery(deliveryForPreset(preset, durationMinutes));
+    setTiming((current) => ({ ...current, durationMinutes }));
+    setShuffleQuestions(preset === "proctored");
   };
 
   const updateShuffleQuestions = (value: boolean) => {
@@ -159,7 +167,24 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
     setPassingScore(value);
   };
 
-  const activePreset = matchPreset(delivery);
+  const activePreset = (
+    Object.keys(DELIVERY_PRESETS) as DeliveryPresetName[]
+  ).find((preset) => {
+    const timingMatches =
+      preset === "practice"
+        ? timing.durationMinutes == null
+        : timing.durationMinutes != null;
+    const shuffleMatches = shuffleQuestions === (preset === "proctored");
+    const expected = deliveryForPreset(preset, timing.durationMinutes);
+
+    return (
+      timingMatches &&
+      shuffleMatches &&
+      (Object.keys(expected) as (keyof TestDelivery)[]).every(
+        (key) => expected[key] === delivery[key],
+      )
+    );
+  }) ?? null;
 
   const questionCount = useMemo(
     () =>
@@ -316,10 +341,16 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
                   {t("root.tests.publish.modes.label")}
                 </h1>
                 <p className="mt-1 text-sm text-muted-foreground">
-                  {t("root.tests.publish.modes.hint")}
+                  {t(
+                    isPublished
+                      ? "root.tests.publish.modes.updateHint"
+                      : "root.tests.publish.modes.hint",
+                  )}
                 </p>
               </div>
-              <DeliveryModeCards activePreset={activePreset} onSelect={applyPreset} />
+              {isPublished ? null : (
+                <DeliveryModeCards activePreset={activePreset} onSelect={applyPreset} />
+              )}
             </section>
 
             <section className="space-y-2">
@@ -331,6 +362,9 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
                 onChange={updateTiming}
                 delivery={delivery}
                 onDeliveryChange={updateDelivery}
+                passingScore={passingScore}
+                onPassingScoreChange={updatePassingScore}
+                totalPoints={test.totalPoints}
                 windowError={windowError}
                 settingsLocked={isPublished}
               />
@@ -340,46 +374,15 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
               <h2 className="type-heading text-foreground">
                 {t("root.tests.publish.advanced.label")}
               </h2>
-              <AdvancedSettings
-                value={openGroups}
-                onValueChange={setOpenGroups}
-                groups={[
-                  {
-                    id: "during",
-                    summary: duringSummary(delivery, timing.durationMinutes, t),
-                    children: (
-                      <DuringPanel
-                        delivery={delivery}
-                        onChange={updateDelivery}
-                        durationMinutes={timing.durationMinutes}
-                        shuffleQuestions={shuffleQuestions}
-                        onShuffleQuestionsChange={updateShuffleQuestions}
-                        settingsLocked={isPublished}
-                      />
-                    ),
-                  },
-                  {
-                    id: "integrity",
-                    summary: integritySummary(delivery, t),
-                    children: (
-                      <IntegrityPanel delivery={delivery} onChange={updateDelivery} />
-                    ),
-                  },
-                  {
-                    id: "results",
-                    summary: resultsSummary(delivery, t),
-                    children: (
-                      <ResultsPanel
-                        delivery={delivery}
-                        onChange={updateDelivery}
-                        passingScore={passingScore}
-                        onPassingScoreChange={updatePassingScore}
-                        totalPoints={test.totalPoints}
-                        settingsLocked={isPublished}
-                      />
-                    ),
-                  },
-                ]}
+              <p className="-mt-1 text-sm text-muted-foreground">
+                {t("root.tests.publish.rules.hint")}
+              </p>
+              <RuleProfiles
+                delivery={delivery}
+                shuffleQuestions={shuffleQuestions}
+                onDeliveryChange={updateDelivery}
+                onShuffleQuestionsChange={updateShuffleQuestions}
+                settingsLocked={isPublished}
               />
             </section>
 
@@ -432,4 +435,19 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
       </div>
     </>
   );
+}
+
+function deliveryForPreset(
+  preset: DeliveryPresetName,
+  durationMinutes: number | null,
+): TestDelivery {
+  const timed = preset !== "practice" && durationMinutes != null;
+
+  return {
+    ...DELIVERY_PRESETS[preset],
+    showTimer: timed,
+    timeWarningMinutes:
+      timed && durationMinutes > 1 ? Math.min(5, durationMinutes - 1) : null,
+    autoSubmitOnExpiry: timed,
+  };
 }

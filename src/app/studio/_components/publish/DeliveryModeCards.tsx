@@ -28,9 +28,9 @@ type ModeValue = DeliveryPresetName | "custom";
  * it. So the modes lead the page, at full size, each stating what a student
  * will experience rather than which switches it sets.
  *
- * Once a teacher edits anything below, no card is selected and the group says
- * so. Auto-selecting the nearest preset would be a lie, and offering "custom"
- * as a fourth card would invite a press that can only discard their work.
+ * The three cards now set a coherent bundle, including duration and question
+ * order at the screen boundary. Fine-tuning below can still move a category
+ * away from the bundle; in that state no card is selected.
  */
 export default function DeliveryModeCards({
   activePreset,

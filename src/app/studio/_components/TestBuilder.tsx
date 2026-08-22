@@ -88,7 +88,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   /**
    * Publish issues arrive as a query string rather than as builder state.
    *
-   * The readiness check lives in the wizard, which is a different route, so a
+   * The readiness check lives on the publish screen, which is a different route, so a
    * "take me to question 34" link has to survive a navigation. A query string
    * does; component state does not. It also means the link is shareable — a
    * teacher can send a colleague straight to the three rows that need fixing.
@@ -265,7 +265,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     saveRef.current = () => void save();
   });
 
-  /** Scrolls a deep link from the publish wizard into view once the tree is up. */
+  /** Scrolls a deep link from the publish screen into view once the tree is up. */
   useEffect(() => {
     if (!focusId) return;
     const element = document.getElementById(questionAnchorId(focusId));
