@@ -6,6 +6,7 @@ import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
   dashboardFeedSchema,
+  classPerformanceSchema,
   distributionsSchema,
   scoreTrendSchema,
   staffDashboardSummarySchema,
@@ -63,16 +64,22 @@ export function getDistributionsRequest(
   });
 }
 
-/**
- * `GET /dashboard/submissions?range=week`. Returns an empty `byClass` today
- * (the data model has no submission timestamps yet).
- */
+/** `GET /dashboard/submissions?range=week` — modern test status by class. */
 export function getSubmissionsRequest(
   range: "week" = "week",
   requestJson: BackendRequester = authedBackendJson,
 ) {
   return requestJson(`/dashboard/submissions?range=${range}`, {
     responseSchema: submissionsSchema,
+  });
+}
+
+/** `GET /dashboard/class-performance` — class comparison for the active role. */
+export function getClassPerformanceRequest(
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson("/dashboard/class-performance", {
+    responseSchema: classPerformanceSchema,
   });
 }
 

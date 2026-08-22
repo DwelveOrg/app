@@ -110,13 +110,14 @@ export default function Features() {
           {/* Spotlight — fills the left 2×2 of the bento (full width on tablet). */}
           <motion.article
             variants={card}
-            className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-accent/60 via-card to-card p-7 sm:col-span-2 sm:p-8 lg:col-span-2 lg:row-span-2 dark:from-primary/[0.12] dark:via-card dark:to-card"
+            className="group relative flex flex-col overflow-hidden rounded-3xl border border-border bg-card p-7 sm:col-span-2 sm:p-8 lg:col-span-2 lg:row-span-2"
           >
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-primary/15 blur-3xl dark:bg-primary/20"
-            />
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 text-white shadow-elev-brand">
+            {/* The blurred corner orb that used to sit here is gone, along with the
+                three-stop background gradient behind it. A card that is bigger and
+                carries the one violet mark on the grid is already the spotlight;
+                fogging its corner was decoration arguing with hierarchy that the
+                layout had already established. */}
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-lg bg-brand text-white">
               <SpotlightIcon className="h-7 w-7" />
             </div>
             <h3 className="relative mt-6 text-2xl font-bold tracking-tight text-foreground">
@@ -138,7 +139,7 @@ export default function Features() {
                         style={{ width: row.score }}
                       />
                     </span>
-                    <span className="w-9 shrink-0 text-right text-xs font-bold tabular-nums text-success">
+                    <span className="numeric w-9 shrink-0 text-right text-xs font-bold text-success">
                       {row.score}
                     </span>
                   </div>
@@ -154,9 +155,9 @@ export default function Features() {
               <motion.article
                 key={feature.title}
                 variants={card}
-                className={cn(surfaceVariants({ padding: "none" }), "interactive group flex flex-col p-6 duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-elev-3 dark:hover:border-white/20")}
+                className={cn(surfaceVariants({ padding: "none" }), "interactive group flex flex-col p-6 hover:border-foreground/25 hover:bg-muted/40 dark:hover:border-white/20")}
               >
-                <div className={cn("flex h-11 w-11 items-center justify-center rounded-xl", feature.tile)}>
+                <div className={cn("flex h-11 w-11 items-center justify-center rounded-lg", feature.tile)}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <h3 className="mt-4 text-base font-bold text-foreground">

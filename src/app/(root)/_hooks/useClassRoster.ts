@@ -1,11 +1,12 @@
 "use client";
 
-import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery } from "@tanstack/react-query";
 
 import {
   addClassTeacherAction,
   listAssignableStudentsAction,
   listAssignableTeachersAction,
+  listClassActivityAction,
   removeClassTeacherAction,
 } from "@/app/(root)/_lib/class-roster-actions";
 import {
@@ -22,8 +23,33 @@ import type {
 } from "@/app/(root)/_lib/enrollment.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { queryKeys } from "@/lib/query/keys";
+import { POLL_ACTIVE_MS, pollingOptions } from "@/lib/query/polling";
+import { useServerDataRefresh } from "@/lib/query/useServerDataRefresh";
+import type { ClassActivityResponse } from "@/app/(root)/_lib/class-activity.schemas";
 
 const MUTATION_FALLBACK = "Something went wrong. Please try again.";
+
+
+export function useClassActivity({
+  classId,
+  limit = 12,
+  enabled = true,
+  initialData,
+}: {
+  classId: string;
+  limit?: number;
+  enabled?: boolean;
+  initialData?: ClassActivityResponse;
+}) {
+  return useQuery({
+    queryKey: queryKeys.classes.activity(classId, limit),
+    queryFn: () => listClassActivityAction({ classId, limit }),
+    initialData,
+    staleTime: 30_000,
+    ...pollingOptions(POLL_ACTIVE_MS),
+    enabled,
+  });
+}
 
 /* -------------------------------------------------------------------------- */
 /* Pickers                                                                     */
@@ -84,24 +110,22 @@ export function useAssignableTeachers({
 /**
  * A roster change moves someone between two lists the user can see at once, so
  * both must refetch: the class itself (detail and lists) and the pickers, which
- * exclude whoever is already assigned. The class page is server-rendered, so
- * callers additionally `router.refresh()` — see `useRefreshClassData`.
+ * exclude whoever is already assigned. The rendered roster and its counts come
+ * from the server, so `useServerDataRefresh` re-runs that render too — a picker
+ * that drops a name while the roster beside it still omits them reads as a
+ * failed add.
  */
 function useInvalidateClassRoster(classId: string) {
-  const queryClient = useQueryClient();
+  const refresh = useServerDataRefresh();
   return () =>
-    Promise.all([
-      queryClient.invalidateQueries({ queryKey: queryKeys.classes.all }),
+    refresh(
+      queryKeys.classes.all,
       // Approving or directly assigning a student clears them from the request
       // queue, and both class lists carry roster counts.
-      queryClient.invalidateQueries({ queryKey: queryKeys.enrollment.all }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.classes.assignableStudentsAll(classId),
-      }),
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.classes.assignableTeachersAll(classId),
-      }),
-    ]);
+      queryKeys.enrollment.all,
+      queryKeys.classes.assignableStudentsAll(classId),
+      queryKeys.classes.assignableTeachersAll(classId),
+    );
 }
 
 export function useAddClassStudentMutation(classId: string) {

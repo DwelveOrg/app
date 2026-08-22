@@ -3,9 +3,23 @@
 Guidance for Claude Code when working in this repository.
 
 Read `AGENTS.md` first for general repository rules.
-Read `docs/architecture/ARCHITECTURE.md` for request, schema, form, and data-fetching rules.
-Read `docs/design/design-system.md` for design-system decisions.
+Read `docs/README.md` for the documentation index and a task → document routing table.
+Read `docs/guides/building-a-feature.md` before adding or changing any feature — it is the ordered playbook and links out to everything else.
 Read `docs/product/PRD.md` for product scope and priorities.
+
+Do not start UI work without reading the relevant one of these:
+
+| Task | Document |
+|---|---|
+| Any UI change | `docs/design/component-library.md` — every shared component's props, variants, and rules |
+| Page or panel layout | `docs/design/layout-and-composition.md` |
+| Tokens: colour, type, elevation, motion | `docs/design/design-system.md` |
+| Loading / empty / error / destructive / async | `docs/design/interaction-and-states.md` |
+| Accessibility | `docs/design/accessibility.md` |
+| Copy and translations | `docs/design/content-and-i18n.md` |
+| Forms | `docs/architecture/FORMS.md` |
+| Data fetching, caching, stale UI | `docs/architecture/RENDERING_AND_STATE.md` |
+| Backend requests, schemas, libraries | `docs/architecture/ARCHITECTURE.md` |
 
 This file is intentionally root-level because Claude Code uses root project guidance. Do not move it into `docs/`.
 
@@ -74,6 +88,14 @@ Known route groups:
 - `src/app/(root)` — authenticated dashboard
 - `src/app/(root)/(pages)` — dashboard pages
 - `src/app/(root)/(pages)/(small-container)` — narrow-width pages such as profile, settings, notifications
+- `src/app/studio` — test authoring. A separate environment: no sidebar, one document. See `docs/features/test-studio.md`.
+- `src/app/exam` — sitting a test. The same idea from the student's side, with a stricter rule: while an attempt is live there is nothing else on screen to click. See `docs/features/test-taking.md`.
+
+Shared test code that both environments (and the teacher's results screens) use:
+
+- `src/lib/tests/` — the paper schemas, the answer shapes, and the question-presentation registry
+- `src/components/tests/paper/` — **one** question renderer, in `answer` / `review` / `preview` modes, so what a student saw and what a teacher marks cannot drift apart
+- `src/lib/motion/` — the motion variants, bound to the `--dur-*` / `--ease-*` tokens, with reduced-motion equivalents in one place
 
 Shared code:
 
@@ -108,7 +130,9 @@ Before adding any UI element, check whether a component for it already exists, a
 - Drive shared values (colours, sizes, radii) from design-system tokens (`bg-primary`, `var(--primary)`, etc.), not hard-coded hex. Two call sites that hard-code different hexes for "the same" button is the bug this rule prevents.
 - Promote a component up the tree as its reach grows: route-local `_components` → `src/components/Custom` (or `ui`) once it is used across route groups.
 
-Reference examples: `src/components/ui/Button.tsx` is the only button in the product (variants cover primary, outline, ghost, destructive, and the landing `brand` treatment; `asChild` covers button-shaped links); `src/components/ui/Surface.tsx` is the only bordered container; the brand mark uses `src/components/Custom/DwelveLogo.tsx`. See `docs/design/design-system.md` §8 for the full primitive list.
+Reference examples: `src/components/ui/Button.tsx` is the only button in the product (variants cover primary, outline, ghost, destructive, and the landing `brand` treatment; `asChild` covers button-shaped links); `src/components/ui/Surface.tsx` is the only bordered container; the brand mark uses `src/components/Custom/DwelveLogo.tsx`.
+
+`docs/design/component-library.md` is the full reference: the decision table in §2 answers "which component do I use", and §3–9 give every primitive's props and rules. `docs/design/design-system.md` §8 lists the same set at a glance.
 
 ---
 
@@ -127,6 +151,7 @@ Existing guidance says:
 - Auth currently uses hard-coded `testUsers` in `src/app/(authentication)/_constants/index.ts`.
 - The local NestJS backend is expected at `D:\IT\projects\Dwelve\backend_nestJS` and `DWELVE_API_BASE_URL=http://localhost:5000/api/v1`.
 - `protectedRoutes` and `publicRoutes` live in `_constants/routes.ts`. Route protection runs in `src/proxy.ts` — the Next 16 replacement for `middleware.ts` (shown as "Proxy (Middleware)" in build output); it redirects unauthenticated users off protected routes and authenticated users off public ones.
+- The proxy also **refreshes an expiring access token** before the render that needs it. This is not an optimisation: Next only permits cookie writes during the action phase, so a Server Component render that refreshed would spend the single-use refresh token and then be unable to save its replacement, ending the session permanently. Rotation logic is shared with `authedBackendJson` through `_lib/token-refresh.ts`; the cookie itself is built by `_lib/session-cookie.ts` so both runtimes write identical attributes. Before refreshing reactively, `authedBackendJson` calls `canPersistSession` and declines rather than spending a token it cannot save.
 
 Treat auth/session changes as high-risk. Verify the current code before editing.
 

@@ -7,10 +7,13 @@ import { useTranslation } from "react-i18next";
 import Skeleton from "@/components/ui/Skeleton";
 import Empty from "../../_components/ui/Empty";
 import { useTeacherClasses } from "@/app/(root)/_hooks/useTeacherRequests";
+import type { TeacherClassesResponse } from "@/app/(root)/_lib/teacher-requests.schemas";
 import TeacherClassCard from "./TeacherClassCard";
 
 type TeacherClassesViewProps = {
   schoolId: string | undefined;
+  initialData?: TeacherClassesResponse;
+  variant?: "page" | "embedded";
 };
 
 /**
@@ -18,7 +21,11 @@ type TeacherClassesViewProps = {
  * requestable classes never appear on My Classes. Assigned classes retain the
  * normal open action. React Query refreshes request/cancel state.
  */
-export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps) {
+export default function TeacherClassesView({
+  schoolId,
+  initialData,
+  variant = "page",
+}: TeacherClassesViewProps) {
   const { t } = useTranslation();
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -29,7 +36,7 @@ export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps
     return () => window.clearTimeout(id);
   }, [searchInput]);
 
-  const query = useTeacherClasses({ schoolId });
+  const query = useTeacherClasses({ schoolId, initialData });
 
   const classes = useMemo(() => {
     const all = query.data?.classes ?? [];
@@ -50,14 +57,16 @@ export default function TeacherClassesView({ schoolId }: TeacherClassesViewProps
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="type-title text-foreground">
-          {t("root.enrollment.teacher.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("root.enrollment.teacher.subtitle")}
-        </p>
-      </header>
+      {variant === "page" ? (
+        <header>
+          <h1 className="type-title text-foreground">
+            {t("root.enrollment.teacher.title")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {t("root.enrollment.teacher.subtitle")}
+          </p>
+        </header>
+      ) : null}
 
       <div className="relative max-w-md">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />

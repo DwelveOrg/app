@@ -75,19 +75,14 @@ export default function Roles() {
                 variants={card}
                 className={
                   role.featured
-                    ? "relative overflow-hidden rounded-2xl bg-gradient-to-b from-brand-violet-300 to-brand-violet-600 p-7 text-white shadow-elev-brand lg:-translate-y-3"
+                    ? "relative overflow-hidden rounded-2xl bg-brand p-7 text-white lg:-translate-y-3"
                     : cn(
                         surfaceVariants({ padding: "none" }),
-                        "p-7 transition-all duration-200 hover:-translate-y-1 hover:border-primary/30 hover:shadow-elev-3",
+                        "interactive p-7 hover:border-foreground/25 hover:bg-muted/40",
                       )
                 }
               >
-                {role.featured ? (
-                  <span
-                    aria-hidden="true"
-                    className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-white/10 blur-2xl"
-                  />
-                ) : null}
+
                 <div
                   className={`flex h-12 w-12 items-center justify-center rounded-xl ${
  role.featured

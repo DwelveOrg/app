@@ -9,6 +9,7 @@ import {
   createJoinRequestRequest,
   getStudentClassesRequest,
   getStudentOverviewRequest,
+  leaveClassRequest,
   listClassJoinRequestsRequest,
   listMyEnrollmentsRequest,
   rejectEnrollmentRequest,
@@ -18,6 +19,7 @@ import {
   approveEnrollmentSchema,
   assignStudentSchema,
   cancelJoinRequestSchema,
+  leaveClassSchema,
   type ListEnrollmentsResponse,
   rejectEnrollmentSchema,
   removeStudentSchema,
@@ -133,6 +135,43 @@ export const cancelJoinRequestAction = actionClient
       return { id: enrollment.id, classId: enrollment.classId, status: enrollment.status };
     } catch (error) {
       throw new ActionError(mapEnrollmentError(error, GENERIC_ERROR));
+    }
+  });
+
+const LEAVE_CLASS_ERROR = "Could not leave the class. Please try again.";
+
+/**
+ * The backend's 404 when there is no membership left to remove. It is not a
+ * failure from the user's point of view — they asked to be out of the class and
+ * they are out of it — so it resolves as `alreadyLeft` instead of throwing, and
+ * the caller refreshes rather than offering a retry that can only 404 again.
+ */
+const MEMBERSHIP_GONE_MESSAGE = "Class membership not found";
+
+function isMembershipGone(error: unknown) {
+  return (
+    error instanceof BackendApiError &&
+    error.status === 404 &&
+    error.message === MEMBERSHIP_GONE_MESSAGE
+  );
+}
+
+/**
+ * The caller leaves this class themself. There is no member id in the input, so
+ * this can never be aimed at another person; admins are rejected by the backend
+ * and never see the control.
+ */
+export const leaveClassAction = actionClient
+  .inputSchema(leaveClassSchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      await leaveClassRequest(parsedInput.classId);
+      return { classId: parsedInput.classId, alreadyLeft: false };
+    } catch (error) {
+      if (isMembershipGone(error)) {
+        return { classId: parsedInput.classId, alreadyLeft: true };
+      }
+      throw new ActionError(mapEnrollmentError(error, LEAVE_CLASS_ERROR));
     }
   });
 

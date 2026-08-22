@@ -13,8 +13,10 @@ import { cn } from "@/lib/utils"
  * primitive so every caller had to fight it. `asChild` covers the link case; `variant="brand"`
  * covers the marketing case; `loading` covers the 33 places that hand-rolled a spinner.
  *
- * Accent rule (design-system §3): teal is action, violet is identity. `brand` is for the landing
- * and auth surfaces where the button *is* the brand moment — not for ordinary primary actions.
+ * Accent rule: INK is action, violet is identity. `default` is a near-black button and is the
+ * answer for every ordinary primary action in the product. `brand` is the violet one, reserved for
+ * the landing and auth surfaces where the button *is* the brand moment — using it for a routine
+ * "Save" is what made every screen read as a brand page.
  */
 const buttonVariants = cva(
   [
@@ -30,9 +32,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-elev-1 hover:bg-primary-hover hover:shadow-elev-2",
+          "bg-primary text-primary-foreground shadow-elev-1 hover:bg-primary-hover",
         outline:
-          "border-border bg-card text-foreground shadow-elev-1 hover:border-primary/35 hover:bg-muted hover:shadow-elev-2 aria-expanded:border-primary/35 aria-expanded:bg-muted",
+          "border-border bg-card text-foreground shadow-elev-1 hover:border-foreground/30 hover:bg-muted aria-expanded:border-foreground/30 aria-expanded:bg-muted",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-accent hover:text-accent-foreground aria-expanded:bg-accent aria-expanded:text-accent-foreground",
         ghost:
@@ -40,11 +42,23 @@ const buttonVariants = cva(
         destructive:
           "bg-destructive/10 text-destructive hover:bg-destructive/18 focus-visible:border-destructive/40 focus-visible:ring-destructive/25",
         "destructive-solid":
-          "bg-destructive text-destructive-foreground shadow-elev-1 hover:shadow-elev-2 hover:brightness-110 focus-visible:ring-destructive/30",
+          "bg-destructive text-destructive-foreground shadow-elev-1 hover:brightness-110 focus-visible:ring-destructive/30",
         link: "text-primary underline-offset-4 hover:underline",
-        /** Identity moment — landing nav, hero, CTA. Violet, glowing, white label in both themes. */
+        /** Identity moment — landing nav, hero, CTA. Flat violet, white label in both themes. */
         brand:
-          "border-transparent bg-[image:var(--brand-gradient)] text-white shadow-elev-brand hover:brightness-108 hover:shadow-elev-3",
+          "border-transparent bg-[image:var(--brand-gradient)] text-white shadow-elev-1 hover:brightness-110 hover:shadow-elev-2",
+        /**
+         * For a button sitting *on* a brand-filled surface — the landing's closing
+         * band, the auth panel. `brand` disappears there (violet on violet) and
+         * `outline` inverts with the theme, which is wrong: those surfaces are deep
+         * violet in *both* themes, so their button must be light in both. Hence a
+         * literal white fill and the brand ink, rather than theme tokens that flip.
+         */
+        inverse:
+          "border-transparent bg-white text-brand-ink shadow-elev-1 hover:bg-white/90 focus-visible:border-white focus-visible:ring-white/45",
+        /** Its quiet partner on the same surfaces: a hairline, no fill. */
+        "inverse-ghost":
+          "border-white/30 text-white hover:border-white/55 hover:bg-white/10 focus-visible:border-white focus-visible:ring-white/45",
       },
       size: {
         xs: "h-7 gap-1 rounded-md px-2 text-2xs [&_svg:not([class*='size-'])]:size-3",

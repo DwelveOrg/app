@@ -39,7 +39,7 @@ function MainPage() {
       <div className="mx-auto grid w-full max-w-6xl items-center gap-12 lg:grid-cols-2">
         {/* Left: copy */}
         <motion.div className="flex flex-col items-start text-left" {...fade(0)}>
-          <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-accent-foreground">
+          <span className="inline-flex items-center gap-2 rounded-[var(--radius-pill)] bg-accent px-3.5 py-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-accent-foreground">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success/70" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
@@ -95,33 +95,25 @@ function MainPage() {
           </div>
         </motion.div>
 
-        {/* Right: 3D hero scene — the pipeline tower: five stacked decks
-            (material → AI draft → approval → class → analytics) on a glowing
-            spine, one short pulse riding bottom → top. Pointer interaction is
-            fenced to this box. */}
+        {/* Right: the 3D hero scene — one answer sheet being marked. Row by row
+            the chosen bubble fills and a tick lands, then a score ring closes
+            beside the page. Pointer interaction is fenced to this box. */}
         <motion.div className="relative" {...fade(0.15)}>
           <div className="relative mx-auto aspect-square w-full max-w-[600px] overflow-hidden sm:aspect-[5/4] lg:aspect-square">
-            {/* Brand glow / WebGL fallback backdrop — two layers for depth: a soft
-                frame-wide violet fill under a brighter, concentrated core behind the
-                sheet + chart. Also the graceful fallback when WebGL is unavailable. */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_12%,transparent),transparent_74%)] dark:bg-[radial-gradient(92%_84%_at_50%_50%,color-mix(in_srgb,var(--brand)_15%,transparent),transparent_74%)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-[36px] bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_30%,transparent),transparent_66%)] dark:bg-[radial-gradient(54%_48%_at_50%_44%,color-mix(in_srgb,var(--brand)_28%,transparent),transparent_66%)]"
-            />
-            {/* Labels are drawn onto the 3D surfaces themselves (see HeroScene),
-                so the narrative reads as part of the model, not as floating tags. */}
+            {/* Brand glow / WebGL fallback backdrop: a concentrated core behind the
+                sheet + chart inside a wider halo. `.hero-bloom` (globals.css) owns
+                the ramps, because both have to reach zero alpha before this box's
+                `overflow-hidden` clips them — otherwise the wash ends in a visible
+                rectangle. Also the graceful fallback when WebGL is unavailable. */}
+            <div aria-hidden="true" className="hero-bloom pointer-events-none absolute inset-0" />
+            {/* The two labels are painted into the model itself — the title onto
+                the page, the pill beside the score ring — so the copy reads as
+                part of the object rather than as tags floating over it. */}
             <HeroScene
               className="absolute inset-0 h-full w-full"
               labels={{
                 quiz: t("landing.main.scene.quiz"),
-                review: t("landing.teacherControl.stepReview"),
-                approved: t("landing.teacherControl.stepApprove"),
                 graded: t("landing.main.scene.graded"),
-                average: t("landing.main.scene.average"),
               }}
             />
             <span className="sr-only">{t("landing.main.scene.alt")}</span>

@@ -173,6 +173,12 @@ export const enrollmentMutationResponseSchema = z.object({
 });
 export type EnrollmentMutationResponse = z.infer<typeof enrollmentMutationResponseSchema>;
 
+/** `DELETE /classes/:classId/membership` - leaving returns only an ack. */
+export const leaveClassResponseSchema = z
+  .object({ success: z.boolean() })
+  .passthrough();
+export type LeaveClassResponse = z.infer<typeof leaveClassResponseSchema>;
+
 /* -------------------------------------------------------------------------- */
 /* Server-action input schemas                                                 */
 /* -------------------------------------------------------------------------- */
@@ -189,6 +195,16 @@ export const cancelJoinRequestSchema = z.object({
   classId: z.string().min(1),
 });
 export type CancelJoinRequestInput = z.infer<typeof cancelJoinRequestSchema>;
+
+/**
+ * Leaving takes no payload beyond the class: the backend resolves *who* is
+ * leaving from the session, so there is deliberately no member id to pass and
+ * therefore no way to aim this at somebody else.
+ */
+export const leaveClassSchema = z.object({
+  classId: z.string().min(1),
+});
+export type LeaveClassInput = z.infer<typeof leaveClassSchema>;
 
 export const approveEnrollmentSchema = z.object({
   enrollmentId: z.string().min(1),

@@ -29,6 +29,7 @@ export type DialogProps = {
   /** Renders a close affordance in the top-right corner. */
   showClose?: boolean;
   closeLabel?: string;
+  dismissible?: boolean;
   /** Footer node — usually `<DialogFooterActions />`. */
   footer?: ReactNode;
   /**
@@ -47,6 +48,7 @@ export default function Dialog({
   description,
   showClose = false,
   closeLabel = "Close",
+  dismissible = true,
   footer,
   contentClassName,
   children,
@@ -67,6 +69,12 @@ export default function Dialog({
       <DialogPrimitive.Portal>
         <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0" />
         <DialogPrimitive.Content
+          onEscapeKeyDown={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
+          onInteractOutside={(event) => {
+            if (!dismissible) event.preventDefault();
+          }}
           className={cn(
             "fixed top-1/2 left-1/2 z-50 w-[calc(100vw-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2",
             "rounded-2xl border border-border bg-card p-6 text-card-foreground shadow-elev-4",

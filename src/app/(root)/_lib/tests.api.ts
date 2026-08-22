@@ -5,6 +5,7 @@ import type { z } from "zod";
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
+  libraryTestsListResponseSchema,
   testDetailResponseSchema,
   testFormatsResponseSchema,
   testMediaResponseSchema,
@@ -13,7 +14,11 @@ import {
   testsListResponseSchema,
   testValidationResponseSchema,
 } from "./tests.schemas";
-import type { SaveSectionInput } from "./tests.actions.schemas";
+import type {
+  SaveSectionInput,
+  TestPublishCandidateInput,
+} from "./tests.actions.schemas";
+import type { TestDelivery } from "./test-delivery";
 
 /**
  * Named endpoint functions for the tests authoring API. Every call goes through
@@ -36,6 +41,11 @@ type ListTestsQuery = {
   limit?: number;
 };
 
+type ListLibraryTestsQuery = ListTestsQuery & {
+  classId?: string;
+  search?: string;
+};
+
 /** `GET /tests/formats` - the format blueprints and question-type catalogue. */
 export function getTestFormatsRequest(
   requestJson: BackendRequester = authedBackendJson,
@@ -54,6 +64,17 @@ export function listClassTestsRequest(
   return requestJson(`/classes/${classId}/tests`, {
     query,
     responseSchema: testsListResponseSchema,
+  });
+}
+
+/** `GET /tests` - the caller's tests across every class, for the library. */
+export function listLibraryTestsRequest(
+  query: ListLibraryTestsQuery = {},
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson("/tests", {
+    query,
+    responseSchema: libraryTestsListResponseSchema,
   });
 }
 
@@ -111,7 +132,32 @@ export function updateTestRequest(
   });
 }
 
-/** `GET /tests/:testId/validation` - live publish-readiness issues. */
+/**
+ * `PUT /tests/:testId/delivery` - the delivery and integrity rules collected by
+ * the publish screen.
+ *
+ * Deliberately its own endpoint rather than more fields on `PATCH /tests/:testId`:
+ * the screen replaces the whole object every time it saves, and a partial patch
+ * of eighteen interdependent switches ("fullscreen off but exit action still
+ * SUBMIT") is a state the backend would have to reason about on every write.
+ *
+ * Unlike `PUT /structure`, this is **not** draft-only: changing when results
+ * appear after an exam has been sat must not require unpublishing, which would
+ * re-notify the class.
+ */
+export function saveTestDeliveryRequest(
+  testId: string,
+  body: { delivery: TestDelivery },
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/tests/${testId}/delivery`, {
+    method: "PUT",
+    body,
+    responseSchema: testSummaryResponseSchema,
+  });
+}
+
+/** `GET /tests/:testId/validation` - readiness for the persisted draft. */
 export function getTestValidationRequest(
   testId: string,
   requestJson: BackendRequester = authedBackendJson,
@@ -121,13 +167,31 @@ export function getTestValidationRequest(
   });
 }
 
-/** `POST /tests/:testId/publish` - validates, publishes, notifies the class. */
+/** `POST /tests/:testId/validation` - validates an unsaved candidate, writing nothing. */
+export function validateTestCandidateRequest(
+  testId: string,
+  body: TestPublishCandidateInput,
+  requestJson: BackendRequester = authedBackendJson,
+) {
+  return requestJson(`/tests/${testId}/validation`, {
+    method: "POST",
+    body,
+    responseSchema: testValidationResponseSchema,
+  });
+}
+
+/**
+ * `POST /tests/:testId/publish` - applies an optional candidate, validates,
+ * publishes, and notifies the class in one transaction.
+ */
 export function publishTestRequest(
   testId: string,
+  body?: TestPublishCandidateInput,
   requestJson: BackendRequester = authedBackendJson,
 ) {
   return requestJson(`/tests/${testId}/publish`, {
     method: "POST",
+    ...(body ? { body } : {}),
     responseSchema: testSummaryResponseSchema,
   });
 }
@@ -146,10 +210,13 @@ export function unpublishTestRequest(
 /** `POST /tests/:testId/duplicate` - deep clone as a new DRAFT. */
 export function duplicateTestRequest(
   testId: string,
+  /** Omitted copies into the source class; set reassigns the copy to another. */
+  body: { classId?: string } = {},
   requestJson: BackendRequester = authedBackendJson,
 ) {
   return requestJson(`/tests/${testId}/duplicate`, {
     method: "POST",
+    body,
     responseSchema: testSummaryResponseSchema,
   });
 }

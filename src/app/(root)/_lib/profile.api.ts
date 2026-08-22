@@ -6,6 +6,7 @@ import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
   changePasswordResponseSchema,
+  deleteAccountResponseSchema,
   profileResponseSchema,
   profileSessionsResponseSchema,
   revokeSessionResponseSchema,
@@ -94,14 +95,19 @@ export function changePasswordRequest(
   });
 }
 
-/** `GET /profile/sessions` — active refresh sessions for the current user. */
-/** `DELETE /profile` — permanently deletes the authenticated account. */
+/**
+ * `DELETE /profile` — permanently deletes the authenticated account and the
+ * relations configured to cascade, then revokes its refresh sessions. Never
+ * retry this automatically.
+ */
 export function deleteAccountRequest(requestJson: BackendRequester = authedBackendJson) {
   return requestJson("/profile", {
     method: "DELETE",
+    responseSchema: deleteAccountResponseSchema,
   });
 }
 
+/** `GET /profile/sessions` — active refresh sessions for the current user. */
 export function getProfileSessionsRequest(requestJson: BackendRequester = authedBackendJson) {
   return requestJson("/profile/sessions", {
     responseSchema: profileSessionsResponseSchema,

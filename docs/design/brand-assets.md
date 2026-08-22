@@ -16,6 +16,8 @@ All files below live under `public/`, so app URLs omit the `public` segment. For
 
 Use the master SVG as the reference for logo shape, spacing, and color. Do not redraw or re-cut the wordmark from a live font unless the design system is intentionally updated.
 
+> **The `DwelveLogo` wordmark is live text, and this rule applies to it.** It is set in **Manrope 700** via the `font-wordmark` token (`BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`), *not* `font-sans`, because it sits beside a raster mark that CSS cannot restyle. It previously tracked `font-sans` — which meant retyping the product's UI face silently re-cut the wordmark next to an unchanged icon. Changing the UI font must not change this one.
+
 ## SVG Logo Variants
 
 Prefer SVG for UI, website chrome, marketing pages, and any place the logo can remain vector.

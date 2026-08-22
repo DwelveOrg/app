@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { DEFAULT_TEST_DELIVERY, testDeliverySchema } from "./test-delivery";
+
 /**
  * Zod schemas for the tests authoring API. Shapes mirror the NestJS
  * `TestsService` sanitizers exactly (see `backend_nestJS/docs/features/tests.md`).
@@ -189,6 +191,15 @@ const testBaseShape = {
   createdAt: z.union([z.string(), z.date()]).optional(),
   updatedAt: z.union([z.string(), z.date()]).optional(),
   /**
+   * Delivery and exam-integrity rules, collected by the publish screen.
+   *
+   * Defaulted rather than optional: a test written before the model existed has
+   * no `TestDelivery` row, and a screen opening onto `undefined` would have
+   * nothing to render. Such a test behaves exactly as tests behaved before the
+   * feature, because `DEFAULT_TEST_DELIVERY` locks nothing down.
+   */
+  delivery: testDeliverySchema.default(DEFAULT_TEST_DELIVERY),
+  /**
    * Roll-ups for the list card. The contract does not promise them, so the card
    * falls back to a dash rather than inventing a number.
    */
@@ -197,15 +208,19 @@ const testBaseShape = {
       sections: z.number(),
       groups: z.number(),
       questions: z.number(),
+      students: z.number(),
     })
     .partial()
     .optional(),
   questionCount: z.number().optional(),
+  /** Submitted or graded attempts in the cross-class staff library. */
+  submissionCount: z.number().optional(),
 };
 
 /** A row in `GET /classes/:classId/tests`. */
 export const testSummarySchema = z.object(testBaseShape).passthrough();
 export type ApiTestSummary = z.infer<typeof testSummarySchema>;
+
 
 /** `GET /tests/:testId` - the full tree, including the answer key. */
 export const testDetailSchema = z
@@ -236,6 +251,29 @@ export const testsListResponseSchema = z.object({
 });
 export type TestsListResponse = z.infer<typeof testsListResponseSchema>;
 
+/**
+ * A row in `GET /tests` — the same test, plus the class it belongs to.
+ *
+ * The class is required here and absent from `testSummarySchema` because the
+ * two lists answer different questions: inside a class the class is the page
+ * you are on, while the library spans classes and a bare title would not say
+ * which "Unit 3 check" you are looking at.
+ */
+export const libraryTestSummarySchema = z
+  .object({
+    ...testBaseShape,
+    class: z.object({ id: z.string(), name: z.string() }),
+    questionCount: z.number().int().nonnegative(),
+  })
+  .passthrough();
+export type ApiLibraryTestSummary = z.infer<typeof libraryTestSummarySchema>;
+
+export const libraryTestsListResponseSchema = z.object({
+  tests: z.array(libraryTestSummarySchema),
+  meta: testsPaginationMetaSchema,
+});
+export type LibraryTestsListResponse = z.infer<typeof libraryTestsListResponseSchema>;
+
 export const testDetailResponseSchema = z.object({ test: testDetailSchema });
 export type TestDetailResponse = z.infer<typeof testDetailResponseSchema>;
 
@@ -247,6 +285,7 @@ export const testValidationIssueSchema = z
   .object({
     code: z.string(),
     messageKey: z.string(),
+    severity: z.enum(["BLOCKING", "WARNING"]).default("BLOCKING"),
     sectionId: z.string().nullable().optional(),
     groupId: z.string().nullable().optional(),
     questionId: z.string().nullable().optional(),

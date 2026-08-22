@@ -6,13 +6,17 @@ const PRIVATE_ROUTE_PREFIXES = [
   "/api/",
   "/assignments",
   "/dashboard",
+  "/exam",
   "/groups",
   "/invite",
   "/notifications",
+  "/onboarding",
   "/profile",
   "/school",
   "/schools",
   "/settings",
+  "/studio",
+  "/tests",
 ] as const;
 
 export default function robots(): MetadataRoute.Robots {

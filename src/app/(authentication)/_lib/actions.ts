@@ -51,6 +51,8 @@ const RATE_LIMITED_ERROR = "Too many attempts. Please wait a moment and try agai
 
 export type AuthMutationResult = {
   redirectTo: string;
+  userId?: string;
+  onboardingRequired?: boolean;
 };
 
 export type ForgotPasswordResult = {
@@ -132,7 +134,11 @@ async function loginWithInput(input: LoginFormField): Promise<AuthMutationResult
 
     await createSessionFromAuthResponse(response);
 
-    return { redirectTo: "/dashboard" };
+    return {
+      redirectTo: response.isNewUser ? "/onboarding" : "/dashboard",
+      userId: response.user.id,
+      onboardingRequired: response.isNewUser,
+    };
   } catch (error) {
     throw new ActionError(getActionError(error, INVALID_LOGIN_ERROR));
   }
@@ -144,7 +150,11 @@ async function signupWithInput(input: RegularSignupFormField): Promise<AuthMutat
 
     await createSessionFromAuthResponse(response);
 
-    return { redirectTo: "/dashboard" };
+    return {
+      redirectTo: "/onboarding",
+      userId: response.user.id,
+      onboardingRequired: true,
+    };
   } catch (error) {
     throw new ActionError(getActionError(error, INVALID_SIGNUP_ERROR));
   }
@@ -231,7 +241,11 @@ async function acceptTeacherInviteWithInput(
       membershipCount: Math.max(session.membershipCount ?? 0, 1),
     });
 
-    return { redirectTo: "/dashboard" };
+    return {
+      redirectTo: "/onboarding",
+      userId: session.userId,
+      onboardingRequired: true,
+    };
   } catch (error) {
     throw new ActionError(getActionError(error, INVALID_INVITE_ERROR));
   }
@@ -242,7 +256,11 @@ async function googleAuthWithToken(idToken: string): Promise<AuthMutationResult>
     const response = await googleAuthRequest(idToken);
 
     await createSessionFromAuthResponse(response);
-    return { redirectTo: "/dashboard" };
+    return {
+      redirectTo: response.isNewUser ? "/onboarding" : "/dashboard",
+      userId: response.user.id,
+      onboardingRequired: response.isNewUser,
+    };
   } catch (error) {
     throw new ActionError(getActionError(error, "Google sign-in failed. Please try again."));
   }

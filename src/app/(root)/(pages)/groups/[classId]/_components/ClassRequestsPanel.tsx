@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useClassJoinRequests } from "@/app/(root)/_hooks/useEnrollment";
 import { useTeacherRequests } from "@/app/(root)/_hooks/useTeacherRequests";
 import TabBar from "@/components/ui/TabBar";
+import { queryKeys } from "@/lib/query/keys";
 import ClassStudentRequestsList from "./ClassStudentRequestsList";
 import ClassTeacherRequestsList from "./ClassTeacherRequestsList";
 
@@ -17,8 +18,6 @@ type ClassRequestsPanelProps = {
   isAdmin: boolean;
   /** Which queue opens first — teacher-request notifications deep-link here. */
   initialTab?: RequestsTab;
-  /** Re-reads the server-rendered class after a request is approved/rejected. */
-  onReviewed?: () => void;
 };
 
 /**
@@ -33,7 +32,6 @@ export default function ClassRequestsPanel({
   classId,
   isAdmin,
   initialTab = "students",
-  onReviewed,
 }: ClassRequestsPanelProps) {
   const { t } = useTranslation();
   const [tab, setTab] = useState<RequestsTab>(
@@ -53,6 +51,23 @@ export default function ClassRequestsPanel({
 
   const onTeachers = isAdmin && tab === "teachers";
 
+  /**
+   * Either tab re-reads both queues, not just the one being opened.
+   *
+   * The switch used to fetch nothing at all — both queries are already mounted
+   * here for the counts, so React Query had no reason to go back to the server
+   * and a request that arrived after page load stayed invisible until a reload.
+   * Refreshing only the opened queue would fix half of it and introduce the
+   * other half: both counts sit in this one row, so the badge for the queue we
+   * skipped would sit next to freshly-loaded data still showing its old number.
+   */
+  const requestsRefresh = {
+    queryKeys: [
+      queryKeys.enrollment.classRequestsAll(classId),
+      queryKeys.enrollment.teacherRequestsAll(classId),
+    ],
+  };
+
   return (
     <div className="flex flex-col gap-4">
       {isAdmin ? (
@@ -66,20 +81,22 @@ export default function ClassRequestsPanel({
               value: "students",
               label: t("root.enrollment.teacherRequests.tabStudents"),
               count: studentCount,
+              refresh: requestsRefresh,
             },
             {
               value: "teachers",
               label: t("root.enrollment.teacherRequests.tabTeachers"),
               count: teacherCount,
+              refresh: requestsRefresh,
             },
           ]}
         />
       ) : null}
 
       {onTeachers ? (
-        <ClassTeacherRequestsList classId={classId} onReviewed={onReviewed} />
+        <ClassTeacherRequestsList classId={classId} />
       ) : (
-        <ClassStudentRequestsList classId={classId} onReviewed={onReviewed} />
+        <ClassStudentRequestsList classId={classId} />
       )}
     </div>
   );

@@ -21,15 +21,33 @@ export const queryKeys = {
       [...queryKeys.classes.all, "assignable-teachers", classId] as const,
     assignableTeachers: (classId: string, filters: { search: string; limit: number }) =>
       [...queryKeys.classes.assignableTeachersAll(classId), filters] as const,
+    activitiesAll: () => [...queryKeys.classes.all, "activity"] as const,
+    activityAll: (classId: string) =>
+      [...queryKeys.classes.activitiesAll(), classId] as const,
+    activity: (classId: string, limit: number) =>
+      [...queryKeys.classes.activityAll(classId), limit] as const,
   },
   tests: {
     all: ["tests"] as const,
     list: (classId: string, filters: { status: string; page: number }) =>
       [...queryKeys.tests.all, "list", classId, filters] as const,
+    /** Every filter variant of the cross-class library, for broad invalidation. */
+    libraryAll: () => [...queryKeys.tests.all, "library"] as const,
+    library: (filters: {
+      status: string;
+      page: number;
+      classId: string;
+      search: string;
+    }) => [...queryKeys.tests.libraryAll(), filters] as const,
     detail: (testId: string) => [...queryKeys.tests.all, "detail", testId] as const,
     validation: (testId: string) =>
       [...queryKeys.tests.all, "validation", testId] as const,
     formats: () => [...queryKeys.tests.all, "formats"] as const,
+  },
+  testImports: {
+    all: ["test-imports"] as const,
+    limits: () => [...queryKeys.testImports.all, "limits"] as const,
+    job: (jobId: string) => [...queryKeys.testImports.all, "job", jobId] as const,
   },
   notifications: {
     all: ["notifications"] as const,

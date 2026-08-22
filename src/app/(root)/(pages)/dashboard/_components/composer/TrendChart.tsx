@@ -1,12 +1,27 @@
 "use client";
 
-import { useMemo } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useId, useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 
 import type { ScoreTrend } from "@/app/(root)/_lib/dashboard.schemas";
 
-/** `YYYY-MM` → a localized short month label (e.g. "Jan"). */
+/** The three ways this series can be drawn. See `TrendChartTypeToggle`. */
+export const TREND_CHART_TYPES = ["area", "line", "bar"] as const;
+export type TrendChartType = (typeof TREND_CHART_TYPES)[number];
+
 function monthLabel(month: string, language: string): string {
   const [year, monthIndex] = month.split("-").map(Number);
   if (!year || !monthIndex) return month;
@@ -16,97 +31,163 @@ function monthLabel(month: string, language: string): string {
 }
 
 /**
- * Scores are a 0–100 percentage, so the axis is fixed rather than derived from the data.
+ * Average score over time.
  *
- * The previous version scaled bars between the *observed* min and max and then floored the result
- * at 42% of the plot, which meant a month at 51 and a month at 94 could render nearly the same
- * height, and the shortest bar was always drawn at 42% regardless of its value. The chart looked
- * like data without reporting any. A fixed 0–100 axis with a real zero baseline means bar height
- * is the number.
+ * ## Why the shape is a choice
+ *
+ * The three forms answer three different questions about the same numbers, and
+ * which one is right depends on data this component cannot know in advance:
+ *
+ * - **Area** — the default. Reads as one continuous quantity and is the easiest
+ *   shape to glance at over a long run of months.
+ * - **Line** — the same trajectory without the fill. Better when the interesting
+ *   part is the *slope* rather than the level, because a filled region draws the
+ *   eye to area rather than to direction.
+ * - **Bar** — each month as its own quantity. This is the honest form for a
+ *   short or gappy series: a school with one month of results was previously
+ *   shown a single dot floating in an empty area chart, which reads as a bug
+ *   rather than as "one month of data". A bar is a bar whether there are twelve
+ *   of them or one.
+ *
+ * The axis is fixed to 0–100 in all three, so switching form never changes what
+ * the same height means.
  */
-const AXIS = [0, 25, 50, 75, 100] as const;
-
-export default function TrendChart({ points }: { points: ScoreTrend["points"] }) {
+export default function TrendChart({
+  points,
+  type = "area",
+}: {
+  points: ScoreTrend["points"];
+  type?: TrendChartType;
+}) {
   const { t, i18n } = useTranslation();
-  const reduceMotion = useReducedMotion();
-
-  const labelled = useMemo(
+  const rawId = useId();
+  const gradientId = `dashboard-trend-${rawId.replaceAll(":", "")}`;
+  const data = useMemo(
     () =>
       points.map((point) => ({
         ...point,
         label: monthLabel(point.month, i18n.language),
-        pct: Math.max(0, Math.min(100, point.avg)),
+        avg: Math.max(0, Math.min(100, point.avg)),
       })),
-    [points, i18n.language],
+    [i18n.language, points],
   );
 
-  if (labelled.length === 0) return null;
+  if (!data.length) return null;
+
+  // Shared between the three charts, so a form switch cannot quietly change the
+  // grid, the scale, or what the tooltip says.
+  const grid = (
+    <CartesianGrid stroke="var(--border)" strokeDasharray="4 5" vertical={false} />
+  );
+  const xAxis = (
+    <XAxis
+      dataKey="label"
+      axisLine={false}
+      tickLine={false}
+      tick={{ fill: "var(--muted-foreground)", fontSize: 12 }}
+    />
+  );
+  const yAxis = (
+    <YAxis
+      domain={[0, 100]}
+      ticks={[0, 25, 50, 75, 100]}
+      axisLine={false}
+      tickLine={false}
+      tick={{ fill: "var(--muted-foreground)", fontSize: 11 }}
+    />
+  );
+  const tooltip = (
+    <Tooltip
+      cursor={
+        type === "bar"
+          ? { fill: "var(--muted)" }
+          : { stroke: "var(--border)", strokeDasharray: "4 4" }
+      }
+      content={({ active, payload, label }) =>
+        active && payload?.length ? (
+          <div className="rounded-xl border border-border bg-popover px-3 py-2 shadow-elev-3">
+            <p className="text-xs text-muted-foreground">{String(label)}</p>
+            <p className="numeric mt-0.5 text-sm font-semibold text-foreground">
+              {Math.round(Number(payload[0].value))}%
+            </p>
+          </div>
+        ) : null
+      }
+    />
+  );
+  const margin = { top: 12, right: 8, left: -18, bottom: 0 };
 
   return (
-    <figure className="m-0">
-      <div className="flex gap-3">
-        {/* Axis ticks. `aria-hidden` because the accessible summary below carries the values. */}
-        <div
-          aria-hidden
-          className="flex h-44 w-7 shrink-0 flex-col justify-between py-px text-right text-3xs tabular-nums text-muted-foreground"
-        >
-          {[...AXIS].reverse().map((tick) => (
-            <span key={tick}>{tick}</span>
-          ))}
-        </div>
-
-        <div className="relative min-w-0 flex-1">
-          {/* Gridlines, including the zero baseline the old chart never drew. */}
-          <div aria-hidden className="absolute inset-0 flex flex-col justify-between">
-            {AXIS.map((tick) => (
-              <span
-                key={tick}
-                className={tick === 0 ? "h-px bg-border" : "h-px bg-border/55"}
+    <figure className="m-0 min-w-0">
+      <div className="h-64 w-full" aria-hidden>
+        <ResponsiveContainer width="100%" height="100%">
+          {type === "bar" ? (
+            <BarChart data={data} margin={margin}>
+              {grid}
+              {xAxis}
+              {yAxis}
+              {tooltip}
+              <Bar
+                dataKey="avg"
+                fill="var(--chart-1)"
+                // Rounded only at the data end; the baseline end stays square so
+                // the bar is visibly anchored to zero.
+                radius={[4, 4, 0, 0]}
+                // A lone month should not become a full-width slab.
+                maxBarSize={56}
+                isAnimationActive={false}
               />
-            ))}
-          </div>
-
-          <div className="relative flex h-44 items-end gap-2 sm:gap-3">
-            {labelled.map((point, index) => (
-              <div
-                key={point.month}
-                className="group relative flex h-full flex-1 items-end justify-center"
-              >
-                <motion.div
-                  className="w-full max-w-12 rounded-t-md bg-primary/85 group-hover:bg-primary"
-                  style={{ height: `${point.pct}%`, transformOrigin: "bottom" }}
-                  initial={reduceMotion ? false : { scaleY: 0 }}
-                  animate={{ scaleY: 1 }}
-                  transition={{
-                    duration: reduceMotion ? 0 : 0.45,
-                    delay: reduceMotion ? 0 : 0.04 + index * 0.05,
-                    ease: [0.22, 1, 0.36, 1],
-                  }}
-                />
-                <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 rounded-md bg-foreground px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-background opacity-0 shadow-elev-2 transition-opacity duration-[var(--dur-1)] group-hover:opacity-100">
-                  {Math.round(point.avg)}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-2 flex gap-2 sm:gap-3">
-            {labelled.map((point) => (
-              <span
-                key={point.month}
-                className="flex-1 truncate text-center text-xs font-medium text-muted-foreground"
-              >
-                {point.label}
-              </span>
-            ))}
-          </div>
-        </div>
+            </BarChart>
+          ) : type === "line" ? (
+            <LineChart data={data} margin={margin}>
+              {grid}
+              {xAxis}
+              {yAxis}
+              {tooltip}
+              <Line
+                type="monotone"
+                dataKey="avg"
+                stroke="var(--chart-1)"
+                strokeWidth={2}
+                dot={{ r: 4, fill: "var(--card)", stroke: "var(--chart-1)", strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: "var(--chart-1)" }}
+                isAnimationActive={false}
+              />
+            </LineChart>
+          ) : (
+            <AreaChart data={data} margin={margin}>
+              <defs>
+                <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.34} />
+                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              {grid}
+              {xAxis}
+              {yAxis}
+              {tooltip}
+              <Area
+                type="monotone"
+                dataKey="avg"
+                stroke="var(--chart-1)"
+                strokeWidth={3}
+                fill={`url(#${gradientId})`}
+                dot={{ r: 4, fill: "var(--card)", stroke: "var(--chart-1)", strokeWidth: 2 }}
+                activeDot={{ r: 5, fill: "var(--chart-1)" }}
+                isAnimationActive={false}
+              />
+            </AreaChart>
+          )}
+        </ResponsiveContainer>
       </div>
 
-      {/* The chart is decorative to a screen reader; this is the actual data. */}
+      {/*
+        The same numbers as text. This is the table view the chart owes a reader
+        who cannot use it — and it is why the plot above can be `aria-hidden`.
+      */}
       <figcaption className="sr-only">
         {t("root.dashboard.trend.aria")}:{" "}
-        {labelled.map((point) => `${point.label} ${Math.round(point.avg)}`).join(", ")}
+        {data.map((point) => `${point.label} ${Math.round(point.avg)}%`).join(", ")}
       </figcaption>
     </figure>
   );

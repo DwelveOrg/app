@@ -88,10 +88,46 @@ Two notes for anyone regenerating them:
   `data-state="checked"` / `data-state="active"`, so the selectors in those files
   were changed to `data-[state=…]:`. Without the swap, checked and active states
   render with no visual difference. Re-running the generator overwrites this.
-- There is still **no drag-and-drop library**. Ordering in the test builder uses
-  up/down buttons (`useFieldArray`'s `move`), which are also keyboard- and
-  touch-accessible. Adding `dnd-kit` or similar requires updating this document
-  first.
+
+### Drag-and-drop: `@dnd-kit` (added for the test studio)
+
+This document previously ruled out a drag-and-drop library, on the grounds that
+up/down buttons are "keyboard- and touch-accessible, which `dnd-kit` is not by
+default". Half of that was right. `dnd-kit` ships a `KeyboardSensor`, and with
+`sortableKeyboardCoordinates` a sortable list is fully operable from the
+keyboard — space to lift, arrows to move, space to drop, escape to cancel. What
+the buttons genuinely give is discoverability and a target that does not need a
+sustained drag, which matters for touch and for motor impairment.
+
+So the studio ships **both**, and the rule is now:
+
+- `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/modifiers` and
+  `@dnd-kit/utilities` are permitted, through the single wrapper
+  `src/components/ui/SortableList.tsx`. Do not import them directly elsewhere;
+  one wrapper is what keeps the sensors, modifiers and touch handling
+  consistent. It moved out of `src/app/studio/_components/` when the exam
+  runtime gained an ordering question — a student reordering steps and a
+  teacher reordering options must behave identically, including on touch.
+- It takes **either** `onReorder` (index-based, for a list that is one array) or
+  `onDropOn` (id-based). The second exists because a part is rendered flat but
+  stored as several wire groups, so "moved from 4 to 7" cannot be applied
+  without resolving which group each index belongs to — and because an index
+  pair cannot express "this question now belongs to a different passage".
+- **Every sortable row keeps its up/down/remove buttons.** A handle is the fast
+  path, not the only one. Removing them to "clean up" the row is a regression.
+- Order remains array position — `move()` from `useFieldArray`, nothing sent to
+  the backend for it.
+
+### Fullscreen: `screenfull`
+
+`screenfull` is permitted for Fullscreen API access. It normalises the four
+vendor spellings (Safari is still `webkit`-prefixed) and exposes `isEnabled`,
+which is what lets the publish wizard warn that a browser will refuse fullscreen
+rather than appearing to do nothing when the control is pressed. Used by `src/app/studio/_components/publish/FullscreenDemo.tsx` and by
+`src/app/exam/_hooks/useIntegrityGuard.ts`, where the same `isEnabled` check
+decides whether a fullscreen *requirement* can be met at all — locking a student
+out of an exam over a browser capability is a worse outcome than a missing
+precaution, so an unavailable Fullscreen API lets the attempt proceed.
 
 ## Schema Placement
 

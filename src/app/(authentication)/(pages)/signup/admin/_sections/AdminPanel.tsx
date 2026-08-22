@@ -8,10 +8,16 @@ import {
 
 export default function AdminPanel() {
   const { t } = useTranslation();
+  /**
+   * Product facts, not traction figures. These used to read "3 min avg setup"
+   * and "500+ centers" — neither of which anyone had measured or counted.
+   * What is left is true by construction: the importer takes a PDF, nothing is
+   * printed, and the product is free for as long as early access lasts.
+   */
   const stats = [
-    { value: t("auth.visual.admin.stats.setupValue"), label: t("auth.visual.admin.stats.setup") },
-    { value: t("auth.visual.admin.stats.centersValue"), label: t("auth.visual.admin.stats.centers") },
+    { value: t("auth.visual.admin.stats.pdfValue"), label: t("auth.visual.admin.stats.pdf") },
     { value: t("auth.visual.admin.stats.paperValue"), label: t("auth.visual.admin.stats.paper") },
+    { value: t("auth.visual.admin.stats.priceValue"), label: t("auth.visual.admin.stats.price") },
   ];
 
   const features = [
@@ -31,6 +37,9 @@ export default function AdminPanel() {
       desc: t("auth.visual.admin.features.analytics.desc"),
     },
   ];
+
+  const trustedPrefix = t("auth.visual.admin.trustedPrefix");
+  const trustedSuffix = t("auth.visual.admin.trustedSuffix");
 
   const tests = [
     { name: t("auth.visual.admin.classCard.tests.algebra"), pct: 88 },
@@ -100,10 +109,14 @@ export default function AdminPanel() {
         </div>
       </div>
 
-      <p className="text-sm text-white/70">
-        {t("auth.visual.admin.trustedPrefix")}{" "}
-        <span className="font-semibold text-white">{t("auth.visual.admin.trustedStrong")}</span>{" "}
-        {t("auth.visual.admin.trustedSuffix")}
+      {/* Three slots rather than one sentence: the emphasis sits mid-phrase in
+          English and Russian ("Made for **schools…**") but leads in Uzbek
+          ("**Maktab va…** uchun yaratilgan"). Empty slots are dropped so the
+          locales that do not need one do not render a stray space. */}
+      <p className="flex flex-wrap items-center gap-x-1 text-sm text-white/70">
+        {trustedPrefix ? <span>{trustedPrefix}</span> : null}
+        <span className="font-semibold text-white">{t("auth.visual.admin.trustedStrong")}</span>
+        {trustedSuffix ? <span>{trustedSuffix}</span> : null}
       </p>
     </>
   );

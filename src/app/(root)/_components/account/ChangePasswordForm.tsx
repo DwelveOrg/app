@@ -19,6 +19,7 @@ import {
   type ChangePasswordInput,
   type SetPasswordInput,
 } from "@/app/(root)/_lib/profile.schemas.forms";
+import SectionHeader from "@/app/(root)/_components/SectionHeader";
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Input from "@/components/ui/Input";
@@ -46,15 +47,7 @@ function PasswordCard({
 }: Readonly<{ title: string; description: string; children: ReactNode }>) {
   return (
     <Surface as="section">
-      <header className="mb-4 flex items-start gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[color-mix(in_srgb,var(--primary)_12%,transparent)] text-primary">
-          <KeyRound className="h-[18px] w-[18px]" />
-        </div>
-        <div className="min-w-0">
-          <h2 className="text-base font-bold text-foreground">{title}</h2>
-          <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-        </div>
-      </header>
+      <SectionHeader icon={KeyRound} title={title} description={description} className="mb-5" />
       {children}
     </Surface>
   );

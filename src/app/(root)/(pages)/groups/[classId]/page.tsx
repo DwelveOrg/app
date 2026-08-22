@@ -1,7 +1,15 @@
 import { getUser } from "../../../_utils/getUser";
 import { getClass } from "../../../_utils/getClass";
+import { getMyClassTests } from "../../../_utils/getMyClassTests";
+import { getTestFormats } from "../../../_utils/getTestFormats";
+import { getClassTests } from "../../../_utils/getClassTests";
+import { getClassActivity } from "../../../_utils/getClassActivity";
 import ClassDetailView from "./_components/ClassDetailView";
 import ResourceStateView from "@/app/(root)/_components/ResourceStateView";
+import {
+  DEFAULT_TEST_STATUS,
+  TESTS_PAGE_SIZE,
+} from "@/app/(root)/_constants/tests";
 
 type PageProps = {
   params: Promise<{ classId: string }>;
@@ -9,9 +17,7 @@ type PageProps = {
 
 export default async function Page({ params }: PageProps) {
   const { classId } = await params;
-  const user = await getUser();
-
-  const result = await getClass(classId);
+  const [user, result] = await Promise.all([getUser(), getClass(classId)]);
   if (!result.ok) {
     return (
       <ResourceStateView
@@ -26,15 +32,34 @@ export default async function Page({ params }: PageProps) {
   }
 
   const viewerRole = user?.schoolRole ?? null;
+  const isStudent = viewerRole === "STUDENT";
+  const isStaff = viewerRole === "ADMIN" || viewerRole === "TEACHER";
 
-  // The add-member pickers are class-scoped (`assignable-students` /
-  // `assignable-teachers`) and fetch on demand from the dialog, so this page no
-  // longer pulls the admin-only school roster up front.
+  const [myTests, formats, initialTestsResult, initialActivity] = await Promise.all([
+    isStudent ? getMyClassTests(classId) : Promise.resolve([]),
+    isStudent ? Promise.resolve(null) : getTestFormats(),
+    isStudent
+      ? Promise.resolve(null)
+      : getClassTests(classId, {
+          status: DEFAULT_TEST_STATUS,
+          page: 1,
+          limit: TESTS_PAGE_SIZE,
+        }),
+    isStaff ? getClassActivity(classId) : Promise.resolve(undefined),
+  ]);
+
   return (
     <ClassDetailView
       classItem={result.class}
       isAdmin={viewerRole === "ADMIN"}
       viewerRole={viewerRole}
+      schoolId={user?.schoolId}
+      myTests={myTests}
+      formats={formats?.formats ?? {}}
+      initialTests={
+        initialTestsResult?.ok ? initialTestsResult.data : undefined
+      }
+      initialActivity={initialActivity}
     />
   );
 }

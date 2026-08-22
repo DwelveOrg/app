@@ -6,8 +6,10 @@ import {
   addClassTeacherRequest,
   listAssignableStudentsRequest,
   listAssignableTeachersRequest,
+  listClassActivityRequest,
   removeClassTeacherRequest,
 } from "./classes.api";
+import type { ClassActivityResponse } from "./class-activity.schemas";
 import {
   addClassTeacherSchema,
   type AssignableStudentsResponse,
@@ -83,6 +85,13 @@ export async function listAssignableTeachersAction(
     page: input.page ?? 1,
     limit: input.limit ?? 20,
   });
+}
+
+export async function listClassActivityAction(input: {
+  classId: string;
+  limit?: number;
+}): Promise<ClassActivityResponse> {
+  return listClassActivityRequest(input.classId, { limit: input.limit ?? 12 });
 }
 
 /* -------------------------------------------------------------------------- */

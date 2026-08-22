@@ -45,6 +45,12 @@ function resolve(vars) {
 const light = resolve(block(":root"));
 const dark = resolve({ ...block(":root"), ...block("\\.dark") });
 
+const EXAM_ROOMS = ["paper", "slate", "contrast"];
+const examThemes = EXAM_ROOMS.map((room) => [
+  `EXAM: ${room}`,
+  resolve({ ...block(":root"), ...block(`\\[data-exam-theme="${room}"\\]`) }),
+]);
+
 /* ---------------------------------------------------------------------------
    Colour parsing.
 
@@ -228,10 +234,25 @@ function hueOf(value) {
   return { chroma: C, hue: h, neutral: C < NEUTRAL_C };
 }
 
+/*
+ * Measured from --brand, not --primary.
+ *
+ * These guards existed to stop the loudest hue in the palette from being
+ * confusable with a status colour. They named --primary because, under the v3
+ * monobrand, --primary WAS that hue. v4 made the action colour neutral — and a
+ * neutral scores N/A here by design, so two of these three guards quietly
+ * stopped asserting anything the moment the palette changed.
+ *
+ * The risk did not go away with them: --brand is still violet and still lands
+ * beside a "correct" green and an informational cyan (badges, chart legends,
+ * the auth panel). So the guards follow the hue rather than the token that used
+ * to carry it. `--success` vs `--destructive` is unchanged — that pair is about
+ * the one distinction a student cannot afford to misread.
+ */
 const HUE_GUARDS = [
-  ["--primary", "--success", 30, "action teal vs correct-answer green"],
+  ["--brand", "--success", 30, "brand violet vs correct-answer green"],
   ["--success", "--destructive", 60, "correct vs incorrect"],
-  ["--primary", "--info", 25, "action vs informational"],
+  ["--brand", "--info", 25, "brand violet vs informational cyan"],
 ];
 
 let failures = 0;
@@ -255,9 +276,12 @@ function unableToCheck(label, reason) {
 for (const [name, vars] of [
   ["LIGHT", light],
   ["DARK", dark],
+  ...examThemes,
 ]) {
+  const examRoom = name.startsWith("EXAM:");
   console.log(`\n\x1b[1m${name}\x1b[0m`);
   for (const [fgTok, bgTok, min, label] of CHECKS) {
+    if (examRoom && /sidebar|chart|brand/.test(`${fgTok}${bgTok}`)) continue;
     const fg = vars[fgTok];
     const bg = vars[bgTok];
     if (!fg || !bg) {
@@ -280,6 +304,7 @@ for (const [name, vars] of [
   }
 
   for (const [aTok, bTok, minDeg, label] of HUE_GUARDS) {
+    if (name === "EXAM: contrast") break;
     const a = vars[aTok];
     const b = vars[bTok];
     if (!a || !b) {

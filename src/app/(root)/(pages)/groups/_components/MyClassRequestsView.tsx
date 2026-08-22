@@ -21,10 +21,14 @@ import Badge from "@/components/ui/badge";
 
 type MyClassRequestsViewProps = {
   schoolId: string | undefined;
+  variant?: "page" | "embedded";
 };
 
 /** Student list of pending class join requests, each cancellable. */
-export default function MyClassRequestsView({ schoolId }: MyClassRequestsViewProps) {
+export default function MyClassRequestsView({
+  schoolId,
+  variant = "page",
+}: MyClassRequestsViewProps) {
   const { t } = useTranslation();
   const query = useMyClassRequests();
   const cancelRequest = useCancelJoinRequestMutation(schoolId);
@@ -47,16 +51,20 @@ export default function MyClassRequestsView({ schoolId }: MyClassRequestsViewPro
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <h1 className="type-title text-foreground">
-          {t("root.enrollment.requests.title")}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {t("root.enrollment.requests.subtitle")}
-        </p>
-      </header>
+      {variant === "page" ? (
+        <>
+          <header>
+            <h1 className="type-title text-foreground">
+              {t("root.enrollment.requests.title")}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t("root.enrollment.requests.subtitle")}
+            </p>
+          </header>
 
-      <ClassesNav schoolId={schoolId} />
+          <ClassesNav schoolId={schoolId} />
+        </>
+      ) : null}
 
       {query.isLoading ? (
         <SkeletonList count={3} itemClassName="h-20" />

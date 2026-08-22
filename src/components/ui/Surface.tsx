@@ -11,8 +11,14 @@ import { cn } from "@/lib/utils";
  * Everything that used to be a `Panel`, a `SectionCard`, a stat tile, a settings group, a roster
  * shell or an inline `<section className="rounded-2xl …">` is this component with different props.
  *
- * Depth model (design-system §4): a hairline defines an edge, elevation separates a layer. Most of
- * a page rests at `elevation={1}`. Two adjacent surfaces at different levels means one is wrong.
+ * Depth model: a hairline defines an edge, elevation separates a *layer*, and after the elevation
+ * ramp was rebuilt those are no longer the same claim. Levels 1–2 are resting surfaces and are now
+ * very nearly flat — the border draws the panel and a single contact pixel keeps it off the canvas.
+ * Levels 3 and hand-rolled `elev-4` are for chrome that genuinely floats over the page: menus,
+ * popovers, dialogs, sheets.
+ *
+ * Most of a page rests at `elevation={1}`. Two adjacent surfaces at different levels means one is
+ * wrong. A resting panel at `elevation={3}` is now conspicuously wrong, which is the point.
  */
 const surfaceVariants = cva("relative", {
   variants: {
@@ -48,9 +54,17 @@ const surfaceVariants = cva("relative", {
       2: "shadow-elev-2",
       3: "shadow-elev-3",
     },
-    /** Hover lift + press settle + a teal edge. Pair with a link/button child. */
+    /*
+     * Hover, without the lift.
+     *
+     * This used to translate the whole surface up 2px on hover (`--lift`, now 0), so moving a
+     * pointer across a grid of cards made the page ripple. The signal is carried by the edge
+     * instead: the hairline goes from `--border` to a real ink edge, and the fill steps once
+     * toward `--muted`. That is a change you can see on a still screen — which is the test a
+     * hover state should pass, since the user is looking at the card, not at the transition.
+     */
     interactive: {
-      true: "interactive cursor-pointer hover:border-primary/35 hover:shadow-elev-2 focus-within:border-primary/45",
+      true: "interactive cursor-pointer hover:border-foreground/25 hover:bg-[color-mix(in_srgb,var(--muted)_55%,var(--card))] focus-within:border-foreground/40",
       false: "",
     },
     /** Turns the surface into a divided list container. Children become rows. */

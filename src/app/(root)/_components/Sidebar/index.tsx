@@ -14,7 +14,6 @@ import {
   Menu,
   NotebookPen,
   School,
-  Settings,
   UserRound,
   type LucideIcon,
 } from "lucide-react";
@@ -40,10 +39,17 @@ const SIDEBAR_WIDTH = "w-[264px]";
  */
 const ROW_BASE =
   "interactive-flat group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-15 font-normal outline-none focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar";
-// Active is a soft action tint plus a left rail — the rail is what survives at a glance when the
+// Active is a wash of the ink plus a left rail — the rail is what survives at a glance when the
 // tint sits on an already-tinted sidebar. A lift is deliberately absent: nav rows must never move.
+//
+// The label used to be `text-accent-foreground`, i.e. violet, over a wash of --primary. That paired
+// correctly only while --primary *was* the violet; once action moved to ink the row rendered a grey
+// fill under violet type and a black rail, which is three different answers to "what colour is
+// selected". Selection now reads the way the rest of the new depth model reads — by value, not by
+// hue: the fill steps toward the ink, the label goes to full-strength --foreground, and the rail is
+// the same ink. Nothing on the row disagrees with anything else on it.
 const ROW_ACTIVE =
-  "bg-[color-mix(in_srgb,var(--primary)_13%,transparent)] text-accent-foreground font-semibold tracking-[0.01em] shadow-elev-1";
+  "bg-[color-mix(in_srgb,var(--foreground)_8%,transparent)] text-foreground font-semibold tracking-[0.01em]";
 const ROW_IDLE = "text-muted-foreground hover:bg-muted hover:text-foreground";
 
 function NavIcon({ icon: Icon, color }: { icon: LucideIcon; color?: string }) {
@@ -149,7 +155,7 @@ function MobileLink({
   );
 }
 
-export default function SideBar() {
+export default function SideBar({ schoolRole }: { schoolRole?: string | null }) {
   const { t } = useTranslation();
   const pathname = usePathname();
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
@@ -167,13 +173,34 @@ export default function SideBar() {
     label: t("sidebar.notifications"),
     icon: Bell,
   };
-  const settingsItem: NavItem = { href: "/settings", label: t("sidebar.settings"), icon: Settings };
+  /**
+   * One account destination, not two. Profile and Settings were separate rows
+   * over the same `GET /profile` payload; `/profile` now owns identity,
+   * security, preferences and support as tabs.
+   */
   const profileItem: NavItem = { href: "/profile", label: t("sidebar.profile"), icon: UserRound };
+
+  /**
+   * One row, two destinations, because "tests" means different work to each
+   * role in the selected school: a student sits the papers set for their
+   * classes, while a teacher keeps a library of the ones they wrote and hands
+   * them to other classes from there.
+   *
+   * Role is unambiguous here — it comes from the selected membership, not the
+   * account — so the same account can be a teacher in one school and a student
+   * in another and get the right row in each.
+   */
+  const canTakeTests = schoolRole === "STUDENT";
+  const canAuthorTests = schoolRole === "TEACHER" || schoolRole === "ADMIN";
+  const testsItem: NavItem = canTakeTests
+    ? { href: "/assignments/exams", label: t("sidebar.assignments"), icon: NotebookPen }
+    : { href: "/tests", label: t("sidebar.tests"), icon: NotebookPen };
+  const showTests = canTakeTests || canAuthorTests;
 
   const comingSoon = t("sidebar.comingSoon");
   const isActive = (href: string) => isRouteActive(pathname, href);
 
-  const mobileExtra: NavItem[] = [settingsItem, profileItem];
+  const mobileExtra: NavItem[] = [profileItem];
 
   return (
     <>
@@ -192,13 +219,23 @@ export default function SideBar() {
           {primaryItems.map((item) => (
             <NavLink key={item.href} item={item} active={isActive(item.href)} />
           ))}
-          <LockedNavItem icon={NotebookPen} label={t("sidebar.assignments")} comingSoonLabel={comingSoon} />
+          {showTests ? (
+            <NavLink item={testsItem} active={isActive(testsItem.href)} />
+          ) : (
+            // No membership in the selected school yet: neither destination has
+            // anything to show, so the row stays locked rather than opening on
+            // a page that can only answer 403.
+            <LockedNavItem
+              icon={NotebookPen}
+              label={t("sidebar.tests")}
+              comingSoonLabel={comingSoon}
+            />
+          )}
           <NavLink
             item={notificationsItem}
             active={isActive(notificationsItem.href)}
             badge={unreadCount}
           />
-          <NavLink item={settingsItem} active={isActive(settingsItem.href)} />
         </nav>
 
         <div className="space-y-1 border-t border-border px-3 py-3">
@@ -255,16 +292,32 @@ export default function SideBar() {
                 align="end"
                 className="mb-2 w-[260px] rounded-2xl border-border bg-popover p-2 shadow-elev-3 max-[350px]:w-[220px]"
               >
-                <DropdownMenuItem
-                  disabled
-                  className="rounded-xl px-3 py-2.5 text-sm font-semibold opacity-70 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
-                >
-                  <NavIcon icon={NotebookPen} />
-                  <span className="ml-3">{t("sidebar.assignments")}</span>
-                  <Badge variant="neutral" size="xs" uppercase className="ml-auto">
-                    {comingSoon}
-                  </Badge>
-                </DropdownMenuItem>
+                {showTests ? (
+                  <DropdownMenuItem
+                    asChild
+                    className={`cursor-pointer rounded-xl px-3 py-2.5 text-sm font-semibold max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs ${
+                      isActive(testsItem.href)
+                        ? "bg-accent text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                        : ""
+                    }`}
+                  >
+                    <Link href={testsItem.href} onClick={() => setMobileMoreOpen(false)}>
+                      <NavIcon icon={NotebookPen} />
+                      <span className="ml-3">{testsItem.label}</span>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : (
+                  <DropdownMenuItem
+                    disabled
+                    className="rounded-xl px-3 py-2.5 text-sm font-semibold opacity-70 max-[350px]:rounded-lg max-[350px]:px-2.5 max-[350px]:py-2 max-[350px]:text-xs"
+                  >
+                    <NavIcon icon={NotebookPen} />
+                    <span className="ml-3">{t("sidebar.tests")}</span>
+                    <Badge variant="neutral" size="xs" uppercase className="ml-auto">
+                      {comingSoon}
+                    </Badge>
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator className="my-1.5" />
                 {mobileExtra.map((item) => (
                   <DropdownMenuItem

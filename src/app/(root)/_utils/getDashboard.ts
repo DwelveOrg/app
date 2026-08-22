@@ -3,25 +3,29 @@ import "server-only";
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
 import {
   getDashboardFeedRequest,
+  getClassPerformanceRequest,
   getDistributionsRequest,
   getScoreTrendRequest,
   getStaffDashboardSummaryRequest,
   getStudentDashboardSummaryRequest,
+  getSubmissionsRequest,
 } from "../_lib/dashboard.api";
 import type {
   DashboardFeed,
+  ClassPerformance,
   Distributions,
   ScoreTrend,
   StaffDashboardSummary,
   StudentDashboardSummary,
+  Submissions,
 } from "../_lib/dashboard.schemas";
 
 /**
  * Boolean availability of each data domain, derived from the real responses.
  * This is the input an adaptive dashboard composes from: a module renders its
  * live view when its domain is present, and its empty/CTA view (or hides) when
- * it is not. `hasSubmissions` and `hasAttendance` are wired but currently always
- * false — the backend does not model them yet (see dashboard.schemas.ts).
+ * it is not. Availability flags let the composer omit sections when the API has
+ * no usable data instead of fabricating dashboard content.
  */
 export type DashboardAvailability = {
   hasClasses: boolean;
@@ -30,6 +34,7 @@ export type DashboardAvailability = {
   hasUpcoming: boolean;
   hasActivity: boolean;
   hasSubmissions: boolean;
+  hasClassPerformance: boolean;
   hasAttendance: boolean;
 };
 
@@ -39,6 +44,8 @@ export type DashboardData = {
   trend: ScoreTrend | null;
   distributions: Distributions | null;
   feed: DashboardFeed | null;
+  submissions: Submissions | null;
+  classPerformance: ClassPerformance | null;
   availability: DashboardAvailability;
 };
 
@@ -63,6 +70,8 @@ function deriveAvailability(
   trend: ScoreTrend | null,
   distributions: Distributions | null,
   feed: DashboardFeed | null,
+  submissions: Submissions | null,
+  classPerformance: ClassPerformance | null,
 ): DashboardAvailability {
   const gradedResults =
     (trend?.points.length ?? 0) > 0 ||
@@ -76,6 +85,7 @@ function deriveAvailability(
       hasUpcoming: (feed?.upcoming.length ?? 0) > 0 || summary.dueThisWeek > 0,
       hasActivity: (feed?.recent.length ?? 0) > 0,
       hasSubmissions: false,
+      hasClassPerformance: (classPerformance?.classes.length ?? 0) > 0,
       hasAttendance: summary.attendancePct != null,
     };
   }
@@ -89,7 +99,8 @@ function deriveAvailability(
     hasResults: gradedResults || (staff?.avgScore ?? 0) > 0,
     hasUpcoming: (feed?.upcoming.length ?? 0) > 0,
     hasActivity: (feed?.recent.length ?? 0) > 0,
-    hasSubmissions: false,
+    hasSubmissions: (submissions?.byClass.length ?? 0) > 0,
+    hasClassPerformance: (classPerformance?.classes.length ?? 0) > 0,
     hasAttendance: false,
   };
 }
@@ -109,11 +120,14 @@ export async function getDashboard(role: SchoolRole): Promise<DashboardData> {
       ? getStudentDashboardSummaryRequest()
       : getStaffDashboardSummaryRequest();
 
-  const [summary, trend, distributions, feed] = await Promise.all([
+  const [summary, trend, distributions, feed, submissions, classPerformance] =
+    await Promise.all([
     safe(summaryPromise),
     safe(getScoreTrendRequest(6)),
     safe(getDistributionsRequest()),
     safe(getDashboardFeedRequest()),
+    safe(getSubmissionsRequest()),
+    safe(getClassPerformanceRequest()),
   ]);
 
   return {
@@ -122,6 +136,16 @@ export async function getDashboard(role: SchoolRole): Promise<DashboardData> {
     trend,
     distributions,
     feed,
-    availability: deriveAvailability(role, summary, trend, distributions, feed),
+    submissions,
+    classPerformance,
+    availability: deriveAvailability(
+      role,
+      summary,
+      trend,
+      distributions,
+      feed,
+      submissions,
+      classPerformance,
+    ),
   };
 }

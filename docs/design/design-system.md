@@ -50,18 +50,33 @@ Never use straight apostrophes for Uzbek `oʻ` / `gʻ`; use U+02BB `ʻ`.
 
 | Role | Font | Usage |
 |---|---|---|
-| UI / body / data | **Manrope** (400/500/600/700; latin, latin-ext, cyrillic) | Everything in the product: headings, body, labels, buttons, tables, inputs, student names, scores, dashboards, user-generated content |
-| Marketing display | **DM Serif Display** (400) | Landing display headings and the auth panel headline only — controlled, Latin-only copy |
+| UI / body | **IBM Plex Sans** (400/500/600/700; latin, latin-ext, cyrillic) | Every interface surface: headings, body, labels, buttons, tables, inputs, student names, user-generated content |
+| Figures / meta | **IBM Plex Mono** (400/500/600; latin, latin-ext, cyrillic) | Scores, marks, durations, counts, percentages, test codes, timestamps, and the `type-micro` label — via the `numeric` and `type-micro` utilities |
+| Marketing display | **IBM Plex Serif** (400/500) | Landing display headings and the auth panel headline only |
+| Wordmark | **Manrope** (700; latin) | The `DwelveLogo` lockup and nothing else |
 
 Rules:
 
-- Manrope is the only font in the authenticated app. Product UI does not need display/body pairing;
-  one well-tuned sans carries every role.
-- DM Serif Display must never render Russian, Uzbek names, user-generated content, dashboard UI,
-  table data, cards, badges, inputs, or report-card student names.
+- **One family, three voices.** Sans, Mono and Serif are one design, so the UI, the figures and the
+  display face agree with each other instead of being three unrelated picks. Plex was drawn for
+  technical and institutional contexts, which is what this product is.
+- **All three carry `cyrillic`**, which is not optional — the UI ships in en / ru / uz. Unlike the
+  previous pairing, the display face is no longer Latin-only, so there is no longer a font that must
+  be kept away from Russian or Uzbek text.
+- **Figures that must line up use `numeric`**, not a bare `tabular-nums`. A column of marks in the UI
+  face reads as prose; in mono with tabular figures it reads as data. In a grading product that is
+  correctness, not decoration.
+- **The wordmark does not follow the UI face.** It is Manrope 700 via `font-wordmark`, because the
+  delivered logo artwork is a raster whose lettering CSS cannot restyle — if the wordmark tracked
+  `font-sans`, retyping the product would silently redraw the logo. Driven by
+  `BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`.
 - Do not introduce Inter, Geist, Montserrat, or DM Sans as competing product fonts.
-- The **wordmark** is Manrope 700, not the serif. The delivered logo artwork uses a bold geometric
-  sans and the wordmark must match it. Driven by `BRAND_WORDMARK_CLASSES` in `src/constants/brand.ts`.
+
+> **Changed (v4).** This section previously specified **Manrope** for everything plus **DM Serif
+> Display** for a single headline, with a standing warning that the serif was Latin-only and must
+> never render Cyrillic. Manrope is a soft geometric grotesque — pleasant, ubiquitous, and the
+> default warmth that makes an interface read as template rather than as product. The Plex family
+> replaces both, adds a mono tier the product never had, and retires the Latin-only hazard.
 
 ### Type scale
 
@@ -109,24 +124,33 @@ Cap body prose at 65–75ch. Tables and dense data may run wider.
 
 ## 3. Colour system
 
-**One hue, one system.** Violet is identity *and* action: the logo, the wordmark, the auth panel and
-the landing bloom, and also every button, focus ring, selection and active nav row. Separation comes
-from luminance and surface, not from a second accent.
+**Two jobs, split.** `--primary` is **ink** — what you press: buttons, selected rows, checked boxes,
+active tabs. `--brand` is **violet** — who this is: the mark, the auth panel, the closing band, the
+focus ring. Colour beyond that means *state* (success / warning / destructive) or *data* (the chart
+ramp), and nothing else.
 
-> **Changed 4 August 2026 (v3).** This section previously described two accents — violet for identity,
-> teal for action — enforced by the rule *"if a violet element is clickable, it is wrong."* That rule
-> is **deleted**, not restated. It was policing a split the product's own assets never honoured: the
-> logo is a raster with violet baked in and cannot be recoloured by CSS, `HeroScene` was entirely
-> violet, and the auth panel is a violet gradient. The split existed in the token file and nowhere
-> else. Violet is now both, and there is no rule left to break.
+> **Changed (v4).** v3 made violet identity *and* action — "one hue does everything". What that
+> produced was a product where every affordance on every screen was the brand colour, and a screen
+> where everything is emphasised is a screen where nothing is. It also put the loudest hue in the
+> palette on the most repeated element in the interface.
 >
-> Two consequences are load-bearing:
-> - `--brand` and `--primary` are the same value. **Do not re-fork them.**
-> - `--info` moved off blue to **cyan**. Violet-as-action and blue-as-informational sit ~24° apart in
->   OKLCH, close enough to confuse a "Submit" with a notice. The hue guard in
->   `scripts/check-contrast.mjs` enforces the gap and will fail the build if it closes again.
+> v3 was right about what it was reacting to: v2's violet/teal split ("if a violet element is
+> clickable, it is wrong") policed a rule the assets never honoured, and deleting it was correct.
+> The mistake was concluding that one hue should do both jobs, rather than that the **action colour
+> should stop being a hue at all**.
 >
-> Teal is not gone — it was demoted to `--chart-2`, where it survives as data without implying
+> Consequences that are load-bearing:
+> - `--brand` and `--primary` are **now different and must stay different.** v3's note here said the
+>   opposite; code that assumes they are equal predates v4.
+> - A near-black primary is a position, not a retreat to greyscale. It makes the button read as the
+>   object you act on, and it frees the violet to mean something when it does appear.
+> - `--info` stays **cyan**. v3 moved it off blue because a violet *action* sat too close to a blue
+>   notice. The action is neutral now, but `--brand` is still violet and still appears beside
+>   notices, so the gap is still wanted — the hue guards in `scripts/check-contrast.mjs` now measure
+>   it from `--brand` rather than `--primary`. (Measuring from `--primary` would have silently
+>   passed forever, because a neutral has no hue to guard.)
+>
+> Teal is not gone — it lives at `--chart-2`, where it survives as data without implying
 > "clickable".
 
 ### 3.1 Light — cool near-white, near-black ink
@@ -216,8 +240,11 @@ being the action colour.
 | `--chart-4` | `#C2317A` rose | `#F2789F` |
 | `--chart-5` | `#1D5FD1` blue | `#79A9FF` |
 
-Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — under
-the monobrand this is the pairing to watch, not chart-2/chart-5 as in v2.
+Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — this is
+the pairing to watch, not chart-2/chart-5 as in v2.
+
+**Charts read from this ramp, never from `--primary`.** The landing histogram used `bg-primary` and
+turned greyscale with one black bar the moment action became ink. A chart is not an affordance.
 
 ### 3.5 Accessibility gate
 
@@ -233,18 +260,27 @@ gate green (see §9).
 
 Structure comes from two things: a **hairline** defines an edge, **elevation** separates a layer.
 
+The ramp is split by **kind**, not by degree:
+
 | Token | Utility | Use |
 |---|---|---|
-| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page |
-| `--elev-2` | `shadow-elev-2` | Hover on an interactive card; sticky chrome |
-| `--elev-3` | `shadow-elev-3` | Dropdowns, popovers, sticky action bars |
-| `--elev-4` | `shadow-elev-4` | Dialogs, toasts |
-| `--elev-primary` / `--elev-brand` | `shadow-elev-primary` / `-brand` | The coloured glow under a primary or brand button |
+| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
+| `--elev-2` | `shadow-elev-2` | Resting, slightly forward: sticky chrome, raised tiles |
+| `--elev-3` | `shadow-elev-3` | **Floating:** dropdowns, popovers, sticky action bars |
+| `--elev-4` | `shadow-elev-4` | **Floating:** dialogs, toasts, sheets |
+| `--elev-brand` | `shadow-elev-brand` | Alias of `--elev-2`. Kept so existing call sites resolve. |
 
 Rules:
 
-- **Light shadows are tinted with the warm ink (`28 24 20`), not a neutral slate.** A shadow that
-  disagrees with its surface temperature reads as grime.
+- **The gap between 2 and 3 is a cliff, not a step.** It is the line between "on the page" and "over
+  the page" and should be legible at a glance. Levels 1–2 are nearly flat; the hairline draws the
+  panel and a single contact pixel keeps it off the canvas. Only 3–4 genuinely cast.
+- **Hover does not change elevation.** A resting card that gains a shadow on hover is the old model;
+  hover is carried by the border and the fill now. See §5.
+- **`--elev-brand` is no longer a coloured glow.** A violet halo under a violet button is light with
+  no source — it is what made the old CTA read as a sticker. It resolves to `--elev-2`.
+- **Light shadows are tinted with the violet-leaning ink (`20 18 30`), not a neutral slate.** A
+  shadow that disagrees with its surface temperature reads as grime.
 - **Dark elevation is a shadow *plus* a top inner hairline.** Cast shadows barely register on a
   near-black canvas; the `inset 0 1px 0 rgb(255 255 255 / …)` highlight edge is what actually makes
   a dark panel look raised.
@@ -253,6 +289,23 @@ Rules:
 - **Never nest cards.** A bordered box inside a bordered box is a hierarchy failure. Use elevation
   for the outer container and dividers or insets inside it.
 - Raw `shadow-[…]` in a component is a bug.
+
+### Worked example: a three-level tree
+
+The test builder is the deepest hierarchy in the product — section → question group → question — and
+it is the reference for how to render one **without** three nested boxes:
+
+- The **section** is the only card: one `Surface` at elevation 1.
+- A **group** is a full-bleed band inside that card. It cancels the surface padding
+  (`-mx-5 sm:-mx-6`) and separates itself with a `border-t` hairline, so the rule reads as a
+  division of the section rather than the top of another box.
+- A **question** is a flat row in a `divide-y` list. It carries no border, no ring, and no
+  `interactive` treatment — a row of form inputs is not clickable and must not look it.
+- **Only the invalid state draws an edge.** A question a publish check flagged gets the ring, which
+  is what makes it findable; if everything is boxed, nothing is.
+
+The three levels are three weights of the same idea — card edge, band rule, row rule — so hierarchy
+comes from rhythm instead of from three competing borders at three competing radii.
 
 ---
 
@@ -270,18 +323,27 @@ Rules:
 - Motion conveys **state**, not personality. State change, feedback, loading, reveal — nothing else.
 - No page-load choreography. The app loads into a task.
 - Ease out. No bounce, no elastic.
-- `prefers-reduced-motion` is not optional. Every animation needs a still equivalent — including the
-  tactile lift, which is a transform like any other. `globals.css` neutralises `interactive`,
-  `interactive-flat`, and all keyframe animations under the query.
+- `prefers-reduced-motion` is not optional. Every animation needs a still equivalent. `globals.css`
+  neutralises `interactive`, `interactive-flat`, and all keyframe animations under the query. (There
+  is less to neutralise than there was: hover no longer travels, so the reduced-motion screen and the
+  default screen are now the same screen for most surfaces.)
 
 ### Interaction recipe
 
 Two utilities carry every tactile affordance, so the whole product presses the same way and the feel
 is a one-line change:
 
-- **`interactive`** — lifts `--lift` (-2px) on hover, settles to 0 on press. For cards and buttons.
-- **`interactive-flat`** — same timing, no travel; scales to 0.99 on press. For list rows, nav items,
-  and anything where a 2px lift would read as a layout shift.
+- **`interactive`** — hover shifts colour and border; `:active` translates by `--lift`. For cards
+  and buttons.
+- **`interactive-flat`** — same timing; `:active` scales to 0.99 instead. For list rows, nav items,
+  tabs.
+
+**`--lift` is `0`.** It used to be `-2px` on hover, so moving a pointer across a dashboard made the
+page twitch card by card — and 2px is below the threshold where travel reads as intent rather than
+as instability. Hover is now carried by the hairline going to an ink edge and the fill stepping one
+notch, which is a change you can see on a still screen. The token is kept rather than the rule
+deleted, so re-enabling travel stays a one-line change. With `--lift: 0` the two utilities differ
+only in their press response.
 
 Every interactive component ships **default, hover, focus-visible, active, disabled, and loading**.
 Shipping half of these is shipping an unfinished component.
@@ -319,10 +381,13 @@ content column; each page owns its own header.
 - Content is centred in `max-w-[1180px]` with `px-4 py-6 md:px-8 md:py-8`.
 - Below `md` the sidebar collapses to a fixed bottom navigation bar; the content column reserves
   `pb-24`.
-- **Nav row state:** active is a soft teal tint (`--accent`) with `--accent-foreground` text at
-  `font-semibold`; idle is `--muted-foreground` at `font-normal`; hover shifts colour only. **Weight
-  is the state signal, never size** — a size change would reflow the sidebar on every navigation.
-- Rows use `interactive-flat`, not `interactive`. A lifting nav row is a layout shift.
+- **Nav row state:** active is an 8% wash of `--foreground` with `--foreground` text at
+  `font-semibold` and an ink left rail; idle is `--muted-foreground` at `font-normal`; hover shifts
+  colour only. **Weight is the state signal, never size** — a size change would reflow the sidebar on
+  every navigation. (This read "a soft teal tint" through v2 and a `--primary` wash under
+  `--accent-foreground` through v3; the latter rendered violet type on a grey fill once action moved
+  to ink. Selection reads by value, and nothing on the row disagrees with anything else on it.)
+- Rows use `interactive-flat`, not `interactive`.
 
 ---
 
@@ -330,6 +395,12 @@ content column; each page owns its own header.
 
 One component per job. Before building UI, check `src/components/ui`, `src/components/Custom`, and
 the route-local `_components` — and prefer extending a primitive over restyling from scratch.
+
+> **Props, variants, and per-component rules live in [component-library.md](./component-library.md).**
+> The table below is the vocabulary at a glance; that file is the reference, and its §2 decision
+> table answers "which component do I use for this". Page-level composition —
+> environments, page anatomy, widths, responsive — is in
+> [layout-and-composition.md](./layout-and-composition.md).
 
 | Primitive | Owns |
 |---|---|
@@ -344,7 +415,9 @@ the route-local `_components` — and prefer extending a primitive over restylin
 | `ConfirmDialog` | Every destructive confirmation. |
 | `MessagePromptDialog` | Every "give a reason" prompt. |
 | `PageHeader` | Every page title + subtitle + actions row. |
+| `BackLink` | Every "up one level" link above a detail page's header. |
 | `SectionHeader` | Every icon-chip + title + description block inside a panel. |
+| `FactGrid` / `Fact` | Every labelled facts row under an entity header. |
 | `ListRow` | Every icon + title + description + trailing-control row. |
 | `PersonRequestRow` | Every pending request from a person, with approve and reject. |
 | `RowActionsMenu` | Every trailing overflow menu on a row or card. |
@@ -364,6 +437,9 @@ sibling exists before you improve it.
 ---
 
 ## 9. Verifying a change
+
+The full checklist, including the drift greps, is in
+[../guides/building-a-feature.md](../guides/building-a-feature.md) §6. The design-specific gates:
 
 - `npm run lint` and `npm run build` must pass.
 - **`npm run check:contrast` must stay green** after any change to the `:root` / `.dark` blocks.

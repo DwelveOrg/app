@@ -1,11 +1,19 @@
 # Tests (authoring UI)
 
+> **Superseded in part, 9 August 2026.** The builder and the publish flow moved
+> out of the dashboard into the **test studio** — see
+> [test-studio.md](./test-studio.md). What is still current here: the data layer
+> (§"Data Layer"), the catalogue contract, the list page, and the frontend rules
+> at the bottom. What is not: the `_components` tree, the dialog-based create and
+> publish flows, and "reordering uses buttons, not drag-and-drop" — the studio
+> ships both.
+
 The test builder lets teachers and admins author assessments **inside a class**, in
 several exam formats, and publish them. This document is the frontend contract.
 
-Students have no test UI in this pass. They receive a notification when a test is
-published for their class, and that notification links to the class page. Taking
-tests comes in a later pass.
+Students receive published tests through Assignments and through their class
+page. Staff authoring and student taking share the backend paper contract but
+use separate author/taker payloads.
 
 The backend contract this UI codes against is
 `backend_nestJS/docs/features/tests.md`. Read it first — the question-type
@@ -17,25 +25,30 @@ Tests nest under the existing class detail route. `/groups` is already in
 `protectedRoutes`, so **`src/proxy.ts` needs no change**.
 
 ```txt
-/groups/[classId]/tests             test list      (ADMIN + TEACHER)
-/groups/[classId]/tests/[testId]    the builder
+/tests                               cross-class library (ADMIN + TEACHER)
+/groups/[classId]                    class assignments board
+/groups/[classId]/tests              compatibility redirect to the class page
+/studio/tests/new?class=[classId]    create a draft
+/studio/tests/[testId]               the builder
 ```
 
-Creation is a **dialog on the list page**, not a route — it matches
-`CreateClassDialog` and drops the teacher straight into the builder.
+The class assignments board is server-seeded and uses React Query for status
+filters and pagination. Creation and PDF import are studio routes.
 
 Add `tests: "root.pages.tests"` to `ROUTE_LABEL_KEYS` in
 `src/app/(root)/_constants/routes.ts` so the breadcrumb renders.
 
+The sidebar's tests row routes staff to `/tests` and keeps the student
+assignment destination at `/assignments/exams`. The library is a server-rendered
+first page backed by React Query for status, class, search, and pagination. Each
+row names its source class and can deep-copy the test into another class the
+caller may author in; the copy opens in the studio as an unpublished draft.
+
 ### Entry point
 
-`ClassDetailView.tsx` currently nests its "Add test" dropdown inside `{isAdmin ? …}`
-and fires `notifySoon("root.classDetail.actions.addTest")`. Move that item into the
-existing `canManage` branch so teachers see it, and replace `notifySoon` with
-navigation to `/groups/[classId]/tests`.
-
-The mock `/assignments/exams` page, its hardcoded `examItems`, and the locked
-"Assignments" sidebar item are **not touched** by this change.
+`ClassDetailView.tsx` exposes Add test to admins and assigned teachers. The
+assignments board, lifecycle filters, roster/request panels, and activity feed
+all live on `/groups/[classId]`; old test-list links redirect there.
 
 ## Data Layer
 
@@ -48,6 +61,7 @@ src/app/(root)/_lib/tests.schemas.ts           Zod RESPONSE schemas
 src/app/(root)/_lib/tests.actions.schemas.ts   Zod FORM/INPUT schemas
 src/app/(root)/_lib/test-actions.ts            "use server" next-safe-action mutations
 src/app/(root)/_utils/getClassTests.ts         "server-only" RSC read
+src/app/(root)/_utils/getLibraryTests.ts       "server-only" library read
 src/app/(root)/_utils/getTest.ts               "server-only" RSC read
 src/lib/query/keys.ts                          + tests branch
 ```
@@ -143,6 +157,7 @@ src/app/(root)/(pages)/groups/[classId]/tests/
     editors/MatchingEditor.tsx  OrderingEditor.tsx  ManualEditor.tsx
     PublishDialog.tsx        renders GET /validation issues, each deep-linked
     TestStatusBadge.tsx  DeleteTestDialog.tsx  DuplicateTestButton.tsx
+    FormatMark.tsx           the per-format icon tile, shared by the header and the create dialog
   _hooks/
     useCreateTestMutation.ts  useSaveTestStructureMutation.ts  usePublishTestMutation.ts
     useDeleteTestMutation.ts  useDuplicateTestMutation.ts  useTestValidationQuery.ts
@@ -152,11 +167,19 @@ src/app/(root)/(pages)/groups/[classId]/tests/
 ### The tabbed question picker
 
 This is the surface the whole feature is judged on. `AddQuestionDialog` renders one
-tab per `family` in the catalogue (Basic / IELTS / SAT), filtered to the current
-test's `allowedQuestionTypes`. Each entry shows its label, a one-line description,
-and whether it is auto-graded. Picking one appends a question pre-shaped for its
-`answerKind` — fixed options already filled in for
+tab per `family` in the catalogue (Basic / IELTS / SAT). Every creation format now
+returns the complete `allowedQuestionTypes` catalogue, so every tab is available in
+every test. Each entry shows its label, a one-line description, and whether it is
+auto-graded. Picking one appends a question pre-shaped for its `answerKind` — fixed
+options already filled in for
 `IELTS_TRUE_FALSE_NOT_GIVEN`, four blank options for `SAT_RW_MCQ`, and so on.
+
+A filter sits above the tabs and searches **across every family**, because roughly twenty-six
+presets is past the size where finding the right tab beats typing two letters — and a teacher who
+wants "True / False / Not Given" should not have to know it lives under IELTS. It matches the
+*translated* label, so the Russian and Uzbek catalogs are searchable in their own words. While a
+query is active the tabs stay mounted but stop deciding the list; hiding them would make the dialog
+jump, and disabling them would read as unavailable rather than overridden.
 
 ## Missing UI Primitives
 
@@ -178,6 +201,33 @@ Everything else reuses what exists: `Dialog` from `(root)/_components/Dialog`,
 `src/components/Custom` for passage and question images — its `imageFileSchema` in
 `_lib/actions.schemas.ts` already mirrors the backend's 5 MB / PNG-JPEG-WebP rules.
 
+### The shared primitives this feature must use
+
+A test is an entity page like a school or a class, and the two must look related. The list and the
+builder therefore route through the same primitives as `ClassDetailView`, not through local copies:
+
+| Surface | Primitive |
+|---|---|
+| Back link above the header | `BackLink` |
+| List page title block | `PageHeader` (`type-title`) |
+| Builder identity block | `EntityHeader`, with `tile` set to a `FormatMark` — a test has no meaningful initials |
+| Question / points / duration / section counts | `FactGrid` + `Fact` |
+| Status tabs and the picker's family tabs | `TabBar` (`underline` and `pill`) — **not** `components/ui/tabs` |
+| Every pill: status, format, type, grading mode, question number, question range | `Badge` |
+| Every panel, and the sticky action bar (`variant="glass"`) | `Surface` |
+
+`FactGrid` and `BackLink` were extracted here because the class page was already drawing both by
+hand; they are listed in `docs/design/design-system.md` §8 and belong to the whole app now.
+
+### Depth: the builder is one card deep
+
+Section → group → question is the deepest tree in the product, and the design system rules out
+nesting cards outright. The resolution is documented as the worked example in
+`docs/design/design-system.md` §4: the **section** is the only `Surface`, a **group** is a
+full-bleed band inside it separated by a hairline, and a **question** is a flat row in a `divide-y`
+list with no border and no `interactive` lift. Only a question flagged by a publish check draws an
+edge — that ring is what makes the problem findable, and it only works while nothing else is boxed.
+
 ## Frontend Rules
 
 - Validate every backend test response with Zod before rendering; `.passthrough()`
@@ -193,7 +243,8 @@ Everything else reuses what exists: `Dialog` from `(root)/_components/Dialog`,
 - Use design tokens (`bg-[var(--card)]`, `border-[var(--border)]`), not raw palette
   classes. Do not copy `ExamCard`'s `slate-*` styling.
 - Add every visible string to the `en`, `ru`, and `uz` catalogs in the same change.
-- `router.refresh()` after mutations so server-rendered class data re-pulls.
+- Invalidate the centralized React Query keys after mutations; do not add a
+  second component-owned copy of server-seeded list data.
 
 ## Internationalization
 
@@ -229,9 +280,9 @@ Walk the flow: teacher → class → "Add test" → pick SAT → builder → add
 `SAT_RW_MCQ` from the SAT tab and a `SHORT_ANSWER` from the Basic tab → save →
 reload and confirm the tree round-trips with stable ids → publish with a deliberate
 error to see the issue list → fix → publish → confirm a student account receives the
-notification and that it links to the class page → confirm a student hitting
-`/groups/[classId]/tests` directly is refused. Repeat the builder smoke test in `ru`
-and `uz` to catch missing keys.
+notification and that it links to the class page → confirm
+`/groups/[classId]/tests` redirects to `/groups/[classId]`. Repeat the builder
+smoke test in `ru` and `uz` to catch missing keys.
 
 ## Related Docs
 

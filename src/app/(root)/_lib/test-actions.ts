@@ -1,5 +1,7 @@
 "use server";
 
+import { z } from "zod";
+
 import { actionClient, ActionError } from "@/lib/safe-action";
 import { BackendApiError, BackendResponseValidationError } from "@/lib/api/backend";
 import {
@@ -8,28 +10,43 @@ import {
   duplicateTestRequest,
   getTestValidationRequest,
   listClassTestsRequest,
+  listLibraryTestsRequest,
   publishTestRequest,
+  saveTestDeliveryRequest,
   saveTestStructureRequest,
   unpublishTestRequest,
   updateTestRequest,
   uploadTestMediaRequest,
+  validateTestCandidateRequest,
 } from "./tests.api";
 import {
   createTestSchema,
   deleteTestSchema,
   duplicateTestSchema,
+  listLibraryTestsSchema,
+  type ListLibraryTestsInput,
   type ListTestsInput,
+  type TestPublishCandidateInput,
   publishTestSchema,
+  publishTestWithDeliverySchema,
+  saveTestDeliverySchema,
   saveTestStructureSchema,
   unpublishTestSchema,
   updateTestSchema,
   uploadTestMediaSchema,
 } from "./tests.actions.schemas";
-import type { TestsListResponse, TestValidationResponse } from "./tests.schemas";
+import {
+  testValidationIssueSchema,
+  type LibraryTestsListResponse,
+  type TestsListResponse,
+  type TestValidationIssue,
+  type TestValidationResponse,
+} from "./tests.schemas";
 
 const NETWORK_ERROR = "Unable to reach Dwelve API. Please try again.";
 const SAVE_ERROR = "Could not save the test. Please try again.";
 const PUBLISH_ERROR = "Could not publish the test. Please fix the listed issues.";
+const DELIVERY_ERROR = "Could not save the delivery rules. Please try again.";
 
 /**
  * The backend's `status: 'DRAFT'` guard inside the save transaction doubles as
@@ -71,10 +88,27 @@ export async function listClassTestsAction(
   });
 }
 
+/** The cross-class library list. Filters are omitted rather than sent blank. */
+export async function listLibraryTestsAction(
+  input: ListLibraryTestsInput,
+): Promise<LibraryTestsListResponse> {
+  const parsedInput = listLibraryTestsSchema.parse(input);
+
+  return listLibraryTestsRequest({
+    status: parsedInput.status,
+    page: parsedInput.page ?? 1,
+    limit: parsedInput.limit ?? 20,
+    ...(parsedInput.classId ? { classId: parsedInput.classId } : {}),
+    ...(parsedInput.search ? { search: parsedInput.search } : {}),
+  });
+}
+
 export async function getTestValidationAction(
-  testId: string,
+  input: { testId: string; candidate?: TestPublishCandidateInput },
 ): Promise<TestValidationResponse> {
-  return getTestValidationRequest(testId);
+  return input.candidate
+    ? validateTestCandidateRequest(input.testId, input.candidate)
+    : getTestValidationRequest(input.testId);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -140,6 +174,69 @@ export const publishTestAction = actionClient
     }
   });
 
+export const saveTestDeliveryAction = actionClient
+  .inputSchema(saveTestDeliverySchema)
+  .action(async ({ parsedInput }) => {
+    try {
+      const { test } = await saveTestDeliveryRequest(parsedInput.testId, {
+        delivery: parsedInput.delivery,
+      });
+      return { test };
+    } catch (error) {
+      throw new ActionError(mapTestError(error, DELIVERY_ERROR));
+    }
+  });
+
+/**
+ * A rejected publish, with the reasons attached.
+ *
+ * `POST /tests/:testId/publish` answers 409 with `{ message, issues }` when the
+ * test does not pass `validateTestForPublish`. Those issues are the whole point
+ * of the response — they are what the teacher has to act on — and an
+ * `ActionError` can only carry a string, so the message alone used to reach the
+ * screen and the list was dropped on the floor. A teacher saw "Test is not
+ * ready to publish" and nothing else.
+ */
+function publishRejectionIssues(error: unknown): TestValidationIssue[] | null {
+  if (!(error instanceof BackendApiError) || error.status !== 409) return null;
+
+  const parsed = z
+    .object({ issues: z.array(testValidationIssueSchema).min(1) })
+    .safeParse(error.body);
+
+  return parsed.success ? parsed.data.issues : null;
+}
+
+/**
+ * The publish screen's single terminal action.
+ *
+ * The backend applies the candidate and publishes it in one transaction. A
+ * rejected validation therefore leaves the persisted draft untouched.
+ */
+export const publishTestWithDeliveryAction = actionClient
+  .inputSchema(publishTestWithDeliverySchema)
+  .action(async ({ parsedInput }) => {
+    const { testId, delivery, settings } = parsedInput;
+
+    try {
+      const { test } = await publishTestRequest(testId, { delivery, settings });
+      return {
+        published: true as const,
+        id: test.id,
+        title: test.title,
+        status: test.status,
+      };
+    } catch (error) {
+      const issues = publishRejectionIssues(error);
+      if (issues) {
+        // Not an ActionError: the server answered a question the screen asked,
+        // and the answer belongs in the readiness banner, not in a toast.
+        return { published: false as const, issues };
+      }
+      throw new ActionError(mapTestError(error, PUBLISH_ERROR));
+    }
+  });
+
 export const unpublishTestAction = actionClient
   .inputSchema(unpublishTestSchema)
   .action(async ({ parsedInput }) => {
@@ -157,8 +254,10 @@ export const duplicateTestAction = actionClient
   .inputSchema(duplicateTestSchema)
   .action(async ({ parsedInput }) => {
     try {
-      const { test } = await duplicateTestRequest(parsedInput.testId);
-      return { id: test.id, title: test.title };
+      const { test } = await duplicateTestRequest(parsedInput.testId, {
+        classId: parsedInput.classId,
+      });
+      return { id: test.id, title: test.title, classId: test.classId };
     } catch (error) {
       throw new ActionError(
         mapTestError(error, "Could not duplicate the test. Please try again."),

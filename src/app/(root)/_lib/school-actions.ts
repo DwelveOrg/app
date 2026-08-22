@@ -5,22 +5,31 @@ import { redirect } from "next/navigation";
 import { actionClient, ActionError } from "@/lib/safe-action";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
 import {
+  addSchoolBlocklistEntryRequest,
   BackendApiError,
   BackendResponseValidationError,
   createTeacherInviteRequest,
   deleteSchoolRequest,
   leaveSchoolRequest,
+  reissueTeacherInviteRequest,
+  removeSchoolBlocklistEntryRequest,
   removeSchoolMemberRequest,
+  revokeTeacherInviteRequest,
+  updateMemberRoleRequest,
   updateSchoolRequest,
 } from "@/app/(authentication)/_lib/api";
 import { createSession, getSession } from "@/app/(authentication)/_lib/session";
 import { getProfileRequest } from "./profile.api";
 import { getUser } from "../_utils/getUser";
 import {
+  blockFromSchoolSchema,
   deleteSchoolSchema,
   inviteTeacherSchema,
   leaveSchoolSchema,
   removeSchoolMemberSchema,
+  teacherInviteIdSchema,
+  unblockFromSchoolSchema,
+  updateMemberRoleSchema,
   updateSchoolSchema,
 } from "./actions.schemas";
 
@@ -224,4 +233,140 @@ export const leaveSchoolAction = actionClient
     }
 
     redirect("/dashboard");
+  });
+
+/* -------------------------------------------------------------------------- */
+/* Roles, blocklist, and teacher invite links                                 */
+/* -------------------------------------------------------------------------- */
+
+/**
+ * Promote a teacher to admin, or demote an admin back to teacher.
+ *
+ * `canManageAdmins` is passed through but never trusted: the backend ignores it
+ * unless the caller is the owner, so a delegated admin cannot mint another
+ * admin who can mint admins by editing the request.
+ */
+export const updateMemberRoleAction = actionClient
+  .inputSchema(updateMemberRoleSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      await updateMemberRoleRequest(
+        user.schoolId,
+        parsedInput.memberId,
+        { role: parsedInput.role, canManageAdmins: parsedInput.canManageAdmins },
+        authedBackendJson,
+      );
+      return { memberId: parsedInput.memberId, role: parsedInput.role };
+    } catch (error) {
+      throw new ActionError(
+        getActionError(error, "Could not change this member's role. Please try again."),
+      );
+    }
+  });
+
+/** Bar someone from the school. Blocking a member removes them at the same time. */
+export const blockFromSchoolAction = actionClient
+  .inputSchema(blockFromSchoolSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      await addSchoolBlocklistEntryRequest(
+        user.schoolId,
+        {
+          memberId: parsedInput.memberId,
+          email: parsedInput.email,
+          reason: parsedInput.reason,
+        },
+        authedBackendJson,
+      );
+      return { blocked: true };
+    } catch (error) {
+      throw new ActionError(
+        getActionError(error, "Could not block this person. Please try again."),
+      );
+    }
+  });
+
+export const unblockFromSchoolAction = actionClient
+  .inputSchema(unblockFromSchoolSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      await removeSchoolBlocklistEntryRequest(
+        user.schoolId,
+        parsedInput.entryId,
+        authedBackendJson,
+      );
+      return { entryId: parsedInput.entryId };
+    } catch (error) {
+      throw new ActionError(
+        getActionError(error, "Could not lift this block. Please try again."),
+      );
+    }
+  });
+
+/**
+ * Mint a fresh link for an invite that was already sent.
+ *
+ * Only the token's hash is stored, so the original link cannot be shown again;
+ * reissuing is the only way back to a usable one, and it invalidates the old
+ * link in the process.
+ */
+export const reissueTeacherInviteAction = actionClient
+  .inputSchema(teacherInviteIdSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      const { invite } = await reissueTeacherInviteRequest(
+        user.schoolId,
+        parsedInput.inviteId,
+        authedBackendJson,
+      );
+      return {
+        invitedEmail: invite.invitedEmail,
+        inviteUrl: invite.inviteUrl,
+        expiresAt: String(invite.expiresAt),
+      };
+    } catch (error) {
+      throw new ActionError(getActionError(error, INVALID_INVITE_ERROR));
+    }
+  });
+
+export const revokeTeacherInviteAction = actionClient
+  .inputSchema(teacherInviteIdSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getUser();
+    if (!user?.schoolId) {
+      throw new ActionError(NO_SCHOOL_ERROR);
+    }
+
+    try {
+      await revokeTeacherInviteRequest(
+        user.schoolId,
+        parsedInput.inviteId,
+        authedBackendJson,
+      );
+      return { inviteId: parsedInput.inviteId };
+    } catch (error) {
+      throw new ActionError(
+        getActionError(error, "Could not cancel this invite. Please try again."),
+      );
+    }
   });
