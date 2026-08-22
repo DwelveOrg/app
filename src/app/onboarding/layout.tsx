@@ -1,5 +1,12 @@
+import type { Metadata } from "next";
+
 import ReportProblem from "@/components/Custom/ReportProblem";
 import ShellBackdrop from "@/components/Custom/ShellBackdrop";
+import { PRIVATE_ROBOTS } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  robots: PRIVATE_ROBOTS,
+};
 
 /**
  * Onboarding owns the whole viewport.

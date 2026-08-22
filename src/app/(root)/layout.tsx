@@ -1,7 +1,14 @@
+import type { Metadata } from "next";
+
 import SideBar from "@/app/(root)/_components/Sidebar";
 import ReportProblem from "@/components/Custom/ReportProblem";
 import ShellBackdrop from "@/components/Custom/ShellBackdrop";
 import { getUser } from "@/app/(root)/_utils/getUser";
+import { PRIVATE_ROBOTS } from "@/lib/seo";
+
+export const metadata: Metadata = {
+  robots: PRIVATE_ROBOTS,
+};
 
 export const dynamic = "force-dynamic";
 

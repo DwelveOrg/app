@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import ReportProblem from "@/components/Custom/ReportProblem";
+import { PRIVATE_ROBOTS } from "@/lib/seo";
 
 /**
  * The test studio — a separate environment, not another dashboard page.
@@ -20,6 +21,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Test studio · Dwelve",
+  robots: PRIVATE_ROBOTS,
 };
 
 export default function StudioLayout({ children }: { children: React.ReactNode }) {

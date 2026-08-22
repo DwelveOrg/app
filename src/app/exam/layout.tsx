@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import ReportProblem from "@/components/Custom/ReportProblem";
+import { PRIVATE_ROBOTS } from "@/lib/seo";
 
 /**
  * The exam room — a separate environment, not another dashboard page.
@@ -24,6 +25,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Test · Dwelve",
+  robots: PRIVATE_ROBOTS,
 };
 
 export default function ExamLayout({ children }: { children: React.ReactNode }) {
