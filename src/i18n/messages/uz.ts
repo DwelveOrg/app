@@ -910,6 +910,7 @@ translation: {
                 "Oʻtgan yilgi ish yoki toʻplam bobini yuklang. Har bir savol, variant va javob kaliti oʻsha yerdan oʻqiladi — siz tayyor qoralamani tekshirasiz, uni yozib chiqmaysiz.",
               short: "Ishni yuklang — savol, variant va javob kaliti oʻsha yerdan oʻqiladi.",
               strip: "Ishni yuklang — qoralama qaytadi",
+              draft: "savollar qoralamasi",
               action: "Men uchun yigʻing",
             },
             answerRule:

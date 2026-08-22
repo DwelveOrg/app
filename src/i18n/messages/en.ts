@@ -955,6 +955,7 @@ translation: {
                 "Upload a past paper or a workbook chapter. Every question, option and answer key is read out of it — you review a finished draft instead of typing it.",
               short: "Upload a past paper — questions, options and the answer key are read out of it.",
               strip: "Upload a paper and get a draft back",
+              draft: "question draft",
               action: "Build it for me",
             },
             answerRule:
