@@ -95,6 +95,13 @@ Every detector is debounced at 1.5s: one alt-tab fires both `blur` and
 `visibilitychange`, and an overlay accusing a student twice for one act is an
 accusation they know is wrong.
 
+Required fullscreen begins on the **Start/Resume press**, before the server
+action, because browsers grant it only to a direct user gesture. The fullscreen
+element is `<html>`, which survives the client-side transition from cover to
+paper. A refresh or restored attempt necessarily loses browser fullscreen, so
+the runtime pauses behind a focused retry dialog; a rejected retry exposes the
+capability fallback instead of trapping the student or consuming the attempt.
+
 **Every rule is stated on the cover screen, in the second person, before the
 attempt starts.** That is the difference between a rule and a trap.
 
@@ -235,7 +242,9 @@ an autosave that never lands, or a test that will not publish — and none of th
 is visible to `tsc`.
 
 Walk it as a student: assignments → a published test → read the rules on the
-cover → start → answer a question of each engine → switch tabs and confirm the
+cover → start and confirm a proctored test enters fullscreen before question one
+→ refresh and confirm the fullscreen recovery gate appears → answer a question
+of each engine → switch tabs and confirm the
 answers saved → refresh mid-attempt and confirm the clock did **not** restart and
 every answer came back → submit with one question blank and confirm the count in
 the dialog → the result screen.

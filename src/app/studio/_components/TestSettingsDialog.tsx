@@ -29,7 +29,7 @@ type TestSettingsDialogProps = {
  * before they start.
  *
  * Timing, availability, and the passing score used to live here too. They moved
- * into the publish wizard, where they belong — they are decisions about how the
+ * into the publish screen, where they belong — they are decisions about how the
  * test is *delivered*, and asking for them in a dialog a teacher may never open
  * is how a test ends up published with no time limit by accident. What is left
  * is what a teacher edits while writing rather than while shipping.
@@ -81,7 +81,7 @@ export default function TestSettingsDialog({
         description: values.description,
         instructions: values.instructions,
         // Carried through untouched so a save here never silently clears what
-        // the publish wizard set.
+        // the publish screen set.
         durationMinutes: values.durationMinutes,
         passingScore: values.passingScore,
         shuffleQuestions: values.shuffleQuestions,

@@ -21,7 +21,7 @@ the route changes.
 ```txt
 /studio/tests/new?class=<classId>   create a draft, then straight into the builder
 /studio/tests/[testId]              the builder
-/studio/tests/[testId]/publish      the publish wizard
+/studio/tests/[testId]/publish      the publish screen
 ```
 
 `/studio` is in `protectedRoutes`. The class-scoped assignments board lives on
@@ -164,19 +164,29 @@ Top to bottom, as the decision actually goes:
    most tests this is the entire interaction. Edit anything below and no card is
    selected: auto-selecting the nearest preset would be a lie, and offering
    "custom" as a fourth card invites a press that can only discard the edits.
-3. **When** — the three things no mode can guess: how long, what window, how many
-   attempts.
-4. **Everything else** — three closed disclosures (During the test / Exam
-   integrity / After they submit). Each header reads back its own state
-   (`_lib/deliverySummary.ts`), so collapsing hides detail rather than
-   consequence.
+3. **Essentials** — the four values no mode can guess: duration, availability
+   window, attempts, and pass mark. Turning timing on also turns on the visible
+   countdown, a valid five-minute-or-less warning, and submission at zero;
+   these are one timing policy rather than three switches that can disagree.
+4. **Fine-tune the rules** — three compact choices:
+   - **Question flow:** Flexible or In order. This owns navigation, going back,
+     and question/option shuffling as one policy.
+   - **Supervision:** None or Monitored. Monitored owns fullscreen, screen-exit
+     detection, a three-event budget, clipboard/context-menu blocking, and the
+     honour acknowledgement. Exits are counted rather than submitting on the
+     first focus-stealing notification.
+   - **Results:** Score + answers, Score only, or After review. Each option owns
+     release timing, score, answer-key, and feedback visibility together.
 
-The right-hand panel is the live **student preview**: every choice restated in
-the second person, in the order the student meets it. Twenty switches produce a
-behaviour nobody can hold in their head, and the failure mode is specific —
-turning on "end the attempt when the student leaves the screen" while meaning
-"warn them", and finding out when a class submits blank papers because a
-notification stole focus.
+The low-level `TestDelivery` fields remain the wire contract, but they are not
+independent product decisions in the UI. Three coherent rule profiles replace
+the old matrix of eighteen switches. A legacy/custom combination is preserved
+until the teacher deliberately replaces that category.
+
+The right-hand panel is the live **student preview**: the resolved behaviour is
+restated in the second person, in the order the student meets it. This is how a
+teacher verifies what each compact rule bundle actually means before notifying
+the class.
 
 **Nothing is locked down by default.** `DEFAULT_TEST_DELIVERY` in
 `src/app/(root)/_lib/test-delivery.ts` is the least surprising delivery, not the
@@ -218,10 +228,10 @@ result release or integrity rules does not unpublish or notify the class again.
   — reordering in the outline rail, ordering questions, options, and matching
   rows. Recorded in `docs/architecture/ARCHITECTURE.md`, which previously ruled
   DnD out; the up/down buttons **stay** on every row.
-- `screenfull` — the "try fullscreen" demo in the integrity step. It normalises
-  the four vendor spellings and, critically, exposes `isEnabled`, which is how
-  the wizard can warn that a browser will not allow fullscreen at all instead of
-  silently doing nothing.
+- `screenfull` — the student start and live-attempt fullscreen boundary. It
+  normalises the four vendor spellings and exposes `isEnabled`, which is how the
+  exam can distinguish a required retry from a browser that cannot provide the
+  capability.
 
 ## Verification
 
@@ -237,10 +247,11 @@ the buttons → wait for autosave → **Publish**.
 On the publish page: leave a deliberate issue in the test, follow the deep link,
 fix it, save, and confirm **the ring clears on that row and stays on the others**
 → back to publish → pick **Proctored exam** → set the limit to 3 minutes and
-confirm candidate validation flags an incompatible warning without persisting
-either value → open each disclosure and confirm its closed header already said
-what was inside → publish. Reopen the publish route for the published test,
-change a delivery rule, save, and confirm no new class notification is created.
+confirm the warning automatically stays below the duration without persisting
+either value → change each of the three rule profiles and confirm the student
+preview reads back the consequence → publish. Reopen the publish route for the
+published test, change the result profile, save, and confirm no new class
+notification is created.
 
 Repeat in `ru` and `uz` to catch missing keys, and in both themes. Check the page
 at `<768px`, `768–1024px` and `>1280px` — the old step rail vanished below `lg`,

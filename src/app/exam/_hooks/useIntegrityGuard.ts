@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import screenfull from "screenfull";
 
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
@@ -38,13 +38,11 @@ export type IntegrityNotice = {
  *
  * ## Fullscreen
  *
- * `screenfull.isEnabled` is the reason this uses the library: a browser can
- * refuse fullscreen outright (an iframe without the permission, some mobile
- * browsers), and a request that silently does nothing would leave a student
- * pressing a button that never opens their exam. When it is unavailable the
- * requirement is reported as unavailable, and the attempt proceeds — locking a
- * student out of an exam over a browser capability is a worse outcome than a
- * missing precaution.
+ * The cover requests fullscreen inside the Start/Resume gesture. This hook
+ * keeps it enforced once the paper is mounted and exposes a recovery gate for
+ * a refresh or browser-initiated exit. `screenfull.isEnabled` also lets the
+ * recovery path distinguish a missing capability from an ignored request;
+ * neither may permanently lock a student out of an attempt.
  *
  * ## Noise
  *
@@ -66,8 +64,14 @@ export function useIntegrityGuard({
   onEnded: () => void;
 }) {
   const [notice, setNotice] = useState<IntegrityNotice | null>(null);
-  const [fullscreenBlocked, setFullscreenBlocked] = useState(false);
+  const [fullscreenUnavailable, setFullscreenUnavailable] = useState(false);
+  const [fullscreenBypassed, setFullscreenBypassed] = useState(false);
   const [violations, setViolations] = useState(0);
+  const fullscreenActive = useSyncExternalStore(
+    subscribeToFullscreen,
+    readFullscreen,
+    readFullscreenOnServer,
+  );
 
   /**
    * Written in an effect, never during render.
@@ -148,14 +152,16 @@ export function useIntegrityGuard({
 
   const requestFullscreen = useCallback(async () => {
     if (!screenfull.isEnabled) {
-      setFullscreenBlocked(true);
+      setFullscreenUnavailable(true);
       return false;
     }
     try {
-      await screenfull.request();
+      await screenfull.request(document.documentElement);
+      setFullscreenUnavailable(false);
+      setFullscreenBypassed(false);
       return true;
     } catch {
-      setFullscreenBlocked(true);
+      setFullscreenUnavailable(true);
       return false;
     }
   }, []);
@@ -163,8 +169,20 @@ export function useIntegrityGuard({
   useEffect(() => {
     if (!active || !delivery.requireFullscreen || !screenfull.isEnabled) return;
 
+    // A refreshed/restored attempt has no trusted gesture with which to enter
+    // fullscreen. The derived snapshot pauses the paper and asks for one; do
+    // not count the refresh as an exit because the student has not left a
+    // fullscreen session.
+
     const onChange = () => {
-      if (!screenfull.isFullscreen) void report("FULLSCREEN_EXIT");
+      if (screenfull.isFullscreen) {
+        setFullscreenUnavailable(false);
+        setFullscreenBypassed(false);
+        return;
+      }
+
+      setFullscreenBypassed(false);
+      void report("FULLSCREEN_EXIT");
     };
 
     screenfull.on("change", onChange);
@@ -228,9 +246,34 @@ export function useIntegrityGuard({
     notice,
     dismissNotice: () => setNotice(null),
     violations,
-    /** The browser will not grant fullscreen; the requirement cannot be met. */
-    fullscreenBlocked,
+    /** The paper pauses until a trusted gesture restores required fullscreen. */
+    fullscreenRequired:
+      active &&
+      delivery.requireFullscreen &&
+      screenfull.isEnabled &&
+      !fullscreenActive &&
+      !fullscreenBypassed,
+    /** A trusted request was rejected, so the student needs an explicit fallback. */
+    fullscreenUnavailable,
     requestFullscreen,
-    fullscreenSupported: screenfull.isEnabled,
+    continueWithoutFullscreen: () => setFullscreenBypassed(true),
   };
+}
+
+function subscribeToFullscreen(onStoreChange: () => void): () => void {
+  if (!screenfull.isEnabled) return () => undefined;
+  screenfull.on("change", onStoreChange);
+  return () => screenfull.off("change", onStoreChange);
+}
+
+function readFullscreen(): boolean {
+  // Unsupported browsers use the documented capability fallback and never
+  // expose a gate the student cannot satisfy.
+  return !screenfull.isEnabled || screenfull.isFullscreen;
+}
+
+function readFullscreenOnServer(): boolean {
+  // Fullscreen is a browser-only capability. Treat the server render as safe;
+  // useSyncExternalStore reconciles it immediately after hydration.
+  return true;
 }

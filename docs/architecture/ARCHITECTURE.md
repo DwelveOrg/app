@@ -121,13 +121,15 @@ So the studio ships **both**, and the rule is now:
 ### Fullscreen: `screenfull`
 
 `screenfull` is permitted for Fullscreen API access. It normalises the four
-vendor spellings (Safari is still `webkit`-prefixed) and exposes `isEnabled`,
-which is what lets the publish wizard warn that a browser will refuse fullscreen
-rather than appearing to do nothing when the control is pressed. Used by `src/app/studio/_components/publish/FullscreenDemo.tsx` and by
-`src/app/exam/_hooks/useIntegrityGuard.ts`, where the same `isEnabled` check
-decides whether a fullscreen *requirement* can be met at all — locking a student
-out of an exam over a browser capability is a worse outcome than a missing
-precaution, so an unavailable Fullscreen API lets the attempt proceed.
+vendor spellings (Safari is still `webkit`-prefixed) and exposes `isEnabled`.
+`src/app/exam/_components/CoverScreen.tsx` requests fullscreen inside the
+student's Start/Resume click, before the asynchronous attempt request; moving it
+after that request loses the trusted user gesture and browsers reject it.
+`src/app/exam/_hooks/useIntegrityGuard.ts` then observes the live state and
+pauses a refreshed or restored attempt behind an explicit fullscreen retry.
+An unavailable Fullscreen API lets the attempt proceed; a policy-blocked trusted
+retry offers an explicit continue path. Locking a student out over browser
+capability is worse than a missing precaution.
 
 ## Schema Placement
 

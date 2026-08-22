@@ -19,11 +19,10 @@ export type ChoiceCardOption<TValue extends string> = {
  * A radio group rendered as cards, for choices where the options need
  * explaining rather than merely naming.
  *
- * Every choice in the publish wizard is of that kind: "warn / count / end the
- * attempt" is meaningless as three words in a dropdown and obvious as three
- * cards that each say what the student sees. Built on native radio inputs so it
- * is a real radio group to a screen reader and arrow keys work without any
- * roving-tabindex code of ours.
+ * Delivery modes need this much room because each one describes a complete
+ * student experience, not just a short enum label. Built on native radio inputs
+ * so it is a real radio group to a screen reader and arrow keys work without
+ * any roving-tabindex code of ours.
  *
  * Selection is marked by a check icon as well as the tint, per
  * `docs/design/design-system.md` — a colour-only selected state fails the same

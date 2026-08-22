@@ -7,7 +7,7 @@ import { z } from "zod";
  * The authoring tree (sections → groups → questions → options) answers "what is
  * asked". This answers "under what conditions" — timing behaviour, navigation,
  * exam-integrity rules, attempts, and when results become visible. It is the set
- * of questions the publish wizard asks before a draft goes live.
+ * of decisions the publish screen resolves before a draft goes live.
  *
  * ## Why these fields and not the ones already on `Test`
  *
@@ -16,7 +16,7 @@ import { z } from "zod";
  * `PATCH /tests/:testId`. They are deliberately **not** repeated here: two
  * sources of truth for "how long is this test" is precisely the drift that
  * produces a countdown disagreeing with the deadline. Delivery holds only what
- * is genuinely new, and the wizard edits both objects side by side.
+ * is genuinely new, and the publish screen edits both objects side by side.
  *
  * Per-section timing is likewise absent: a section's `durationMinutes` belongs
  * to the structure tree, is edited in the builder, and is saved by
@@ -52,13 +52,9 @@ export const integrityActionSchema = z.enum([
 ]);
 export type IntegrityAction = z.infer<typeof integrityActionSchema>;
 
-export const INTEGRITY_ACTIONS = integrityActionSchema.options;
-
 /** Whether students see the whole paper or one question at a time. */
 export const navigationModeSchema = z.enum(["ALL_AT_ONCE", "ONE_AT_A_TIME"]);
 export type NavigationMode = z.infer<typeof navigationModeSchema>;
-
-export const NAVIGATION_MODES = navigationModeSchema.options;
 
 /** When a student may see how they did. */
 export const resultsReleaseSchema = z.enum([
@@ -70,8 +66,6 @@ export const resultsReleaseSchema = z.enum([
   "MANUAL",
 ]);
 export type ResultsRelease = z.infer<typeof resultsReleaseSchema>;
-
-export const RESULTS_RELEASE_MODES = resultsReleaseSchema.options;
 
 /* -------------------------------------------------------------------------- */
 /* Limits                                                                      */
@@ -167,7 +161,7 @@ export const testDeliverySchema = z
   .partial()
   .transform((value) => ({ ...DEFAULT_TEST_DELIVERY, ...stripUndefined(value) }));
 
-/** The write shape: complete, no partials, because the wizard always sends all of it. */
+/** The write shape: complete, no partials, because publishing always sends all of it. */
 export const testDeliveryInputSchema = z.object(deliveryShape);
 export type TestDelivery = z.infer<typeof testDeliveryInputSchema>;
 
@@ -183,7 +177,7 @@ function stripUndefined<T extends object>(value: T): Partial<T> {
  * Chosen to be the *least surprising* delivery, not the strictest one: nothing
  * is locked down, the whole paper is visible, and results appear on submit.
  * Integrity rules are a deliberate act by the teacher, so a test that was never
- * taken through the wizard never silently ejects a student for switching tabs.
+ * taken through the publish screen never silently ejects a student for switching tabs.
  */
 export const DEFAULT_TEST_DELIVERY: TestDelivery = {
   showTimer: true,
@@ -213,7 +207,7 @@ export const DEFAULT_TEST_DELIVERY: TestDelivery = {
 };
 
 /**
- * The strict preset offered as one click in the wizard — what a teacher means
+ * The strict preset offered as one click on the publish screen — what a teacher means
  * by "make this a real exam".
  */
 export const PROCTORED_TEST_DELIVERY: TestDelivery = {
@@ -224,11 +218,11 @@ export const PROCTORED_TEST_DELIVERY: TestDelivery = {
   requireFullscreen: true,
   fullscreenExitAction: "COUNT",
   detectLeaveScreen: true,
-  leaveScreenAction: "SUBMIT",
+  leaveScreenAction: "COUNT",
   blockCopyPaste: true,
   blockContextMenu: true,
   requireHonorCode: true,
-  resultsRelease: "AFTER_CLOSE",
+  resultsRelease: "MANUAL",
   showCorrectAnswers: false,
 };
 
@@ -251,52 +245,3 @@ export const DELIVERY_PRESETS = {
 } as const;
 
 export type DeliveryPresetName = keyof typeof DELIVERY_PRESETS;
-
-/* -------------------------------------------------------------------------- */
-/* Derived reads                                                               */
-/* -------------------------------------------------------------------------- */
-
-/**
- * Which preset a delivery object corresponds to, or `null` when the teacher has
- * customised it. Compared field by field rather than by a stored preset name,
- * because a stored name goes stale the moment one switch is flipped.
- */
-export function matchPreset(delivery: TestDelivery): DeliveryPresetName | null {
-  const entry = Object.entries(DELIVERY_PRESETS).find(([, preset]) =>
-    (Object.keys(deliveryShape) as (keyof TestDelivery)[]).every(
-      (key) => preset[key] === delivery[key],
-    ),
-  );
-
-  return (entry?.[0] as DeliveryPresetName | undefined) ?? null;
-}
-
-/**
- * The integrity rules currently in force, as translation keys plus their
- * action. The publish screen counts them for the closed "Exam integrity"
- * disclosure, so a collapsed group still says whether anything inside it is on.
- */
-export function activeIntegrityRules(
-  delivery: TestDelivery,
-): { key: string; action: IntegrityAction | null }[] {
-  const rules: { key: string; action: IntegrityAction | null }[] = [];
-
-  if (delivery.requireFullscreen) {
-    rules.push({ key: "requireFullscreen", action: delivery.fullscreenExitAction });
-  }
-  if (delivery.detectLeaveScreen) {
-    rules.push({ key: "detectLeaveScreen", action: delivery.leaveScreenAction });
-  }
-  if (delivery.blockCopyPaste) rules.push({ key: "blockCopyPaste", action: null });
-  if (delivery.blockContextMenu) rules.push({ key: "blockContextMenu", action: null });
-  if (delivery.requireHonorCode) rules.push({ key: "requireHonorCode", action: null });
-  if (delivery.navigationMode === "ONE_AT_A_TIME") {
-    rules.push({ key: "oneAtATime", action: null });
-  }
-  if (!delivery.allowBackNavigation && delivery.navigationMode === "ONE_AT_A_TIME") {
-    rules.push({ key: "noBackNavigation", action: null });
-  }
-  if (delivery.shuffleOptions) rules.push({ key: "shuffleOptions", action: null });
-
-  return rules;
-}

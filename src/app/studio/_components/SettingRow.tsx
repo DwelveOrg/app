@@ -8,11 +8,9 @@ import { cn } from "@/lib/utils";
 /**
  * One decision, stated in full.
  *
- * The publish wizard asks eighteen questions about how a test behaves, and
- * several of them ("end the attempt when the student leaves the screen") change
- * what happens to a real student mid-exam. A bare label beside a switch is not
- * enough for that: every row states what the setting does *and* what turning it
- * on means, because a teacher should never have to publish once to find out.
+ * A publishing value can change what happens to a real student mid-exam. A
+ * bare label beside a control is not enough for that: every row states what the
+ * setting does, because a teacher should never have to publish once to find out.
  *
  * `children` is the dependent detail — the follow-up control a rule reveals when
  * it is on. Nesting it inside the row rather than placing it as a sibling is

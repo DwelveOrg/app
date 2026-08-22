@@ -1104,29 +1104,53 @@ translation: {
             },
             modes: {
               label: "How students take it",
-              hint: "Pick the closest match. Everything below is already set for it.",
+              hint: "Choose a ready-made setup, then adjust only what matters.",
+              updateHint: "Adjust attempts, supervision, or result release without republishing the test.",
               customised: "Your own settings — no mode matches them.",
               practice: {
                 description: "Untimed, three attempts, answers shown afterwards.",
                 effect: "Students can learn from it in their own time.",
               },
               standard: {
-                description: "Timed, one attempt, score on submit. Nothing locked down.",
+                description: "Timed, one attempt, score on submit, no monitoring.",
                 effect: "A normal class test.",
               },
               proctored: {
-                description: "One question at a time, fullscreen, tab switching ends the attempt.",
-                effect: "Results wait until the test closes.",
+                description: "Locked order, fullscreen, and three recorded exits before submission.",
+                effect: "You release results after checking.",
               },
             },
             when: {
-              label: "When students can take it",
+              label: "Time, access and scoring",
             },
             advanced: {
-              label: "Everything else",
+              label: "Fine-tune the rules",
               during: "During the test",
               integrity: "Exam integrity",
               results: "After they submit",
+            },
+            rules: {
+              hint: "Each clear choice replaces several individual switches and keeps related safeguards consistent.",
+              custom: "A custom setup is currently preserved.",
+              flow: {
+                label: "Question flow",
+                hint: "Whether students can browse the paper or must work in order.",
+                flexible: "Flexible",
+                focused: "In order",
+              },
+              supervision: {
+                label: "Supervision",
+                hint: "Monitoring bundles fullscreen, screen exits, clipboard blocking, and the honour code.",
+                open: "None",
+                monitored: "Monitored",
+              },
+              results: {
+                label: "Results",
+                hint: "Choose what students receive after submitting.",
+                review: "Answers",
+                score: "Score",
+                held: "Held",
+              },
             },
             summaryLine: {
               untimed: "No time limit",
@@ -2959,6 +2983,13 @@ translation: {
           willEnd: "Doing this again ends your attempt.",
           ended: "Your attempt has ended and your answers were submitted.",
           resume: "Back to the test",
+          fullscreenRequired: {
+            title: "Enter fullscreen",
+            description: "This test must stay in fullscreen. Enter it to continue with the paper.",
+            unavailable: "Your browser did not allow fullscreen. You can retry or continue without it; your attempt will not be lost.",
+            action: "Enter fullscreen",
+            continue: "Continue without fullscreen",
+          },
         },
         paper: {
           questionLabel: "Question {{number}}",

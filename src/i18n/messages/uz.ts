@@ -1061,29 +1061,53 @@ translation: {
             },
             modes: {
               label: "Oʻquvchilar testni qanday topshiradi",
-              hint: "Eng mos variantni tanlang. Quyidagilar unga moslab sozlangan.",
+              hint: "Tayyor rejimni tanlang, keyin faqat keraklisini oʻzgartiring.",
+              updateHint: "Testni qayta nashr qilmasdan urinishlar, nazorat yoki natijalar ochilishini oʻzgartiring.",
               customised: "Sizning sozlamalaringiz — hech bir rejimga mos kelmaydi.",
               practice: {
                 description: "Vaqt chegarasisiz, uch urinish, javoblar keyin koʻrsatiladi.",
                 effect: "Oʻquvchilar oʻz surʼatida oʻrganadi.",
               },
               standard: {
-                description: "Vaqt chegarasi bilan, bitta urinish, ball topshirilgach. Cheklovsiz.",
+                description: "Vaqt chegarasi bilan, bitta urinish, ball topshirilgach, nazoratsiz.",
                 effect: "Odatdagi sinf ishi.",
               },
               proctored: {
-                description: "Bittadan savol, toʻliq ekran, varaq almashtirish urinishni tugatadi.",
-                effect: "Natijalar test yopilgach koʻrinadi.",
+                description: "Qatʼiy tartib, toʻliq ekran va uchta qayd etilgan chiqishdan keyin topshirish.",
+                effect: "Natijalarni tekshiruvdan keyin ochasiz.",
               },
             },
             when: {
-              label: "Test qachon ochiq boʻladi",
+              label: "Vaqt, kirish va baholash",
             },
             advanced: {
-              label: "Qolgan sozlamalar",
+              label: "Qoidalarni aniq sozlash",
               during: "Test davomida",
               integrity: "Imtihon nazorati",
               results: "Topshirilgandan keyin",
+            },
+            rules: {
+              hint: "Har bir tushunarli tanlov bir nechta kalit oʻrnini bosadi va bogʻliq qoidalarni izchil saqlaydi.",
+              custom: "Hozir maxsus qoidalar toʻplami saqlanmoqda.",
+              flow: {
+                label: "Savollar tartibi",
+                hint: "Oʻquvchi testni erkin koʻradimi yoki tartib bilan ishlaydimi.",
+                flexible: "Erkin",
+                focused: "Tartib bilan",
+              },
+              supervision: {
+                label: "Nazorat",
+                hint: "Nazorat toʻliq ekran, testdan chiqish, bufer va halollik shartini birlashtiradi.",
+                open: "Nazoratsiz",
+                monitored: "Nazorat bilan",
+              },
+              results: {
+                label: "Natijalar",
+                hint: "Oʻquvchi topshirgach nimani olishini tanlang.",
+                review: "Javoblar",
+                score: "Ball",
+                held: "Keyin",
+              },
             },
             summaryLine: {
               untimed: "Vaqt chegarasi yoʻq",
@@ -2902,6 +2926,13 @@ translation: {
           willEnd: "Yana bir marta — va urinish tugaydi.",
           ended: "Urinish tugadi, javoblaringiz yuborildi.",
           resume: "Testga qaytish",
+          fullscreenRequired: {
+            title: "Toʻliq ekranga oʻting",
+            description: "Bu test toʻliq ekran rejimida oʻtishi kerak. Davom etish uchun uni yoqing.",
+            unavailable: "Brauzer toʻliq ekranga ruxsat bermadi. Qayta urinishingiz yoki usiz davom etishingiz mumkin — ishingiz yoʻqolmaydi.",
+            action: "Toʻliq ekranga oʻtish",
+            continue: "Toʻliq ekransiz davom etish",
+          },
         },
         paper: {
           questionLabel: "{{number}}-savol",

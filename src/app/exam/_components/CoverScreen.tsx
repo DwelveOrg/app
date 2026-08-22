@@ -14,6 +14,7 @@ import {
   Target,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import screenfull from "screenfull";
 import { toast } from "react-toastify";
 
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
@@ -75,7 +76,30 @@ export default function CoverScreen({
 
   const start = async () => {
     setStarting(true);
+    let enteredFullscreen = false;
+
     try {
+      /*
+       * Fullscreen requests are accepted only while the browser still considers
+       * this click a user gesture. Calling it after the server action (or from
+       * the attempt page's mount effect) is too late and browsers reject it.
+       * `documentElement` survives the client-side route replacement, so the
+       * exam remains fullscreen when the paper replaces this cover.
+       */
+      if (
+        delivery.requireFullscreen &&
+        screenfull.isEnabled &&
+        !screenfull.isFullscreen
+      ) {
+        try {
+          await screenfull.request(document.documentElement);
+          enteredFullscreen = screenfull.isFullscreen;
+        } catch {
+          // The live attempt provides one more explicit retry. A capability or
+          // policy failure must not consume or permanently block an attempt.
+        }
+      }
+
       const result = readSafeActionData(
         await startAttemptAction({ testId, honorCodeAccepted: accepted || resuming }),
         "exam.errors.generic",
@@ -83,6 +107,14 @@ export default function CoverScreen({
       router.replace(`/exam/${testId}/attempt?attempt=${result.attempt.id}`);
     } catch (error) {
       setStarting(false);
+      if (enteredFullscreen && screenfull.isEnabled && screenfull.isFullscreen) {
+        try {
+          await screenfull.exit();
+        } catch {
+          // The failed attempt is already reported below; failing to leave
+          // fullscreen does not change the recovery action.
+        }
+      }
       const message = error instanceof Error ? error.message : "exam.errors.generic";
       toast.error(t(message, { defaultValue: message }));
     }
