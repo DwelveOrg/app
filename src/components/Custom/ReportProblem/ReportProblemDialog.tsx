@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { usePathname } from "next/navigation";
-import { ImageUp, Paperclip, X } from "lucide-react";
+import { ImageUp, Loader2, Paperclip, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
@@ -10,6 +10,8 @@ import Dialog, { DialogFooterActions } from "@/app/(root)/_components/Dialog";
 import { Button } from "@/components/ui/Button";
 import Field from "@/components/ui/Field";
 import Textarea from "@/components/ui/textarea";
+import { compressImage } from "@/lib/uploads/compressImage";
+import { formatBytes } from "@/lib/uploads/limits";
 import { submitReportAction } from "@/lib/reports/reports.actions";
 import {
   REPORT_MESSAGE_MAX,
@@ -64,6 +66,9 @@ export default function ReportProblemDialog({
   const [kind, setKind] = useState<ReportKind>(defaultKind);
   const [message, setMessage] = useState("");
   const [screenshot, setScreenshot] = useState<File | null>(null);
+  /** The source file's size, kept only to say "4.8 MB → 210 KB" when it shrank. */
+  const [originalBytes, setOriginalBytes] = useState<number | null>(null);
+  const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sending, startSending] = useTransition();
 
@@ -89,6 +94,8 @@ export default function ReportProblemDialog({
     setKind(defaultKind);
     setMessage("");
     setScreenshot(null);
+    setOriginalBytes(null);
+    setPreparing(false);
     setError(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
@@ -98,7 +105,16 @@ export default function ReportProblemDialog({
     if (!next) reset();
   };
 
-  const acceptFile = (file: File | null | undefined) => {
+  /**
+   * Takes the file, then makes it small enough to actually arrive.
+   *
+   * The size check is on the *source* — the user's screenshot may legitimately
+   * be 8 MB — while what gets uploaded is whatever `compressImage` can fit into
+   * the transport budget. Without that step a real screenshot is destroyed at
+   * Vercel's edge with a 413 that never reaches this component; see
+   * `src/lib/uploads/limits.ts`.
+   */
+  const acceptFile = async (file: File | null | undefined) => {
     if (!file) return;
 
     if (!REPORT_SCREENSHOT_TYPES.includes(file.type as never)) {
@@ -111,7 +127,22 @@ export default function ReportProblemDialog({
     }
 
     setError(null);
-    setScreenshot(file);
+    setPreparing(true);
+
+    try {
+      const { file: upload, compressed, originalBytes: before } = await compressImage(file);
+
+      setScreenshot(upload);
+      setOriginalBytes(compressed ? before : null);
+    } catch {
+      // Every failure here is the same failure from the reporter's side: this
+      // particular image cannot be attached. Naming the decode step would not
+      // tell them anything they can act on.
+      setError(t("report.errors.unreadable"));
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } finally {
+      setPreparing(false);
+    }
   };
 
   /** Paste anywhere in the dialog, which is where a fresh screenshot lands. */
@@ -122,7 +153,7 @@ export default function ReportProblemDialog({
 
     if (image) {
       event.preventDefault();
-      acceptFile(image);
+      void acceptFile(image);
     }
   };
 
@@ -144,15 +175,26 @@ export default function ReportProblemDialog({
     if (screenshot) form.set("screenshot", screenshot);
 
     startSending(async () => {
-      const result = await submitReportAction(form);
+      try {
+        const result = await submitReportAction(form);
 
-      if (result.error) {
-        setError(result.error);
-        return;
+        if (result.error) {
+          setError(result.error);
+          return;
+        }
+
+        toast.success(t("report.sent"));
+        close(false);
+      } catch (cause) {
+        // A Server Action can fail *as transport*, before the action body runs
+        // and therefore before it can return `{ error }`. The one that mattered
+        // was Vercel's edge 413 on an oversized body: its response is not the
+        // action's serialised result, so React rejects here. Unhandled, the
+        // rejection escaped the transition and the dialog simply sat there —
+        // the exact "nothing happens when I attach an image" this fixes.
+        console.error("Report submission failed:", cause);
+        setError(t("report.errors.transport"));
       }
-
-      toast.success(t("report.sent"));
-      close(false);
     });
   };
 
@@ -169,7 +211,10 @@ export default function ReportProblemDialog({
         <DialogFooterActions
           cancelLabel={t("report.close")}
           submitLabel={sending ? t("report.sending") : t("report.submit")}
-          submitDisabled={tooShort || sending}
+          isBusy={sending}
+          // Also while an attachment is still being prepared: submitting then
+          // would file the report without the screenshot the user just chose.
+          submitDisabled={tooShort || sending || preparing}
           onSubmit={submit}
         />
       }
@@ -239,8 +284,16 @@ export default function ReportProblemDialog({
                 <p className="truncate text-13 font-medium text-foreground">
                   {screenshot.name || t("report.pastedImage")}
                 </p>
+                {/* Said, not hidden. A file the user chose arriving at a
+                    different size is a change they should be able to see —
+                    and it explains why an 8 MB capture uploads instantly. */}
                 <p className="text-2xs text-muted-foreground">
-                  {formatBytes(screenshot.size)}
+                  {originalBytes
+                    ? t("report.screenshotOptimised", {
+                        from: formatBytes(originalBytes),
+                        to: formatBytes(screenshot.size),
+                      })
+                    : formatBytes(screenshot.size)}
                 </p>
               </div>
               <Button
@@ -250,6 +303,7 @@ export default function ReportProblemDialog({
                 aria-label={t("report.removeScreenshot")}
                 onClick={() => {
                   setScreenshot(null);
+                  setOriginalBytes(null);
                   if (fileInputRef.current) fileInputRef.current.value = "";
                 }}
               >
@@ -258,14 +312,23 @@ export default function ReportProblemDialog({
             </div>
           ) : (
             <label
+              aria-busy={preparing}
               className={cn(
                 "flex cursor-pointer flex-col items-center gap-1.5 rounded-xl border border-dashed border-border px-4 py-5 text-center transition",
                 "hover:border-primary/50 hover:bg-muted/50",
+                preparing && "pointer-events-none border-primary/40 bg-muted/50",
               )}
             >
-              <ImageUp className="size-5 text-muted-foreground" aria-hidden="true" />
+              {preparing ? (
+                <Loader2
+                  className="size-5 animate-spin text-primary motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+              ) : (
+                <ImageUp className="size-5 text-muted-foreground" aria-hidden="true" />
+              )}
               <span className="text-13 font-medium text-foreground">
-                {t("report.screenshotCta")}
+                {preparing ? t("report.screenshotPreparing") : t("report.screenshotCta")}
               </span>
               <span className="type-caption text-muted-foreground">
                 {t("report.screenshotHint")}
@@ -275,7 +338,8 @@ export default function ReportProblemDialog({
                 type="file"
                 accept={REPORT_SCREENSHOT_TYPES.join(",")}
                 className="sr-only"
-                onChange={(event) => acceptFile(event.target.files?.[0])}
+                disabled={preparing}
+                onChange={(event) => void acceptFile(event.target.files?.[0])}
               />
             </label>
           )}
@@ -293,8 +357,3 @@ export default function ReportProblemDialog({
   );
 }
 
-function formatBytes(bytes: number) {
-  if (bytes < 1024) return `${bytes} B`;
-  if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-}

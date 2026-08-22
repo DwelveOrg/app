@@ -4,9 +4,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/Button";
+import { compressImage } from "@/lib/uploads/compressImage";
 import { cn } from "@/lib/utils";
 
 const ACCEPTED_TYPES = "image/png,image/jpeg,image/webp";
+/**
+ * What a user may *pick*. What is uploaded is re-encoded to fit
+ * `UPLOAD_MAX_BYTES` first — a 5 MB source would otherwise be rejected by the
+ * platform before any of our code ran. See `src/lib/uploads/limits.ts`.
+ */
 const MAX_BYTES = 5 * 1024 * 1024;
 
 type ImagePickerProps = {
@@ -53,6 +59,8 @@ export default function ImagePicker({
   const [file, setFile] = useState<File | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
   const [removed, setRemoved] = useState(false);
+  /** True while the picked file is being resized for upload. */
+  const [preparing, setPreparing] = useState(false);
 
   const previewUrl = useMemo(() => {
     if (!file) return null;
@@ -73,11 +81,11 @@ export default function ImagePicker({
   const message = errorMessage ?? localError;
 
   const openPicker = () => {
-    if (disabled) return;
+    if (disabled || preparing) return;
     inputRef.current?.click();
   };
 
-  const handleFile = (nextFile: File | undefined | null) => {
+  const handleFile = async (nextFile: File | undefined | null) => {
     setLocalError(null);
     if (!nextFile) {
       setFile(null);
@@ -94,9 +102,20 @@ export default function ImagePicker({
       return;
     }
 
-    setRemoved(false);
-    setFile(nextFile);
-    onChange(nextFile);
+    setPreparing(true);
+
+    try {
+      const { file: upload } = await compressImage(nextFile);
+
+      setRemoved(false);
+      setFile(upload);
+      onChange(upload);
+    } catch {
+      setLocalError("That image could not be read. Please try another one.");
+      if (inputRef.current) inputRef.current.value = "";
+    } finally {
+      setPreparing(false);
+    }
   };
 
   const handleRemove = () => {
@@ -147,7 +166,14 @@ export default function ImagePicker({
         </button>
 
         <div className="flex flex-1 flex-wrap items-center gap-2">
-          <Button type="button" variant="outline" size="sm" onClick={openPicker} disabled={disabled}>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={openPicker}
+            loading={preparing}
+            disabled={disabled || preparing}
+          >
             {displayedUrl ? replaceLabel : chooseLabel}
           </Button>
           {displayedUrl ? (
@@ -171,8 +197,8 @@ export default function ImagePicker({
         type="file"
         accept={ACCEPTED_TYPES}
         className="sr-only"
-        onChange={(event) => handleFile(event.target.files?.[0])}
-        disabled={disabled}
+        onChange={(event) => void handleFile(event.target.files?.[0])}
+        disabled={disabled || preparing}
       />
 
       {message ? (

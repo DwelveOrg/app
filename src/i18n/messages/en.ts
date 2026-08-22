@@ -23,6 +23,8 @@ translation: {
         screenshotLabel: "Screenshot",
         screenshotCta: "Attach or paste a screenshot",
         screenshotHint: "PNG, JPEG or WebP, up to 8 MB. Paste works too.",
+        screenshotPreparing: "Preparing your screenshot…",
+        screenshotOptimised: "{{to}} — resized from {{from}} so it uploads",
         screenshotPreviewAlt: "The screenshot you attached",
         pastedImage: "Pasted screenshot",
         removeScreenshot: "Remove screenshot",
@@ -35,6 +37,8 @@ translation: {
           tooShort: "Please describe the problem in at least {{count}} characters.",
           tooLarge: "That screenshot is too large. The limit is 8 MB.",
           wrongType: "Screenshots must be a PNG, JPEG or WebP image.",
+          unreadable: "That image could not be read. Please try another one.",
+          transport: "Your report could not be sent. Please try again, or remove the screenshot and send the message on its own.",
         },
       },
       onboarding: {
@@ -74,6 +78,12 @@ translation: {
           selected: "Selected",
           success: "Access confirmed",
           error: "We could not complete that step. Please try again.",
+          changePath: "Change",
+          noPath: {
+            title: "Pick how you are joining first",
+            description: "This step needs to know whether you are creating a school, using a code, or redeeming an invitation.",
+            action: "Back to the choices",
+          },
           steps: {
             welcome: {
               nav: "Welcome",

@@ -27,7 +27,7 @@ export default function AiImportCta({
       <Link
         href={href}
         className={cn(
-          "group interactive-flat relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3",
+          "group interactive-flat ai-sheen relative flex items-center gap-3 overflow-hidden rounded-2xl px-4 py-3",
           "border border-brand/30 bg-[linear-gradient(105deg,color-mix(in_srgb,var(--brand)_15%,var(--card)),color-mix(in_srgb,var(--brand)_5%,var(--card)))]",
           "before:pointer-events-none before:absolute before:-left-10 before:-top-12 before:size-32 before:rounded-full before:bg-brand/20 before:blur-3xl",
           "hover:border-brand/55 hover:bg-[linear-gradient(105deg,color-mix(in_srgb,var(--brand)_20%,var(--card)),color-mix(in_srgb,var(--brand)_7%,var(--card)))]",
@@ -112,10 +112,14 @@ export default function AiImportCta({
               panel: `shrink-0` keeps them at their own width instead of stretching
               across the card the way a block-level select did. */}
           <div className="flex flex-col gap-2 @md:flex-row @md:flex-wrap @md:items-center @2xl:shrink-0">
+            {/* The one lit control on the page. `ai-glow` puts the bloom
+                behind it and `ai-sheen` sends a single pass of light across it
+                on hover — see the `.ai-*` block in `globals.css` for why this
+                treatment is reserved for the model-backed actions. */}
             <Button
               asChild
               size="lg"
-              className="w-full bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105 @md:w-auto"
+              className="ai-glow ai-sheen w-full bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105 @md:w-auto"
             >
               <Link href={href}>
                 <Wand2 className="size-4" />
@@ -135,7 +139,7 @@ function SparkTile({ size }: { size: "sm" | "md" }) {
     <span
       aria-hidden="true"
       className={cn(
-        "relative grid shrink-0 place-items-center rounded-xl text-primary-foreground",
+        "ai-glow ai-glow-tile relative grid shrink-0 place-items-center rounded-xl text-primary-foreground",
         "bg-[image:var(--brand-gradient)] shadow-elev-brand",
         size === "sm" ? "size-9 [&_svg]:size-4" : "size-12 [&_svg]:size-5",
       )}

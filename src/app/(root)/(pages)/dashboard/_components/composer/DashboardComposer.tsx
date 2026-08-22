@@ -204,15 +204,23 @@ function KpiStrip({ ctx }: ModuleProps) {
 
   const group = ctx.role.toLowerCase();
   return (
+    // Six figures, sized to the figures.
+    //
+    // The tile used to carry `min-h-28` and a `mt-3` gap: a 16px label over a
+    // 30px number inside 32px of padding is 78px of content held in 112px of
+    // box, so a third of every tile — and a third of the strip across the whole
+    // width of the page — was reserved for nothing. Nothing filled it, because
+    // there is nothing else a KPI tile holds. Letting the tile size to its own
+    // content gives the page back ~40px without removing a single number.
     <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
       {tiles.map((tile) => (
-        <Surface key={tile.key} className="min-h-28 p-4">
-          <p className="type-caption font-medium text-muted-foreground">
+        <Surface key={tile.key} className="px-4 py-3.5">
+          <p className="type-caption truncate font-medium text-muted-foreground">
             {t(`root.dashboard.kpi.${group}.${tile.key}`)}
           </p>
           <p
             className={cn(
-              "numeric mt-3 text-2xl font-bold tracking-tight",
+              "numeric mt-1 text-2xl leading-tight font-bold tracking-tight",
               tile.available ? "text-foreground" : "text-muted-foreground",
             )}
           >
@@ -247,10 +255,12 @@ function EmptyNote({
     // `flex-1` + centring: the panel body already stretches to the row height,
     // so the empty state sits in the middle of whatever space it inherits
     // instead of pinning to the top and leaving a gap below.
-    <div className="flex flex-1 flex-col items-center justify-center gap-3 py-4 text-center text-muted-foreground">
+    <div className="flex flex-1 flex-col items-center justify-center gap-2 py-3 text-center text-muted-foreground">
       <Art />
       <p className="text-sm font-semibold text-foreground">{title}</p>
-      <p className="max-w-[42ch] text-xs leading-5 text-muted-foreground">{description}</p>
+      <p className="max-w-[42ch] text-xs leading-5 text-balance text-muted-foreground">
+        {description}
+      </p>
       {href && action ? (
         <Button asChild variant="outline" size="sm" className="mt-1">
           <Link href={href}>{action}</Link>
@@ -928,17 +938,33 @@ function QuickActions({ ctx }: ModuleProps) {
             { key: "assignments", href: "/assignments/exams", Icon: BookOpenCheck },
             { key: "notifications", href: "/notifications", Icon: Bell },
           ];
+  /*
+    Three links, on one line where there is room for one line.
+
+    This was a heading stacked over a full-width row of buttons — a 12-column
+    panel spending two stacked bands on three shortcuts, each of which is a word
+    and an icon. The heading is short and the actions are few, so at any width
+    that fits them they belong beside each other; the stack is the narrow-screen
+    fallback, not the default. Same three destinations, roughly half the height.
+  */
   return (
-    <Panel title={t("root.dashboard.modules.quickActions.title")}>
-      <div className="grid gap-2 sm:grid-cols-3">
-        {actions.map(({ key, href, Icon }) => (
-          <Button key={key} asChild variant="outline" className="h-auto justify-start py-3">
-            <Link href={href}>
-              <Icon className="h-4 w-4" />
-              {t(`root.dashboard.modules.quickActions.${key}`)}
-            </Link>
-          </Button>
-        ))}
+    <Panel bodyClassName="p-4 md:p-4">
+      <div className="@container">
+        <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-center @2xl:gap-6">
+          <h2 className="type-heading shrink-0 text-foreground">
+            {t("root.dashboard.modules.quickActions.title")}
+          </h2>
+          <div className="grid flex-1 gap-2 sm:grid-cols-3">
+            {actions.map(({ key, href, Icon }) => (
+              <Button key={key} asChild variant="outline" className="justify-start">
+                <Link href={href}>
+                  <Icon className="h-4 w-4" />
+                  {t(`root.dashboard.modules.quickActions.${key}`)}
+                </Link>
+              </Button>
+            ))}
+          </div>
+        </div>
       </div>
     </Panel>
   );

@@ -3,7 +3,9 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
+  ArrowLeft,
   ArrowRight,
+  Compass,
   GraduationCap,
   MailCheck,
   School,
@@ -130,13 +132,46 @@ export function PathStep({
   );
 }
 
+/**
+ * What the connect step shows when no path was ever chosen.
+ *
+ * Previously this state re-rendered `PathStep`, so the flow's last two screens
+ * held the same three cards and only the heading changed — it read as a bug,
+ * because it was one. A short explanation and one control back to the question
+ * is the whole of what this state has to say.
+ */
+export function NoPathStep({ onBack }: { onBack: () => void }) {
+  const { t } = useTranslation();
+
+  return (
+    <div className="mx-auto max-w-md rounded-2xl border border-dashed border-border bg-muted/40 px-6 py-10 text-center">
+      <span className="mx-auto inline-flex size-11 items-center justify-center rounded-xl bg-accent text-primary">
+        <Compass className="size-5" />
+      </span>
+      <p className="mt-5 text-base font-semibold text-foreground">
+        {t("onboarding.access.noPath.title")}
+      </p>
+      <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-pretty text-muted-foreground">
+        {t("onboarding.access.noPath.description")}
+      </p>
+      <Button type="button" variant="outline" onClick={onBack} className="mt-6">
+        <ArrowLeft className="size-4" />
+        {t("onboarding.access.noPath.action")}
+      </Button>
+    </div>
+  );
+}
+
 export function ConnectStep({
   path,
   onConnected,
+  onChangePath,
   disabled,
 }: {
   path: AccessPath;
   onConnected: () => void;
+  /** Back to the chooser, without losing the wizard's place. */
+  onChangePath: () => void;
   disabled: boolean;
 }) {
   const { t } = useTranslation();
@@ -156,6 +191,8 @@ export function ConnectStep({
     createSchool.isPending ||
     joinSchool.isPending ||
     acceptInvite.isPending;
+
+  const ChosenIcon = PATHS.find((entry) => entry.id === path)?.icon ?? School;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -182,6 +219,25 @@ export function ConnectStep({
   return (
     <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[minmax(0,26rem)_minmax(0,1fr)] lg:gap-12">
       <div className="min-w-0 space-y-4">
+        {/* The decision from the previous step, carried forward as a fact
+            rather than as a control. It is what makes this screen legible on
+            its own — without it the form is three unlabelled fields, and the
+            user has no way back to the choice except the browser. */}
+        <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-muted/50 px-3 py-2">
+          <span className="inline-flex items-center gap-2 text-13 font-medium text-foreground">
+            <ChosenIcon className="size-4 text-primary" aria-hidden="true" />
+            {t(`onboarding.access.${path}.title`)}
+          </span>
+          <button
+            type="button"
+            onClick={onChangePath}
+            disabled={busy}
+            className="interactive-flat rounded-md text-2xs font-semibold text-muted-foreground underline underline-offset-4 outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring/40 disabled:opacity-60"
+          >
+            {t("onboarding.access.changePath")}
+          </button>
+        </div>
+
         {path === "admin" ? (
           <>
             <Field label={t("onboarding.access.admin.name")} required>

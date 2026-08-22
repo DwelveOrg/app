@@ -24,7 +24,13 @@ import {
   StepEscapes,
   StepHeader,
 } from "./StepShell";
-import { ConnectStep, PathStep, WelcomeStep, type AccessPath } from "./AccessStep";
+import {
+  ConnectStep,
+  NoPathStep,
+  PathStep,
+  WelcomeStep,
+  type AccessPath,
+} from "./AccessStep";
 
 type WizardUser = {
   id: string;
@@ -122,6 +128,14 @@ export default function OnboardingWizard(props: WizardProps) {
   // connect step is what actually creates the membership — so "next" is not an
   // escape from it. Skipping the step is, and that is a separate control.
   const isConnect = flow === "access" && current.key === "connect";
+  /*
+    Choosing a path is not optional, so it does not get a "Skip this step".
+    That control was the only way to reach `connect` with no path — the state
+    that used to render the chooser twice — and it never made sense on its own
+    terms either: skipping the question that decides the next screen leaves the
+    next screen with nothing to ask.
+  */
+  const isPathChoice = flow === "access" && current.key === "path";
   const isDone = current.key === "done";
   const isHero = safeStep === 0;
   const canAdvance =
@@ -170,7 +184,15 @@ export default function OnboardingWizard(props: WizardProps) {
       ? t(`onboarding.access.steps.${current.key}.description`)
       : t(`${labelBase}.${current.key}.description`, { school });
 
-  /* The step's content, without its frame. */
+  /*
+    The step's content, without its frame.
+
+    The `connect` step never falls back to `PathStep`. It used to, whenever the
+    chooser had been skipped, and the result was two consecutive screens holding
+    the identical three cards under different headings — the flow looked stuck.
+    `NoPathStep` says what is missing and sends the user back to the step that
+    answers it, so no two screens in this flow show the same thing.
+  */
   const body =
     flow === "access" ? (
       current.key === "welcome" ? (
@@ -178,9 +200,14 @@ export default function OnboardingWizard(props: WizardProps) {
       ) : current.key === "path" ? (
         <PathStep value={path} onChange={setPath} />
       ) : path ? (
-        <ConnectStep path={path} disabled={leaving} onConnected={() => goTo(0)} />
+        <ConnectStep
+          path={path}
+          disabled={leaving}
+          onChangePath={() => goTo(safeStep - 1)}
+          onConnected={() => goTo(0)}
+        />
       ) : (
-        <PathStep value={path} onChange={setPath} />
+        <NoPathStep onBack={() => goTo(safeStep - 1)} />
       )
     ) : (
       <RoleStep
@@ -195,10 +222,19 @@ export default function OnboardingWizard(props: WizardProps) {
     );
 
   /*
-    Steps cross-fade with a slight shrink and blur rather than sliding. A slide
+    Steps cross-fade with a slight shrink and lift rather than sliding. A slide
     implies a filmstrip you can scrub; this flow is a sequence of separate
     questions, and settling into place reads as "here is the next one" instead
     of "you have moved right". Reduced motion keeps the fade and drops the rest.
+
+    There is deliberately **no `filter: blur()`** here. It used to blur 6px in
+    and out, which is the one property in that set the compositor cannot take:
+    `filter` is animated by writing an inline style every frame, and a blur
+    forces the browser to re-rasterise the whole step — every card, every glyph
+    — on each of those frames. This is the largest subtree on the screen, and on
+    the school hardware this product targets that is a real per-frame cost for
+    an effect nobody can name afterwards. `opacity` and `transform` say the same
+    thing and never leave the compositor.
   */
   const motionProps = reduced
     ? {
@@ -208,9 +244,9 @@ export default function OnboardingWizard(props: WizardProps) {
         transition: { duration: 0.15 },
       }
     : {
-        initial: { opacity: 0, scale: 0.985, filter: "blur(6px)" },
-        animate: { opacity: 1, scale: 1, filter: "blur(0px)" },
-        exit: { opacity: 0, scale: 0.985, filter: "blur(6px)" },
+        initial: { opacity: 0, scale: 0.985, y: 8 },
+        animate: { opacity: 1, scale: 1, y: 0 },
+        exit: { opacity: 0, scale: 0.99, y: -6 },
         transition: { duration: 0.26, ease: [0.16, 1, 0.3, 1] as const },
       };
 
@@ -271,7 +307,7 @@ export default function OnboardingWizard(props: WizardProps) {
 
                 <StepActions
                   secondary={
-                    isConnect ? null : (
+                    isConnect || isPathChoice ? null : (
                       <Button
                         type="button"
                         variant="ghost"
