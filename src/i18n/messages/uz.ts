@@ -44,10 +44,18 @@ translation: {
           school: "Maktab",
           classes: "Sinflar",
         },
-        progress: { done: "Bajarildi", eyebrow: "Ishni boshlash", label: "{{total}} qadamdan {{current}}-qadam" },
-        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", skipStep: "Bu qadamni oʻtkazish", skipAll: "Sozlashni oʻtkazish", skipAllHint: "Toʻgʻridan-toʻgʻri panelga oʻtish. Keyin qayta koʻrish mumkin.", logOut: "Chiqish", back: "Orqaga", next: "Keyingi", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
+        progress: {
+          eyebrow: "Ishni boshlash",
+          counter: "{{current}} / {{total}}",
+          hint: "bosqichlar orasida harakatlanish uchun",
+        },
+        done: {
+          title: "Hammasi tayyor",
+          description:
+            "{{school}} tayyor. Bundan keyingi barcha ish boshqaruv panelida — bu qoʻllanmani istalgan vaqtda qayta koʻrish mumkin.",
+        },
+        actions: { saveError: "Jarayonni saqlab boʻlmadi. Qayta urinib koʻring.", skip: "Hozircha oʻtkazib yuborish", skipStep: "Bu qadamni oʻtkazish", skipAll: "Sozlashni oʻtkazish", logOut: "Chiqish", back: "Orqaga", next: "Keyingi", getStarted: "Boshlash", finish: "Panelni ochish", continue: "Davom etish", working: "Bajarilmoqda…" },
         access: {
-          railTitle: "Maktabga qoʻshilish",
           eyebrow: "Dwelve'ga xush kelibsiz",
           choose: "Tanlash",
           selected: "Tanlandi",
@@ -108,21 +116,18 @@ translation: {
         },
         roles: {
           admin: {
-            title: "Maktabni sozlash",
             ready: { nav: "Maktab tayyor", title: "Maktabingiz tayyor", description: "«{{school}}» uchun xavfsiz ish maydoni tayyor. Birinchi vazifalarni hozir bajaring yoki keyin qayting." },
             class: { asideTitle: "Sinf nima uchun kerak", asideBody: "Sinfda oʻquvchilar roʻyxati va unga tayinlangan testlar boʻladi. Paneldagi barcha natija va grafiklar sinf boʻyicha hisoblanadi.", nav: "Birinchi sinf", title: "Birinchi sinfni yarating", description: "Sinf oʻqituvchilar, oʻquvchilar va testlarni bogʻlaydi. Ishni boshlash uchun sinf qoʻshing.", field: "Sinf nomi", action: "Sinf yaratish", existing: "Mavjud sinflar", success: "Sinf yaratildi", error: "Sinfni yaratib boʻlmadi." },
             people: { teachers: "Oʻqituvchilar", teachersDescription: "Shaxsiy taklif havolasini yuboring. Oʻqituvchi ruxsati pochtaga bogʻlanadi, chunki bu rol javob kalitlarini koʻradi.", copyCode: "Kodni nusxalash", nav: "Taklif qilish", title: "Jamoa va oʻquvchilarni qoʻshing", description: "Oʻqituvchilar email orqali shaxsiy taklif oladi, oʻquvchilar esa maktab kodidan foydalanadi.", students: "Oʻquvchi qoʻshilish kodi", studentsDescription: "Bu kodni faqat maktabingizga qoʻshilishi kerak boʻlgan oʻquvchilarga bering.", teacherEmail: "Oʻqituvchi emaili", invite: "Taklif yaratish", copyInvite: "Taklif havolasini nusxalash", copied: "Nusxalandi", inviteSuccess: "Oʻqituvchi taklifi yaratildi", inviteError: "Taklifni yaratib boʻlmadi." },
             workspace: { nav: "Ish maydoni", title: "Boʻlimlarni tanib oling", description: "«{{school}}» ni boshqarishda shu boʻlimlardan foydalanasiz. Ularni onboardingdan keyin ochish mumkin." },
           },
           teacher: {
-            title: "Oʻqituvchi ish maydoni",
             ready: { nav: "Kirish tayyor", title: "Oʻqituvchi kirishi tayyor", description: "Siz «{{school}}» ga ulandingiz. Batafsil maʼlumot faqat sizga biriktirilgan sinflar bilan cheklangan." },
             classes: { nav: "Sinflaringiz", title: "Biriktirilgan sinflarda ishlang", description: "Har bir sinfda roʻyxat, testlar va natijalar bor. Qaysi sinflarga kirishingizni administrator belgilaydi.", assigned: "Biriktirilgan sinflar", waiting: "Hali sinf biriktirilmagan. Administrator sinf qoʻshgach panelda maʼlumotlar koʻrinadi." },
             tests: { nav: "Test va natijalar", title: "Test yarating va tekshiring", description: "Boshqa oʻqituvchining sinflarini ochmasdan test yaratish, nashr qilish va javoblarni tekshirish uchun sinfni oching." },
             analytics: { nav: "Tahlil", title: "Yordam kerak joylarni aniqlang", description: "Panel sizning sinflaringiz uchun trend, baholar taqsimoti, sinflar taqqoslanishi va kutilayotgan tekshiruvni birlashtiradi." },
           },
           student: {
-            title: "Oʻquv maydonini sozlash",
             ready: { nav: "Kirish tayyor", title: "Maktabga qoʻshildingiz", description: "«{{school}}» dagi oʻquvchi kirishingiz tayyor. Panelda faqat sinflaringiz, urinishlaringiz va eʼlon qilingan natijalar koʻrinadi." },
             classes: { noneTitle: "Hozircha sizga ochiq sinf yoʻq", nav: "Sinflarni topish", title: "Kerakli sinflarga qoʻshiling", description: "Mavjud sinfga soʻrov yuboring. Tasdiq talab qiladigan soʻrov oʻqituvchi yoki administrator javobigacha kutiladi.", enrolled: "Joriy sinflaringiz", none: "Hozir soʻrov yuborish mumkin boʻlgan sinf yoʻq (jami: {{count}}). Keyinroq Sinflar boʻlimini tekshiring.", request: "Soʻrov", requested: "Sinf soʻrovi yuborildi", error: "Sinf soʻrovini yuborib boʻlmadi." },
             assignments: { nav: "Topshiriqlar", title: "Testlarni bir joyda topshiring", description: "Topshiriqlar boʻlimida sizga mavjud testlar jamlangan. Imtihon xonasi paneldan alohida va nazorat vositalariga ega." },
@@ -3193,7 +3198,7 @@ translation: {
         },
         visual: {
           login: {
-            badge: "500+ sinfda faol ishlatiladi",
+            badge: "Hozir erta foydalanishda",
             titleLine1: "Oʻquvchilaringiz",
             titleLine2: "tezkor fikrga loyiq.",
             subtitleLine1: "Avtomatik tekshiriladigan testlar. Real vaqt tahlili.",
@@ -3205,10 +3210,10 @@ translation: {
               students: "24 oʻquvchi",
               average: "83% oʻrtacha ball",
             },
-            activityStrong: "5 ta test",
-            activityRest: "oxirgi soatda tekshirildi",
-            socialTitle: "2 400+ oʻqituvchi",
-            socialSubtitle: "har kuni Dwelve’ga ishonadi",
+            activityStrong: "Darhol baholanadi",
+            activityRest: "oʻquvchi topshirishi bilanoq",
+            socialTitle: "Oʻqituvchilar fikri bilan yaratilgan",
+            socialSubtitle: "Haqiqiy oʻqituvchilarning qoralamalarni koʻrishiga tayangan",
           },
           signup: {
             titleLine1: "Bugunoq aqlliroq",
@@ -3225,20 +3230,20 @@ translation: {
               title: "Soʻnggi natijangiz",
               caption: "Soʻnggi 5 fan",
             },
-            socialTitle: "12 000+ oʻquvchi",
-            socialSubtitle: "allaqachon Dwelve’da",
+            socialTitle: "Oʻquvchi va oʻqituvchilar uchun",
+            socialSubtitle: "Dwelve erta foydalanishda ekan, bepul",
           },
           admin: {
             titleLine1: "Butun markazingiz uchun",
             titleLine2: "yagona platforma.",
             subtitle: "Test yaratishdan baholash va tahlilgacha — maktab yoki oʻquv markazingizga kerak boʻlgan hammasi bir joyda.",
             stats: {
-              setupValue: "3 daq",
-              setup: "oʻrtacha sozlash",
-              centersValue: "500+",
-              centers: "markaz",
+              pdfValue: "PDF",
+              pdf: "test qoralamasiga",
               paperValue: "0",
-              paper: "qogʻoz isrofi",
+              paper: "chop etiladigan qogʻoz",
+              priceValue: "Bepul",
+              price: "erta foydalanishda",
             },
             classCard: {
               title: "10A-sinf — Matematika",
@@ -3264,9 +3269,9 @@ translation: {
                 desc: "Barcha sinflar boʻyicha ballar, trendlar va rivojlanishni kuzating.",
               },
             },
-            trustedPrefix: "Bizga",
-            trustedStrong: "500+ oʻquv markazi",
-            trustedSuffix: "ishonadi",
+            trustedPrefix: "",
+            trustedStrong: "Maktab va xususiy oʻquv markazlari",
+            trustedSuffix: "uchun yaratilgan",
           },
         },
         login: {

@@ -1,6 +1,7 @@
 import {
   BarChart3,
   BookOpenCheck,
+  CheckCircle2,
   Compass,
   GraduationCap,
   LayoutGrid,
@@ -36,12 +37,29 @@ export type StepDef = {
   done?: boolean;
 };
 
-/** The account has no membership: pick a way in, then use it. */
+/**
+ * The account has no membership: pick a way in, then use it.
+ *
+ * No `done` step closes this flow. Connecting is what creates the membership,
+ * and the moment it lands the server re-resolves the account onto the role
+ * tour below — so a "you're all set" screen here would either be unreachable
+ * or, if skipped onto, would congratulate someone who still has no school.
+ */
 export const ACCESS_STEPS: StepDef[] = [
   { key: "welcome", icon: Sparkles },
   { key: "path", icon: Compass },
   { key: "connect", icon: MailCheck },
 ];
+
+/**
+ * The closing screen every role tour ends on.
+ *
+ * The tour used to just stop on its last content step, leaving "Open dashboard"
+ * as one more button in a row of them. A dedicated ending gives the flow a
+ * shape — welcome, the work, done — and puts the exit somewhere it reads as the
+ * conclusion rather than as an escape.
+ */
+const DONE_STEP: StepDef = { key: "done", icon: CheckCircle2 };
 
 const ROLE_STEPS: Record<SchoolRole, StepDef[]> = {
   ADMIN: [
@@ -49,18 +67,21 @@ const ROLE_STEPS: Record<SchoolRole, StepDef[]> = {
     { key: "class", icon: LayoutGrid },
     { key: "people", icon: UserPlus },
     { key: "workspace", icon: BarChart3 },
+    DONE_STEP,
   ],
   TEACHER: [
     { key: "ready", icon: School },
     { key: "classes", icon: Users },
     { key: "tests", icon: BookOpenCheck },
     { key: "analytics", icon: BarChart3 },
+    DONE_STEP,
   ],
   STUDENT: [
     { key: "ready", icon: School },
     { key: "classes", icon: GraduationCap },
     { key: "assignments", icon: BookOpenCheck },
     { key: "progress", icon: BarChart3 },
+    DONE_STEP,
   ],
 };
 

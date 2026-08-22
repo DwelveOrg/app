@@ -57,10 +57,17 @@ function Card({
   );
 }
 
-/** A settled state: the work this step asks for is already done. */
+/**
+ * A settled state: the work this step asks for is already done.
+ *
+ * Capped and centred rather than filling the step. Its content is usually a
+ * line and a chip or two, and stretched across the full width it read as an
+ * mostly-empty panel — which is the opposite of what "this is already handled"
+ * should look like.
+ */
 function SettledNote({ title, items }: { title: string; items: string[] }) {
   return (
-    <Card className="border-success/30 bg-success/5">
+    <Card className="mx-auto max-w-2xl border-success/30 bg-success/5">
       <span className="inline-flex size-10 items-center justify-center rounded-xl bg-success/15 text-success">
         <Check className="size-5" />
       </span>
@@ -150,16 +157,27 @@ function ReadySummary({
     { key: "classes", value: String(classCount) },
   ];
 
+  /*
+    Three facts, on a rule, under the opening screen's call to action — not
+    three elevated cards. This is the first thing an account sees after signing
+    in; the cards gave a read-only summary the same visual weight as the
+    interactive steps that follow, so the screen looked like work when it is
+    really just a greeting with its receipts attached.
+  */
   return (
-    <div className="grid gap-4 sm:grid-cols-3">
-      {stats.map((stat) => (
-        <Card key={stat.key}>
-          <p className="type-caption font-medium text-muted-foreground">
-            {t(`onboarding.ready.${stat.key}`)}
-          </p>
-          <p className="mt-2 truncate text-lg font-semibold text-foreground">{stat.value}</p>
-        </Card>
-      ))}
+    <div className="border-t border-border pt-8">
+      <dl className="grid gap-6 sm:grid-cols-3 sm:gap-8">
+        {stats.map((stat) => (
+          <div key={stat.key} className="min-w-0">
+            <dt className="type-micro text-muted-foreground">
+              {t(`onboarding.ready.${stat.key}`)}
+            </dt>
+            <dd className="mt-2 truncate text-lg font-semibold text-foreground">
+              {stat.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
     </div>
   );
 }
@@ -396,7 +414,7 @@ function StudentClassesStep({
           ))}
         </div>
       ) : classes.length ? null : (
-        <Card>
+        <Card className="mx-auto max-w-2xl">
           <span className="inline-flex size-10 items-center justify-center rounded-xl bg-accent text-primary">
             <GraduationCap className="size-5" />
           </span>
@@ -440,7 +458,7 @@ export default function RoleStep(props: RoleStepProps) {
           items={classes.map((item) => item.name)}
         />
       ) : (
-        <Card>
+        <Card className="mx-auto max-w-2xl">
           <span className="inline-flex size-10 items-center justify-center rounded-xl bg-accent text-primary">
             <Bell className="size-5" />
           </span>
