@@ -754,6 +754,7 @@ translation: {
             ARCHIVED: "Arxivda",
           },
           states: {
+            backToClasses: "Sinflarga qaytish",
             forbidden: {
               title: "Testlar siz uchun mavjud emas",
               description: "Sinf uchun test tuzishni faqat oʻqituvchilar va administratorlar amalga oshiradi.",

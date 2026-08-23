@@ -797,6 +797,7 @@ translation: {
             ARCHIVED: "Archived",
           },
           states: {
+            backToClasses: "Back to classes",
             forbidden: {
               title: "Tests are not available to you",
               description: "Only teachers and admins can author tests for a class.",
