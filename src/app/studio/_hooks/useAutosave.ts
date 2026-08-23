@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type RefObject, useCallback, useEffect, useRef, useState } from "react";
 import type { UseFormWatch } from "react-hook-form";
 
 import type { TestBuilderForm } from "@/app/(root)/_lib/tests.actions.schemas";
@@ -33,12 +33,18 @@ export function useAutosave({
   watch,
   enabled,
   save,
+  isResetting,
 }: {
   watch: UseFormWatch<TestBuilderForm>;
   /** False while the test is not a draft, or a save is already in flight. */
   enabled: boolean;
   /** Resolves `true` when the save happened, `false` when validation blocked it. */
   save: () => Promise<boolean>;
+  /**
+   * True while the form is being re-seeded from the server after a save. Those
+   * values came from us, not from the teacher, and must not schedule a save.
+   */
+  isResetting?: RefObject<boolean>;
 }) {
   const [state, setState] = useState<AutosaveState>("idle");
   const [savedAt, setSavedAt] = useState<Date | null>(null);
@@ -71,11 +77,16 @@ export function useAutosave({
   }, []);
 
   useEffect(() => {
-    const subscription = watch((_values, info) => {
-      // `type` is only set for user-driven changes. A `reset()` — which is what
-      // re-seeding after a save does — reports no type, and scheduling on it
-      // would make every save schedule the next one forever.
-      if (info.type !== "change") return;
+    const subscription = watch(() => {
+      // A `reset()` — which is what re-seeding after a save does — notifies this
+      // subscription exactly like a teacher's edit, and scheduling on it would
+      // make every save schedule the next one forever. `info.type` cannot tell
+      // the two apart: react-hook-form sets it only for DOM change events, so
+      // `setValue` — ticking a correct answer — and every `useFieldArray`
+      // operation arrive typeless just as a reset does. Filtering on it dropped
+      // the answer key along with the re-seed. The re-seed is flagged
+      // explicitly instead, which is the only difference that is real.
+      if (isResetting?.current) return;
       if (!enabledRef.current) return;
 
       setState("pending");
@@ -87,7 +98,7 @@ export function useAutosave({
       subscription.unsubscribe();
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [watch, run]);
+  }, [watch, run, isResetting]);
 
   /** Cancels a pending autosave — an explicit save has just superseded it. */
   const cancel = useCallback(() => {

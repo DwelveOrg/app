@@ -267,3 +267,24 @@ export const gradeAttemptSchema = z.object({
     .max(200),
 });
 export type GradeAttemptInput = z.infer<typeof gradeAttemptSchema>;
+
+/**
+ * What `PATCH /attempts/:attemptId/grade` actually returns.
+ *
+ * Not `testSuccessResponseSchema`. That schema requires `{ success: boolean }`,
+ * which only `POST /tests/:testId/unpublish` sends; grading answers with the
+ * updated attempt instead. Validating the reply against the wrong shape made a
+ * committed save throw on the way back, so the teacher was told "Could not save
+ * these marks" about marks the database had already accepted.
+ *
+ * Passthrough because the summary is read from the refreshed page, not from
+ * here — this only has to prove the request landed.
+ */
+export const gradeAttemptResponseSchema = z
+  .object({ attempt: z.object({ id: z.string() }).passthrough() })
+  .passthrough();
+
+/** What `POST /tests/:testId/results/release` actually returns. */
+export const releaseResultsResponseSchema = z
+  .object({ released: z.number().int().min(0) })
+  .passthrough();

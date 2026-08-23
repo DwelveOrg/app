@@ -20,8 +20,19 @@ export type PaperMode =
 
 /** What a question was marked, from the teacher's review or a released result. */
 export type QuestionResult = {
-  /** `null` for a written response nobody has marked yet. */
+  /**
+   * `null` means "not a clean right or wrong" — which covers **two** different
+   * states, so it cannot be read as "unmarked" on its own. The backend's
+   * `correctnessFromPoints` returns `true` only at full marks and `false` only
+   * at zero, so every partial mark is also `null`. Use {@link gradedAt} to tell
+   * an unmarked answer from a partially credited one.
+   */
   isCorrect: boolean | null;
+  /**
+   * When a human marked this, or `null` if nobody has. The only trustworthy
+   * "has it been marked" signal; `isCorrect: null` is not one.
+   */
+  gradedAt?: string | null;
   pointsAwarded: number;
   /**
    * The answer key, in the same shape as a student's answer. Present only when
