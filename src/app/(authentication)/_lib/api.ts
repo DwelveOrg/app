@@ -76,26 +76,35 @@ export type {
   TeacherInviteSummary,
 };
 
-export function loginRequest(input: LoginFormField) {
+/**
+ * Session-creating calls forward the browser's identity. These requests are
+ * made by the Next server, so without this the backend records the server's
+ * own fetch — no user agent, loopback address — and the profile's "Active
+ * sessions" list shows every device as "Unknown device".
+ */
+export function loginRequest(input: LoginFormField, headers?: HeadersInit) {
   return backendJson("/auth/login", {
     method: "POST",
     body: input,
+    headers,
     responseSchema: authResponseSchema,
   });
 }
 
-export function signupRequest(input: RegularSignupFormField) {
+export function signupRequest(input: RegularSignupFormField, headers?: HeadersInit) {
   return backendJson("/auth/signup", {
     method: "POST",
     body: input,
+    headers,
     responseSchema: authResponseSchema,
   });
 }
 
-export function googleAuthRequest(idToken: string) {
+export function googleAuthRequest(idToken: string, headers?: HeadersInit) {
   return backendJson("/auth/google", {
     method: "POST",
     body: { idToken },
+    headers,
     responseSchema: authResponseSchema,
   });
 }

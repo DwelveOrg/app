@@ -13,10 +13,9 @@ export default function NoMembershipState() {
     // three cards in the upper third and left the rest reading as a hole.
     <section className="flex min-h-[calc(100dvh-9rem)] items-center justify-center">
       <div className="w-full max-w-2xl text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-          {t("root.dashboard.empty.eyebrow")}
-        </p>
-        <h1 className="mt-3 type-title text-foreground">
+        {/* No eyebrow: "Account ready" restated the description's first
+            sentence in small caps above the title. The heading speaks. */}
+        <h1 className="type-title text-foreground">
           {t("root.dashboard.empty.title")}
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-muted-foreground">

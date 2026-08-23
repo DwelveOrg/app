@@ -14,11 +14,23 @@ Dwelve (`gf-frontend`) is a digital academic testing and performance-management 
 
 ## Brand Personality
 
-Structured, academic, modern, quietly premium. Two accents carry the whole system:
-**violet is identity** (the logo, the wordmark, the auth panel, the landing bloom) and
-**teal is action** (buttons, selection, focus, active navigation, primary data). Surfaces are calm
-and tactile — warm paper under cool ink in light, a cool near-black under warmer accents in dark.
-Confident and legible, never flashy.
+Structured, academic, modern, quietly premium. The split that carries the system:
+**violet is identity** (the logo, the wordmark, the auth panel, the landing bloom, chart slot 1)
+and **ink is action** (`--primary` is near-black; what you press is quiet because it is
+everywhere). Colour is reserved for state (success / warning / destructive) and for data (the
+five-hue chart ramp, where teal lives on as pure data at slot 2). Surfaces are calm and tactile —
+warm paper under cool ink in light, a cool near-black under warmer accents in dark. Confident and
+legible, never flashy.
+
+## Standing design direction
+
+Committed 2026-08-23, by the owner's explicit choice from a direction round: **the category
+standard, played straight** — the clean modern SaaS product surface (panels, stat tiles, honest
+charts, dense tables), executed at the craft level of Linear- and Stripe-grade dashboards, inside
+the incumbent token system above. Not a themed visual world; distinctiveness comes from discipline:
+every fact appears once, charts follow the data-viz rules (solid hairline grids, single-hue forms
+unless series identity is the point, status colours only for state), and nothing may read as
+generated or templated. Future surfaces and the admin console follow this same direction.
 
 ## Anti-references
 

@@ -260,15 +260,20 @@ function Tally({
   value: number;
   tone: "success" | "danger" | "muted";
 }) {
+  // Status ink is earned by a non-zero count. A red 0 under "Incorrect"
+  // advertises a problem that does not exist and pulls the eye away from the
+  // tallies that actually carry news.
+  const colored = value > 0;
+
   return (
     <Surface padding="md" className="flex flex-col justify-between gap-2">
       <dt className="text-13 text-muted-foreground">{label}</dt>
       <dd
         className={cn(
           "numeric text-[2rem] leading-none font-bold",
-          tone === "success" && "text-success",
-          tone === "danger" && "text-destructive",
-          tone === "muted" && "text-foreground",
+          colored && tone === "success" && "text-success",
+          colored && tone === "danger" && "text-destructive",
+          (!colored || tone === "muted") && "text-foreground",
         )}
       >
         {value}

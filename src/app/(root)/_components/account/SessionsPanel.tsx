@@ -40,6 +40,18 @@ function pickDeviceLabel(userAgent: string | null | undefined) {
   return null;
 }
 
+/**
+ * Loopback means the request reached the backend from its own machine (local
+ * dev, same-host proxy). "::1" tells the account owner nothing about where
+ * their session lives, and reads like a rendering glitch — drop it.
+ */
+const LOOPBACK_ADDRESSES = new Set(["::1", "127.0.0.1", "::ffff:127.0.0.1"]);
+
+function displayIpAddress(ipAddress: string | null | undefined) {
+  if (!ipAddress || LOOPBACK_ADDRESSES.has(ipAddress)) return null;
+  return ipAddress;
+}
+
 function pickBrowserLabel(userAgent: string | null | undefined) {
   if (!userAgent) return null;
   const patterns: Array<[RegExp, string]> = [
@@ -153,9 +165,11 @@ export function SessionsPanel() {
                       ) : null}
                     </p>
                     <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
-                      {session.ipAddress ? <span>{session.ipAddress}</span> : null}
-                      {session.ipAddress ? (
-                        <span aria-hidden className="text-border">·</span>
+                      {displayIpAddress(session.ipAddress) ? (
+                        <>
+                          <span>{displayIpAddress(session.ipAddress)}</span>
+                          <span aria-hidden className="text-border">·</span>
+                        </>
                       ) : null}
                       <RelativeTime date={session.createdAt} />
                     </div>

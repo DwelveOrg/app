@@ -169,9 +169,15 @@
   --info-foreground: #FFFFFF;
 
   /* --- Charts: five separable hues, none of them the success green --------
-     Slot 1 is the brand violet; teal keeps a home at slot 2 as pure data. */
+     Slot 1 is the brand violet; teal keeps a home at slot 2 as pure data.
+     Slot 2 sits at OKLCH C≈0.106 deliberately: sRGB cannot reach the 0.1
+     chroma floor at the old hue angle (−155°), so the hue leans 20° toward
+     cyan — the nearest in-gamut point where teal stops greying out among the
+     other four. The five values pass the six-check palette gate (lightness
+     band, chroma floor, CVD ΔE, normal-vision ΔE, 3:1 vs card) as a set;
+     retune them together, never one in isolation. */
   --chart-1: #5F40D5;
-  --chart-2: #0E7C86;
+  --chart-2: #007E9D;
   --chart-3: #B45309;
   --chart-4: #C2317A;
   --chart-5: #1D5FD1;
@@ -312,24 +318,30 @@
   --info: #4FC4E0;
   --info-foreground: #05222B;
 
-  --chart-1: #A191FF;
-  --chart-2: #3DD1B8;
-  --chart-3: #F0B23C;
-  --chart-4: #F2789F;
-  --chart-5: #79A9FF;
+  /* Marks sit in the dark lightness band (OKLCH L 0.48–0.67): a filled bar or
+     line at the old L≈0.72–0.80 blooms on a near-black canvas — five glowing
+     slabs where light mode shows five inked ones. Same hues, pulled down into
+     the band; each still clears 3:1 against the card as a mark. */
+  --chart-1: #8E7EEA;
+  --chart-2: #00A892;
+  --chart-3: #BC850B;
+  --chart-4: #DA638A;
+  --chart-5: #618FE3;
 
-  /* Dark inverts the problem: the ramp is already bright against a near-black
-     wash, so every slot clears AA on its own tint untouched. */
+  /* Ink stays the old bright step — text has the opposite need from marks.
+     An 11px label on a dark tint needs the extra lightness the band takes
+     away from fills, so ink and mark split into separate literals here the
+     same way they do in light. */
   --chart-1-tint: #272040;
   --chart-2-tint: #1B3232;
   --chart-3-tint: #372D1F;
   --chart-4-tint: #38242E;
   --chart-5-tint: #242C3E;
-  --chart-1-ink: var(--chart-1);
-  --chart-2-ink: var(--chart-2);
-  --chart-3-ink: var(--chart-3);
-  --chart-4-ink: var(--chart-4);
-  --chart-5-ink: var(--chart-5);
+  --chart-1-ink: #A191FF;
+  --chart-2-ink: #3DD1B8;
+  --chart-3-ink: #F0B23C;
+  --chart-4-ink: #F2789F;
+  --chart-5-ink: #79A9FF;
 
   --selection: #34275E;
   --selection-foreground: #EEEDF2;

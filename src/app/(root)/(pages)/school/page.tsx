@@ -8,7 +8,6 @@ import { getStudents } from "../../_utils/getStudents";
 import { getStudentOverview } from "../../_utils/getStudentOverview";
 import { getStudentSchoolClasses } from "../../_utils/getStudentSchoolClasses";
 import { getTeacherSchoolClasses } from "../../_utils/getTeacherSchoolClasses";
-import { toClassCardItem } from "../groups/_lib/mapClass";
 import SchoolProfileHeader from "./_components/SchoolProfileHeader";
 import SchoolDirectorySection from "./_components/SchoolDirectorySection";
 import StudentOverviewCards from "./_components/StudentOverviewCards";
@@ -59,7 +58,6 @@ export default async function Page() {
     isAdmin && user?.schoolId ? getTeacherInvites(user.schoolId) : Promise.resolve(null),
     isAdmin && user?.schoolId ? getSchoolBlocklist(user.schoolId) : Promise.resolve(null),
   ]);
-  const items = classes.map((item) => toClassCardItem(item, user?.memberId));
 
   // `GET /schools/:schoolId/members` returns populated rows only to admins; for
   // everyone else `members` is `[]` and only the counts above are usable.
@@ -105,7 +103,6 @@ export default async function Page() {
       ) : null}
 
       <SchoolDirectorySection
-        classItems={items}
         students={students}
         teachers={teachers}
         admins={admins}

@@ -27,6 +27,15 @@ export function MembershipsPanel({
 
   const activeSchoolId = selectedSchool?.school.id ?? null;
 
+  // For the common one-school account this list would repeat the "Active
+  // school" card a few hundred pixels up, name and role and all. A list of
+  // schools earns its place only once there is more than the one the page
+  // already shows — or when the sole membership is NOT the active school,
+  // which is exactly the situation the owner needs to see.
+  if (memberships.length === 1 && memberships[0].school.id === activeSchoolId) {
+    return null;
+  }
+
   return (
     <Surface as="section">
       {/* The description is deliberately not a count, and deliberately does not

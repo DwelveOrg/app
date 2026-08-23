@@ -230,15 +230,23 @@ colour-blind users and for printed reports.
 
 Five separable hues, none of them the success green, all ≥3:1 on the card surface. Slot 1 is the
 brand violet; teal keeps a home at slot 2 as pure data, which is where it landed when it stopped
-being the action colour.
+being the action colour. The set passes a six-check palette gate (OKLCH lightness band, chroma
+floor, CVD ΔE, normal-vision ΔE, contrast vs card) per theme — retune the five together, never one
+in isolation.
 
-| | Light | Dark |
-|---|---|---|
-| `--chart-1` | `#5F40D5` violet | `#A191FF` |
-| `--chart-2` | `#0E7C86` teal | `#3DD1B8` |
-| `--chart-3` | `#B45309` amber | `#F0B23C` |
-| `--chart-4` | `#C2317A` rose | `#F2789F` |
-| `--chart-5` | `#1D5FD1` blue | `#79A9FF` |
+| | Light (mark & ink) | Dark mark | Dark ink |
+|---|---|---|---|
+| `--chart-1` | `#5F40D5` violet | `#8E7EEA` | `#A191FF` |
+| `--chart-2` | `#007E9D` teal | `#00A892` | `#3DD1B8` |
+| `--chart-3` | `#B45309` amber | `#BC850B` | `#F0B23C` |
+| `--chart-4` | `#C2317A` rose | `#DA638A` | `#F2789F` |
+| `--chart-5` | `#1D5FD1` blue | `#618FE3` | `#79A9FF` |
+
+Teal sits at `#007E9D` because sRGB cannot reach the gate's chroma floor at the old hue angle —
+the hue leans ~20° toward cyan, the nearest in-gamut point where it stops greying out. In dark,
+marks and ink split into separate literals the way light always had them: fills sit inside the
+dark lightness band so five bars do not bloom on a near-black canvas, while `--chart-N-ink` keeps
+the brighter step that an 11px label on a dark tint needs.
 
 Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — this is
 the pairing to watch, not chart-2/chart-5 as in v2.

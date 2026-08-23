@@ -8,8 +8,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Line,
-  LineChart,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -17,10 +15,6 @@ import {
 } from "recharts";
 
 import type { ScoreTrend } from "@/app/(root)/_lib/dashboard.schemas";
-
-/** The three ways this series can be drawn. See `TrendChartTypeToggle`. */
-export const TREND_CHART_TYPES = ["area", "line", "bar"] as const;
-export type TrendChartType = (typeof TREND_CHART_TYPES)[number];
 
 function monthLabel(month: string, language: string): string {
   const [year, monthIndex] = month.split("-").map(Number);
@@ -30,42 +24,75 @@ function monthLabel(month: string, language: string): string {
   );
 }
 
+type Point = { label: string; avg: number };
+
 /**
- * Average score over time.
- *
- * ## Why the shape is a choice
- *
- * The three forms answer three different questions about the same numbers, and
- * which one is right depends on data this component cannot know in advance:
- *
- * - **Area** — the default. Reads as one continuous quantity and is the easiest
- *   shape to glance at over a long run of months.
- * - **Line** — the same trajectory without the fill. Better when the interesting
- *   part is the *slope* rather than the level, because a filled region draws the
- *   eye to area rather than to direction.
- * - **Bar** — each month as its own quantity. This is the honest form for a
- *   short or gappy series: a school with one month of results was previously
- *   shown a single dot floating in an empty area chart, which reads as a bug
- *   rather than as "one month of data". A bar is a bar whether there are twelve
- *   of them or one.
- *
- * The axis is fixed to 0–100 in all three, so switching form never changes what
- * the same height means.
+ * Marks the series endpoint: the one dot the line carries, filled in the
+ * series hue with a surface-colored ring so it stays legible where it sits on
+ * the line itself. Recharts calls this for every point; every index but the
+ * last renders nothing.
  */
-export default function TrendChart({
-  points,
-  type = "area",
-}: {
-  points: ScoreTrend["points"];
-  type?: TrendChartType;
+function EndDot(props: {
+  cx?: number;
+  cy?: number;
+  index?: number;
+  dataLength: number;
 }) {
+  const { cx, cy, index, dataLength } = props;
+  if (index !== dataLength - 1 || cx == null || cy == null) return null;
+  return (
+    <g>
+      <circle cx={cx} cy={cy} r={6} fill="var(--card)" />
+      <circle cx={cx} cy={cy} r={4} fill="var(--chart-1)" />
+    </g>
+  );
+}
+
+/**
+ * The one direct label on the chart: the current value, at the line's end.
+ * Everything else is carried by the axis and the tooltip — a number on every
+ * point is chaos, and the endpoint is the number the reader came for.
+ */
+function EndLabel(props: {
+  x?: number;
+  y?: number;
+  index?: number;
+  value?: number;
+  dataLength: number;
+  chartWidth: number;
+}) {
+  const { x, y, index, value, dataLength } = props;
+  if (index !== dataLength - 1 || x == null || y == null || value == null) return null;
+  return (
+    <text
+      x={x}
+      y={y - 12}
+      textAnchor="end"
+      fill="var(--foreground)"
+      fontSize={12}
+      fontWeight={600}
+    >
+      {Math.round(value)}%
+    </text>
+  );
+}
+
+/**
+ * Average score over time — one series, so the form is not a preference.
+ *
+ * The data picks the shape: three or more months draw a 2px line over a flat
+ * 10% wash (the trend is the story), while one or two months draw columns —
+ * a lone dot floating in an empty area chart reads as a bug, and a bar is a
+ * bar whether there are twelve of them or one. The axis is fixed to 0–100 in
+ * both forms, so the same height always means the same score.
+ */
+export default function TrendChart({ points }: { points: ScoreTrend["points"] }) {
   const { t, i18n } = useTranslation();
   const rawId = useId();
   const gradientId = `dashboard-trend-${rawId.replaceAll(":", "")}`;
-  const data = useMemo(
+  const data: Point[] = useMemo(
     () =>
       points.map((point) => ({
-        ...point,
         label: monthLabel(point.month, i18n.language),
         avg: Math.max(0, Math.min(100, point.avg)),
       })),
@@ -74,11 +101,9 @@ export default function TrendChart({
 
   if (!data.length) return null;
 
-  // Shared between the three charts, so a form switch cannot quietly change the
-  // grid, the scale, or what the tooltip says.
-  const grid = (
-    <CartesianGrid stroke="var(--border)" strokeDasharray="4 5" vertical={false} />
-  );
+  const asColumns = data.length < 3;
+
+  const grid = <CartesianGrid stroke="var(--border)" vertical={false} />;
   const xAxis = (
     <XAxis
       dataKey="label"
@@ -99,9 +124,7 @@ export default function TrendChart({
   const tooltip = (
     <Tooltip
       cursor={
-        type === "bar"
-          ? { fill: "var(--muted)" }
-          : { stroke: "var(--border)", strokeDasharray: "4 4" }
+        asColumns ? { fill: "var(--muted)" } : { stroke: "var(--border)", strokeWidth: 1 }
       }
       content={({ active, payload, label }) =>
         active && payload?.length ? (
@@ -115,13 +138,13 @@ export default function TrendChart({
       }
     />
   );
-  const margin = { top: 12, right: 8, left: -18, bottom: 0 };
+  const margin = { top: 16, right: 8, left: -18, bottom: 0 };
 
   return (
     <figure className="m-0 min-w-0">
       <div className="h-64 w-full" aria-hidden>
         <ResponsiveContainer width="100%" height="100%">
-          {type === "bar" ? (
+          {asColumns ? (
             <BarChart data={data} margin={margin}>
               {grid}
               {xAxis}
@@ -131,35 +154,25 @@ export default function TrendChart({
                 dataKey="avg"
                 fill="var(--chart-1)"
                 // Rounded only at the data end; the baseline end stays square so
-                // the bar is visibly anchored to zero.
+                // the column is visibly anchored to zero.
                 radius={[4, 4, 0, 0]}
-                // A lone month should not become a full-width slab.
-                maxBarSize={56}
+                maxBarSize={24}
                 isAnimationActive={false}
+                label={{
+                  position: "top",
+                  fill: "var(--foreground)",
+                  fontSize: 12,
+                  fontWeight: 600,
+                  formatter: (value) => `${Math.round(Number(value))}%`,
+                }}
               />
             </BarChart>
-          ) : type === "line" ? (
-            <LineChart data={data} margin={margin}>
-              {grid}
-              {xAxis}
-              {yAxis}
-              {tooltip}
-              <Line
-                type="monotone"
-                dataKey="avg"
-                stroke="var(--chart-1)"
-                strokeWidth={2}
-                dot={{ r: 4, fill: "var(--card)", stroke: "var(--chart-1)", strokeWidth: 2 }}
-                activeDot={{ r: 5, fill: "var(--chart-1)" }}
-                isAnimationActive={false}
-              />
-            </LineChart>
           ) : (
             <AreaChart data={data} margin={margin}>
               <defs>
                 <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.34} />
-                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.02} />
+                  <stop offset="0%" stopColor="var(--chart-1)" stopOpacity={0.12} />
+                  <stop offset="100%" stopColor="var(--chart-1)" stopOpacity={0.03} />
                 </linearGradient>
               </defs>
               {grid}
@@ -170,11 +183,18 @@ export default function TrendChart({
                 type="monotone"
                 dataKey="avg"
                 stroke="var(--chart-1)"
-                strokeWidth={3}
+                strokeWidth={2}
+                strokeLinecap="round"
                 fill={`url(#${gradientId})`}
-                dot={{ r: 4, fill: "var(--card)", stroke: "var(--chart-1)", strokeWidth: 2 }}
-                activeDot={{ r: 5, fill: "var(--chart-1)" }}
+                dot={<EndDot dataLength={data.length} />}
+                activeDot={{
+                  r: 4,
+                  fill: "var(--chart-1)",
+                  stroke: "var(--card)",
+                  strokeWidth: 2,
+                }}
                 isAnimationActive={false}
+                label={<EndLabel dataLength={data.length} chartWidth={0} />}
               />
             </AreaChart>
           )}

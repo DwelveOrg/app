@@ -190,10 +190,15 @@ translation: {
           roleEyebrow: "{{role}} · {{school}}",
           roleSubtitle: { admin: "Maktab aʼzolari, sinflari, testlari va natijalarining umumiy koʻrinishi.", teacher: "Biriktirilgan sinflar, oʻquvchilar, tekshiruv va natijalar bir joyda.", student: "Sinflaringiz, yaqin testlar va eʼlon qilingan natijalar bir joyda." },
           replayOnboarding: "Onboardingni koʻrsatish",
+          actions: {
+            createTest: "Test yaratish",
+          },
           kpi: {
             admin: { students: "Oʻquvchilar", classes: "Sinflar", teachers: "Oʻqituvchilar", assessments: "Testlar", average: "Oʻrtacha ball", completion: "Test bajarilishi" },
             teacher: { students: "Oʻquvchilarim", classes: "Sinflarim", pendingGrading: "Tekshiruv kutilmoqda", assessments: "Testlar", average: "Sinf oʻrtachasi", completion: "Bajarilish" },
             student: { classes: "Sinflarim", available: "Mavjud sinflar", due: "Yaqin muddat", completed: "Tugallangan", inProgress: "Jarayonda", average: "Oʻrtacha ballim" },
+            deltaPoints: "{{value}} ball",
+            deltaVsLastMonth: "oʻtgan oyga nisbatan",
           },
           gettingStarted: {
             title: "Keyingi qadamingiz",
@@ -258,13 +263,7 @@ translation: {
             action: "Import qilish",
           },
           attention: {
-            title: "E'tibor talab qiladi",
-            grading: "Baholash kutilmoqda",
-            missing: "Topshirilmagan ishlar",
-            late: "Kech topshirilgan",
-            requests: "Qo'shilish so'rovlari",
-            clearTitle: "Kutayotgan ish yo'q",
-            clearDescription: "Bu hafta baholanmagan va topshirilmagan ish yo'q.",
+            requests: "Qoʻshilish soʻrovlari",
           },
           roster: {
             title: "Sinflar qisqacha",
@@ -272,6 +271,8 @@ translation: {
             students: "O'quvchilar",
             completion: "Bajarilishi",
             average: "O'rtacha",
+            thisWeek: "Shu haftada",
+            viewAll: "Barchasi",
             emptyTitle: "Hali sinf yo'q",
             emptyDescription: "Sinf yarating, jadval uning hajmi, bajarilishi va o'rtacha bahosini ko'rsatadi.",
             emptyAction: "Sinf yaratish",
@@ -307,7 +308,6 @@ translation: {
             },
           },
           empty: {
-            eyebrow: "Hisob tayyor",
             title: "Maktabga qanday kirishni tanlang",
             description: "Hisobingiz yaratildi. Maktab yoki oʻquv markazi yarating, taklifni qabul qiling yoki ruxsat olganingizda oʻquvchi sifatida qoʻshiling.",
             actions: {
@@ -411,24 +411,6 @@ translation: {
             classPerformance: { title: "Sinf boʻyicha natija", average: "Oʻrtacha", completed: "Yakuniy natijalar", emptyTitle: "Hali sinf natijasi yoʻq", emptyDescription: "Tekshirilgan yoki eʼlon qilingan natijalardan keyin sinf oʻrtachasi koʻrinadi." },
             submissions: { title: "Topshirish holati", range: "Oxirgi 7 kun", onTime: "Vaqtida", late: "Kech", missing: "Topshirilmagan", emptyTitle: "Yaqinda muddati tugagan test yoʻq", emptyDescription: "Oxirgi yetti kunda muddati tugagan testlar shu yerda koʻrinadi." },
             activity: { title: "Soʻnggi faollik", seeAll: "Barchasi", emptyTitle: "Hali faollik yoʻq", emptyDescription: "Taklif, soʻrov va test yangiliklari shu yerda koʻrinadi." },
-            members: {
-              title: "Rollar boʻyicha aʼzolar",
-              center: "aʼzo",
-              students: "Oʻquvchilar",
-              teachers: "Oʻqituvchilar",
-              admins: "Adminlar",
-            },
-            quickActions: {
-              title: "Tezkor amallar",
-              addClass: "Sinf qoʻshish",
-              inviteTeacher: "Oʻqituvchi taklif qilish",
-              viewClasses: "Sinflarni koʻrish",
-              school: "Maktabni boshqarish",
-              classes: "Sinflarni ochish",
-              tests: "Test yaratish yoki tekshirish",
-              assignments: "Topshiriqlarni ochish",
-              notifications: "Bildirishnomalar",
-            },
             teacherNoClasses: {
               title: "Hali sinflar tayinlanmagan",
               desc: "Administrator sizni hali sinfga qoʻshmagan. Qoʻshilgach, sinflaringiz, natijalaringiz va yaqinlashayotgan imtihonlar shu yerda koʻrinadi.",
@@ -509,13 +491,6 @@ translation: {
             titleStaff: "Natijalar dinamikasi",
             caption: "Soʻnggi 6 oy",
             aria: "Oylik oʻrtacha ball",
-            titleRole: "{{role}} natijalari dinamikasi",
-            chartType: {
-              label: "Grafik koʻrinishi",
-              area: "Soha",
-              line: "Chiziq",
-              bar: "Ustunlar",
-            },
             months: {
               jan: "Yan",
               feb: "Fev",
@@ -826,6 +801,8 @@ translation: {
             subtitle: "Barcha sinflaringiz boʻyicha yozgan testlaringiz.",
             backToDashboard: "Boshqaruv paneliga qaytish",
             searchLabel: "Testlarni nomi boʻyicha qidirish",
+            newTest: "Yangi test",
+            newTestClassLabel: "Qaysi sinf uchun?",
             searchPlaceholder: "Nomi boʻyicha qidirish",
             classFilterLabel: "Testlarni sinf boʻyicha filtrlash",
             allClasses: "Barcha sinflar",
@@ -920,7 +897,6 @@ translation: {
             formatDetected:
               "Format — SAT, IELTS yoki oddiy test — hujjatning oʻzidan aniqlanadi. Keyinchalik test sozlamalarida oʻzgartirishingiz mumkin.",
             cta: {
-              eyebrow: "AI",
               title: "PDF’ni testga aylantiring",
               description:
                 "Oʻtgan yilgi ish yoki toʻplam bobini yuklang. Har bir savol, variant va javob kaliti oʻsha yerdan oʻqiladi — siz tayyor qoralamani tekshirasiz, uni yozib chiqmaysiz.",
@@ -1279,6 +1255,7 @@ translation: {
             searchLabel: "Oʻquvchilarni qidirish",
             searchPlaceholder: "Ism boʻyicha qidirish…",
             noMatches: "Hech kim topilmadi.",
+            emptyRoster: "Bu sinfda hali oʻquvchilar yoʻq.",
             needsMarking: "Tekshirish kerak ({{count}})",
             pendingManual_one: "{{count}} ta tekshiruvda",
             pendingManual_other: "{{count}} ta tekshiruvda",
@@ -1766,6 +1743,9 @@ translation: {
           },
         },
         schoolPage: {
+          people: {
+            title: "Odamlar va ruxsatlar",
+          },
           active: "Faol",
           inactive: "Nofaol",
           soon: "Tez orada",
@@ -1948,7 +1928,7 @@ translation: {
             title: "Oʻquvchilar qoʻshish",
             description: "Oʻquvchilar maktabga qoʻshilishi uchun qoʻshilish kodini ulashing.",
             noCode: "Oʻquvchilar uchun qoʻshilish kodi hali mavjud emas.",
-            hint: "Oʻquvchilar bu kodni «Sinflar» → «Maktabga qoʻshilish» boʻlimida kiritadi.",
+            hint: "Oʻquvchilar bu kodni «Sinflar» → «Maktabga qoʻshilish» boʻlimida kiritadi. Kod ularni faqat maktabga qoʻshadi — soʻng ular sinflarga soʻrov yuboradi, siz esa soʻrovlarni sinf sahifasida tasdiqlaysiz.",
             done: "Tayyor",
           },
           createClass: {
@@ -2013,9 +1993,9 @@ translation: {
           noneTitle: "Siz hali hech qanday sinfda emassiz",
           noneDescription: "Siz qoʻshilgan yoki oʻqitadigan sinflar shu yerda koʻrinadi.",
           stats: {
-            classes: "Sinflar",
-            students: "Oʻquvchilar",
-            teachers: "Oʻqituvchilar",
+            classes: "sinf",
+            students: "oʻquvchi",
+            teachers: "oʻqituvchi",
           },
           actions: {
             invite: "Taklif qilish",

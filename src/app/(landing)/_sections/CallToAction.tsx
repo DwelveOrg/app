@@ -48,9 +48,7 @@ export default function CallToAction() {
 
         <div className="relative grid gap-10 lg:grid-cols-[1.15fr_minmax(0,0.85fr)] lg:items-center lg:gap-16">
           <div>
-            <p className="type-micro text-white/70">{t("landing.cta.eyebrow")}</p>
-
-            <h2 className="mt-4 text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.6rem] lg:leading-[1.08]">
+            <h2 className="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-[2.6rem] lg:leading-[1.08]">
               {t("landing.cta.title")}
             </h2>
 
