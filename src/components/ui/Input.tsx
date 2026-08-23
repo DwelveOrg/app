@@ -3,6 +3,7 @@
 import React from "react";
 import { Eye, EyeOff } from "lucide-react";
 
+import { useFieldWiring } from "@/components/ui/Field";
 import { cn } from "@/lib/utils";
 
 /**
@@ -69,9 +70,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const isPassword = type === "password";
     const withToggle = showPasswordToggle ?? isPassword;
 
+    // Under `props`, never over it: an id or aria attribute written at the call
+    // site is a deliberate choice and has to win.
+    const wiring = useFieldWiring();
+
     const input = (
       <input
         ref={ref}
+        {...wiring}
         type={isPassword && revealed ? "text" : type}
         className={cn(
           fieldBaseClassName,

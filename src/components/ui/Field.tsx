@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, type ReactNode } from "react";
+import { createContext, useContext, useId, useMemo, type ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -15,6 +15,34 @@ import { cn } from "@/lib/utils";
  * Pass `htmlFor` when the control has its own id; otherwise `Field` generates one and hands it to
  * the child through the `id` render argument.
  */
+/**
+ * What `Field` computed and the control needs to carry.
+ *
+ * Passed through context rather than only through the render-prop argument
+ * because the render prop was optional and almost nobody used it: of 57 call
+ * sites, 46 passed plain children, and every one of those rendered a
+ * `<label for>` pointing at an id no element had. The label was decorative, the
+ * error was never announced, and clicking the label focused nothing. A control
+ * that reads this gets wired whichever way it is nested.
+ */
+type FieldWiring = {
+  id: string;
+  "aria-invalid"?: true;
+  "aria-describedby"?: string;
+};
+
+const FieldContext = createContext<FieldWiring | null>(null);
+
+/**
+ * Read the enclosing `Field`'s wiring, or `null` when there is none.
+ *
+ * A control merges this **under** its own props: an explicit `id` or
+ * `aria-describedby` at the call site is a deliberate override and wins.
+ */
+export function useFieldWiring() {
+  return useContext(FieldContext);
+}
+
 export type FieldProps = {
   label?: ReactNode;
   /** Marks the control required and renders the affordance. Does not validate — that is zod's job. */
@@ -46,6 +74,15 @@ export default function Field({
   // standalone-form-sized hint under it.
   const messageClassName = size === "md" ? "mt-1.5 text-xs" : "mt-1 text-2xs";
 
+  const wiring = useMemo<FieldWiring>(
+    () => ({
+      id,
+      ...(error ? ({ "aria-invalid": true } as const) : {}),
+      ...(hasMessage ? { "aria-describedby": messageId } : {}),
+    }),
+    [id, error, hasMessage, messageId],
+  );
+
   return (
     <div className={cn("min-w-0", className)}>
       {label ? (
@@ -65,13 +102,9 @@ export default function Field({
         </label>
       ) : null}
 
-      {typeof children === "function"
-        ? children({
-            id,
-            ...(error ? ({ "aria-invalid": true } as const) : {}),
-            ...(hasMessage ? { "aria-describedby": messageId } : {}),
-          })
-        : children}
+      <FieldContext.Provider value={wiring}>
+        {typeof children === "function" ? children(wiring) : children}
+      </FieldContext.Provider>
 
       {error ? (
         <p id={messageId} role="alert" className={cn(messageClassName, "text-destructive")}>
