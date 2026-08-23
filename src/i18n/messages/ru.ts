@@ -754,6 +754,7 @@ translation: {
             ARCHIVED: "В архиве",
           },
           states: {
+            backToClasses: "Назад к классам",
             forbidden: {
               title: "Тесты вам недоступны",
               description: "Создавать тесты для класса могут только преподаватели и администраторы.",
