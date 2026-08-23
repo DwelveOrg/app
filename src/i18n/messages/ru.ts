@@ -190,10 +190,15 @@ translation: {
           roleEyebrow: "{{role}} · {{school}}",
           roleSubtitle: { admin: "Общий обзор участников, классов, тестов и прогресса школы.", teacher: "Назначенные классы, ученики, проверка и результаты в одном месте.", student: "Ваши классы, ближайшие тесты и опубликованные результаты." },
           replayOnboarding: "Показать обучение",
+          actions: {
+            createTest: "Создать тест",
+          },
           kpi: {
             admin: { students: "Ученики", classes: "Классы", teachers: "Учителя", assessments: "Тесты", average: "Средний балл", completion: "Выполнение тестов" },
             teacher: { students: "Мои ученики", classes: "Мои классы", pendingGrading: "Ждут проверки", assessments: "Тесты", average: "Средний балл", completion: "Выполнение" },
             student: { classes: "Мои классы", available: "Доступные классы", due: "Скоро срок", completed: "Завершено", inProgress: "В процессе", average: "Мой средний балл" },
+            deltaPoints: "{{value}} б.",
+            deltaVsLastMonth: "к прошлому месяцу",
           },
           gettingStarted: {
             title: "Следующий шаг",
@@ -258,13 +263,7 @@ translation: {
             action: "Импортировать",
           },
           attention: {
-            title: "Требует внимания",
-            grading: "Ожидает проверки",
-            missing: "Несданные работы",
-            late: "Сдано с опозданием",
             requests: "Заявки на вступление",
-            clearTitle: "Ничего не ждёт",
-            clearDescription: "Нет непроверенных и несданных работ на этой неделе.",
           },
           roster: {
             title: "Классы кратко",
@@ -272,6 +271,8 @@ translation: {
             students: "Ученики",
             completion: "Выполнение",
             average: "Средний балл",
+            thisWeek: "На этой неделе",
+            viewAll: "Все",
             emptyTitle: "Классов пока нет",
             emptyDescription: "Создайте класс, и таблица покажет его размер, выполнение и средний балл.",
             emptyAction: "Создать класс",
@@ -307,7 +308,6 @@ translation: {
             },
           },
           empty: {
-            eyebrow: "Аккаунт готов",
             title: "Выберите, как войти в школу",
             description: "Ваш аккаунт создан. Создайте школу или учебный центр, примите приглашение или присоединитесь как ученик, когда получите доступ.",
             actions: {
@@ -411,24 +411,6 @@ translation: {
             classPerformance: { title: "Результаты по классам", average: "Средний балл", completed: "Итоговые результаты", emptyTitle: "Пока нет данных по классам", emptyDescription: "Средние баллы появятся после проверки и публикации результатов." },
             submissions: { title: "Статус отправки", range: "Последние 7 дней", onTime: "Вовремя", late: "Поздно", missing: "Не сдано", emptyTitle: "Нет недавних сроков", emptyDescription: "Здесь появятся тесты со сроком за последние семь дней." },
             activity: { title: "Недавняя активность", seeAll: "Все", emptyTitle: "Пока нет активности", emptyDescription: "Здесь появятся приглашения, запросы и обновления тестов." },
-            members: {
-              title: "Участники по ролям",
-              center: "участников",
-              students: "Ученики",
-              teachers: "Учителя",
-              admins: "Администраторы",
-            },
-            quickActions: {
-              title: "Быстрые действия",
-              addClass: "Добавить класс",
-              inviteTeacher: "Пригласить учителя",
-              viewClasses: "Показать классы",
-              school: "Управление школой",
-              classes: "Открыть классы",
-              tests: "Создать или проверить тест",
-              assignments: "Открыть задания",
-              notifications: "Уведомления",
-            },
             teacherNoClasses: {
               title: "Классы пока не назначены",
               desc: "Администратор ещё не добавил вас в класс. Как только это произойдёт, здесь появятся ваши классы, результаты и предстоящие экзамены.",
@@ -509,13 +491,6 @@ translation: {
             titleStaff: "Динамика успеваемости",
             caption: "За 6 месяцев",
             aria: "Средний балл по месяцам",
-            titleRole: "Динамика: {{role}}",
-            chartType: {
-              label: "Вид графика",
-              area: "Область",
-              line: "Линия",
-              bar: "Столбцы",
-            },
             months: {
               jan: "Янв",
               feb: "Фев",
@@ -832,6 +807,8 @@ translation: {
             subtitle: "Все ваши тесты по всем классам.",
             backToDashboard: "Назад к панели",
             searchLabel: "Поиск тестов по названию",
+            newTest: "Новый тест",
+            newTestClassLabel: "Для какого класса?",
             searchPlaceholder: "Поиск по названию",
             classFilterLabel: "Фильтр тестов по классу",
             allClasses: "Все классы",
@@ -926,7 +903,6 @@ translation: {
             formatDetected:
               "Формат — SAT, IELTS или обычный тест — определяется по самой работе. Позже его можно изменить в настройках теста.",
             cta: {
-              eyebrow: "AI",
               title: "Превратите PDF в тест",
               description:
                 "Загрузите прошлогоднюю работу или главу из сборника. Все вопросы, варианты и ответы будут считаны из неё — вы проверяете готовый черновик, а не набираете его.",
@@ -1305,6 +1281,7 @@ translation: {
             searchLabel: "Поиск учеников",
             searchPlaceholder: "Поиск по имени…",
             noMatches: "Никто не найден.",
+            emptyRoster: "В этом классе пока нет учеников.",
             needsMarking: "Нужна проверка ({{count}})",
             pendingManual_one: "{{count}} на проверку",
             pendingManual_few: "{{count}} на проверку",
@@ -1802,6 +1779,9 @@ translation: {
           },
         },
         schoolPage: {
+          people: {
+            title: "Люди и доступ",
+          },
           active: "Активна",
           inactive: "Неактивна",
           soon: "Скоро",
@@ -1984,7 +1964,7 @@ translation: {
             title: "Добавить учеников",
             description: "Поделитесь кодом для учеников, чтобы они присоединились к школе.",
             noCode: "Код для присоединения учеников пока недоступен.",
-            hint: "Ученики вводят этот код в разделе «Классы» → «Присоединиться к школе».",
+            hint: "Ученики вводят этот код в разделе «Классы» → «Присоединиться к школе». Код добавляет их только в школу — затем они отправляют запросы в классы, а вы одобряете их на странице класса.",
             done: "Готово",
           },
           createClass: {
@@ -2044,16 +2024,28 @@ translation: {
         classes: {
           title: "Классы",
           subtitle: "Просматривайте все классы вашей школы.",
-          subtitleStudent: "{{count}} классов в этом семестре",
-          subtitleTeacher: "{{count}} классов, которые вы ведёте",
-          subtitleAdmin: "{{count}} классов в вашей школе",
+          subtitleStudent_one: "{{count}} класс в этом семестре",
+          subtitleStudent_few: "{{count}} класса в этом семестре",
+          subtitleStudent_many: "{{count}} классов в этом семестре",
+          subtitleTeacher_one: "{{count}} класс, который вы ведёте",
+          subtitleTeacher_few: "{{count}} класса, которые вы ведёте",
+          subtitleTeacher_many: "{{count}} классов, которые вы ведёте",
+          subtitleAdmin_one: "{{count}} класс в вашей школе",
+          subtitleAdmin_few: "{{count}} класса в вашей школе",
+          subtitleAdmin_many: "{{count}} классов в вашей школе",
           subtitleEmpty: "Пока нет классов",
           noneTitle: "Вы пока не состоите ни в одном классе",
           noneDescription: "Классы, к которым вы присоединитесь или которые ведёте, появятся здесь.",
           stats: {
-            classes: "Классы",
-            students: "Ученики",
-            teachers: "Учителя",
+            classes_one: "класс",
+            classes_few: "класса",
+            classes_many: "классов",
+            students_one: "ученик",
+            students_few: "ученика",
+            students_many: "учеников",
+            teachers_one: "учитель",
+            teachers_few: "учителя",
+            teachers_many: "учителей",
           },
           actions: {
             invite: "Пригласить",

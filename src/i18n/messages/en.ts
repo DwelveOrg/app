@@ -214,10 +214,15 @@ translation: {
             student: "Your classes, upcoming tests and released results in one place.",
           },
           replayOnboarding: "Show onboarding",
+          actions: {
+            createTest: "Create test",
+          },
           kpi: {
             admin: { students: "Students", classes: "Classes", teachers: "Teachers", assessments: "Assessments", average: "Average score", completion: "Test completion" },
             teacher: { students: "My students", classes: "My classes", pendingGrading: "Pending grading", assessments: "Assessments", average: "Class average", completion: "Completion" },
             student: { classes: "My classes", available: "Available classes", due: "Due soon", completed: "Completed tests", inProgress: "In progress", average: "My average" },
+            deltaPoints: "{{value}} pts",
+            deltaVsLastMonth: "vs last month",
           },
           gettingStarted: {
             title: "Your next step",
@@ -282,13 +287,7 @@ translation: {
             action: "Import",
           },
           attention: {
-            title: "Needs attention",
-            grading: "Waiting to be graded",
-            missing: "Missing submissions",
-            late: "Submitted late",
             requests: "Join requests",
-            clearTitle: "Nothing waiting",
-            clearDescription: "No grading backlog and no missing work this week.",
           },
           roster: {
             title: "Classes at a glance",
@@ -296,6 +295,8 @@ translation: {
             students: "Students",
             completion: "Completion",
             average: "Average",
+            thisWeek: "This week",
+            viewAll: "View all",
             emptyTitle: "No classes yet",
             emptyDescription: "Create a class and this table will track its size, completion, and average.",
             emptyAction: "Create a class",
@@ -308,7 +309,8 @@ translation: {
           },
           discover: {
             title: "Find a class",
-            heading: "{{count}} classes open to you",
+            heading_one: "{{count}} class open to you",
+            heading_other: "{{count}} classes open to you",
             description: "Browse what your school offers and request the ones you need.",
             action: "Browse classes",
           },
@@ -331,7 +333,6 @@ translation: {
             },
           },
           empty: {
-            eyebrow: "Account ready",
             title: "Choose how you want to enter a school",
             description: "Your account is set up. Create a school or learning center, redeem an invitation, or join as a student when you receive access.",
             actions: {
@@ -454,24 +455,6 @@ translation: {
               emptyTitle: "No recent activity",
               emptyDescription: "Invitations, requests and test updates will appear here.",
             },
-            members: {
-              title: "Members by role",
-              center: "members",
-              students: "Students",
-              teachers: "Teachers",
-              admins: "Admins",
-            },
-            quickActions: {
-              title: "Quick actions",
-              addClass: "Add class",
-              inviteTeacher: "Invite teacher",
-              viewClasses: "View classes",
-              school: "Manage school",
-              classes: "Open classes",
-              tests: "Create or review tests",
-              assignments: "Open assignments",
-              notifications: "View notifications",
-            },
             teacherNoClasses: {
               title: "No classes assigned yet",
               desc: "Your admin hasn't added you to a class. Once they do, your classes, results and upcoming exams appear here.",
@@ -552,13 +535,6 @@ translation: {
             titleStaff: "Performance Trend",
             caption: "Last 6 months",
             aria: "Monthly average score",
-            titleRole: "{{role}} performance trend",
-            chartType: {
-              label: "Chart style",
-              area: "Area",
-              line: "Line",
-              bar: "Bars",
-            },
             months: {
               jan: "Jan",
               feb: "Feb",
@@ -736,12 +712,12 @@ translation: {
             title: "Support / Feedback",
             description: "Helpful tools for early products and fast feedback loops.",
             reportBug: {
-              title: "Report bug",
+              title: "Report a bug",
               modalTitle: "Report a bug",
               description: "Send a quick issue report when something breaks or behaves unexpectedly.",
             },
             requestFeature: {
-              title: "Request feature",
+              title: "Request a feature",
               modalTitle: "Request a feature",
               description: "Share product ideas and workflow improvements you want to see next.",
             },
@@ -869,6 +845,8 @@ translation: {
             subtitle: "Every test you have written, across your classes.",
             backToDashboard: "Back to dashboard",
             searchLabel: "Search tests by title",
+            newTest: "New test",
+            newTestClassLabel: "Which class is it for?",
             searchPlaceholder: "Search by title",
             classFilterLabel: "Filter tests by class",
             allClasses: "All classes",
@@ -963,7 +941,6 @@ translation: {
             formatDetected:
               "The format — SAT, IELTS or a plain quiz — is recognised from the paper itself. You can change it later in the test's settings.",
             cta: {
-              eyebrow: "AI",
               title: "Turn a PDF into a test",
               description:
                 "Upload a past paper or a workbook chapter. Every question, option and answer key is read out of it — you review a finished draft instead of typing it.",
@@ -1322,6 +1299,7 @@ translation: {
             searchLabel: "Search students",
             searchPlaceholder: "Search by name…",
             noMatches: "No student matches that.",
+            emptyRoster: "No students are enrolled in this class yet.",
             needsMarking: "Needs marking ({{count}})",
             pendingManual_one: "{{count}} to mark",
             pendingManual_other: "{{count}} to mark",
@@ -1809,6 +1787,9 @@ translation: {
           },
         },
         schoolPage: {
+          people: {
+            title: "People & access",
+          },
           active: "Active",
           inactive: "Inactive",
           soon: "Soon",
@@ -1991,7 +1972,7 @@ translation: {
             title: "Add students",
             description: "Share your student join code so learners can join this school.",
             noCode: "No student join code is available yet.",
-            hint: "Students enter this code from Classes → Join a school.",
+            hint: "Students enter this code from Classes → Join a school. Joining puts them in the school only — they then request their classes, and you approve those requests from the class page.",
             done: "Done",
           },
           createClass: {
@@ -2049,16 +2030,22 @@ translation: {
         classes: {
           title: "Classes",
           subtitle: "Browse every class in your school.",
-          subtitleStudent: "{{count}} classes enrolled this semester",
-          subtitleTeacher: "{{count}} classes you teach",
-          subtitleAdmin: "{{count}} classes in your school",
+          subtitleStudent_one: "{{count}} class enrolled this semester",
+          subtitleStudent_other: "{{count}} classes enrolled this semester",
+          subtitleTeacher_one: "{{count}} class you teach",
+          subtitleTeacher_other: "{{count}} classes you teach",
+          subtitleAdmin_one: "{{count}} class in your school",
+          subtitleAdmin_other: "{{count}} classes in your school",
           subtitleEmpty: "No classes to show yet",
           noneTitle: "You're not in any classes yet",
           noneDescription: "Classes you join or teach will appear here.",
           stats: {
-            classes: "Classes",
-            students: "Students",
-            teachers: "Teachers",
+            classes_one: "class",
+            classes_other: "classes",
+            students_one: "student",
+            students_other: "students",
+            teachers_one: "teacher",
+            teachers_other: "teachers",
           },
           actions: {
             invite: "Invite",

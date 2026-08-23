@@ -297,11 +297,7 @@ export default function OnboardingWizard(props: WizardProps) {
               />
             ) : (
               <>
-                <StepHeader
-                  eyebrow={t(`${labelBase}.${current.key}.nav`)}
-                  title={heading}
-                  description={description}
-                />
+                <StepHeader title={heading} description={description} />
 
                 <div className="mt-10">{body}</div>
 

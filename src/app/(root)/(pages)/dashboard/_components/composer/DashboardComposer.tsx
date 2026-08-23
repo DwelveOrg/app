@@ -3,16 +3,14 @@
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
-  AlertTriangle,
   ArrowRight,
   Bell,
-  BookOpenCheck,
   CalendarClock,
   Check,
-  ClipboardList,
-  GraduationCap,
   HelpCircle,
-  School,
+  Plus,
+  TrendingDown,
+  TrendingUp,
   UserPlus,
   Users,
 } from "lucide-react";
@@ -31,7 +29,6 @@ import type {
   ClassPerformance,
   DashboardFeed,
   Distributions,
-  GradeBucket,
   ScoreTrend,
   StaffDashboardSummary,
   StudentDashboardSummary,
@@ -53,10 +50,8 @@ import { cn } from "@/lib/utils";
 import { EMPTY_ART, type EmptyArtKind } from "../EmptyArt";
 import JoinCodeChip from "../JoinCodeChip";
 import Panel from "../Panel";
-import ChartTypeToggle, { useChartType } from "./ChartTypeToggle";
-import ClassPerformanceChart from "./ClassPerformanceChart";
-import SegmentDonut from "./SegmentDonut";
-import SubmissionsChart from "./SubmissionsChart";
+import GradeColumns from "./GradeColumns";
+import Sparkline from "./Sparkline";
 import TrendChart from "./TrendChart";
 
 export type DashboardComposerContext = {
@@ -99,6 +94,16 @@ function staffSummary(ctx: DashboardComposerContext) {
   return isStudentSummary(ctx.summary) ? null : ctx.summary;
 }
 
+/**
+ * Month-over-month movement of the average, in percentage points. `null` until
+ * a second month exists — a delta against nothing is not a delta.
+ */
+function trendDelta(trend: ScoreTrend | null): number | null {
+  const points = trend?.points;
+  if (!points || points.length < 2) return null;
+  return Math.round(points[points.length - 1].avg - points[points.length - 2].avg);
+}
+
 /* -------------------------------------------------------------------------- */
 /* Header                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -107,39 +112,53 @@ function Header({ ctx, stage }: ModuleProps) {
   const { t } = useTranslation();
   const name = firstName(ctx.fullName);
   const roleKey = ctx.role.toLowerCase();
+  const staff = ctx.role === "ADMIN" || ctx.role === "TEACHER";
+
+  const roleLine = ctx.schoolName
+    ? t("root.dashboard.roleEyebrow", {
+        role: t(`root.dashboard.roles.${roleKey}`),
+        school: ctx.schoolName,
+      })
+    : t(`root.dashboard.roles.${roleKey}`);
+  const stageLine = t(`root.dashboard.stageSubtitle.${stage}.${roleKey}`, {
+    defaultValue: t(`root.dashboard.roleSubtitle.${roleKey}`),
+  });
 
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="min-w-0">
-        <p className="type-micro text-primary">
-          {ctx.schoolName
-            ? t("root.dashboard.roleEyebrow", {
-                role: t(`root.dashboard.roles.${roleKey}`),
-                school: ctx.schoolName,
-              })
-            : t(`root.dashboard.roles.${roleKey}`)}
-        </p>
-        <h1 className="mt-2 type-title text-foreground">
+        <h1 className="type-title text-foreground">
           {name
             ? t("root.dashboard.welcome.title", { name })
             : t("root.dashboard.welcome.titleGeneric")}
         </h1>
+        {/* One line carries the who and the where-things-stand; the old violet
+            eyebrow above the title shouted the quietest fact on the page. */}
         <p className="mt-1.5 text-15 text-muted-foreground">
-          {t(`root.dashboard.stageSubtitle.${stage}.${roleKey}`, {
-            defaultValue: t(`root.dashboard.roleSubtitle.${roleKey}`),
-          })}
+          {roleLine} · {stageLine}
         </p>
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
-        <Button asChild variant="ghost" size="sm">
-          <Link href="/onboarding?replay=1">
-            <HelpCircle className="h-4 w-4" />
-            {t("root.dashboard.replayOnboarding")}
-          </Link>
-        </Button>
+        {ctx.role === "ADMIN" && ctx.pendingRequests > 0 ? (
+          <Button asChild variant="outline" size="sm">
+            <Link href="/school">
+              <UserPlus className="h-4 w-4" />
+              {t("root.dashboard.attention.requests")}
+              <span className="numeric font-semibold">{ctx.pendingRequests}</span>
+            </Link>
+          </Button>
+        ) : null}
         {ctx.role === "ADMIN" && ctx.studentJoinCode && stage === "active" ? (
           <JoinCodeChip code={ctx.studentJoinCode} />
+        ) : null}
+        {staff && stage !== "fresh" ? (
+          <Button asChild size="sm">
+            <Link href="/tests">
+              <Plus className="h-4 w-4" />
+              {t("root.dashboard.actions.createTest")}
+            </Link>
+          </Button>
         ) : null}
       </div>
     </header>
@@ -147,51 +166,91 @@ function Header({ ctx, stage }: ModuleProps) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* KPI strip                                                                  */
+/* Stat tiles                                                                 */
 /* -------------------------------------------------------------------------- */
 
-type Kpi = { key: string; value: string; available: boolean };
+type Tile = {
+  key: string;
+  value: string;
+  available: boolean;
+  /** Tiles that stand for work link to where the work is done. */
+  href?: string;
+  delta?: number | null;
+  spark?: number[];
+};
 
-function KpiStrip({ ctx }: ModuleProps) {
+/**
+ * Four figures, not six.
+ *
+ * The strip used to hold every count the API returned — students, classes,
+ * teachers, assessments, average, completion — six equal tiles in which a
+ * grading backlog carried the same weight as a headcount that changes twice a
+ * year. Four is the number a person actually scans: the work (grading, due),
+ * the people, and the two measures of how it is going. Inventory the page
+ * dropped (class and assessment counts) still lives one click away on the
+ * pages that own it, and the classes table below carries its own row count.
+ */
+function StatTiles({ ctx }: ModuleProps) {
   const { t } = useTranslation();
-  let tiles: Kpi[] = [];
+  const trendValues = ctx.trend?.points.map((point) => point.avg) ?? [];
+  const delta = ctx.availability.hasResults ? trendDelta(ctx.trend) : null;
+  const spark = trendValues.length >= 3 ? trendValues : undefined;
+  // One measure per tile: when the monthly series exists, the average tile's
+  // value, delta, and sparkline all read from it — the value is the latest
+  // month, which is what "vs last month" is a delta *of*. Mixing the all-time
+  // average with a monthly delta put two different numbers under one label.
+  const latestMonthAvg = trendValues.length
+    ? Math.round(trendValues[trendValues.length - 1])
+    : null;
+
+  let tiles: Tile[] = [];
 
   if (isStudentSummary(ctx.summary)) {
     const summary = ctx.summary;
     tiles = [
-      { key: "classes", value: String(summary.enrolledCourses), available: true },
-      { key: "available", value: String(ctx.availableClasses), available: true },
       { key: "due", value: String(summary.dueThisWeek), available: true },
-      { key: "completed", value: String(summary.completedAssessments ?? 0), available: true },
-      { key: "inProgress", value: String(summary.inProgressAssessments ?? 0), available: true },
       {
-        key: "average",
-        value: ctx.availability.hasResults ? `${Math.round(summary.myAverage)}%` : "—",
-        available: ctx.availability.hasResults,
+        key: "inProgress",
+        value: String(summary.inProgressAssessments ?? 0),
+        available: true,
       },
-    ];
-  } else {
-    const summary = staffSummary(ctx);
-    const teacher = ctx.role === "TEACHER";
-    tiles = [
-      { key: "students", value: String(summary?.students ?? 0), available: true },
-      { key: "classes", value: String(summary?.classes ?? 0), available: true },
-      teacher
-        ? {
-            key: "pendingGrading",
-            value: String(summary?.pendingGrading ?? 0),
-            available: true,
-          }
-        : { key: "teachers", value: String(summary?.teachers ?? 0), available: true },
       {
-        key: "assessments",
-        value: String(summary?.assessments ?? summary?.exams ?? 0),
+        key: "completed",
+        value: String(summary.completedAssessments ?? 0),
         available: true,
       },
       {
         key: "average",
-        value: ctx.availability.hasResults ? `${Math.round(summary?.avgScore ?? 0)}%` : "—",
+        value: ctx.availability.hasResults
+          ? `${latestMonthAvg ?? Math.round(summary.myAverage)}%`
+          : "—",
         available: ctx.availability.hasResults,
+        delta,
+        spark,
+      },
+    ];
+  } else {
+    const summary = staffSummary(ctx);
+    tiles = [
+      ctx.role === "TEACHER"
+        ? {
+            key: "pendingGrading",
+            value: String(summary?.pendingGrading ?? 0),
+            available: true,
+            href: "/tests",
+          }
+        : { key: "students", value: String(summary?.students ?? 0), available: true },
+      ctx.role === "TEACHER"
+        ? { key: "students", value: String(summary?.students ?? 0), available: true }
+        : { key: "teachers", value: String(summary?.teachers ?? 0), available: true },
+      {
+        key: "average",
+        value: ctx.availability.hasResults
+          ? `${latestMonthAvg ?? Math.round(summary?.avgScore ?? 0)}%`
+          : "—",
+        available: ctx.availability.hasResults,
+        delta,
+        spark,
       },
       {
         key: "completion",
@@ -204,30 +263,68 @@ function KpiStrip({ ctx }: ModuleProps) {
 
   const group = ctx.role.toLowerCase();
   return (
-    // Six figures, sized to the figures.
-    //
-    // The tile used to carry `min-h-28` and a `mt-3` gap: a 16px label over a
-    // 30px number inside 32px of padding is 78px of content held in 112px of
-    // box, so a third of every tile — and a third of the strip across the whole
-    // width of the page — was reserved for nothing. Nothing filled it, because
-    // there is nothing else a KPI tile holds. Letting the tile size to its own
-    // content gives the page back ~40px without removing a single number.
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-      {tiles.map((tile) => (
-        <Surface key={tile.key} className="px-4 py-3.5">
-          <p className="type-caption truncate font-medium text-muted-foreground">
-            {t(`root.dashboard.kpi.${group}.${tile.key}`)}
-          </p>
-          <p
-            className={cn(
-              "numeric mt-1 text-2xl leading-tight font-bold tracking-tight",
-              tile.available ? "text-foreground" : "text-muted-foreground",
-            )}
+    <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+      {tiles.map((tile) => {
+        const body = (
+          <>
+            <p className="type-caption truncate font-medium text-muted-foreground">
+              {t(`root.dashboard.kpi.${group}.${tile.key}`)}
+            </p>
+            <div className="mt-1 flex items-end justify-between gap-2">
+              {/* Proportional figures on purpose: tabular digits give every
+                  numeral a `0`'s width, which reads loose at display size.
+                  Tabular stays in the tables, where columns must align. */}
+              <p
+                className={cn(
+                  "text-2xl leading-tight font-bold tracking-tight",
+                  tile.available ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {tile.value}
+              </p>
+              {tile.spark ? <Sparkline values={tile.spark} /> : null}
+            </div>
+            {tile.delta != null && tile.delta !== 0 ? (
+              <p className="mt-1 flex items-center gap-1 text-xs">
+                <span
+                  className={cn(
+                    "inline-flex items-center gap-0.5 font-medium",
+                    tile.delta > 0 ? "text-success" : "text-destructive",
+                  )}
+                >
+                  {tile.delta > 0 ? (
+                    <TrendingUp className="h-3.5 w-3.5" aria-hidden />
+                  ) : (
+                    <TrendingDown className="h-3.5 w-3.5" aria-hidden />
+                  )}
+                  {t("root.dashboard.kpi.deltaPoints", {
+                    value: tile.delta > 0 ? `+${tile.delta}` : String(tile.delta),
+                  })}
+                </span>
+                <span className="truncate text-muted-foreground">
+                  {t("root.dashboard.kpi.deltaVsLastMonth")}
+                </span>
+              </p>
+            ) : null}
+          </>
+        );
+
+        return tile.href ? (
+          <Surface
+            key={tile.key}
+            as={Link}
+            href={tile.href}
+            interactive
+            className="block px-4 py-3.5"
           >
-            {tile.value}
-          </p>
-        </Surface>
-      ))}
+            {body}
+          </Surface>
+        ) : (
+          <Surface key={tile.key} className="px-4 py-3.5">
+            {body}
+          </Surface>
+        );
+      })}
     </div>
   );
 }
@@ -430,156 +527,185 @@ function InvitePanel({ ctx }: ModuleProps) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* Needs attention — derived only from figures the API returned               */
+/* Classes table — one row per class answers "how are my classes doing"       */
 /* -------------------------------------------------------------------------- */
 
-function NeedsAttention({ ctx }: ModuleProps) {
+/**
+ * The one classes module.
+ *
+ * This page used to answer the same question three times: a roster table with
+ * averages, a bar chart of the same averages, and a second chart of the week's
+ * submissions — three panels, one subject. A class is a row; everything known
+ * about it sits on that row: size, average (with the magnitude drawn in), how
+ * much of the assigned work exists as a final result, and what this week's
+ * submissions look like. The row links to the class, where the real detail is.
+ */
+function ClassesTable({ ctx }: ModuleProps) {
   const { t } = useTranslation();
-  const summary = staffSummary(ctx);
-  const pendingGrading = summary?.pendingGrading ?? 0;
-  const missing = (ctx.submissions?.byClass ?? []).reduce(
-    (total, row) => total + row.missing,
-    0,
+  const classes = [...(ctx.classPerformance?.classes ?? [])]
+    .sort((left, right) => left.className.localeCompare(right.className))
+    .slice(0, 8);
+  const weekByClass = new Map(
+    (ctx.submissions?.byClass ?? []).map((row) => [row.classId, row]),
   );
-  const late = (ctx.submissions?.byClass ?? []).reduce((total, row) => total + row.late, 0);
+  const hasWeek = classes.some((row) => {
+    const week = weekByClass.get(row.classId);
+    return week && week.onTime + week.late + week.missing > 0;
+  });
 
-  const rows = [
-    {
-      key: "grading",
-      value: pendingGrading,
-      href: "/tests",
-      Icon: ClipboardList,
-      tone: pendingGrading > 0 ? "warn" : "ok",
-    },
-    {
-      key: "missing",
-      value: missing,
-      href: "/tests",
-      Icon: AlertTriangle,
-      tone: missing > 0 ? "warn" : "ok",
-    },
-    {
-      key: "late",
-      value: late,
-      href: "/tests",
-      Icon: CalendarClock,
-      tone: "ok",
-    },
-    ...(ctx.pendingRequests > 0
-      ? [
-          {
-            key: "requests",
-            value: ctx.pendingRequests,
-            href: "/school",
-            Icon: UserPlus,
-            tone: "warn" as const,
-          },
-        ]
-      : []),
-  ];
-
-  const clear = rows.every((row) => row.value === 0);
+  const weekLabels = {
+    onTime: t("root.dashboard.modules.submissions.onTime"),
+    late: t("root.dashboard.modules.submissions.late"),
+    missing: t("root.dashboard.modules.submissions.missing"),
+  };
 
   return (
-    <Panel title={t("root.dashboard.attention.title")} align={clear ? "center" : "start"}>
-      {clear ? (
-        <EmptyNote
-          art="check"
-          title={t("root.dashboard.attention.clearTitle")}
-          description={t("root.dashboard.attention.clearDescription")}
-        />
-      ) : (
-        <ul className="space-y-1">
-          {rows.map(({ key, value, href, Icon, tone }) => (
-            <li key={key}>
-              <Link
-                href={href}
-                className="flex items-center gap-3 rounded-xl px-3 py-2.5 hover:bg-muted/60"
-              >
-                <span
-                  className={cn(
-                    "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
-                    tone === "warn" && value > 0
-                      ? "bg-warning/15 text-warning"
-                      : "bg-accent text-primary",
-                  )}
-                >
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="min-w-0 flex-1 truncate text-sm font-medium text-foreground">
-                  {t(`root.dashboard.attention.${key}`)}
-                </span>
-                <span className="numeric shrink-0 text-lg font-bold text-foreground">
-                  {value}
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </Panel>
-  );
-}
-
-/* -------------------------------------------------------------------------- */
-/* Class roster table — dense real detail for wide rows                       */
-/* -------------------------------------------------------------------------- */
-
-function ClassRoster({ ctx }: ModuleProps) {
-  const { t } = useTranslation();
-  const classes = (ctx.classPerformance?.classes ?? []).slice(0, 6);
-
-  return (
-    <Panel title={t("root.dashboard.roster.title")} bodyClassName="p-0 md:p-0">
+    <Panel
+      title={t("root.dashboard.roster.title")}
+      aside={
+        <Link
+          href="/groups"
+          className="text-xs font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          {t("root.dashboard.roster.viewAll")}
+        </Link>
+      }
+      bodyClassName="p-0 md:p-0"
+    >
       {classes.length ? (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] text-sm">
-            <thead>
-              <tr className="border-b border-border text-left">
-                <th className="px-5 py-3 font-medium text-muted-foreground md:px-6">
-                  {t("root.dashboard.roster.class")}
-                </th>
-                <th className="px-3 py-3 text-right font-medium text-muted-foreground">
-                  {t("root.dashboard.roster.students")}
-                </th>
-                <th className="px-3 py-3 text-right font-medium text-muted-foreground">
-                  {t("root.dashboard.roster.completion")}
-                </th>
-                <th className="px-5 py-3 text-right font-medium text-muted-foreground md:px-6">
-                  {t("root.dashboard.roster.average")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {classes.map((row) => (
-                <tr key={row.classId} className="border-b border-border last:border-0">
-                  <td className="px-5 py-3 md:px-6">
-                    <Link
-                      href={`/groups/${row.classId}`}
-                      className="truncate font-medium text-foreground hover:text-primary"
-                    >
-                      {row.className}
-                    </Link>
-                  </td>
-                  <td className="px-3 py-3 text-right numeric text-muted-foreground">
-                    {row.studentCount}
-                  </td>
-                  <td className="px-3 py-3 text-right numeric text-muted-foreground">
-                    {row.completionRate != null ? `${Math.round(row.completionRate)}%` : "—"}
-                  </td>
-                  <td className="px-5 py-3 text-right md:px-6">
-                    {row.averageScore != null ? (
-                      <span className="font-semibold numeric text-foreground">
-                        {Math.round(row.averageScore)}%
-                      </span>
-                    ) : (
-                      <span className="numeric text-muted-foreground">—</span>
-                    )}
-                  </td>
+        <div className="flex flex-1 flex-col">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[38rem] text-sm">
+              <thead>
+                <tr className="border-b border-border text-left">
+                  <th className="px-5 py-3 font-medium text-muted-foreground md:px-6">
+                    {t("root.dashboard.roster.class")}
+                  </th>
+                  <th className="px-3 py-3 text-right font-medium text-muted-foreground">
+                    {t("root.dashboard.roster.students")}
+                  </th>
+                  <th className="px-3 py-3 text-right font-medium text-muted-foreground">
+                    {t("root.dashboard.roster.average")}
+                  </th>
+                  <th className="px-3 py-3 text-right font-medium text-muted-foreground">
+                    {t("root.dashboard.roster.completion")}
+                  </th>
+                  {hasWeek ? (
+                    <th className="px-5 py-3 text-right font-medium text-muted-foreground md:px-6">
+                      {t("root.dashboard.roster.thisWeek")}
+                    </th>
+                  ) : null}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {classes.map((row) => {
+                  const week = weekByClass.get(row.classId);
+                  const weekTotal = week ? week.onTime + week.late + week.missing : 0;
+                  const average =
+                    row.averageScore != null ? Math.round(row.averageScore) : null;
+                  return (
+                    <tr key={row.classId} className="border-b border-border last:border-0">
+                      <td className="px-5 py-3 md:px-6">
+                        <Link
+                          href={`/groups/${row.classId}`}
+                          className="truncate font-medium text-foreground hover:text-primary"
+                        >
+                          {row.className}
+                        </Link>
+                      </td>
+                      <td className="numeric px-3 py-3 text-right text-muted-foreground">
+                        {row.studentCount}
+                      </td>
+                      <td className="px-3 py-3">
+                        {average != null ? (
+                          <div className="flex items-center justify-end gap-2">
+                            {/* The magnitude, drawn: track and fill from the
+                                same ramp, so the bar reads at a glance without
+                                replacing the number beside it. */}
+                            <div
+                              aria-hidden
+                              className="h-1.5 w-14 overflow-hidden rounded-full bg-[var(--chart-1-tint)]"
+                            >
+                              <div
+                                className="h-full rounded-full bg-[var(--chart-1)]"
+                                style={{ width: `${average}%` }}
+                              />
+                            </div>
+                            <span className="numeric w-10 shrink-0 text-right font-semibold text-foreground">
+                              {average}%
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="numeric block text-right text-muted-foreground">
+                            —
+                          </span>
+                        )}
+                      </td>
+                      <td className="numeric px-3 py-3 text-right text-muted-foreground">
+                        {row.completionRate != null
+                          ? `${Math.round(row.completionRate)}%`
+                          : "—"}
+                      </td>
+                      {hasWeek ? (
+                        <td className="px-5 py-3 md:px-6">
+                          {week && weekTotal > 0 ? (
+                            <>
+                              <div
+                                aria-hidden
+                                title={`${weekLabels.onTime} ${week.onTime} · ${weekLabels.late} ${week.late} · ${weekLabels.missing} ${week.missing}`}
+                                className="ml-auto flex h-1.5 w-24 gap-[2px]"
+                              >
+                                {week.onTime > 0 ? (
+                                  <span
+                                    className="min-w-[3px] rounded-full bg-success"
+                                    style={{ flexGrow: week.onTime }}
+                                  />
+                                ) : null}
+                                {week.late > 0 ? (
+                                  <span
+                                    className="min-w-[3px] rounded-full bg-warning"
+                                    style={{ flexGrow: week.late }}
+                                  />
+                                ) : null}
+                                {week.missing > 0 ? (
+                                  <span
+                                    className="min-w-[3px] rounded-full bg-destructive"
+                                    style={{ flexGrow: week.missing }}
+                                  />
+                                ) : null}
+                              </div>
+                              <span className="sr-only">
+                                {`${weekLabels.onTime} ${week.onTime}, ${weekLabels.late} ${week.late}, ${weekLabels.missing} ${week.missing}`}
+                              </span>
+                            </>
+                          ) : (
+                            <span className="block text-right text-muted-foreground">—</span>
+                          )}
+                        </td>
+                      ) : null}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          {hasWeek ? (
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-border px-5 py-2.5 text-2xs text-muted-foreground md:px-6">
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-success" />
+                {weekLabels.onTime}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-warning" />
+                {weekLabels.late}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span aria-hidden className="h-2 w-2 rounded-full bg-destructive" />
+                {weekLabels.missing}
+              </span>
+              <span className="ml-auto">{t("root.dashboard.modules.submissions.range")}</span>
+            </div>
+          ) : null}
         </div>
       ) : (
         <div className="p-5 md:p-6">
@@ -644,20 +770,18 @@ function NextUp({ ctx }: ModuleProps) {
 
 function PerformanceTrend({ ctx }: ModuleProps) {
   const { t } = useTranslation();
-  const { type, setType } = useChartType();
-  const hasPoints = Boolean(ctx.trend?.points.length);
 
   return (
     <Panel
-      title={t("root.dashboard.trend.titleRole", {
-        role: t(`root.dashboard.roles.${ctx.role.toLowerCase()}`),
-      })}
-      // Only offered when there is something to draw: a form switch over an
-      // empty state is three ways to look at nothing.
-      aside={hasPoints ? <ChartTypeToggle value={type} onChange={setType} /> : undefined}
+      title={
+        ctx.role === "STUDENT"
+          ? t("root.dashboard.trend.titleStudent")
+          : t("root.dashboard.trend.titleStaff")
+      }
+      aside={ctx.trend?.points.length ? t("root.dashboard.trend.caption") : undefined}
     >
       {ctx.trend?.points.length ? (
-        <TrendChart points={ctx.trend.points} type={type} />
+        <TrendChart points={ctx.trend.points} />
       ) : (
         <EmptyNote
           art="trend"
@@ -669,104 +793,25 @@ function PerformanceTrend({ ctx }: ModuleProps) {
   );
 }
 
-function ClassPerformancePanel({ ctx }: ModuleProps) {
-  const { t } = useTranslation();
-  const classes = ctx.classPerformance?.classes ?? [];
-  const hasScores = classes.some((item) => item.averageScore != null);
-  return (
-    <Panel title={t("root.dashboard.modules.classPerformance.title")}>
-      {hasScores ? (
-        <ClassPerformanceChart classes={classes} />
-      ) : (
-        <EmptyNote
-          art="trend"
-          title={t("root.dashboard.modules.classPerformance.emptyTitle")}
-          description={t("root.dashboard.modules.classPerformance.emptyDescription")}
-        />
-      )}
-    </Panel>
-  );
-}
-
-const GRADE_COLOR: Record<GradeBucket, string> = {
-  A: "var(--chart-1)",
-  B: "var(--chart-2)",
-  C: "var(--chart-3)",
-  "D/F": "var(--chart-4)",
-};
-
 function GradeDistribution({ ctx }: ModuleProps) {
   const { t } = useTranslation();
   const grades = ctx.distributions?.grades ?? [];
   const total = grades.reduce((sum, grade) => sum + grade.count, 0);
   return (
-    <Panel title={t("root.dashboard.modules.distribution.title")} align="center">
+    <Panel
+      title={t("root.dashboard.modules.distribution.title")}
+      aside={
+        total ? `${total} ${t("root.dashboard.modules.distribution.center")}` : undefined
+      }
+      align={total ? "start" : "center"}
+    >
       {total ? (
-        <SegmentDonut
-          segments={grades.map((grade) => ({
-            label: grade.bucket,
-            value: grade.count,
-            color: GRADE_COLOR[grade.bucket],
-          }))}
-          centerValue={total}
-          centerLabel={t("root.dashboard.modules.distribution.center")}
-        />
+        <GradeColumns grades={grades} />
       ) : (
         <EmptyNote
           art="calendar"
           title={t("root.dashboard.modules.distribution.emptyTitle")}
           description={t("root.dashboard.modules.distribution.emptyDescription")}
-        />
-      )}
-    </Panel>
-  );
-}
-
-function MembersByRole({ ctx }: ModuleProps) {
-  const { t } = useTranslation();
-  const members = ctx.distributions?.membersByRole;
-  const segments = [
-    {
-      label: t("root.dashboard.modules.members.students"),
-      value: members?.students ?? 0,
-      color: "var(--chart-1)",
-    },
-    {
-      label: t("root.dashboard.modules.members.teachers"),
-      value: members?.teachers ?? 0,
-      color: "var(--chart-2)",
-    },
-    {
-      label: t("root.dashboard.modules.members.admins"),
-      value: members?.admins ?? 0,
-      color: "var(--chart-3)",
-    },
-  ];
-  return (
-    <Panel title={t("root.dashboard.modules.members.title")} align="center">
-      <SegmentDonut
-        segments={segments}
-        centerValue={segments.reduce((sum, item) => sum + item.value, 0)}
-        centerLabel={t("root.dashboard.modules.members.center")}
-      />
-    </Panel>
-  );
-}
-
-function SubmissionStatus({ ctx }: ModuleProps) {
-  const { t } = useTranslation();
-  return (
-    <Panel
-      title={t("root.dashboard.modules.submissions.title")}
-      aside={t("root.dashboard.modules.submissions.range")}
-    >
-      {ctx.submissions?.byClass.length ? (
-        <SubmissionsChart rows={ctx.submissions.byClass} />
-      ) : (
-        <EmptyNote
-          art="check"
-          title={t("root.dashboard.modules.submissions.emptyTitle")}
-          description={t("root.dashboard.modules.submissions.emptyDescription")}
         />
       )}
     </Panel>
@@ -918,58 +963,6 @@ function StudentClasses({ ctx }: ModuleProps) {
   );
 }
 
-function QuickActions({ ctx }: ModuleProps) {
-  const { t } = useTranslation();
-  const actions =
-    ctx.role === "ADMIN"
-      ? [
-          { key: "school", href: "/school", Icon: School },
-          { key: "classes", href: "/groups", Icon: Users },
-          { key: "tests", href: "/tests", Icon: BookOpenCheck },
-        ]
-      : ctx.role === "TEACHER"
-        ? [
-            { key: "classes", href: "/groups", Icon: GraduationCap },
-            { key: "tests", href: "/tests", Icon: BookOpenCheck },
-            { key: "notifications", href: "/notifications", Icon: Bell },
-          ]
-        : [
-            { key: "classes", href: "/groups", Icon: GraduationCap },
-            { key: "assignments", href: "/assignments/exams", Icon: BookOpenCheck },
-            { key: "notifications", href: "/notifications", Icon: Bell },
-          ];
-  /*
-    Three links, on one line where there is room for one line.
-
-    This was a heading stacked over a full-width row of buttons — a 12-column
-    panel spending two stacked bands on three shortcuts, each of which is a word
-    and an icon. The heading is short and the actions are few, so at any width
-    that fits them they belong beside each other; the stack is the narrow-screen
-    fallback, not the default. Same three destinations, roughly half the height.
-  */
-  return (
-    <Panel bodyClassName="p-4 md:p-4">
-      <div className="@container">
-        <div className="flex flex-col gap-3 @2xl:flex-row @2xl:items-center @2xl:gap-6">
-          <h2 className="type-heading shrink-0 text-foreground">
-            {t("root.dashboard.modules.quickActions.title")}
-          </h2>
-          <div className="grid flex-1 gap-2 sm:grid-cols-3">
-            {actions.map(({ key, href, Icon }) => (
-              <Button key={key} asChild variant="outline" className="justify-start">
-                <Link href={href}>
-                  <Icon className="h-4 w-4" />
-                  {t(`root.dashboard.modules.quickActions.${key}`)}
-                </Link>
-              </Button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </Panel>
-  );
-}
-
 /* -------------------------------------------------------------------------- */
 /* Import a test from a PDF                                                   */
 /* -------------------------------------------------------------------------- */
@@ -977,7 +970,7 @@ function QuickActions({ ctx }: ModuleProps) {
 /**
  * The dashboard's entry into the PDF importer.
  *
- * Unlike the other quick actions this one cannot be a bare link: an import
+ * Unlike the other shortcuts this one cannot be a bare link: an import
  * belongs to a class, and the dashboard is the one surface with no class in
  * context. So the panel asks for the class here rather than dropping the
  * teacher on a screen that immediately asks them to go back and pick one.
@@ -1044,16 +1037,27 @@ function DiscoverClasses({ ctx }: ModuleProps) {
 /* -------------------------------------------------------------------------- */
 
 /**
- * Reaching a person: support, and reporting something broken.
- *
- * Every role gets it. The floating report button is still there and still the
- * fastest route from a broken screen, but it is one unlabelled circle — a user
- * who has never hovered it does not know the product accepts reports at all,
- * and "where do I ask for help" is not a question anyone should have to hunt
- * for. This is the answer stated once, on the page everyone lands on.
+ * Reaching a person: support, reporting something broken, and replaying the
+ * onboarding tour. Every role gets it, and it sits at the foot on purpose —
+ * help is what you look for after the thing you came to do. The tour replay
+ * lives here with the rest of the help rather than in the header, where it
+ * spent every visit next to the page's one real action.
  */
 function GettingHelp() {
-  return <SupportCta />;
+  const { t } = useTranslation();
+  return (
+    <div>
+      <SupportCta />
+      <div className="mt-1.5 flex justify-end">
+        <Button asChild variant="ghost" size="sm" className="text-muted-foreground">
+          <Link href="/onboarding?replay=1">
+            <HelpCircle className="h-4 w-4" />
+            {t("root.dashboard.replayOnboarding")}
+          </Link>
+        </Button>
+      </div>
+    </div>
+  );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -1100,7 +1104,7 @@ const REGISTRY: ModuleEntry[] = [
     id: "kpis",
     roles: ["ADMIN", "TEACHER", "STUDENT"],
     resolve: () => ({ priority: 90, span: 12 }),
-    Component: KpiStrip,
+    Component: StatTiles,
   },
   {
     id: "next-up",
@@ -1133,14 +1137,7 @@ const REGISTRY: ModuleEntry[] = [
     Component: GradeDistribution,
   },
   {
-    id: "attention",
-    roles: ["ADMIN", "TEACHER"],
-    resolve: (_ctx, stage) =>
-      stage === "fresh" ? null : { priority: 76, span: 4, minSpan: 3, maxSpan: 6 },
-    Component: NeedsAttention,
-  },
-  {
-    id: "roster",
+    id: "classes-table",
     roles: ["ADMIN", "TEACHER"],
     resolve: (ctx) => {
       const rows = ctx.classPerformance?.classes.length ?? 0;
@@ -1149,39 +1146,12 @@ const REGISTRY: ModuleEntry[] = [
             priority: 72,
             // A table is the one module that genuinely needs width once it has
             // rows to show; with one class it does not.
-            span: spanForCount(rows, { empty: 5, low: 6, high: 8 }, 2),
-            minSpan: 5,
+            span: spanForCount(rows, { empty: 5, low: 7, high: 8 }, 2),
+            minSpan: 6,
           }
         : null;
     },
-    Component: ClassRoster,
-  },
-  {
-    id: "class-performance",
-    roles: ["ADMIN", "TEACHER"],
-    resolve: (ctx, stage) =>
-      stage === "active" && ctx.availability.hasClassPerformance
-        ? { priority: 70, span: 7, minSpan: 5, maxSpan: 8 }
-        : null,
-    Component: ClassPerformancePanel,
-  },
-  {
-    id: "members",
-    roles: ["ADMIN"],
-    resolve: (ctx) =>
-      ctx.availability.hasStudents ? { priority: 68, span: 4, minSpan: 3, maxSpan: 6 } : null,
-    Component: MembersByRole,
-  },
-  {
-    id: "submissions",
-    roles: ["ADMIN", "TEACHER"],
-    resolve: (ctx) => {
-      const rows = ctx.submissions?.byClass.length ?? 0;
-      return ctx.availability.hasSubmissions
-        ? { priority: 65, span: spanForCount(rows, { empty: 5, low: 6, high: 7 }, 2), minSpan: 5 }
-        : null;
-    },
-    Component: SubmissionStatus,
+    Component: ClassesTable,
   },
   {
     id: "classes",
@@ -1219,7 +1189,7 @@ const REGISTRY: ModuleEntry[] = [
   {
     id: "import-test",
     roles: ["ADMIN", "TEACHER"],
-    // Above the feeds, below the figures. Down beside the quick actions it was
+    // Above the feeds, below the figures. Down beside the support panel it was
     // the last thing on the page before the footer, which is the wrong place
     // for the one shortcut that saves a teacher an evening of typing; at the
     // very top it would shout over the numbers they came to read.
@@ -1228,12 +1198,6 @@ const REGISTRY: ModuleEntry[] = [
         ? { priority: 60, span: 4, minSpan: 3, maxSpan: 6 }
         : null,
     Component: ImportTestPanel,
-  },
-  {
-    id: "quick",
-    roles: ["ADMIN", "TEACHER", "STUDENT"],
-    resolve: () => ({ priority: 20, span: 12 }),
-    Component: QuickActions,
   },
   {
     id: "support",

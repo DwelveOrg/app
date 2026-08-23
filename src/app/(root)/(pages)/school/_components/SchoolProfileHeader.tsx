@@ -56,10 +56,25 @@ export default function SchoolProfileHeader({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
 
+  // Unit labels pluralize with their counts; the dots are separators, so they
+  // all share one neutral tone — success green and warning amber are reserved
+  // for state, and a decorative bullet has none.
   const stats = [
-    { key: "classes", dot: "bg-primary", value: classCount, label: t("root.classes.stats.classes") },
-    { key: "students", dot: "bg-success", value: studentCount, label: t("root.classes.stats.students") },
-    { key: "teachers", dot: "bg-warning", value: teacherCount, label: t("root.classes.stats.teachers") },
+    {
+      key: "classes",
+      value: classCount,
+      label: t("root.classes.stats.classes", { count: classCount }),
+    },
+    {
+      key: "students",
+      value: studentCount,
+      label: t("root.classes.stats.students", { count: studentCount }),
+    },
+    {
+      key: "teachers",
+      value: teacherCount,
+      label: t("root.classes.stats.teachers", { count: teacherCount }),
+    },
   ];
 
   return (
@@ -82,7 +97,7 @@ export default function SchoolProfileHeader({
         <>
           {stats.map((stat) => (
             <span key={stat.key} className="inline-flex items-center gap-1.5">
-              <span aria-hidden className={`size-1.5 rounded-full ${stat.dot}`} />
+              <span aria-hidden className="size-1.5 rounded-full bg-muted-foreground/40" />
               <span className="font-semibold text-foreground">{stat.value}</span>
               {stat.label}
             </span>

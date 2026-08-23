@@ -3,8 +3,6 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export type PageHeaderProps = {
-  /** Small uppercase line above the title — context, not decoration. */
-  eyebrow?: ReactNode;
   title: ReactNode;
   subtitle?: ReactNode;
   /** Trailing actions, right-aligned on wide screens. */
@@ -24,7 +22,6 @@ export type PageHeaderProps = {
  * English and clipping them loses meaning. The title wraps and balances instead.
  */
 export default function PageHeader({
-  eyebrow,
   title,
   subtitle,
   actions,
@@ -38,9 +35,9 @@ export default function PageHeader({
       )}
     >
       <div className="min-w-0">
-        {eyebrow ? (
-          <p className="type-micro mb-2 text-primary">{eyebrow}</p>
-        ) : null}
+        {/* No eyebrow slot on purpose: a label above the title is a banned
+            pattern in this design system — the heading carries its own weight,
+            and page context belongs in the subtitle line. */}
         <h1 className="type-title text-foreground">{title}</h1>
         {subtitle ? (
           <p className="mt-1.5 max-w-[68ch] text-sm text-muted-foreground">{subtitle}</p>

@@ -81,6 +81,7 @@ export default function ResultsView({
 
   const { summary, rows } = results;
   const cohort = statistics?.cohort;
+  const hasSubmissions = summary.submitted + summary.graded > 0;
 
   /**
    * Filtered in the browser rather than by refetching.
@@ -125,22 +126,30 @@ export default function ResultsView({
       <motion.div variants={reduced ? stillVariants : staggerItem}>
         <Surface padding="lg" className="space-y-5">
           <dl className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {/* The backend answers an empty cohort with zeros, and a zero is a
+                claim — "the average score was 0" — that nobody has earned yet.
+                Until a submission exists, every measure is unavailable, and
+                unavailable is written "—". */}
             <Figure
               label={t("root.tests.results.stats.mean")}
               value={
-                cohort?.mean != null
+                hasSubmissions && cohort?.mean != null
                   ? `${round(cohort.mean)} / ${cohort.maxScore}`
                   : "—"
               }
               hint={
-                cohort?.median != null
+                hasSubmissions && cohort?.median != null
                   ? t("root.tests.results.stats.median", { value: round(cohort.median) })
                   : undefined
               }
             />
             <Figure
               label={t("root.tests.results.stats.passRate")}
-              value={cohort?.passRate != null ? `${Math.round(cohort.passRate * 100)}%` : "—"}
+              value={
+                hasSubmissions && cohort?.passRate != null
+                  ? `${Math.round(cohort.passRate * 100)}%`
+                  : "—"
+              }
               hint={
                 cohort?.passingScore != null
                   ? t("tests.score.passAt", { score: cohort.passingScore })
@@ -150,12 +159,12 @@ export default function ResultsView({
             <Figure
               label={t("root.tests.results.stats.range")}
               value={
-                cohort?.min != null && cohort?.max != null
+                hasSubmissions && cohort?.min != null && cohort?.max != null
                   ? `${cohort.min}–${cohort.max}`
                   : "—"
               }
               hint={
-                cohort?.stdDev != null
+                hasSubmissions && cohort?.stdDev != null
                   ? t("root.tests.results.stats.spread", { value: round(cohort.stdDev) })
                   : undefined
               }
@@ -171,7 +180,7 @@ export default function ResultsView({
             />
           </dl>
 
-          {cohort ? (
+          {cohort && hasSubmissions ? (
             <div className="border-t border-border pt-5">
               <p className="type-micro mb-3 text-muted-foreground">
                 {t("root.tests.results.stats.distribution")}
@@ -245,7 +254,12 @@ export default function ResultsView({
             {visible.length === 0 ? (
               <Surface padding="lg">
                 <p className="py-6 text-center text-sm text-muted-foreground">
-                  {t("root.tests.results.noMatches")}
+                  {/* "No match" is the answer to a filter; an unfiltered empty
+                      list means the roster itself is empty, which is a
+                      different fact with a different remedy. */}
+                  {search.trim() || needsMarking
+                    ? t("root.tests.results.noMatches")
+                    : t("root.tests.results.emptyRoster")}
                 </p>
               </Surface>
             ) : (

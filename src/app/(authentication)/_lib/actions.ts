@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { actionClient, ActionError } from "@/lib/safe-action";
 import {
@@ -128,9 +129,28 @@ async function createSessionFromSchoolResponse(response: CreateSchoolResponse) {
   });
 }
 
+/**
+ * The browser's identity, forwarded on session-creating calls so the backend
+ * records the device, not this server. The user agent labels the session in
+ * the profile's "Active sessions"; X-Forwarded-For carries the client address
+ * when one was forwarded to us (behind a proxy in production).
+ */
+async function clientContextHeaders(): Promise<HeadersInit | undefined> {
+  const incoming = await headers();
+  const forwarded: Record<string, string> = {};
+
+  const userAgent = incoming.get("user-agent");
+  if (userAgent) forwarded["User-Agent"] = userAgent;
+
+  const forwardedFor = incoming.get("x-forwarded-for");
+  if (forwardedFor) forwarded["X-Forwarded-For"] = forwardedFor;
+
+  return Object.keys(forwarded).length > 0 ? forwarded : undefined;
+}
+
 async function loginWithInput(input: LoginFormField): Promise<AuthMutationResult> {
   try {
-    const response = await loginRequest(input);
+    const response = await loginRequest(input, await clientContextHeaders());
 
     await createSessionFromAuthResponse(response);
 
@@ -146,7 +166,7 @@ async function loginWithInput(input: LoginFormField): Promise<AuthMutationResult
 
 async function signupWithInput(input: RegularSignupFormField): Promise<AuthMutationResult> {
   try {
-    const response = await signupRequest(input);
+    const response = await signupRequest(input, await clientContextHeaders());
 
     await createSessionFromAuthResponse(response);
 
@@ -253,7 +273,7 @@ async function acceptTeacherInviteWithInput(
 
 async function googleAuthWithToken(idToken: string): Promise<AuthMutationResult> {
   try {
-    const response = await googleAuthRequest(idToken);
+    const response = await googleAuthRequest(idToken, await clientContextHeaders());
 
     await createSessionFromAuthResponse(response);
     return {

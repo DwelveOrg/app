@@ -78,7 +78,11 @@ export default function AiImportCta({
     <div className={cn("@container", className)}>
       <div
         className={cn(
-          "relative h-full overflow-hidden rounded-2xl border border-brand/35 p-4 shadow-elev-2 @md:p-5",
+          // `justify-center`: on the dashboard this panel stretches to its grid
+          // row's height, and top-pinned content left a hollow tinted field
+          // underneath. Centring spends the slack evenly; at natural height
+          // (a full-width class page) it changes nothing.
+          "relative flex h-full flex-col justify-center overflow-hidden rounded-2xl border border-brand/35 p-4 shadow-elev-2 @md:p-5",
           "bg-[linear-gradient(115deg,color-mix(in_srgb,var(--brand)_17%,var(--card)),color-mix(in_srgb,var(--brand)_6%,var(--card))_52%,var(--card))]",
         )}
       >
@@ -96,8 +100,7 @@ export default function AiImportCta({
             <SparkTile size="md" />
 
             <div className="min-w-0">
-              <p className="type-micro text-primary">{t("root.tests.import.cta.eyebrow")}</p>
-              <h3 className="type-heading mt-0.5 text-foreground">
+              <h3 className="type-heading text-foreground">
                 {t("root.tests.import.cta.title")}
               </h3>
               <p className="mt-1 max-w-[46ch] text-13 leading-relaxed text-muted-foreground">
@@ -112,14 +115,15 @@ export default function AiImportCta({
               panel: `shrink-0` keeps them at their own width instead of stretching
               across the card the way a block-level select did. */}
           <div className="flex flex-col gap-2 @md:flex-row @md:flex-wrap @md:items-center @2xl:shrink-0">
-            {/* The one lit control on the page. `ai-glow` puts the bloom
-                behind it and `ai-sheen` sends a single pass of light across it
-                on hover — see the `.ai-*` block in `globals.css` for why this
-                treatment is reserved for the model-backed actions. */}
+            {/* `ai-sheen` sends a single pass of light across the control on
+                hover — reserved for model-backed actions. Depth comes from the
+                real offset-and-blur `shadow-elev-brand`; the old `ai-glow`
+                under-bloom was a zero-offset halo, decoration rather than
+                depth, and is gone. */}
             <Button
               asChild
               size="lg"
-              className="ai-glow ai-sheen w-full bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105 @md:w-auto"
+              className="ai-sheen w-full bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105 @md:w-auto"
             >
               <Link href={href}>
                 <Wand2 className="size-4" />

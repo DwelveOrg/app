@@ -59,16 +59,19 @@ export default function StudentTestCard({
         <StateBadge test={test} />
       </div>
 
+      {/*
+        Values name themselves ("3 questions", "5 points") instead of leaning
+        on icon-only labels — a bare "1 · 1" beside two small glyphs made the
+        reader decode which count was which.
+      */}
       <dl className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
         <Meta
           icon={<ListChecks className="size-3.5" />}
-          label={t("exam.cover.questions")}
-          value={String(test.questionCount)}
+          value={t("exam.cover.questionCount", { count: test.questionCount })}
         />
         <Meta
           icon={<Target className="size-3.5" />}
-          label={t("exam.cover.points")}
-          value={String(test.totalPoints)}
+          value={t("exam.paper.points", { count: test.totalPoints })}
         />
         {test.durationMinutes ? (
           <Meta
@@ -231,14 +234,15 @@ function Meta({
   value,
 }: {
   icon: React.ReactNode;
-  label: string;
+  /** Omit when the value already names itself — "3 questions" needs no "Questions" read before it. */
+  label?: string;
   value: string;
 }) {
   return (
     <div className="flex items-center gap-1.5">
       <dt className="inline-flex items-center gap-1">
         <span aria-hidden="true">{icon}</span>
-        <span className="sr-only">{label}</span>
+        {label ? <span className="sr-only">{label}</span> : null}
       </dt>
       <dd className="font-medium text-foreground">{value}</dd>
     </div>

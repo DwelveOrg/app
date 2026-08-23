@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, CloudOff, Loader2, PencilLine } from "lucide-react";
+import { Check, CircleDashed, CloudOff, Loader2, PencilLine } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
@@ -28,8 +28,18 @@ export default function SaveIndicator({
 }) {
   const { t } = useTranslation();
 
+  // The check is reserved for an acknowledged write. "Not saved yet" under a
+  // check mark reads as saved to a student glancing at the corner mid-exam.
   const Icon =
-    state === "saving" ? Loader2 : state === "error" ? CloudOff : state === "pending" ? PencilLine : Check;
+    state === "saving"
+      ? Loader2
+      : state === "error"
+        ? CloudOff
+        : state === "pending"
+          ? PencilLine
+          : state === "idle"
+            ? CircleDashed
+            : Check;
 
   return (
     <span

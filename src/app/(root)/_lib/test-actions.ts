@@ -56,12 +56,23 @@ const DELIVERY_ERROR = "Could not save the delivery rules. Please try again.";
 const NOT_A_DRAFT =
   "This test is no longer a draft. Reload the page to see the latest version.";
 
+/**
+ * A timed-out wait is not a failure — the backend may well have finished after
+ * we stopped listening. Claiming "could not publish" here is how an author
+ * publishes twice; the honest instruction is to reload and look.
+ */
+const TIMED_OUT =
+  "The server is taking longer than expected. Reload the page to check whether the change went through.";
+
 function mapTestError(error: unknown, fallback: string): string {
   if (error instanceof BackendApiError) {
     if (error.status === 409) {
       return error.message || NOT_A_DRAFT;
     }
     return error.message || fallback;
+  }
+  if (error instanceof Error && error.name === "TimeoutError") {
+    return TIMED_OUT;
   }
   if (error instanceof TypeError) {
     return NETWORK_ERROR;

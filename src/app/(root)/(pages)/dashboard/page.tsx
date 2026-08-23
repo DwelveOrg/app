@@ -21,7 +21,16 @@ export default async function Dashboard() {
   // behind a skeleton on *every* visit just to read localStorage, which threw
   // away the server render for established users and silently skipped the flow
   // on a second device.
-  const onboarding = await getOnboarding();
+  //
+  // Fetched together with the school detail: the two depend only on the
+  // session, and against a remote database each awaited round trip is paid in
+  // full. When onboarding redirects, the school response is simply discarded.
+  const [onboarding, detail] = await Promise.all([
+    getOnboarding(),
+    // Fails soft: if the school fetch errors we still render the dashboard
+    // using the role carried in the session, rather than blanking the page.
+    user.schoolId ? getSchool(user.schoolId) : Promise.resolve(null),
+  ]);
   if (onboarding.status === "in_progress") {
     redirect("/onboarding");
   }
@@ -29,10 +38,6 @@ export default async function Dashboard() {
   if (!user.membershipCount) {
     return <NoMembershipState />;
   }
-
-  // Fails soft: if the school fetch errors we still render the dashboard using
-  // the role carried in the session, rather than blanking the whole page.
-  const detail = user.schoolId ? await getSchool(user.schoolId) : null;
   const role = detail?.currentUserRole ?? user.schoolRole;
   const studentJoinCode = detail?.school.studentJoinCode ?? null;
 

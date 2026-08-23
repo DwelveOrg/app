@@ -6,14 +6,13 @@ import { useTranslation } from "react-i18next";
 
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
 
 /* -------------------------------------------------------------------------- */
 /* Header                                                                     */
 /* -------------------------------------------------------------------------- */
 
 /**
- * Eyebrow, title, description — centred, on a narrow measure.
+ * Title and description — centred, on a narrow measure.
  *
  * Centring is the change. The old wizard set every step left-aligned against a
  * `max-w-6xl` column, which put the title in the top-left corner of a very wide
@@ -22,18 +21,18 @@ import { cn } from "@/lib/utils";
  * work below it.
  */
 export function StepHeader({
-  eyebrow,
   title,
   description,
 }: {
-  eyebrow?: string;
   title: string;
   description?: string;
 }) {
   return (
     <div className="mx-auto max-w-[42rem] text-center">
-      {eyebrow ? <p className="type-micro text-muted-foreground">{eyebrow}</p> : null}
-      <h1 className={cn("type-title text-foreground", eyebrow && "mt-3")}>{title}</h1>
+      {/* The step's short name used to sit here as an eyebrow — a smaller
+          restatement of the title directly above the title. The heading
+          carries its own weight. */}
+      <h1 className="type-title text-foreground">{title}</h1>
       {description ? (
         <p className="mx-auto mt-3 max-w-[52ch] text-base leading-7 text-muted-foreground">
           {description}

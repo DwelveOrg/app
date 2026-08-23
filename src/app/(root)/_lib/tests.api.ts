@@ -192,6 +192,12 @@ export function publishTestRequest(
   return requestJson(`/tests/${testId}/publish`, {
     method: "POST",
     ...(body ? { body } : {}),
+    // Publishing runs the backend's longest transaction (guard, tree read,
+    // update, two notification fan-outs). Against a remote database that can
+    // legitimately outlive the default request timeout — and an aborted wait
+    // is the worst outcome here, because the backend still commits and the
+    // author is told the publish failed when it succeeded.
+    timeoutMs: 45_000,
     responseSchema: testSummaryResponseSchema,
   });
 }

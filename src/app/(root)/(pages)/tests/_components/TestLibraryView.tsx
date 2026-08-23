@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronLeft, ChevronRight, RefreshCw, Search } from "lucide-react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Plus, RefreshCw, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -23,9 +24,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { queryKeys } from "@/lib/query/keys";
 import {
   DEFAULT_TEST_STATUS,
+  studioRoutes,
   TEST_STATUS_TABS,
 } from "@/app/(root)/_constants/tests";
 import { useLibraryTestsQuery } from "@/app/(root)/_hooks/useTests";
@@ -109,6 +118,43 @@ export default function TestLibraryView({
       <PageHeader
         title={t("root.tests.library.title")}
         subtitle={t("root.tests.library.subtitle")}
+        /*
+          The library is where "create a test" funnels land (the dashboard's
+          header action among them), and a test belongs to a class — so the
+          action resolves the class before entering the studio. One class needs
+          no question; several ask it as a menu. No classes renders nothing:
+          the setup checklist is already pointing at class creation, and a
+          disabled button explains less than its absence.
+        */
+        actions={
+          classes.length === 1 ? (
+            <Button asChild size="sm">
+              <Link href={studioRoutes.newTest(classes[0].id)}>
+                <Plus className="size-4" />
+                {t("root.tests.library.newTest")}
+              </Link>
+            </Button>
+          ) : classes.length > 1 ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size="sm">
+                  <Plus className="size-4" />
+                  {t("root.tests.library.newTest")}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>
+                  {t("root.tests.library.newTestClassLabel")}
+                </DropdownMenuLabel>
+                {classes.map((item) => (
+                  <DropdownMenuItem key={item.id} asChild>
+                    <Link href={studioRoutes.newTest(item.id)}>{item.name}</Link>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : null
+        }
       />
 
       <TabBar
