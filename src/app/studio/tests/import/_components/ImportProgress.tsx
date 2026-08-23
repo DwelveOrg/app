@@ -151,7 +151,7 @@ export default function ImportProgress({
                   </p>
 
                   {detail ? (
-                    <p className="shrink-0 text-2xs tabular-nums text-muted-foreground">
+                    <p className="shrink-0 text-2xs numeric text-muted-foreground">
                       {detail}
                     </p>
                   ) : null}
@@ -204,7 +204,7 @@ function WorkingBar({ percent }: { percent: number }) {
         </div>
       </div>
 
-      <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
+      <span className="shrink-0 text-2xs numeric text-muted-foreground">
         {Math.round(percent)}%
       </span>
     </div>

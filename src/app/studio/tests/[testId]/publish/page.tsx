@@ -25,7 +25,11 @@ export default async function Page({ params }: PageProps) {
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
     return (
-      <StudioForbidden exitHref="/groups" exitLabel="Back to classes" title="Publish" />
+      <StudioForbidden
+        exitHref="/groups"
+        exitLabelKey="root.tests.states.backToClasses"
+        titleKey="root.tests.publish.action"
+      />
     );
   }
 
@@ -36,8 +40,8 @@ export default async function Page({ params }: PageProps) {
       <StudioError
         reason={result.reason}
         exitHref="/groups"
-        exitLabel="Back to classes"
-        title="Publish"
+        exitLabelKey="root.tests.states.backToClasses"
+        titleKey="root.tests.publish.action"
       />
     );
   }

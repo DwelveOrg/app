@@ -64,7 +64,7 @@ export default function ExamTopBar({
           <p className="truncate text-sm font-semibold text-foreground">{title}</p>
         ) : null}
         {subtitle ? (
-          <p className="truncate text-2xs text-muted-foreground tabular-nums">{subtitle}</p>
+          <p className="truncate text-2xs text-muted-foreground numeric">{subtitle}</p>
         ) : null}
       </div>
 

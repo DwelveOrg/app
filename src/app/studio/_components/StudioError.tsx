@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 import ResourceStateView, {
   type ResourceStateReason,
@@ -12,18 +15,30 @@ import StudioTopBar from "./StudioTopBar";
  * The studio has no sidebar, so an error state here must supply its own way
  * out — `ResourceStateView` alone would leave the teacher on a full-screen
  * canvas with no navigation at all.
+ *
+ * Props are i18n *keys* rather than rendered strings because every caller is
+ * a server component with no `t` in scope; this component is the client
+ * boundary that resolves them — the same contract `ResourceStateView`
+ * documents for itself.
  */
 export default function StudioError({
   reason,
   exitHref,
-  exitLabel,
-  title,
+  exitLabelKey,
+  titleKey,
+  documentTitle,
 }: {
   reason: ResourceStateReason;
   exitHref: string;
-  exitLabel: string;
-  title: string;
+  exitLabelKey: string;
+  titleKey: string;
+  /** The document's own name — user content, never translated. */
+  documentTitle?: string;
 }) {
+  const { t } = useTranslation();
+  const exitLabel = t(exitLabelKey);
+  const title = documentTitle ?? t(titleKey);
+
   return (
     <>
       <StudioTopBar
@@ -51,20 +66,25 @@ export default function StudioError({
 /** The studio's own "you may not author here" state, for a student or a viewer. */
 export function StudioForbidden({
   exitHref,
-  exitLabel,
-  title,
+  exitLabelKey,
+  titleKey,
 }: {
   exitHref: string;
-  exitLabel: string;
-  title: string;
+  exitLabelKey: string;
+  titleKey: string;
 }) {
+  const { t } = useTranslation();
+  const exitLabel = t(exitLabelKey);
+
   return (
     <>
       <StudioTopBar
         exitHref={exitHref}
         exitLabel={exitLabel}
         identity={
-          <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+          <p className="truncate text-sm font-semibold text-foreground">
+            {t(titleKey)}
+          </p>
         }
         actions={
           <Button asChild size="sm" variant="outline">

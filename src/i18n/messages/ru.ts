@@ -1353,6 +1353,7 @@ translation: {
           },
           builder: {
             backToTests: "К списку тестов",
+            studioTitle: "Студия тестов",
             settings: "Настройки",
             deliveryRules: "Правила проведения",
             saved: "Тест сохранён.",

@@ -1364,6 +1364,7 @@ translation: {
           },
           builder: {
             backToTests: "Back to tests",
+            studioTitle: "Test studio",
             settings: "Settings",
             deliveryRules: "Delivery rules",
             saved: "Test saved.",

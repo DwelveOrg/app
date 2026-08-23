@@ -82,7 +82,7 @@ export default function ClassAssignmentsBoard({
         <h2 id="class-assignments-heading" className="type-section text-foreground">
           {t("root.classDetail.assignments.title")}
           {meta?.total ? (
-            <span className="ml-2 text-base font-medium tabular-nums text-muted-foreground">
+            <span className="ml-2 text-base font-medium numeric text-muted-foreground">
               {meta.total}
             </span>
           ) : null}
@@ -177,7 +177,7 @@ export default function ClassAssignmentsBoard({
             <ChevronLeft className="size-3.5" />
             {t("root.tests.list.previous")}
           </Button>
-          <span className="text-xs tabular-nums text-muted-foreground">
+          <span className="text-xs numeric text-muted-foreground">
             {t("root.tests.list.pageOf", { page: meta.page, total: meta.totalPages })}
           </span>
           <Button

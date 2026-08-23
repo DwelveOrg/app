@@ -92,7 +92,7 @@ export default function QuizEnvironment({
       <header className="flex shrink-0 items-center gap-3 border-b border-border bg-card px-4 py-2.5">
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-foreground">{test.title}</p>
-          <p className="truncate text-2xs tabular-nums text-muted-foreground">
+          <p className="truncate text-2xs numeric text-muted-foreground">
             {oneAtATime
               ? t("exam.runtime.questionOf", { number: index + 1, total })
               : t("exam.runtime.answeredOf", { answered, total })}

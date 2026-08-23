@@ -40,7 +40,7 @@ export default function GridInEditor(props: QuestionEditorProps) {
               <span
                 key={column}
                 className={cn(
-                  "grid h-11 w-8 place-items-center rounded-md border text-sm font-semibold tabular-nums",
+                  "grid h-11 w-8 place-items-center rounded-md border text-sm font-semibold numeric",
                   entry.fits && entry.characters[column]
                     ? "border-primary/40 bg-accent text-accent-foreground"
                     : "border-border bg-background text-muted-foreground",

@@ -97,7 +97,7 @@ export default function QuestionDifficultyRow({
                 transition={{ duration: DUR.layout, ease: EASE_OUT }}
               />
             </span>
-            <span className="shrink-0 text-2xs tabular-nums text-muted-foreground">
+            <span className="shrink-0 text-2xs numeric text-muted-foreground">
               {t("root.tests.results.stats.correctPercent", { percent: correctPercent })}
             </span>
           </span>
@@ -157,7 +157,7 @@ export default function QuestionDifficultyRow({
                         style={{ width: `${share}%` }}
                       />
                     </span>
-                    <span className="w-8 shrink-0 text-right tabular-nums text-muted-foreground">
+                    <span className="w-8 shrink-0 text-right numeric text-muted-foreground">
                       {option.chosen}
                     </span>
                     {option.isCorrect ? (
@@ -221,7 +221,7 @@ function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-1.5">
       <dt>{label}</dt>
-      <dd className="font-medium tabular-nums text-foreground">{value}</dd>
+      <dd className="font-medium numeric text-foreground">{value}</dd>
     </div>
   );
 }

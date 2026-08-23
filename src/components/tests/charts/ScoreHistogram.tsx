@@ -92,7 +92,7 @@ export default function ScoreHistogram({
                   to: bin.to,
                   count: bin.count,
                 })}
-                className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-popover px-1.5 py-0.5 text-2xs font-semibold tabular-nums text-foreground opacity-0 shadow-elev-3 transition-opacity duration-[var(--dur-1)] group-hover/bar:opacity-100"
+                className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 rounded bg-popover px-1.5 py-0.5 text-2xs font-semibold numeric text-foreground opacity-0 shadow-elev-3 transition-opacity duration-[var(--dur-1)] group-hover/bar:opacity-100"
               >
                 {bin.count}
               </span>
@@ -104,7 +104,7 @@ export default function ScoreHistogram({
       {/* A hairline baseline, one shade off the surface. */}
       <div className="h-px bg-border" aria-hidden="true" />
 
-      <div className="flex justify-between text-3xs text-muted-foreground tabular-nums">
+      <div className="flex justify-between text-3xs text-muted-foreground numeric">
         <span>0%</span>
         <span>50%</span>
         <span>100%</span>
