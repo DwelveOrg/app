@@ -112,7 +112,7 @@ export default function SatEnvironment({
         >
           <div className="mx-auto max-w-[46rem]">
             <div className="mb-4 flex flex-wrap items-center gap-3 border-b border-border pb-3">
-              <span className="grid size-7 shrink-0 place-items-center rounded bg-foreground text-13 font-bold tabular-nums text-background">
+              <span className="grid size-7 shrink-0 place-items-center rounded bg-foreground text-13 font-bold numeric text-background">
                 {index + 1}
               </span>
 

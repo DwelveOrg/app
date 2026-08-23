@@ -150,7 +150,7 @@ export default function PagePicker({
           </p>
           <p
             className={cn(
-              "text-2xs font-medium tabular-nums",
+              "text-2xs font-medium numeric",
               atCap ? "text-foreground" : "text-muted-foreground",
             )}
           >

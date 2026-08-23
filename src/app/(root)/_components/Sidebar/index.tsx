@@ -136,7 +136,12 @@ function MobileLink({
       href={item.href}
       onClick={onPress}
       aria-current={active ? "page" : undefined}
-      className={`interactive-flat relative flex min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 ${
+      /*
+       * `min-h-11` because the label below is hidden under 430px and the row
+       * collapsed to 36px with it — the narrower the phone, the smaller the
+       * target, which is backwards. 44px is the floor a thumb needs.
+       */
+      className={`interactive-flat relative flex min-h-11 min-w-0 flex-1 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl px-2 py-2 ${
         active
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -150,7 +155,15 @@ function MobileLink({
           </Badge>
         ) : null}
       </span>
-      <span className="truncate text-2xs font-semibold max-[430px]:hidden">{item.label}</span>
+      {/*
+        `sr-only`, not `hidden`. `display:none` takes the label out of the
+        accessibility tree, and this is the only text in the row — so on any
+        phone under 430px (iPhone SE 375, 13/14/15 390) the whole primary nav
+        announced as unnamed links, with the notifications one reading out its
+        badge count alone. `sr-only` hides it from view and keeps the name.
+        It composes with `truncate`: both set overflow-hidden and nowrap.
+      */}
+      <span className="truncate text-2xs font-semibold max-[430px]:sr-only">{item.label}</span>
     </Link>
   );
 }

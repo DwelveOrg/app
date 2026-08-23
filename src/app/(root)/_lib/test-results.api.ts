@@ -4,9 +4,10 @@ import type { z } from "zod";
 
 import type { BackendRequestInit } from "@/lib/api/backend";
 import { authedBackendJson } from "@/app/(authentication)/_lib/backend";
-import { testSuccessResponseSchema } from "./tests.schemas";
 import {
   attemptReviewResponseSchema,
+  gradeAttemptResponseSchema,
+  releaseResultsResponseSchema,
   testResultsResponseSchema,
   testStatisticsResponseSchema,
   type GradeAttemptInput,
@@ -74,7 +75,7 @@ export function gradeAttemptRequest(
   return requestJson(`/attempts/${attemptId}/grade`, {
     method: "PATCH",
     body,
-    responseSchema: testSuccessResponseSchema,
+    responseSchema: gradeAttemptResponseSchema,
   });
 }
 
@@ -87,6 +88,6 @@ export function releaseResultsRequest(
   return requestJson(`/tests/${testId}/results/release`, {
     method: "POST",
     body,
-    responseSchema: testSuccessResponseSchema,
+    responseSchema: releaseResultsResponseSchema,
   });
 }

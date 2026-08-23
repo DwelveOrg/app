@@ -6,7 +6,8 @@ import { CalendarClock, CheckCircle2, Clock3, Hourglass, XCircle } from "lucide-
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslation } from "react-i18next";
 
-import { describeAnswerKey } from "@/lib/tests/answers";
+import { describeAnswerKey, isAnswered } from "@/lib/tests/answers";
+import type { TestAnswerKind } from "@/app/(root)/_lib/tests.schemas";
 import Badge from "@/components/ui/badge";
 import { Button } from "@/components/ui/Button";
 import Surface from "@/components/ui/Surface";
@@ -62,6 +63,16 @@ export default function ResultScreen({
   const maxScore = attempt.maxScore ?? 0;
   const percentage =
     maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+
+  /*
+   * A percentage over a paper that still has essays in the queue is not a low
+   * score, it is an incomplete one: every unmarked point is counted as zero on
+   * the way in. A student who had five of six marks pending was shown "17%".
+   * The backend already withholds `passed` for this reason — it sends `null`
+   * while `pendingManual > 0` — and the percentage is the same claim in a
+   * different shape, so it is withheld on the same condition.
+   */
+  const provisional = (breakdown?.pendingManual ?? 0) > 0;
 
   const tone = !breakdown
     ? "neutral"
@@ -125,7 +136,9 @@ export default function ResultScreen({
 
               {breakdown ? (
                 <Badge variant="neutral" size="md">
-                  {t("exam.result.percentage", { percent: percentage })}
+                  {provisional
+                    ? t("exam.result.pendingManual")
+                    : t("exam.result.percentage", { percent: percentage })}
                 </Badge>
               ) : null}
 
@@ -281,7 +294,7 @@ function SectionBar({
     <li className="space-y-2">
       <div className="flex items-baseline justify-between gap-3">
         <span className="min-w-0 truncate text-15 font-medium text-foreground">{title}</span>
-        <span className="shrink-0 text-15 tabular-nums text-muted-foreground">
+        <span className="shrink-0 text-15 numeric text-muted-foreground">
           {score} / {max}
         </span>
       </div>
@@ -310,6 +323,16 @@ function ReviewRow({
 }) {
   const { t } = useTranslation();
   const answer = useMemo(() => describe(question.yourAnswer), [question.yourAnswer]);
+  /*
+   * Asked of the shared helper rather than re-derived from `answer` being
+   * empty. `isAnswered` is what the navigator and the pre-submit warning use,
+   * and its docblock is explicit that "answered" has to mean the same thing
+   * everywhere; a choice answer this screen cannot name is still an answer.
+   */
+  const answered = useMemo(
+    () => isAnswered(question.answerKind as TestAnswerKind, question.yourAnswer),
+    [question.answerKind, question.yourAnswer],
+  );
   const key = useMemo(
     () => describeAnswerKey(question.correctAnswer) ?? describe(question.correctAnswer),
     [question.correctAnswer],
@@ -333,11 +356,15 @@ function ReviewRow({
 
       <div className="min-w-0 flex-1 space-y-1.5">
         <p className="text-15 text-foreground">{question.prompt}</p>
-        <p className="text-13 text-muted-foreground">
-          {t("exam.result.yourAnswerIs", {
-            answer: answer || t("exam.paper.notAnswered"),
-          })}
-        </p>
+        {answer ? (
+          <p className="text-13 text-muted-foreground">
+            {t("exam.result.yourAnswerIs", { answer })}
+          </p>
+        ) : answered ? null : (
+          <p className="text-13 text-muted-foreground">
+            {t("exam.result.yourAnswerIs", { answer: t("exam.paper.notAnswered") })}
+          </p>
+        )}
         {key ? (
           <p className="text-13 text-success">
             {t("exam.result.correctAnswerIs", { answer: key })}
@@ -349,7 +376,7 @@ function ReviewRow({
       </div>
 
       {question.pointsAwarded != null && question.points != null ? (
-        <span className="shrink-0 text-13 tabular-nums text-muted-foreground">
+        <span className="shrink-0 text-13 numeric text-muted-foreground">
           {question.pointsAwarded} / {question.points}
         </span>
       ) : null}
@@ -365,13 +392,27 @@ function ReviewRow({
  * answer summarises as the count it holds and the full comparison stays on the
  * question itself.
  */
+/**
+ * Renders an answer the student can read back, or `""` when this payload cannot
+ * name it.
+ *
+ * `""` does **not** mean unanswered — use {@link isAnswered} for that. Choice
+ * answers are stored as option ids (`{ optionId }`, `{ optionIds }`) and the
+ * result payload carries no option text to resolve them against, so they are
+ * unnameable here rather than absent. Returning `""` and letting the caller
+ * print "Not answered" is what told a student they had skipped a question the
+ * same screen had just awarded full marks for.
+ */
 function describe(value: unknown): string {
   if (!value || typeof value !== "object") return "";
   const record = value as Record<string, unknown>;
 
   if (typeof record.text === "string") return record.text;
   if (typeof record.number === "number") return String(record.number);
-  if (Array.isArray(record.optionIds)) return `${record.optionIds.length}`;
+  // Deliberately not `optionIds.length` — a count is not an answer, and
+  // "You answered: 2" was as wrong as "Not answered", just quieter.
+  if (Array.isArray(record.optionIds)) return "";
+  if (typeof record.optionId === "string") return "";
   if (Array.isArray(record.pairs)) {
     return record.pairs
       .map((pair) =>

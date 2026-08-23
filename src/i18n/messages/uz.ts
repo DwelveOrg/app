@@ -1331,6 +1331,7 @@ translation: {
           },
           builder: {
             backToTests: "Testlar roʻyxatiga",
+            studioTitle: "Test studiyasi",
             settings: "Sozlamalar",
             deliveryRules: "Topshirish qoidalari",
             saved: "Test saqlandi.",

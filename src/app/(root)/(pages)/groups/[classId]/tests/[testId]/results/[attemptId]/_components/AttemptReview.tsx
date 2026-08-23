@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   CalendarClock,
@@ -14,6 +15,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
+import { useUnsavedChangesWarning } from "@/app/(root)/_hooks/useUnsavedChangesWarning";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
 import { gradeAttemptAction } from "@/app/(root)/_lib/test-results.actions";
 import type { AttemptReviewResponse } from "@/app/(root)/_lib/test-results.schemas";
@@ -85,6 +87,16 @@ export default function AttemptReview({
   const [marks, setMarks] = useState<Map<string, Mark>>(new Map());
   const [saving, setSaving] = useState(false);
 
+  const router = useRouter();
+
+  /*
+   * Marking saves in one request, by design — a save per essay leaves a
+   * half-graded attempt behind the moment the connection drops. The cost of
+   * that decision is that every navigation away is total loss, so the paper
+   * being marked is exactly the screen that most needs the guard.
+   */
+  useUnsavedChangesWarning(marks.size > 0);
+
   const answerByQuestion = useMemo(
     () => new Map(answers.map((entry) => [entry.questionId, entry])),
     [answers],
@@ -144,6 +156,10 @@ export default function AttemptReview({
       );
       toast.success(t("root.tests.results.review.saved"));
       setMarks(new Map());
+      // Clearing the drafts hands every field back to the server props, so
+      // without this the marks snap back to their pre-save values and the row
+      // still reads "Not marked yet" beside a header that already counts them.
+      router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : t("root.tests.errorGeneric"));
     } finally {
@@ -267,6 +283,7 @@ export default function AttemptReview({
                   value={entry?.value ?? null}
                   result={{
                     isCorrect: entry?.isCorrect ?? null,
+                    gradedAt: entry?.gradedAt ?? null,
                     pointsAwarded: mark?.pointsAwarded ?? entry?.pointsAwarded ?? 0,
                     correctValue: entry?.correctValue ?? undefined,
                     feedback: manual ? null : entry?.feedback,

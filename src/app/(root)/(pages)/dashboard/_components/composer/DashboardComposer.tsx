@@ -561,19 +561,19 @@ function ClassRoster({ ctx }: ModuleProps) {
                       {row.className}
                     </Link>
                   </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                  <td className="px-3 py-3 text-right numeric text-muted-foreground">
                     {row.studentCount}
                   </td>
-                  <td className="px-3 py-3 text-right tabular-nums text-muted-foreground">
+                  <td className="px-3 py-3 text-right numeric text-muted-foreground">
                     {row.completionRate != null ? `${Math.round(row.completionRate)}%` : "—"}
                   </td>
                   <td className="px-5 py-3 text-right md:px-6">
                     {row.averageScore != null ? (
-                      <span className="font-semibold tabular-nums text-foreground">
+                      <span className="font-semibold numeric text-foreground">
                         {Math.round(row.averageScore)}%
                       </span>
                     ) : (
-                      <span className="tabular-nums text-muted-foreground">—</span>
+                      <span className="numeric text-muted-foreground">—</span>
                     )}
                   </td>
                 </tr>

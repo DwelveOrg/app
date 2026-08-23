@@ -223,7 +223,7 @@ export default function IeltsEnvironment({
                         onClick={() => goTo(item.index)}
                         className={cn(
                           "interactive-flat relative grid size-7 shrink-0 cursor-pointer place-items-center rounded",
-                          "text-2xs font-semibold tabular-nums outline-none",
+                          "text-2xs font-semibold numeric outline-none",
                           "focus-visible:ring-2 focus-visible:ring-ring/50",
                           state?.answered
                             ? "bg-primary text-primary-foreground"

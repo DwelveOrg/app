@@ -261,7 +261,7 @@ export default function TestLibraryView({
             <ChevronLeft className="size-3.5" />
             {t("root.tests.list.previous")}
           </Button>
-          <span className="text-xs text-muted-foreground tabular-nums">
+          <span className="text-xs text-muted-foreground numeric">
             {t("root.tests.list.pageOf", {
               page: meta.page,
               total: meta.totalPages,

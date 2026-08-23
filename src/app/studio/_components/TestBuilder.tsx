@@ -156,6 +156,9 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
     remove: removeSection,
   } = useFieldArray({ control, name: "sections" });
 
+  /** True only while {@link persist} re-seeds the form from the server. */
+  const isResetting = useRef(false);
+
   const isDraft = test.status === "DRAFT";
   const isBusy = isSubmitting || saveStructure.isPending;
 
@@ -173,8 +176,14 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
         sections: buildStructurePayload(values, catalog.questionTypes),
       });
       // Re-seed from the server so newly created rows carry their ids and the
-      // next save updates them instead of recreating them.
+      // next save updates them instead of recreating them. Flagged while it
+      // runs so autosave can tell our own re-seed from a teacher's edit;
+      // react-hook-form reports both as typeless changes.
+      isResetting.current = true;
       reset(buildFormDefaults(saved, catalog.questionTypes));
+      queueMicrotask(() => {
+        isResetting.current = false;
+      });
       setStructureVersion((version) => version + 1);
       router.refresh();
 
@@ -212,6 +221,7 @@ export default function TestBuilder({ test, catalog }: TestBuilderProps) {
   const autosave = useAutosave({
     watch,
     enabled: isDraft && !isBusy,
+    isResetting,
     save: useCallback(async () => {
       if (!(await trigger())) return false;
       try {

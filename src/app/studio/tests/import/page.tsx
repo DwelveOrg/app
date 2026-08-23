@@ -23,8 +23,8 @@ export default async function Page({ searchParams }: PageProps) {
     return (
       <StudioForbidden
         exitHref={`/groups/${classId}`}
-        exitLabel="Back to class"
-        title="Import a test"
+        exitLabelKey="root.tests.list.backToClass"
+        titleKey="root.tests.import.title"
       />
     );
   }
@@ -36,8 +36,8 @@ export default async function Page({ searchParams }: PageProps) {
       <StudioError
         reason={classResult.reason}
         exitHref={exitHref}
-        exitLabel="Back to tests"
-        title="Import a test"
+        exitLabelKey="root.tests.builder.backToTests"
+        titleKey="root.tests.import.title"
       />
     );
   }

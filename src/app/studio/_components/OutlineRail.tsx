@@ -146,7 +146,7 @@ export default function OutlineRail({
             }
             trailing={
               row.count != null ? (
-                <span className="text-3xs text-muted-foreground tabular-nums">
+                <span className="text-3xs text-muted-foreground numeric">
                   {row.count}
                 </span>
               ) : null

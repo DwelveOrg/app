@@ -72,7 +72,7 @@ export default function TextInput({
       {maxWords != null || minWords != null || long ? (
         <p
           className={cn(
-            "text-2xs tabular-nums",
+            "text-2xs numeric",
             overLimit ? "font-semibold text-destructive" : "text-muted-foreground",
           )}
         >

@@ -168,7 +168,7 @@ function AcceptedReadout({ band }: { band: Band }) {
           aria-hidden="true"
           className="mt-2 flex items-center gap-2 text-3xs text-muted-foreground"
         >
-          <span className="tabular-nums">{format(band.min)}</span>
+          <span className="numeric">{format(band.min)}</span>
           <span className="relative h-1.5 flex-1 rounded-full bg-muted">
             <span
               className={cn(
@@ -179,7 +179,7 @@ function AcceptedReadout({ band }: { band: Band }) {
               )}
             />
           </span>
-          <span className="tabular-nums">{format(band.max)}</span>
+          <span className="numeric">{format(band.max)}</span>
         </div>
       ) : null}
     </div>

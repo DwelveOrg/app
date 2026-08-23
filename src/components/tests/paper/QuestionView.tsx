@@ -187,11 +187,25 @@ function MarkBadge({
 
   // A written response nobody has marked yet. Distinct from zero — a student
   // reading "0 / 8" on an essay would reasonably think they had failed it.
-  if (!result || result.isCorrect === null) {
+  //
+  // `isCorrect === null` alone does not mean unmarked. The backend reports
+  // partial credit the same way, so testing it on its own left every
+  // part-marked answer reading "Not marked yet" forever — beside the mark it
+  // had just been given.
+  if (!result || (result.isCorrect === null && !result.gradedAt)) {
     return (
       <Badge variant="neutral" size="sm">
         <CircleDashed aria-hidden="true" />
         {t("exam.paper.awaitingMark")}
+      </Badge>
+    );
+  }
+
+  // Marked, but neither wholly right nor wholly wrong.
+  if (result.isCorrect === null) {
+    return (
+      <Badge variant="warning" size="sm">
+        {t("exam.paper.scored", { awarded: result.pointsAwarded, points })}
       </Badge>
     );
   }
@@ -214,13 +228,15 @@ function markTone(
   awarded: number | undefined,
   points: number,
 ): string {
-  if (isCorrect == null) return "bg-muted text-muted-foreground";
-  if (isCorrect) return "bg-[var(--success)] text-[var(--primary-foreground)]";
   // Partial credit is neither: a matching question worth 4 that scored 3 is not
   // a wrong answer, and painting it red is a mark the student will dispute.
+  // Tested first because the backend reports partial credit *as* `isCorrect:
+  // null`, so behind the null check below this branch was unreachable.
   if ((awarded ?? 0) > 0 && (awarded ?? 0) < points) {
     return "bg-[var(--warning)] text-[var(--primary-foreground)]";
   }
+  if (isCorrect == null) return "bg-muted text-muted-foreground";
+  if (isCorrect) return "bg-[var(--success)] text-[var(--primary-foreground)]";
   return "bg-[var(--destructive)] text-[var(--primary-foreground)]";
 }
 

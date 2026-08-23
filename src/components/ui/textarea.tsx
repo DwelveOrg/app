@@ -9,6 +9,7 @@ import {
   type FieldSize,
   type FieldSurface,
 } from "@/components/ui/Input";
+import { useFieldWiring } from "@/components/ui/Field";
 import { cn } from "@/lib/utils";
 
 type TextareaProps = React.ComponentPropsWithoutRef<"textarea"> & {
@@ -18,9 +19,13 @@ type TextareaProps = React.ComponentPropsWithoutRef<"textarea"> & {
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, surface = "default", fieldSize = "lg", ...props }, ref) => {
+    // Under `props`, never over it — see `Input`.
+    const wiring = useFieldWiring();
+
     return (
       <textarea
         ref={ref}
+        {...wiring}
         className={cn(
           fieldBaseClassName,
           fieldSurfaceClassName[surface],

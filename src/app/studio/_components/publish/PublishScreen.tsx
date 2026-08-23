@@ -299,7 +299,7 @@ export default function PublishScreen({ test }: { test: ApiTestDetail }) {
             <FormatMark icon={formatIcon(test.format)} size="sm" />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-foreground">{test.title}</p>
-              <p className="truncate text-2xs text-muted-foreground tabular-nums">
+              <p className="truncate text-2xs text-muted-foreground numeric">
                 {t("root.tests.publish.identity", {
                   questions: questionCount,
                   points: test.totalPoints,

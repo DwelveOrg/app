@@ -41,7 +41,7 @@ export default function NumericInput({
         disabled={readOnly}
         aria-label={t("exam.paper.answerLabel", { number: question.questionNumber })}
         placeholder={readOnly ? undefined : t("exam.paper.numberPlaceholder")}
-        className="exam-prose max-w-40 tabular-nums"
+        className="exam-prose max-w-40 numeric"
         onChange={(event) => {
           const raw = event.target.value.trim().replace(",", ".");
           if (raw === "") {

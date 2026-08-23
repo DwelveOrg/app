@@ -203,7 +203,7 @@ export default function MaterialCard({
                   className="max-w-[68ch] bg-card py-2.5 leading-relaxed"
                 />
                 <div className="mt-1 flex flex-wrap items-center gap-2">
-                  <span className="text-2xs text-muted-foreground tabular-nums">
+                  <span className="text-2xs text-muted-foreground numeric">
                     {t("root.tests.builder.material.charCount", {
                       // `used`, not `count`: i18next reads `count` as a plural
                       // selector, and this string is one shape in every language.

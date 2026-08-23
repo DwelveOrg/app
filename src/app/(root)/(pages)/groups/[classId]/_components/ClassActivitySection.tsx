@@ -202,11 +202,11 @@ function ActivityRow({
                 }
                 size="xs"
               >
-                <span className="tabular-nums">
+                <span className="numeric">
                   {item.score} / {item.maxScore}
                 </span>
                 {item.percentage != null ? (
-                  <span className="tabular-nums opacity-80">· {item.percentage}%</span>
+                  <span className="numeric opacity-80">· {item.percentage}%</span>
                 ) : null}
               </Badge>
 

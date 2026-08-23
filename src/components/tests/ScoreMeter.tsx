@@ -123,7 +123,7 @@ export default function ScoreMeter({
       {thresholdPercent !== null ? (
         <p
           className={cn(
-            "mt-1.5 text-muted-foreground tabular-nums",
+            "mt-1.5 text-muted-foreground numeric",
             size === "lg" ? "text-13" : "text-2xs",
           )}
         >

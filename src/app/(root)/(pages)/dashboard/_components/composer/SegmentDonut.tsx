@@ -104,7 +104,7 @@ export default function SegmentDonut({
               style={{ background: segment.color }}
             />
             <span className="text-foreground">{segment.label}</span>
-            <span className="tabular-nums">· {segment.value}</span>
+            <span className="numeric">· {segment.value}</span>
           </li>
         ))}
       </ul>

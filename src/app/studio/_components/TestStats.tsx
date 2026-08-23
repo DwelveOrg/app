@@ -37,7 +37,7 @@ export function TestStatsSummary({ control }: { control: Control<TestBuilderForm
     <TestStats
       control={control}
       render={({ questions, points }) => (
-        <span className="hidden text-2xs text-muted-foreground tabular-nums md:inline">
+        <span className="hidden text-2xs text-muted-foreground numeric md:inline">
           {t("root.tests.builder.stats.summary", { questions, points })}
         </span>
       )}

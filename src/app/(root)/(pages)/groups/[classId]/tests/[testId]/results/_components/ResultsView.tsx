@@ -332,7 +332,7 @@ function StudentRow({
           <StateBadge state={row.state} pendingManual={row.pendingManual} />
 
           {row.timeSpentSeconds ? (
-            <span className="inline-flex items-center gap-1 tabular-nums">
+            <span className="inline-flex items-center gap-1 numeric">
               <Clock3 className="size-3" aria-hidden="true" />
               {t("root.tests.results.minutes", {
                 count: Math.round(row.timeSpentSeconds / 60),
@@ -374,7 +374,7 @@ function StudentRow({
               <span className="text-muted-foreground">/{row.maxScore}</span>
             </p>
             {row.percentage != null ? (
-              <p className="text-2xs text-muted-foreground tabular-nums">
+              <p className="text-2xs text-muted-foreground numeric">
                 {row.percentage}%
               </p>
             ) : null}
