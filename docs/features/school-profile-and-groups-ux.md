@@ -43,6 +43,13 @@ Include loading, empty, and error states. Teachers and students may use the
 returned counts where needed, but their valid `members: []` response must never
 be treated as a roster or render another member's email.
 
+The school page uses intent loading rather than fetching every hidden admin
+panel during the initial render. School detail supplies counts and viewer
+permissions. Teachers/students load on first tab mount; access-dialog members
+load when the dialog opens; invitations and blocklist load only when their
+subtab is selected. Mutations invalidate `queryKeys.schools.directoryAll()` and
+refresh the RSC aggregate counts where applicable.
+
 ## 3. Improve `/groups/[classId]`
 
 - Put class identity first: picture/fallback, name, description, status,

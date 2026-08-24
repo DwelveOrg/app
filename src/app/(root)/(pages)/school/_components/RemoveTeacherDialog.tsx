@@ -2,12 +2,12 @@
 
 import { useTransition } from "react";
 import { UserMinus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { removeSchoolMemberAction } from "@/app/(root)/_lib/school-actions";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 type RemoveTeacherDialogProps = {
   open: boolean;
@@ -24,7 +24,7 @@ export default function RemoveTeacherDialog({
   teacherName,
 }: RemoveTeacherDialogProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
 
   const handleRemove = () => {
@@ -40,7 +40,7 @@ export default function RemoveTeacherDialog({
       }
       toast.success(t("root.schoolPage.teachers.remove.success", { name: teacherName }));
       onOpenChange(false);
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

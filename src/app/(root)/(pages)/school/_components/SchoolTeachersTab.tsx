@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { RefreshCw, UserMinus, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
@@ -14,12 +13,11 @@ import Empty from "../../_components/ui/Empty";
 import InviteTeacherDialog from "./InviteTeacherDialog";
 import RemoveTeacherDialog from "./RemoveTeacherDialog";
 import Surface from "@/components/ui/Surface";
+import { SkeletonList } from "@/components/ui/Skeleton";
+import { useSchoolMembersQuery } from "../_hooks/useSchoolDirectory";
 
 type SchoolTeachersTabProps = {
-  /** Already filtered to `role === "TEACHER"` by the page. */
-  teachers: SchoolRosterMember[];
-  /** True when `GET /schools/:schoolId/members` failed for this request. */
-  hasError: boolean;
+  schoolId: string | undefined;
 };
 
 /**
@@ -29,19 +27,24 @@ type SchoolTeachersTabProps = {
  * treated as a roster. Teachers are only ever added through the email-bound
  * invite flow — this tab never creates an account.
  */
-export default function SchoolTeachersTab({ teachers, hasError }: SchoolTeachersTabProps) {
+export default function SchoolTeachersTab({ schoolId }: SchoolTeachersTabProps) {
   const { t } = useTranslation();
-  const router = useRouter();
   const [inviteOpen, setInviteOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<SchoolRosterMember | null>(null);
+  const query = useSchoolMembersQuery(schoolId);
+  const teachers = (query.data?.members ?? []).filter((member) => member.role === "TEACHER");
 
-  if (hasError) {
+  if (query.isPending) {
+    return <SkeletonList count={4} itemClassName="h-14" />;
+  }
+
+  if (query.isError) {
     return (
       <Empty
         title={t("root.schoolPage.teachers.errorTitle")}
         description={t("root.schoolPage.teachers.errorDescription")}
         action={
-          <Button type="button" className="w-full" onClick={() => router.refresh()}>
+          <Button type="button" className="w-full" onClick={() => void query.refetch()}>
             <RefreshCw className="h-4 w-4" />
             {t("root.schoolPage.teachers.retry")}
           </Button>

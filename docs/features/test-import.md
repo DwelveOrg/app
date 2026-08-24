@@ -153,9 +153,12 @@ spinning:
 ○ Building your test
 ```
 
-`useTestImportJobQuery` polls every 2s and stops via `refetchInterval` returning
-`false` at a terminal status — not a cleared timer a remount could resurrect.
-On `READY` the screen redirects to the builder.
+`useTestImportJobQuery` opens same-origin EventSource
+`/api/test-imports/:jobId/events`. That Route Handler reads the encrypted
+httpOnly session and proxies the backend SSE response with the bearer token only
+on the server. The ordinary status query polls every 2s only while the stream is
+connecting or unavailable, and both transports stop at a terminal status. On
+`READY` the screen redirects to the builder.
 
 ## Reviewing — there is no import-specific editor
 
@@ -187,7 +190,8 @@ src/app/(root)/_lib/test-import.schemas.ts          response schemas — the bac
 src/app/(root)/_lib/test-import.actions.schemas.ts  input schemas + page-range helpers
 src/app/(root)/_lib/test-import.api.ts              named endpoint functions
 src/app/(root)/_lib/test-import.actions.ts          server actions (FormData upload)
-src/app/(root)/_hooks/useTestImport.ts              queries, polling, mutations
+src/app/(root)/_hooks/useTestImport.ts              queries, SSE fallback, mutations
+src/app/api/test-imports/[jobId]/events/route.ts    authenticated SSE bridge
 src/app/studio/tests/import/page.tsx                the route (ADMIN + TEACHER)
 src/app/studio/tests/import/_lib/pdf.ts             browser-side PDF loading and thumbnails
 src/app/studio/tests/import/_components/            ImportScreen, PagePicker, PageThumbnail, ImportProgress
@@ -210,7 +214,7 @@ looking at a raw identifier.
 
 1. **Check the page selection first.** Most disappointing imports are a slice
    that missed a column, a continuation page, or the answer key.
-2. Then raise `AI_IMPORT_MODEL` server-side (`claude-haiku-4-5` by default;
+2. Then raise `AI_IMPORT_MODEL` server-side (`gemini-3.5-flash` by default;
    `claude-sonnet-5` reads messy scans noticeably better) and re-measure before
    anyone starts tuning prompts.
 

@@ -111,7 +111,7 @@ export const createTestImportAction = actionClient
     }
   });
 
-/** `GET /tests/imports/:jobId` — polled by the vertical loader. */
+/** `GET /tests/imports/:jobId` — initial read and SSE fallback. */
 export const getTestImportAction = actionClient
   .inputSchema(testImportJobIdSchema)
   .action(async ({ parsedInput }) => {

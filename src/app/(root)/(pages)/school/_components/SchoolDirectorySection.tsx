@@ -3,13 +3,7 @@
 import { GraduationCap, Inbox, ShieldCheck, Users } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import type {
-  SchoolBlocklistEntry,
-  SchoolRosterMember,
-  TeacherInviteSummary,
-} from "@/app/(authentication)/_lib/api.schemas";
 import type { SchoolRole } from "@/app/(authentication)/_types/auth";
-import type { StudentItem } from "@/app/(root)/_lib/students.schemas";
 import type { StudentClassesResponse } from "@/app/(root)/_lib/enrollment.schemas";
 import type { TeacherClassesResponse } from "@/app/(root)/_lib/teacher-requests.schemas";
 import PanelDialog from "@/app/(root)/_components/PanelDialog";
@@ -21,40 +15,28 @@ import StudentClassesView from "../../groups/_components/StudentClassesView";
 import TeacherClassesView from "../../groups/_components/TeacherClassesView";
 
 type SchoolDirectorySectionProps = {
-  students: StudentItem[];
-  teachers: SchoolRosterMember[];
-  admins: SchoolRosterMember[];
-  teachersError: boolean;
   isAdmin: boolean;
   schoolId: string | undefined;
   role: SchoolRole;
+  studentCount: number;
+  teacherCount: number;
   requestCount?: number;
   studentClasses?: StudentClassesResponse;
   teacherClasses?: TeacherClassesResponse;
-  teacherInvites: TeacherInviteSummary[];
-  teacherInvitesError: boolean;
-  blocklist: SchoolBlocklistEntry[];
-  blocklistError: boolean;
-  viewerMemberId: string | undefined;
+  viewerMemberId: string;
   viewerIsOwner: boolean;
   viewerCanManageAdmins: boolean;
 };
 
 export default function SchoolDirectorySection({
-  students,
-  teachers,
-  admins,
-  teachersError,
   isAdmin,
   schoolId,
   role,
+  studentCount,
+  teacherCount,
   requestCount,
   studentClasses,
   teacherClasses,
-  teacherInvites,
-  teacherInvitesError,
-  blocklist,
-  blocklistError,
   viewerMemberId,
   viewerIsOwner,
   viewerCanManageAdmins,
@@ -80,23 +62,23 @@ export default function SchoolDirectorySection({
           <PanelDialog
             icon={Users}
             label={t("root.schoolPage.tabs.teachers")}
-            count={teachersError ? undefined : teachers.length}
+            count={teacherCount}
             description={t("root.schoolPage.teachers.panelDescription")}
             size="lg"
             triggerClassName="w-full justify-start"
           >
-            <SchoolTeachersTab teachers={teachers} hasError={teachersError} />
+            <SchoolTeachersTab schoolId={schoolId} />
           </PanelDialog>
 
           <PanelDialog
             icon={GraduationCap}
             label={t("root.schoolPage.tabs.students")}
-            count={students.length}
+            count={studentCount}
             description={t("root.schoolPage.students.panelDescription")}
             size="lg"
             triggerClassName="w-full justify-start"
           >
-            <SchoolStudentsTab students={students} />
+            <SchoolStudentsTab schoolId={schoolId} />
           </PanelDialog>
 
           {/* Who can do what, plus the two lists that decide who gets in:
@@ -109,13 +91,7 @@ export default function SchoolDirectorySection({
             triggerClassName="w-full justify-start"
           >
             <SchoolAccessTab
-              admins={admins}
-              teachers={teachers}
-              invites={teacherInvites}
-              blocklist={blocklist}
-              invitesError={teacherInvitesError}
-              blocklistError={blocklistError}
-              membersError={teachersError}
+              schoolId={schoolId}
               viewerMemberId={viewerMemberId}
               viewerIsOwner={viewerIsOwner}
               viewerCanManageAdmins={viewerCanManageAdmins}

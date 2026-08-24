@@ -2,12 +2,12 @@
 
 import { useTransition } from "react";
 import { UserMinus } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { removeSchoolMemberAction } from "@/app/(root)/_lib/school-actions";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 type RemoveStudentDialogProps = {
   open: boolean;
@@ -17,9 +17,8 @@ type RemoveStudentDialogProps = {
 };
 
 /**
- * Admin-only removal of a student from the selected school. The roster is
- * server-rendered from `getStudents()`, so on success we `router.refresh()` to
- * re-fetch the roster and the overview counts.
+ * Admin-only removal of a student from the selected school. The lazy roster
+ * cache and server-rendered aggregate counts are refreshed together.
  */
 export default function RemoveStudentDialog({
   open,
@@ -28,7 +27,7 @@ export default function RemoveStudentDialog({
   studentName,
 }: RemoveStudentDialogProps) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
 
   const handleRemove = () => {
@@ -44,7 +43,7 @@ export default function RemoveStudentDialog({
       }
       toast.success(t("root.schoolPage.students.remove.success", { name: studentName }));
       onOpenChange(false);
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

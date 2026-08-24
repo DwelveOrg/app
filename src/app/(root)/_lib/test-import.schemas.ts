@@ -76,7 +76,7 @@ export const testImportStatusSchema = z.enum([
 ]);
 export type TestImportStatus = z.infer<typeof testImportStatusSchema>;
 
-/** Statuses after which polling stops. */
+/** Statuses after which progress streaming and fallback polling stop. */
 export const TERMINAL_IMPORT_STATUSES: readonly TestImportStatus[] = ["READY", "FAILED"];
 
 export function isTerminalImportStatus(status: TestImportStatus): boolean {

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Ban } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -10,6 +9,7 @@ import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import Field from "@/components/ui/Field";
 import Textarea from "@/components/ui/textarea";
 import { blockFromSchoolAction } from "@/app/(root)/_lib/school-actions";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 const REASON_MAX = 500;
 
@@ -33,7 +33,7 @@ export default function BlockMemberDialog({
   memberName: string;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
   const [reason, setReason] = useState("");
 
@@ -58,7 +58,7 @@ export default function BlockMemberDialog({
       }
       toast.success(t("root.schoolPage.access.block.success", { name: memberName }));
       close(false);
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

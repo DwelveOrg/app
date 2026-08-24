@@ -99,6 +99,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
               onCredential={handleGoogleCredential}
               disabled={isBusy || googleMutation.isPending}
               text={t("auth.signup.google")}
+              unavailableText={t("auth.signup.googleUnavailable")}
             />
 
             <div className="flex items-center gap-3">

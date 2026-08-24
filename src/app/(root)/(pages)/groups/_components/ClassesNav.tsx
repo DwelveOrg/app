@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 
 import TabBar from "@/components/ui/TabBar";
 import { useStudentOverview } from "@/app/(root)/_hooks/useEnrollment";
-import { queryKeys } from "@/lib/query/keys";
 
 type ClassesNavProps = {
   schoolId: string | undefined;
@@ -36,21 +35,11 @@ export default function ClassesNav({ schoolId }: ClassesNavProps) {
       layoutId="classes-nav"
       ariaLabel={t("root.enrollment.nav.label")}
       value={active}
-      // Both tabs re-read the overview, because the pending count in this very
-      // row is drawn from it and would otherwise contradict the list beneath it.
       items={TABS.map((tab) => ({
         value: tab.href,
         href: tab.href,
         label: t(tab.labelKey),
         count: tab.href === "/groups/requests" ? pendingCount : undefined,
-        refresh: {
-          queryKeys: [
-            queryKeys.enrollment.overview(schoolId ?? ""),
-            tab.href === "/groups/requests"
-              ? queryKeys.enrollment.myRequestsAll()
-              : queryKeys.enrollment.studentClassesAll(schoolId ?? ""),
-          ],
-        },
       }))}
     />
   );

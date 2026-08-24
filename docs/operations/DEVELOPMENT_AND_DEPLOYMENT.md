@@ -22,14 +22,33 @@ for backend setup. Never point routine local sessions at production.
 | ------------------------------ | ----------------------------------------------------- | ----------------: | ------------------- |
 | `DWELVE_API_BASE_URL`          | Versioned NestJS API origin                           |               Yes | Server only         |
 | `SESSION_SECRET`               | Encrypt/decrypt the application JWE session cookie    |               Yes | Server only; secret |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google Identity Services browser client ID            |                No | Public/browser      |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google Identity Services browser client ID            | When Google is used; required on production Vercel | Public/browser |
 | `NEXT_PUBLIC_SUPPORT_EMAIL`    | Optional support email rendered in profile/support UI |                No | Public/browser      |
 | `NEXT_PUBLIC_SUPPORT_TELEGRAM` | Optional Telegram support URL/handle                  |                No | Public/browser      |
 | `NODE_ENV`                     | Framework build/runtime mode                          | Framework-managed | Server/build        |
 
 `SESSION_SECRET` must be at least 32 characters in production. Never put a client secret, API key,
 or credential in a `NEXT_PUBLIC_*` variable. The backend separately requires its own Google client
-configuration when Google login is enabled.
+configuration when Google login is enabled. Both services must use the same Web OAuth client ID.
+
+### Google sign-in configuration
+
+Google login and Google signup share one credential path. Configure all three boundaries:
+
+1. App local/Vercel: `NEXT_PUBLIC_GOOGLE_CLIENT_ID`.
+2. Backend local/production: `GOOGLE_CLIENT_ID`, with the same value.
+3. Google Cloud Web OAuth client: authorized JavaScript origins must include the exact origins used,
+   normally `http://localhost:3000` and `https://app.dwelve.uz` (add
+   `http://127.0.0.1:3000` only if that is actually used).
+
+`NEXT_PUBLIC_*` values are embedded at build time. Changing the Vercel variable requires a new
+production deployment. `next.config.ts` rejects a production Vercel build when the client ID is
+missing, and backend production validation rejects a missing verifier audience. If Google's consent
+screen is still in Testing, the account must also be an allowed test user.
+
+The app CSP must allow the GIS script, iframe/connect parent, and stylesheet endpoints. Those rules
+live in `next.config.ts`; keep `Cross-Origin-Opener-Policy: same-origin-allow-popups` so non-FedCM
+popup communication is not severed.
 
 ## Commands and quality gates
 
@@ -86,4 +105,11 @@ workers, Redis, object storage, and API rollout are backend responsibilities.
   platform ceiling and `src/lib/uploads/limits.ts`.
 - Authenticated request fails in the browser: it should normally not originate there; trace the named
   server request and `DWELVE_API_BASE_URL`.
+- Google button is disabled with a configuration message: set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` and
+  restart local dev or redeploy production. If the chooser opens but submission fails, confirm the
+  backend `GOOGLE_CLIENT_ID` is identical and inspect the safe `/auth/google` response/request ID.
+- Google reports an origin error: add the exact browser origin to the Web OAuth client's authorized
+  JavaScript origins; scheme, host, and port are significant.
+- Google script loads but the button is blank or unstyled: inspect CSP violations. The required GIS
+  script, frame/connect, and stylesheet sources are declared in `next.config.ts`.
 - Port 5000 on macOS may be another local service. The documented Dwelve backend port is 5001.

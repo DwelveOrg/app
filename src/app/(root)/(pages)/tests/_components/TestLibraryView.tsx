@@ -31,7 +31,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { queryKeys } from "@/lib/query/keys";
 import {
   DEFAULT_TEST_STATUS,
   studioRoutes,
@@ -167,16 +166,6 @@ export default function TestLibraryView({
           label: t(`root.tests.status.${tab}`),
           count: tab === status ? meta?.total : undefined,
           showZeroCount: true,
-          refresh: {
-            queryKeys: [
-              queryKeys.tests.library({
-                status: tab,
-                page: 1,
-                classId: effectiveClassId,
-                search,
-              }),
-            ],
-          },
         }))}
       />
 

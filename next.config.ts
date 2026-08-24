@@ -3,10 +3,23 @@ import type { NextConfig } from "next";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
+// Google auth is rendered on every login/signup screen. A production Vercel
+// build without the public client id produces a button that cannot ever open
+// Google Identity Services, so fail that deployment instead of shipping the
+// feature silently disabled. Local and non-production builds stay optional.
+if (
+  process.env.VERCEL_ENV === "production" &&
+  !process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID?.trim()
+) {
+  throw new Error(
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID is required for the production Vercel deployment.",
+  );
+}
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDevelopment ? " 'unsafe-eval'" : ""} https://accounts.google.com`,
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style",
   `img-src 'self' blob: data: https:${isDevelopment ? " http://localhost:*" : ""}`,
   "font-src 'self' data:",
   `connect-src 'self' https://accounts.google.com${isDevelopment ? " ws: http:" : ""}`,

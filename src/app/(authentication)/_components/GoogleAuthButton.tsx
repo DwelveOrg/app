@@ -41,10 +41,17 @@ type Props = {
   onCredential: (idToken: string) => void;
   disabled?: boolean;
   text: string;
+  unavailableText: string;
 };
 
-export default function GoogleAuthButton({ onCredential, disabled, text }: Props) {
+export default function GoogleAuthButton({
+  onCredential,
+  disabled,
+  text,
+  unavailableText,
+}: Props) {
   const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const unavailableId = React.useId();
 
   const [gisLoading, setGisLoading] = React.useState(!!clientId);
   const wrapperRef = React.useRef<HTMLDivElement>(null);
@@ -153,10 +160,20 @@ export default function GoogleAuthButton({ onCredential, disabled, text }: Props
 
   if (!clientId) {
     return (
-      <button type="button" disabled className={cn(baseClasses, "opacity-60")}>
-        <GoogleIcon />
-        <span>{text}</span>
-      </button>
+      <div>
+        <button
+          type="button"
+          disabled
+          aria-describedby={unavailableId}
+          className={cn(baseClasses, "opacity-60")}
+        >
+          <GoogleIcon />
+          <span>{text}</span>
+        </button>
+        <p id={unavailableId} className="mt-2 text-center text-xs text-muted-foreground">
+          {unavailableText}
+        </p>
+      </div>
     );
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -17,6 +17,7 @@ import { UPLOAD_MAX_BYTES } from "@/lib/uploads/limits";
 import {
   FALLBACK_IMPORT_LIMITS,
   isTerminalImportStatus,
+  testImportJobSchema,
   type TestImportJob,
 } from "@/app/(root)/_lib/test-import.schemas";
 import { readSafeActionData } from "@/lib/actions/read-safe-action-result";
@@ -37,7 +38,7 @@ const FALLBACKS = {
   cancel: "Could not cancel the import.",
 } as const;
 
-/** How often the loader asks the backend where the job has got to. */
+/** Polling fallback while the SSE bridge is unavailable or reconnecting. */
 const POLL_INTERVAL_MS = 2_000;
 
 /* -------------------------------------------------------------------------- */
@@ -89,15 +90,19 @@ export function useTestImportLimitsQuery() {
 }
 
 /**
- * Polls one import job until it reaches a terminal status.
+ * Streams one import job until it reaches a terminal status.
  *
- * `refetchInterval` returns `false` once the job is `READY` or `FAILED`, which
- * is what stops the poll — not an effect, and not a cleared timer that a
- * remount could resurrect. Passing `jobId: null` disables the query entirely,
- * so the screen can mount the hook before the upload has produced an id.
+ * EventSource is intentionally same-origin: the Next route authenticates from
+ * the httpOnly session and forwards the bearer token server-side. The ordinary
+ * status read stays enabled for initial data and becomes a 2-second fallback
+ * while the stream connects or reconnects. Both transports stop at `READY` or
+ * `FAILED`. Passing `jobId: null` disables both.
  */
 export function useTestImportJobQuery(jobId: string | null) {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const [connectedJobId, setConnectedJobId] = useState<string | null>(null);
+  const streamConnected = connectedJobId === jobId;
+  const query = useQuery({
     queryKey: queryKeys.testImports.job(jobId ?? "none"),
     queryFn: async () =>
       readSafeActionData(
@@ -105,9 +110,10 @@ export function useTestImportJobQuery(jobId: string | null) {
         FALLBACKS.status,
       ),
     enabled: Boolean(jobId),
-    refetchInterval: (query) => {
-      const job = query.state.data as TestImportJob | undefined;
+    refetchInterval: (stateQuery) => {
+      const job = stateQuery.state.data as TestImportJob | undefined;
       if (job && isTerminalImportStatus(job.status)) return false;
+      if (streamConnected) return false;
       return POLL_INTERVAL_MS;
     },
     // A job that is still running is never "fresh" — the whole point is that
@@ -115,6 +121,46 @@ export function useTestImportJobQuery(jobId: string | null) {
     staleTime: 0,
     gcTime: 5 * 60 * 1000,
   });
+  const terminal = query.data
+    ? isTerminalImportStatus(query.data.status)
+    : false;
+
+  useEffect(() => {
+    if (!jobId || terminal) return;
+
+    const source = new EventSource(
+      `/api/test-imports/${encodeURIComponent(jobId)}/events`,
+    );
+
+    source.onopen = () => setConnectedJobId(jobId);
+    source.onerror = () =>
+      setConnectedJobId((current) => (current === jobId ? null : current));
+    source.onmessage = (event) => {
+      let payload: unknown;
+
+      try {
+        payload = JSON.parse(event.data) as unknown;
+      } catch {
+        return;
+      }
+
+      const parsed = testImportJobSchema.safeParse(payload);
+      if (!parsed.success) return;
+
+      queryClient.setQueryData(queryKeys.testImports.job(jobId), parsed.data);
+
+      if (isTerminalImportStatus(parsed.data.status)) {
+        source.close();
+        setConnectedJobId((current) => (current === jobId ? null : current));
+      }
+    };
+
+    return () => {
+      source.close();
+    };
+  }, [jobId, queryClient, terminal]);
+
+  return query;
 }
 
 /* -------------------------------------------------------------------------- */

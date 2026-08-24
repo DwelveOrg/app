@@ -444,13 +444,11 @@ Every tab row. Two variants: `underline` (page-level sections) and `pill` (filte
       label: t("…"),
       count: roster.length,
       showZeroCount: true,
-      refresh: { queryKeys: [queryKeys.classes.detail(classId)] },
     },
     {
       value: "requests",
       label: t("…"),
       count: pending,
-      refresh: { queryKeys: [queryKeys.enrollment.classRequestsAll(classId)] },
     },
   ]}
   value={tab}
@@ -469,17 +467,10 @@ Every tab row. Two variants: `underline` (page-level sections) and `pill` (filte
 | `showZeroCount` | A roster of 0 is a fact ("Students 0"); a pending count of 0 is noise |
 | `disabled`      | Renders a non-interactive `<span aria-disabled>`                      |
 | `note`          | Trailing pill for locked features ("Soon")                            |
-| `refresh`       | **What to re-read when this tab opens** — see below                   |
 
-**`refresh` is load-bearing, not an optimisation.** These tabs switch on local state: query keys
-don't change and nothing remounts, so without it a tab switch fires no request at all and the panel
-shows whatever was fetched on first page load. A join request that arrived since then stays
-invisible until a full reload. The failure is silent — a panel that never refetches looks exactly
-like a panel with nothing new in it.
-
-Declare `refresh` on any tab showing server state. `queryKeys` are matched as **prefixes**, so pass
-the `*All` key to cover every search/page variant. `router: true` covers panels rendered from RSC
-props.
+`TabBar` owns selection and presentation only. Do not add data invalidation to it. Query-backed
+panels fetch on mount and follow their own freshness policy; local filters over loaded data stay
+network-free. Mutations invalidate the affected query keys at their hook boundary.
 
 `layoutId` must be unique per mounted `TabBar`.
 
