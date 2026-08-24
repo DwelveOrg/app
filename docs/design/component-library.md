@@ -3,7 +3,7 @@
 Status: v1 · Last updated: 11 August 2026
 
 The API reference for every shared UI component in the product. `design-system.md` §8 names the
-primitives and says *why* one component per job; this file says **what each one takes, when to reach
+primitives and says _why_ one component per job; this file says **what each one takes, when to reach
 for it, and when not to**.
 
 Read this before writing any JSX. If the element you are about to build appears below, use it — do
@@ -19,18 +19,18 @@ almost always cheaper than a second component, and it is the only change that fi
 
 ## 1. Where components live
 
-| Location | Scope | Promote when |
-|---|---|---|
-| `src/components/ui/` | Product-wide primitives (shadcn/Radix + Dwelve-owned) | — it is already the top |
-| `src/components/Custom/` | Product-wide composites that aren't primitives (logo, image picker, relative time) | used in ≥2 route groups |
-| `src/components/tests/` | Shared across studio + exam + results — the paper renderer, score marks, charts | used by more than one test environment |
-| `src/app/(root)/_components/` | Shared inside the authenticated shell only | used by ≥2 pages under `(root)` |
-| `src/app/<route>/_components/` | One route | starts with everything |
+| Location                       | Scope                                                                              | Promote when                           |
+| ------------------------------ | ---------------------------------------------------------------------------------- | -------------------------------------- |
+| `src/components/ui/`           | Product-wide primitives (shadcn/Radix + Dwelve-owned)                              | — it is already the top                |
+| `src/components/Custom/`       | Product-wide composites that aren't primitives (logo, image picker, relative time) | used in ≥2 route groups                |
+| `src/components/tests/`        | Shared across studio + exam + results — the paper renderer, score marks, charts    | used by more than one test environment |
+| `src/app/(root)/_components/`  | Shared inside the authenticated shell only                                         | used by ≥2 pages under `(root)`        |
+| `src/app/<route>/_components/` | One route                                                                          | starts with everything                 |
 
 **The promotion ladder is one-directional:** route-local `_components` → route-group `_components`
 → `src/components/Custom` or `src/components/ui`. A component moves up the moment a second
-consumer appears in a different branch of the tree. Copying it instead is the single most common
-regression in this codebase — see `redesign-remaining-work.md` for the four times it happened.
+consumer appears in a different branch of the tree. Copying it instead is a recurring regression;
+see [UI consolidation gotchas](../../.agent-memory/discoveries/ui-consolidation-gotchas.md).
 
 **`src/app/(root)/_components/` is not a lesser tier.** `PageHeader`, `ListRow`, `EntityHeader`,
 `ConfirmDialog`, and `Dialog` live there because they are meaningless outside the authenticated
@@ -41,33 +41,33 @@ shell, not because they are provisional. Import them by alias:
 
 ## 2. Choosing a component
 
-| You are building | Use | Not |
-|---|---|---|
-| Any bordered box | `Surface` | a hand-written `rounded-2xl border bg-card` |
-| Any button, or a link that looks like one | `Button` (`asChild` for links) | a raw `<button>`, a styled `<Link>` |
-| A form label + hint + error | `Field` | a hand-written `<label>` + `<p>` |
-| Any text entry | `Input` / `Textarea` | a raw `<input>` |
-| A status pill / count chip / tag | `Badge` | an inline `rounded-full` span |
-| A number chip (question index, order index) | `rounded-[var(--radius-pill)]` + `numeric` | `rounded-full` around a figure |
-| A person / class / school circle | `Avatar` | a hand-rolled initials div |
-| A tab row | `TabBar` | `tabs.tsx` (that's the Radix primitive; `TabBar` is the product control) |
-| A theme/language/view switch | `Segmented` | a `Select` |
-| A page title block | `PageHeader` | an `<h1>` + `<p>` |
-| A panel heading inside a card | `SectionHeader` | an `<h2>` + `<p>` |
-| An "up one level" link | `BackLink` | a hand-written `<Link>` with an arrow |
-| A labelled facts row | `FactGrid` + `Fact` | a hand-built grid of tiles |
-| An icon + title + description row | `ListRow` | a flex row written from scratch |
-| A school / class / test header | `EntityHeader` | `PageHeader` (that's for pages, not entities) |
-| A trailing "…" menu | `RowActionsMenu` | raw `DropdownMenu` parts |
-| A destructive confirmation | `ConfirmDialog` | `Dialog` |
-| A form in a modal | `Dialog` + `DialogFooterActions` | a hand-rolled Radix overlay |
-| A "give a reason" prompt | `MessagePromptDialog` | `Dialog` with a textarea |
-| A pending request from a person | `PersonRequestRow` | a bespoke row |
-| Copy-to-clipboard | `CopyButton` | `navigator.clipboard` in a component |
-| Any loading state | `Skeleton` / `SkeletonList` / `SkeletonPage` | a bare spinner |
-| Any empty / first-run state | `Empty` | a centred `<p>` |
-| A forbidden / not-found / retryable resource state | `ResourceStateView` | `Empty` alone |
-| A reorderable list | `SortableList` + `SortableRow` | `@dnd-kit` imported directly |
+| You are building                                   | Use                                          | Not                                                                      |
+| -------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------ |
+| Any bordered box                                   | `Surface`                                    | a hand-written `rounded-2xl border bg-card`                              |
+| Any button, or a link that looks like one          | `Button` (`asChild` for links)               | a raw `<button>`, a styled `<Link>`                                      |
+| A form label + hint + error                        | `Field`                                      | a hand-written `<label>` + `<p>`                                         |
+| Any text entry                                     | `Input` / `Textarea`                         | a raw `<input>`                                                          |
+| A status pill / count chip / tag                   | `Badge`                                      | an inline `rounded-full` span                                            |
+| A number chip (question index, order index)        | `rounded-[var(--radius-pill)]` + `numeric`   | `rounded-full` around a figure                                           |
+| A person / class / school circle                   | `Avatar`                                     | a hand-rolled initials div                                               |
+| A tab row                                          | `TabBar`                                     | `tabs.tsx` (that's the Radix primitive; `TabBar` is the product control) |
+| A theme/language/view switch                       | `Segmented`                                  | a `Select`                                                               |
+| A page title block                                 | `PageHeader`                                 | an `<h1>` + `<p>`                                                        |
+| A panel heading inside a card                      | `SectionHeader`                              | an `<h2>` + `<p>`                                                        |
+| An "up one level" link                             | `BackLink`                                   | a hand-written `<Link>` with an arrow                                    |
+| A labelled facts row                               | `FactGrid` + `Fact`                          | a hand-built grid of tiles                                               |
+| An icon + title + description row                  | `ListRow`                                    | a flex row written from scratch                                          |
+| A school / class / test header                     | `EntityHeader`                               | `PageHeader` (that's for pages, not entities)                            |
+| A trailing "…" menu                                | `RowActionsMenu`                             | raw `DropdownMenu` parts                                                 |
+| A destructive confirmation                         | `ConfirmDialog`                              | `Dialog`                                                                 |
+| A form in a modal                                  | `Dialog` + `DialogFooterActions`             | a hand-rolled Radix overlay                                              |
+| A "give a reason" prompt                           | `MessagePromptDialog`                        | `Dialog` with a textarea                                                 |
+| A pending request from a person                    | `PersonRequestRow`                           | a bespoke row                                                            |
+| Copy-to-clipboard                                  | `CopyButton`                                 | `navigator.clipboard` in a component                                     |
+| Any loading state                                  | `Skeleton` / `SkeletonList` / `SkeletonPage` | a bare spinner                                                           |
+| Any empty / first-run state                        | `Empty`                                      | a centred `<p>`                                                          |
+| A forbidden / not-found / retryable resource state | `ResourceStateView`                          | `Empty` alone                                                            |
+| A reorderable list                                 | `SortableList` + `SortableRow`               | `@dnd-kit` imported directly                                             |
 
 ---
 
@@ -79,23 +79,25 @@ The **only** bordered container in the product. Polymorphic in `as`, so `<Surfac
 accepts `onSubmit`.
 
 ```tsx
-<Surface as="form" padding="lg" onSubmit={handleSubmit(onSubmit)} noValidate>…</Surface>
+<Surface as="form" padding="lg" onSubmit={handleSubmit(onSubmit)} noValidate>
+  …
+</Surface>
 ```
 
-| Prop | Values | Default | Notes |
-|---|---|---|---|
-| `as` | any element type | `"div"` | Props are typed against it |
-| `variant` | `card` · `muted` · `plain` · `dashed` · `danger` · `glass` | `card` | See below |
-| `padding` | `none` · `sm` (16) · `md` (20) · `lg` (20→24 at `sm`) | `md` | Forced to `none` when `divided` |
-| `radius` | `md` (`rounded-xl`) · `lg` (`rounded-2xl`) | `lg` | |
-| `elevation` | `0` · `1` · `2` · `3` | `1` | Dialogs use `shadow-elev-4` directly |
-| `interactive` | boolean | `false` | Hover darkens the hairline and steps the fill; nothing moves (`--lift: 0`) |
-| `divided` | boolean | `false` | Children become `divide-y` rows |
+| Prop          | Values                                                     | Default | Notes                                                                      |
+| ------------- | ---------------------------------------------------------- | ------- | -------------------------------------------------------------------------- |
+| `as`          | any element type                                           | `"div"` | Props are typed against it                                                 |
+| `variant`     | `card` · `muted` · `plain` · `dashed` · `danger` · `glass` | `card`  | See below                                                                  |
+| `padding`     | `none` · `sm` (16) · `md` (20) · `lg` (20→24 at `sm`)      | `md`    | Forced to `none` when `divided`                                            |
+| `radius`      | `md` (`rounded-xl`) · `lg` (`rounded-2xl`)                 | `lg`    |                                                                            |
+| `elevation`   | `0` · `1` · `2` · `3`                                      | `1`     | Dialogs use `shadow-elev-4` directly                                       |
+| `interactive` | boolean                                                    | `false` | Hover darkens the hairline and steps the fill; nothing moves (`--lift: 0`) |
+| `divided`     | boolean                                                    | `false` | Children become `divide-y` rows                                            |
 
 Variant meanings:
 
 - **`card`** — sits above the canvas. The default and ~90% of use.
-- **`muted`** — recedes *into* the canvas. Wells, insets, secondary groupings.
+- **`muted`** — recedes _into_ the canvas. Wells, insets, secondary groupings.
 - **`plain`** — border only, canvas shows through. Grouping without a box.
 - **`dashed`** — a slot waiting to be filled ("add a question", "no classes yet").
 - **`danger`** — a destructive zone. Delete account, remove member.
@@ -124,12 +126,12 @@ anything the wrapper doesn't expose.
 
 The only button and the only button-shaped link.
 
-| Prop | Values | Default |
-|---|---|---|
+| Prop      | Values                                                                                                 | Default   |
+| --------- | ------------------------------------------------------------------------------------------------------ | --------- |
 | `variant` | `default` · `outline` · `secondary` · `ghost` · `destructive` · `destructive-solid` · `link` · `brand` | `default` |
-| `size` | `xs` · `sm` · `default` · `lg` · `xl` · `icon` · `icon-xs` · `icon-sm` · `icon-lg` | `default` |
-| `asChild` | boolean | `false` |
-| `loading` | boolean | `false` |
+| `size`    | `xs` · `sm` · `default` · `lg` · `xl` · `icon` · `icon-xs` · `icon-sm` · `icon-lg`                     | `default` |
+| `asChild` | boolean                                                                                                | `false`   |
+| `loading` | boolean                                                                                                | `false`   |
 
 Variant meanings:
 
@@ -137,11 +139,11 @@ Variant meanings:
 - **`outline`** — the secondary action beside a primary one; also the resting state of a dropdown
   trigger (it carries `aria-expanded` styling).
 - **`secondary`** / **`ghost`** — tertiary. `ghost` for icon buttons in rows and toolbars.
-- **`destructive`** — a tinted red button. The *entry point* to a destructive flow.
+- **`destructive`** — a tinted red button. The _entry point_ to a destructive flow.
 - **`destructive-solid`** — solid red. Reserved for the **confirm** step inside `ConfirmDialog`,
   so "solid red" always means "this is the irreversible click".
 - **`link`** — inline text action.
-- **`brand`** — the violet gradient. Landing and auth surfaces where the button *is* the brand
+- **`brand`** — the violet gradient. Landing and auth surfaces where the button _is_ the brand
   moment. Not for ordinary primary actions inside the app.
 
 `loading` rules:
@@ -156,13 +158,15 @@ Variant meanings:
 Links:
 
 ```tsx
-<Button asChild variant="outline"><Link href="/dashboard">Back</Link></Button>
+<Button asChild variant="outline">
+  <Link href="/dashboard">Back</Link>
+</Button>
 ```
 
 > **Accent rule (v4).** `default` is the **ink** button and is the answer for every ordinary
-> primary action. `brand` is the violet one and is reserved for the landing and auth surfaces where
-> the button *is* the brand moment — using it for a routine "Save" is what made every screen read as
-> a brand page. `Button.tsx`'s header states the same rule; it and the classes now agree.
+> primary action. `brand` is violet and is reserved for auth/onboarding identity moments where the
+> button _is_ the brand moment. Using it for a routine "Save" makes every screen read as a brand
+> page. `Button.tsx`'s header states the same rule; it and the classes now agree.
 
 ### `CopyButton` — `@/components/ui/CopyButton`
 
@@ -182,11 +186,17 @@ The trailing overflow menu on a row or card.
 
 ```tsx
 <RowActionsMenu
-  label={t("…", { name: student.fullName })}   // include the subject: "Actions for Aziza"
-  variant="flat"                                // "floating" when overlaying a card
+  label={t("…", { name: student.fullName })} // include the subject: "Actions for Aziza"
+  variant="flat" // "floating" when overlaying a card
   actions={[
     { label: t("edit"), icon: Pencil, onSelect: openEdit, keepOpen: true },
-    { label: t("remove"), icon: Trash2, onSelect: openRemove, destructive: true, keepOpen: true },
+    {
+      label: t("remove"),
+      icon: Trash2,
+      onSelect: openRemove,
+      destructive: true,
+      keepOpen: true,
+    },
   ]}
 />
 ```
@@ -208,15 +218,15 @@ component surface only.
 
 Label + control + hint + error, with the ARIA wiring. **Every** labelled control goes through it.
 
-| Prop | Type | Notes |
-|---|---|---|
-| `label` | ReactNode | |
-| `required` | boolean | Renders the affordance. Does not validate — that is zod's job |
-| `hint` | ReactNode | Shown only when there is no `error` |
-| `error` | ReactNode | Gets `role="alert"` and wires `aria-describedby` |
-| `htmlFor` | string | Omit to let `Field` generate an id |
-| `size` | `sm` · `md` | `sm` for dense contexts (the test builder); `md` for standalone forms |
-| `children` | node **or** render fn | The fn receives `{ id, aria-invalid?, aria-describedby? }` |
+| Prop       | Type                  | Notes                                                                 |
+| ---------- | --------------------- | --------------------------------------------------------------------- |
+| `label`    | ReactNode             |                                                                       |
+| `required` | boolean               | Renders the affordance. Does not validate — that is zod's job         |
+| `hint`     | ReactNode             | Shown only when there is no `error`                                   |
+| `error`    | ReactNode             | Gets `role="alert"` and wires `aria-describedby`                      |
+| `htmlFor`  | string                | Omit to let `Field` generate an id                                    |
+| `size`     | `sm` · `md`           | `sm` for dense contexts (the test builder); `md` for standalone forms |
+| `children` | node **or** render fn | The fn receives `{ id, aria-invalid?, aria-describedby? }`            |
 
 Two shapes:
 
@@ -241,12 +251,12 @@ are wrong.
 
 Standard `<input>` props plus:
 
-| Prop | Values | Default |
-|---|---|---|
-| `surface` | `default` (bg-card) · `muted` (bg-muted) | `default` |
-| `size` | `sm` · `md` · `lg` | `lg` |
-| `showPasswordToggle` | boolean | auto-on for `type="password"` |
-| `revealLabel` / `hideLabel` | string | English fallbacks — **pass `t(...)`** |
+| Prop                        | Values                                   | Default                               |
+| --------------------------- | ---------------------------------------- | ------------------------------------- |
+| `surface`                   | `default` (bg-card) · `muted` (bg-muted) | `default`                             |
+| `size`                      | `sm` · `md` · `lg`                       | `lg`                                  |
+| `showPasswordToggle`        | boolean                                  | auto-on for `type="password"`         |
+| `revealLabel` / `hideLabel` | string                                   | English fallbacks — **pass `t(...)`** |
 
 Use `surface="muted"` for an input sitting on a `--card` panel, where a white field disappears into
 it. The password reveal toggle is deliberately keyboard-focusable (WCAG 2.1.1) — do not add
@@ -276,10 +286,12 @@ options is a dropdown standing in for a switch.
 
 ```tsx
 <Segmented
-  value={theme} onChange={setTheme} options={themeOptions}
+  value={theme}
+  onChange={setTheme}
+  options={themeOptions}
   ariaLabel={t("profile.theme.label")}
-  layoutId="theme-segment"       // unique per mounted control
-  pending={!mounted}             // pre-hydration placeholder, same geometry
+  layoutId="theme-segment" // unique per mounted control
+  pending={!mounted} // pre-hydration placeholder, same geometry
 />
 ```
 
@@ -298,12 +310,12 @@ Avatar/logo upload with preview. All labels are props (`label`, `hint`, `chooseL
 
 The **only** permitted entry point to `@dnd-kit`. Do not import the dnd-kit packages anywhere else.
 
-| Prop | Notes |
-|---|---|
-| `ids` | Stable keys — a row's own `uid`, or RHF's `field.id`. **Never the array index.** |
-| `onReorder` | Index-based, for a list that is one array |
-| `onDropOn` | Id-based, for a list rendered flat but stored as several groups |
-| `disabled` | |
+| Prop        | Notes                                                                            |
+| ----------- | -------------------------------------------------------------------------------- |
+| `ids`       | Stable keys — a row's own `uid`, or RHF's `field.id`. **Never the array index.** |
+| `onReorder` | Index-based, for a list that is one array                                        |
+| `onDropOn`  | Id-based, for a list rendered flat but stored as several groups                  |
+| `disabled`  |                                                                                  |
 
 Rules:
 
@@ -320,13 +332,13 @@ Rules:
 
 ### `Badge` — `@/components/ui/badge`
 
-| Prop | Values | Default |
-|---|---|---|
-| `variant` | `primary` · `brand` · `neutral` · `outline` · `success` · `warning` · `destructive` · `info` · `solid` | `neutral` |
-| `size` | `xs` · `sm` · `md` | `sm` |
-| `shape` | `pill` · `count` | `pill` |
-| `uppercase` | boolean | `false` |
-| `asChild` | boolean | `false` |
+| Prop        | Values                                                                                                 | Default   |
+| ----------- | ------------------------------------------------------------------------------------------------------ | --------- |
+| `variant`   | `primary` · `brand` · `neutral` · `outline` · `success` · `warning` · `destructive` · `info` · `solid` | `neutral` |
+| `size`      | `xs` · `sm` · `md`                                                                                     | `sm`      |
+| `shape`     | `pill` · `count`                                                                                       | `pill`    |
+| `uppercase` | boolean                                                                                                | `false`   |
+| `asChild`   | boolean                                                                                                | `false`   |
 
 - **`neutral`** is the default and the right answer most of the time — counts, "soon", type labels.
 - **`primary`** for "current", "selected", "your role".
@@ -340,13 +352,13 @@ Rules:
 
 ### `Avatar` — `@/components/ui/Avatar`
 
-| Prop | Values | Default |
-|---|---|---|
-| `name` | string \| null | required — drives initials and alt text |
-| `src` | string \| null | falls back to initials |
-| `size` | `xs`(28) · `sm`(36) · `md`(44) · `lg`(56) · `xl`(64) · `2xl`(80) | `md` |
-| `shape` | `circle` · `rounded` | `circle` |
-| `tint` | `brand` · `neutral` · `seeded` | `brand` |
+| Prop    | Values                                                           | Default                                 |
+| ------- | ---------------------------------------------------------------- | --------------------------------------- |
+| `name`  | string \| null                                                   | required — drives initials and alt text |
+| `src`   | string \| null                                                   | falls back to initials                  |
+| `size`  | `xs`(28) · `sm`(36) · `md`(44) · `lg`(56) · `xl`(64) · `2xl`(80) | `md`                                    |
+| `shape` | `circle` · `rounded`                                             | `circle`                                |
+| `tint`  | `brand` · `neutral` · `seeded`                                   | `brand`                                 |
 
 `tint="seeded"` hashes the name into the chart ramp's `-tint`/`-ink` pair so two students in one
 list are distinguishable. Use `brand` for the current user / current org, `seeded` inside lists.
@@ -360,7 +372,7 @@ component receives. Do not "fix" it.
 The labelled facts row under an entity header. `FactGrid` is a `<dl>` at
 `sm:grid-cols-2 lg:grid-cols-4`; `Fact` takes `icon?`, `label`, `value`, `hint?`.
 
-Tiles are `bg-background` inside a `bg-card` surface — a well recessed *into* the panel, which keeps
+Tiles are `bg-background` inside a `bg-card` surface — a well recessed _into_ the panel, which keeps
 the depth ladder at one level. `Fact` values truncate on purpose (a wrapping teacher name would make
 four tiles four different heights); entity and page **titles** never truncate.
 
@@ -368,14 +380,14 @@ four tiles four different heights); entity and page **titles** never truncate.
 
 Icon + title + description + trailing control. The workhorse row.
 
-| Prop | Notes |
-|---|---|
-| `variant` | `flush` (inside `<Surface divided>`, surface draws the edges) · `boxed` (standalone) |
-| `href` | Makes the whole row a link and shows a chevron |
-| `action` | Trailing control for rows that perform an action |
-| `control` | Full-width control **below** the label (a segmented switch, a slider) |
-| `soon` / `soonLabel` | Dimmed, non-interactive, with a note pill |
-| `danger` | Destructive tone for the icon chip and title |
+| Prop                 | Notes                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------ |
+| `variant`            | `flush` (inside `<Surface divided>`, surface draws the edges) · `boxed` (standalone) |
+| `href`               | Makes the whole row a link and shows a chevron                                       |
+| `action`             | Trailing control for rows that perform an action                                     |
+| `control`            | Full-width control **below** the label (a segmented switch, a slider)                |
+| `soon` / `soonLabel` | Dimmed, non-interactive, with a note pill                                            |
+| `danger`             | Destructive tone for the icon chip and title                                         |
 
 `href`, `action`, and `soon` are mutually exclusive in the trailing slot — the component picks in
 that order.
@@ -427,26 +439,37 @@ Every tab row. Two variants: `underline` (page-level sections) and `pill` (filte
 ```tsx
 <TabBar
   items={[
-    { value: "students", label: t("…"), count: roster.length, showZeroCount: true,
-      refresh: { queryKeys: [queryKeys.classes.detail(classId)] } },
-    { value: "requests", label: t("…"), count: pending,
-      refresh: { queryKeys: [queryKeys.enrollment.classRequestsAll(classId)] } },
+    {
+      value: "students",
+      label: t("…"),
+      count: roster.length,
+      showZeroCount: true,
+      refresh: { queryKeys: [queryKeys.classes.detail(classId)] },
+    },
+    {
+      value: "requests",
+      label: t("…"),
+      count: pending,
+      refresh: { queryKeys: [queryKeys.enrollment.classRequestsAll(classId)] },
+    },
   ]}
-  value={tab} onSelect={setTab}
-  ariaLabel={t("…")} layoutId="class-tabs"
+  value={tab}
+  onSelect={setTab}
+  ariaLabel={t("…")}
+  layoutId="class-tabs"
 />
 ```
 
-| `TabItem` field | Notes |
-|---|---|
-| `value` | Stable key and the value reported by `onSelect` |
-| `label` | |
-| `href` | Present for navigation tabs; omit for local-state tabs |
-| `count` | Hidden when 0 unless `showZeroCount` |
+| `TabItem` field | Notes                                                                 |
+| --------------- | --------------------------------------------------------------------- |
+| `value`         | Stable key and the value reported by `onSelect`                       |
+| `label`         |                                                                       |
+| `href`          | Present for navigation tabs; omit for local-state tabs                |
+| `count`         | Hidden when 0 unless `showZeroCount`                                  |
 | `showZeroCount` | A roster of 0 is a fact ("Students 0"); a pending count of 0 is noise |
-| `disabled` | Renders a non-interactive `<span aria-disabled>` |
-| `note` | Trailing pill for locked features ("Soon") |
-| `refresh` | **What to re-read when this tab opens** — see below |
+| `disabled`      | Renders a non-interactive `<span aria-disabled>`                      |
+| `note`          | Trailing pill for locked features ("Soon")                            |
+| `refresh`       | **What to re-read when this tab opens** — see below                   |
 
 **`refresh` is load-bearing, not an optimisation.** These tabs switch on local state: query keys
 don't change and nothing remounts, so without it a tab switch fires no request at all and the panel
@@ -499,22 +522,23 @@ with; adding a destination means editing it. Rules it enforces, which any change
 The dialog shell for the authenticated app. Built on Radix `Dialog` (dismissible), **not**
 `AlertDialog`.
 
-| Prop | Notes |
-|---|---|
-| `open` / `onOpenChange` | Omit both to let the dialog manage its own state |
-| `trigger` | Renders a trigger inside the root |
-| `title` / `description` | Wired to Radix `Title` / `Description` |
-| `showClose` / `closeLabel` | Top-right close affordance |
-| `footer` | Usually `<DialogFooterActions />` |
-| `contentClassName` | Width for a picker, max-height for a long list. Nothing else |
+| Prop                       | Notes                                                        |
+| -------------------------- | ------------------------------------------------------------ |
+| `open` / `onOpenChange`    | Omit both to let the dialog manage its own state             |
+| `trigger`                  | Renders a trigger inside the root                            |
+| `title` / `description`    | Wired to Radix `Title` / `Description`                       |
+| `showClose` / `closeLabel` | Top-right close affordance                                   |
+| `footer`                   | Usually `<DialogFooterActions />`                            |
+| `contentClassName`         | Width for a picker, max-height for a long list. Nothing else |
 
 `DialogFooterActions` is the Cancel/Submit row every form dialog ends with:
 
 ```tsx
 <DialogFooterActions
-  cancelLabel={t("common.cancel")} submitLabel={t("…")}
+  cancelLabel={t("common.cancel")}
+  submitLabel={t("…")}
   isBusy={mutation.isPending}
-  tone="default"            // "destructive" gives a solid red submit
+  tone="default" // "destructive" gives a solid red submit
   // omit onSubmit inside a <form> — the button submits it
 />
 ```
@@ -583,8 +607,8 @@ boundary that resolves them.
 
 ```tsx
 <ResourceStateView
-  reason={result.reason}                  // "forbidden" | "notFound" | "error"
-  namespace="root.classDetail"            // reads `<ns>.states.<reason>.title` / `.description`
+  reason={result.reason} // "forbidden" | "notFound" | "error"
+  namespace="root.classDetail" // reads `<ns>.states.<reason>.title` / `.description`
   backHref="/groups"
   backLabelKey="root.classDetail.back"
   retryLabelKey="root.classDetail.states.retry"
@@ -592,7 +616,7 @@ boundary that resolves them.
 />
 ```
 
-`error` is retryable (`router.refresh()`); everything else routes back. This is for a *resolved*
+`error` is retryable (`router.refresh()`); everything else routes back. This is for a _resolved_
 state a page fetched successfully — it is **not** an error boundary. Uncaught throws are
 `error.tsx`'s job.
 
@@ -628,11 +652,11 @@ Before building anything new:
 
 Measured 11 August 2026. These three exist in `src/components/ui` and nothing imports them:
 
-| File | Status |
-|---|---|
-| `tabs.tsx` | **Superseded by `TabBar`.** Do not build against it — `TabBar` is the product's tab control and consolidated the four implementations that preceded it |
-| `radio-group.tsx` | **Superseded by `Segmented`** for every mutually-exclusive choice currently in the product |
-| `InputOTP.tsx` | Built ahead of an OTP signup gate that is not wired up (see `CLAUDE.md`, "Email verification … OTP at the signup gate is optional") |
+| File              | Status                                                                                                                                                 |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `tabs.tsx`        | **Superseded by `TabBar`.** Do not build against it — `TabBar` is the product's tab control and consolidated the four implementations that preceded it |
+| `radio-group.tsx` | **Superseded by `Segmented`** for every mutually-exclusive choice currently in the product                                                             |
+| `InputOTP.tsx`    | Built ahead of an OTP signup gate that is not wired up (see `CLAUDE.md`, "Email verification … OTP at the signup gate is optional")                    |
 
 A zero-consumer primitive is a trap, not an asset: the next person to need a tab row finds
 `tabs.tsx` first and builds a fifth implementation. If you need one of these shapes, use the
@@ -641,19 +665,19 @@ the question of whether the product control should have grown a variant instead.
 
 ### Anti-patterns
 
-| Don't | Do |
-|---|---|
-| `className="rounded-2xl border border-border bg-card p-5"` | `<Surface padding="md">` |
-| A raw `<button className="bg-primary …">` | `<Button>` |
-| `{pending ? <Spinner/> : <Save/>}` | `<Button loading={pending}><Save/>…</Button>` |
-| A hand-written `<label>` + error `<p>` | `<Field label error>` |
-| An inline `rounded-full` status span | `<Badge>` |
-| `className="tabular-nums"` on a bare figure | `className="numeric"` (mono + tabular) |
-| A second component that looks the same | one component with a prop |
-| Copying a primitive to add one prop | add the prop |
-| `dark:` overrides on a token-driven colour | fix the token |
-| A raw hex, `text-[14px]`, or `shadow-[…]` | a token / `type-*` utility / `shadow-elev-*` |
-| Building a Tailwind class from a template literal | write the literal strings out (see `classAccents`) |
+| Don't                                                      | Do                                                 |
+| ---------------------------------------------------------- | -------------------------------------------------- |
+| `className="rounded-2xl border border-border bg-card p-5"` | `<Surface padding="md">`                           |
+| A raw `<button className="bg-primary …">`                  | `<Button>`                                         |
+| `{pending ? <Spinner/> : <Save/>}`                         | `<Button loading={pending}><Save/>…</Button>`      |
+| A hand-written `<label>` + error `<p>`                     | `<Field label error>`                              |
+| An inline `rounded-full` status span                       | `<Badge>`                                          |
+| `className="tabular-nums"` on a bare figure                | `className="numeric"` (mono + tabular)             |
+| A second component that looks the same                     | one component with a prop                          |
+| Copying a primitive to add one prop                        | add the prop                                       |
+| `dark:` overrides on a token-driven colour                 | fix the token                                      |
+| A raw hex, `text-[14px]`, or `shadow-[…]`                  | a token / `type-*` utility / `shadow-elev-*`       |
+| Building a Tailwind class from a template literal          | write the literal strings out (see `classAccents`) |
 
 That last one is not style advice. Tailwind matches class names as literal text in source, so a
 template hole is not a class name and **the utility is never generated**. Every class-accent tile in
@@ -669,17 +693,16 @@ files are `.ts`, and three earlier versions of these greps scanned only `.tsx` a
 never fail.
 
 ```sh
-# arbitrary token classes — 33 (chart ramp + semantic fills; 5 are classAccents)
+# arbitrary token classes — inspect every new match against the pre-task baseline
 grep -rEn '\b(bg|text|border|ring)-\[var\(--[a-z0-9-]+\)\]' --include='*.tsx' --include='*.ts' src
 
-# arbitrary type sizes — 5 (2 marketing headlines, BRAND_WORDMARK_CLASSES, ScoreMeter's numeral)
+# arbitrary type sizes — inspect every new match
 grep -rEn 'text-\[[0-9.]*(px|rem)\]' --include='*.tsx' --include='*.ts' src
 
-# raw labels — 13 (clickable radio/switch cards, Field itself, ImagePicker, login password row)
+# raw labels — valid for some clickable controls and Field itself; inspect additions
 grep -rn '<label' --include='*.tsx' src
 
-# hand-rolled spinners — 7 (Button's own, 2 save indicators, ReadinessBanner,
-# ConfirmDialog's confirm, the landing mock, the Google script placeholder)
+# hand-rolled spinners — compare before/after and prefer the shared loading patterns
 grep -rn 'animate-spin' --include='*.tsx' src
 
 # raw Tailwind palette — must stay 0

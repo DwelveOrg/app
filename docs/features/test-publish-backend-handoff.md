@@ -29,22 +29,22 @@ All of `TestsController` sits behind `@UseGuards(JwtAuthGuard, SchoolGuard)`,
 and every handler below carries `@Roles('ADMIN','TEACHER') @UseGuards(RolesGuard)`.
 `STUDENT` receives 403 on all of them.
 
-| Method | Path | Notes |
-|---|---|---|
-| `GET` | `/classes/:classId/tests` | paginated; filtered by `status` |
-| `POST` | `/classes/:classId/tests` | creates a `DRAFT` from `{ title, format }` |
-| `GET` | `/tests/formats` | format blueprints + question-type catalogue |
-| `GET` | `/tests/:testId` | full tree **including the answer key** |
-| `PUT` | `/tests/:testId/structure` | whole-tree replace; **DRAFT-only**, 409 otherwise |
-| `PUT` | `/tests/:testId/delivery` | whole-object replace; **works on PUBLISHED too** |
-| `PATCH` | `/tests/:testId` | metadata only, never the tree |
-| `GET` | `/tests/:testId/validation` | stored publish readiness |
-| `POST` | `/tests/:testId/validation` | validates a candidate, writes nothing |
-| `POST` | `/tests/:testId/publish` | candidate update + validate + publish + notify transaction |
-| `POST` | `/tests/:testId/unpublish` | back to `DRAFT` |
-| `POST` | `/tests/:testId/duplicate` | deep clone as a new `DRAFT` |
-| `DELETE` | `/tests/:testId` | drafts deleted, anything else archived |
-| `POST` | `/tests/:testId/media` | multipart image upload, returns `{ url }` |
+| Method   | Path                        | Notes                                                      |
+| -------- | --------------------------- | ---------------------------------------------------------- |
+| `GET`    | `/classes/:classId/tests`   | paginated; filtered by `status`                            |
+| `POST`   | `/classes/:classId/tests`   | creates a `DRAFT` from `{ title, format }`                 |
+| `GET`    | `/tests/formats`            | format blueprints + question-type catalogue                |
+| `GET`    | `/tests/:testId`            | full tree **including the answer key**                     |
+| `PUT`    | `/tests/:testId/structure`  | whole-tree replace; **DRAFT-only**, 409 otherwise          |
+| `PUT`    | `/tests/:testId/delivery`   | whole-object replace; **works on PUBLISHED too**           |
+| `PATCH`  | `/tests/:testId`            | metadata only, never the tree                              |
+| `GET`    | `/tests/:testId/validation` | stored publish readiness                                   |
+| `POST`   | `/tests/:testId/validation` | validates a candidate, writes nothing                      |
+| `POST`   | `/tests/:testId/publish`    | candidate update + validate + publish + notify transaction |
+| `POST`   | `/tests/:testId/unpublish`  | back to `DRAFT`                                            |
+| `POST`   | `/tests/:testId/duplicate`  | deep clone as a new `DRAFT`                                |
+| `DELETE` | `/tests/:testId`            | drafts deleted, anything else archived                     |
+| `POST`   | `/tests/:testId/media`      | multipart image upload, returns `{ url }`                  |
 
 Every mutation goes through `loadAuthorableTest()`, which answers
 `NotFoundException` — never `ForbiddenException` — so a teacher cannot probe
@@ -53,10 +53,10 @@ whether another teacher's test id exists.
 ### A.2 The delivery model — shipped
 
 The `test-delivery-and-publish-handoff.md` in `backend_nestJS/docs/frontend/`
-describes this as *not implemented*. **That document is out of date.** All of it
+describes this as _not implemented_. **That document is out of date.** All of it
 landed in `1323212`:
 
-- `model TestDelivery` exists in `prisma/schema.prisma` with the denormalised
+- `model TestDelivery` exists in `../backend_nestJS/prisma/schema.prisma` with the denormalised
   `schoolId` and `@@index([schoolId])`, twenty columns, and the exact defaults
   the frontend's `DEFAULT_TEST_DELIVERY` carries.
 - Enums `TestIntegrityAction`, `TestNavigationMode`, `TestResultsRelease` exist.
@@ -82,8 +82,8 @@ re-reads the tree, and revalidates. On failure it throws:
 
 ```ts
 throw new ConflictException({
-  message: 'Test is not ready to publish',
-  issues: validation.issues,   //  [{ code, messageKey, sectionId?, groupId?, questionId? }]
+  message: "Test is not ready to publish",
+  issues: validation.issues, //  [{ code, messageKey, sectionId?, groupId?, questionId? }]
 });
 ```
 
@@ -148,9 +148,13 @@ three inside the existing transaction:
 
 ```json
 {
-  "settings": { "durationMinutes": 60, "passingScore": null,
-                "shuffleQuestions": false,
-                "availableFrom": null, "availableUntil": null },
+  "settings": {
+    "durationMinutes": 60,
+    "passingScore": null,
+    "shuffleQuestions": false,
+    "availableFrom": null,
+    "availableUntil": null
+  },
   "delivery": { "...": "the twenty fields, whole-object" }
 }
 ```
@@ -196,14 +200,14 @@ time. Emit it test-level (`{ code, messageKey }`, no ids). Frontend will add
 
 **Problem.** The last thing on the publish screen states the consequence:
 publishing notifies the class and unpublishing does not unsend it. It currently
-reads *"Every student in the class, and the other teachers on it."* — true, but
+reads _"Every student in the class, and the other teachers on it."_ — true, but
 vague at the exact moment precision matters.
 
 **Ask.** Add a count to `sanitizeTestForAuthor` — `counts.students`, or reuse
 whatever the class summary already computes. Read-only, author payload only, and
 explicitly **not** on the taker payload.
 
-**Frontend change once shipped:** *"31 students will be notified."*
+**Frontend change once shipped:** _"31 students will be notified."_
 
 ### B5. Issue severity — **low**
 
@@ -221,7 +225,7 @@ non-breaking and the UI can adopt it whenever.
 
 `backend_nestJS/docs/frontend/test-delivery-and-publish-handoff.md` describes
 shipped work as pending, including a "how to tell it is working" section whose
-success criterion — the wizard's *Publish without them* branch — no longer
+success criterion — the wizard's _Publish without them_ branch — no longer
 exists in the frontend. It will mislead the next reader. Its §2–§6 are now
 accurate documentation of `TestsService` and belong in the feature doc.
 
@@ -230,7 +234,7 @@ accurate documentation of `TestsService` and belong in the feature doc.
 ## Part C — one frontend gap, recorded here because it is about this contract
 
 `PUT /tests/:testId/delivery` deliberately works on a `PUBLISHED` test, so that
-changing *"results appear when the window closes"* to *"results appear now"*
+changing _"results appear when the window closes"_ to _"results appear now"_
 after an exam has been sat does not require unpublishing and re-notifying the
 class. The original handoff called this out explicitly and the backend
 implements it.

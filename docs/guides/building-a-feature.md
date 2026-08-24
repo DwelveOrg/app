@@ -11,32 +11,33 @@ the details rather than repeating them.
 ## 0. Before you write anything
 
 1. **Read the feature doc** if one exists — `docs/features/` covers classes, tests, test studio,
-   test taking, notifications, school membership, profile, students, landing, and more.
-2. **Read the code you're about to change.** Doc comments in this codebase record *why*, including
+   test taking, notifications, school membership, profile, students, and more.
+   Use `docs/README.md` to route the task, then search `.agent-memory/` for related gotchas.
+2. **Read the code you're about to change.** Doc comments in this codebase record _why_, including
    several decisions that look wrong until you know the failure they prevent.
-3. **Search for what already exists.** Roughly half the defects recorded in
-   `docs/design/redesign-remaining-work.md` were "someone built a second copy of a thing that was
-   already there".
+3. **Search for what already exists.** Duplicate primitives and route-local copies have repeatedly
+   survived lint and build because duplication is not a compile error. See
+   [UI consolidation gotchas](../../.agent-memory/discoveries/ui-consolidation-gotchas.md).
 
 ```sh
 grep -rn "ThingYouAreAbout" --include='*.tsx' --include='*.ts' src
 ls src/components/ui src/components/Custom "src/app/(root)/_components"
 ```
 
-4. **Branch.** Work on `staging` unless the maintainer says otherwise; for a self-contained piece,
-   a topic branch off it.
+4. **Branch.** Stay on the current task branch unless the maintainer requests another; do not move
+   unrelated working-tree changes between branches.
 
 ---
 
 ## 1. Decide the shape
 
-| Question | Answer it with |
-|---|---|
-| Which environment — app shell, studio, exam, or public? | [layout-and-composition.md](../design/layout-and-composition.md) §1 |
-| Is this a page, a panel, or a control? | §2 of the same |
-| Does a primitive already do this? | [component-library.md](../design/component-library.md) §2 |
-| Server or client component? | [RENDERING_AND_STATE.md](../architecture/RENDERING_AND_STATE.md) §1 |
-| Who owns the state? | §3 of the same |
+| Question                                                        | Answer it with                                                      |
+| --------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Which environment — app shell, studio, exam, or authentication? | [layout-and-composition.md](../design/layout-and-composition.md) §1 |
+| Is this a page, a panel, or a control?                          | §2 of the same                                                      |
+| Does a primitive already do this?                               | [component-library.md](../design/component-library.md) §2           |
+| Server or client component?                                     | [RENDERING_AND_STATE.md](../architecture/RENDERING_AND_STATE.md) §1 |
+| Who owns the state?                                             | §3 of the same                                                      |
 
 Write the answers down in the PR description. Most rework comes from getting one of these wrong
 silently.
@@ -112,7 +113,7 @@ Rules: [ARCHITECTURE.md](../architecture/ARCHITECTURE.md) ·
 ## 5. Copy
 
 1. Add every string to `en.ts`, `ru.ts`, **and** `uz.ts`, at the same position in each.
-2. Follow the namespace shape — `states.<reason>.{title,description}` is *required* if you use
+2. Follow the namespace shape — `states.<reason>.{title,description}` is _required_ if you use
    `ResourceStateView`.
 3. Plurals need all four Russian forms.
 4. No literal strings in JSX. No concatenation.
@@ -159,21 +160,9 @@ grep -rn 'animate-spin' --include='*.tsx' src
 grep -rEn '#[0-9A-Fa-f]{6}\b' --include='*.tsx' --include='*.ts' src
 ```
 
-**Baseline, measured 11 August 2026.** A count above these means something drifted; each existing
-instance is legitimate for the reason given. (`redesign-remaining-work.md` quotes lower numbers —
-those predate the studio and exam, and are no longer the baseline.)
-
-| Grep | Count | Why those are correct |
-|---|---|---|
-| `-[var(--token)]` classes | **33** | Tailwind has no named utility for the chart ramp or the semantic fills. 5 are `classAccents`; the rest are chart/score/question-presentation colours in `studio`, `exam`, and `components/tests` |
-| `text-[Npx\|rem]` | **5** | 2 marketing display headlines (`CallToAction`, `AuthVisualParts`), `BRAND_WORDMARK_CLASSES` (2 lines incl. its comment), and `ScoreMeter`'s display numeral |
-| Raw Tailwind palette | **0** | must stay 0 |
-| `<label>` | **13** | clickable radio/switch cards (studio, exam, `ChoiceInput`), `Field` itself, `ImagePicker`, and the login password row |
-| `animate-spin` | **7** | `Button`'s own, `SaveState`, `SaveIndicator`, `ReadinessBanner`, `ConfirmDialog`'s confirm, the landing "generating" mock, the Google script placeholder |
-| `#rrggbb` | **21** | `global-error.tsx` (cannot use tokens — the provider tree is what failed), `HeroScene.tsx` (WebGL needs numeric colours), `GoogleIcon.tsx` (third-party brand mark) |
-
-The point of the greps is the **delta**, not the absolute number. If yours is higher, find out which
-file added one and whether it had a reason as good as these.
+Treat the greps as investigation prompts, not timeless counts. The app/marketing split left some
+legacy landing tokens and catalog keys in this repository, and new product areas change legitimate
+counts. Compare the current branch before and after the task; investigate every new match.
 
 ---
 
@@ -181,21 +170,21 @@ file added one and whether it had a reason as good as these.
 
 Update docs in the same change as the code. Which one:
 
-| You changed | Update |
-|---|---|
+| You changed                               | Update                                             |
+| ----------------------------------------- | -------------------------------------------------- |
 | A token, font, colour, or elevation value | `design/design-system.md` + `globals.css` comments |
-| A shared component's API | `design/component-library.md` |
-| Page structure, containers, breakpoints | `design/layout-and-composition.md` |
-| A state, feedback channel, or motion rule | `design/interaction-and-states.md` |
-| An a11y decision | `design/accessibility.md` |
-| A key convention or copy rule | `design/content-and-i18n.md` |
-| Request/schema/library rules | `architecture/ARCHITECTURE.md` |
-| Data ownership, caching, invalidation | `architecture/RENDERING_AND_STATE.md` |
-| Form architecture | `architecture/FORMS.md` |
-| A user flow or route behaviour | the relevant `features/*.md` |
-| A backend request contract | `api/API_ROUTES.md` |
+| A shared component's API                  | `design/component-library.md`                      |
+| Page structure, containers, breakpoints   | `design/layout-and-composition.md`                 |
+| A state, feedback channel, or motion rule | `design/interaction-and-states.md`                 |
+| An a11y decision                          | `design/accessibility.md`                          |
+| A key convention or copy rule             | `design/content-and-i18n.md`                       |
+| Request/schema/library rules              | `architecture/ARCHITECTURE.md`                     |
+| Data ownership, caching, invalidation     | `architecture/RENDERING_AND_STATE.md`              |
+| Form architecture                         | `architecture/FORMS.md`                            |
+| A user flow or route behaviour            | the relevant `features/*.md`                       |
+| A backend request contract                | `api/API_ROUTES.md`                                |
 
-One source of truth per topic. `AGENTS.md` and `CLAUDE.md` may *summarize* and link, never duplicate.
+One source of truth per topic. `AGENTS.md` and `CLAUDE.md` may _summarize_ and link, never duplicate.
 
 ---
 

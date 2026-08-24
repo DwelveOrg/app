@@ -17,14 +17,14 @@ each kind of feedback belongs in.
 **Every interactive component ships all six. Shipping half of these is shipping an unfinished
 component.**
 
-| State | Signal | Where it comes from |
-|---|---|---|
-| Default | Resting treatment | the variant |
-| Hover | Border goes to an ink edge, fill steps one notch. **Nothing moves** (`--lift: 0`) | the `interactive` utilities |
-| Focus-visible | `ring-3 ring-ring/40` (or `ring-2` on smaller controls) | never removed, never `outline-none` alone |
-| Active / press | `translateY(--lift)` (interactive) or `scale(0.99)` (flat) | the `interactive` utilities |
-| Disabled | `opacity-50` + `pointer-events-none`, or `opacity-60 cursor-not-allowed` for inputs | `disabled:` variants |
-| Loading | `Button loading` — spinner replaces icons, label stays, `aria-busy` | the primitive |
+| State          | Signal                                                                              | Where it comes from                       |
+| -------------- | ----------------------------------------------------------------------------------- | ----------------------------------------- |
+| Default        | Resting treatment                                                                   | the variant                               |
+| Hover          | Border goes to an ink edge, fill steps one notch. **Nothing moves** (`--lift: 0`)   | the `interactive` utilities               |
+| Focus-visible  | `ring-3 ring-ring/40` (or `ring-2` on smaller controls)                             | never removed, never `outline-none` alone |
+| Active / press | `translateY(--lift)` (interactive) or `scale(0.99)` (flat)                          | the `interactive` utilities               |
+| Disabled       | `opacity-50` + `pointer-events-none`, or `opacity-60 cursor-not-allowed` for inputs | `disabled:` variants                      |
+| Loading        | `Button loading` — spinner replaces icons, label stays, `aria-busy`                 | the primitive                             |
 
 Rules:
 
@@ -51,13 +51,13 @@ Rules:
 Every screen that reads data has five possible outcomes. Handle all five or you have shipped one of
 them as a blank page.
 
-| Outcome | Component | Notes |
-|---|---|---|
-| **Loading** | `loading.tsx` → `SkeletonPage`, or `SkeletonList` in a panel | never a bare spinner |
-| **Empty** | `Empty` with an `action` | teach the interface, don't just report absence |
-| **Populated** | the real view | |
-| **Forbidden / not found** | `ResourceStateView reason="forbidden" \| "notFound"` | routes back, not retryable |
-| **Failed** | `ResourceStateView reason="error"` (resolved) or `error.tsx` (thrown) | retryable |
+| Outcome                   | Component                                                             | Notes                                          |
+| ------------------------- | --------------------------------------------------------------------- | ---------------------------------------------- |
+| **Loading**               | `loading.tsx` → `SkeletonPage`, or `SkeletonList` in a panel          | never a bare spinner                           |
+| **Empty**                 | `Empty` with an `action`                                              | teach the interface, don't just report absence |
+| **Populated**             | the real view                                                         |                                                |
+| **Forbidden / not found** | `ResourceStateView reason="forbidden" \| "notFound"`                  | routes back, not retryable                     |
+| **Failed**                | `ResourceStateView reason="error"` (resolved) or `error.tsx` (thrown) | retryable                                      |
 
 ### Loading
 
@@ -67,8 +67,8 @@ them as a blank page.
   without it a screen reader is told nothing at all while data loads.
 - In-place refresh (a filter change, a tab switch): keep the previous content and dim or disable it.
   Replacing a loaded list with skeletons on every keystroke is worse than a stale list.
-- **A spinner is only correct inside a button.** The three non-button spinners in `src` are a
-  landing-page mock, a third-party script placeholder, and `ConfirmDialog`'s confirm button.
+- Prefer skeletons or preserved content for region loading. Non-button spinners require a specific
+  reason, such as waiting for a third-party script; do not make them the default screen state.
 
 ### Empty
 
@@ -77,7 +77,7 @@ goes; a bare "nothing here yet" is an unfinished screen.
 
 - `variant="dashed"` — a slot the user is meant to fill ("add your first question").
 - `variant="card"` — a genuine "nothing here yet" that is not the user's move to make.
-- Distinguish *empty* from *filtered-to-nothing*. "No classes yet → create one" and "No classes
+- Distinguish _empty_ from _filtered-to-nothing_. "No classes yet → create one" and "No classes
   match 'xyz' → clear the filter" are different screens with different actions.
 
 ### Forbidden / not found / error
@@ -123,15 +123,15 @@ here. Treat that as the design case.
 
 Pick by permanence and by whose attention it needs.
 
-| Channel | Use for | Don't use for |
-|---|---|---|
-| **Inline field error** (`Field error`) | Validation on a specific input | anything not tied to one field |
-| **Inline form banner** (`errors.root`) | A submission that failed as a whole | field-level problems |
-| **Toast** (`react-toastify`) | The outcome of an action the user just took | anything they must read to continue |
-| **Dialog** | A decision that must be made now | reporting a result |
-| **Badge / status pill** | Persistent state of a thing | transient events |
-| **Save indicator** | Continuous background persistence | one-off saves |
-| **Empty / state view** | The state of a whole screen | a single row's problem |
+| Channel                                | Use for                                     | Don't use for                       |
+| -------------------------------------- | ------------------------------------------- | ----------------------------------- |
+| **Inline field error** (`Field error`) | Validation on a specific input              | anything not tied to one field      |
+| **Inline form banner** (`errors.root`) | A submission that failed as a whole         | field-level problems                |
+| **Toast** (`react-toastify`)           | The outcome of an action the user just took | anything they must read to continue |
+| **Dialog**                             | A decision that must be made now            | reporting a result                  |
+| **Badge / status pill**                | Persistent state of a thing                 | transient events                    |
+| **Save indicator**                     | Continuous background persistence           | one-off saves                       |
+| **Empty / state view**                 | The state of a whole screen                 | a single row's problem              |
 
 Toast rules:
 
@@ -149,11 +149,16 @@ The standard mutation outcome, from `CreateSchoolForm`:
 
 ```tsx
 mutation.mutate(data, {
-  onSuccess: () => { clearErrors("root"); toast.success(t("…")); router.push("/dashboard"); router.refresh(); },
+  onSuccess: () => {
+    clearErrors("root");
+    toast.success(t("…"));
+    router.push("/dashboard");
+    router.refresh();
+  },
   onError: (error) => {
     const message = error instanceof Error ? error.message : t("…");
-    setError("root", { message });   // stays on screen
-    toast.error(message);            // gets attention
+    setError("root", { message }); // stays on screen
+    toast.error(message); // gets attention
   },
 });
 ```
@@ -168,13 +173,13 @@ Every irreversible action goes through `ConfirmDialog`. No exceptions, and no be
 
 The vocabulary, so danger reads at one consistent level everywhere:
 
-| Step | Treatment |
-|---|---|
-| Entry point in a row menu | `RowActionsMenu` action with `destructive: true` |
-| Entry point as a button | `Button variant="destructive"` (tinted, not solid) |
-| The zone it lives in | `Surface variant="danger"` for a whole destructive section |
-| The confirmation | `ConfirmDialog` (Radix `AlertDialog` — overlay clicks do **not** dismiss) |
-| The irreversible click | `Button variant="destructive-solid"` — solid red, only here |
+| Step                      | Treatment                                                                 |
+| ------------------------- | ------------------------------------------------------------------------- |
+| Entry point in a row menu | `RowActionsMenu` action with `destructive: true`                          |
+| Entry point as a button   | `Button variant="destructive"` (tinted, not solid)                        |
+| The zone it lives in      | `Surface variant="danger"` for a whole destructive section                |
+| The confirmation          | `ConfirmDialog` (Radix `AlertDialog` — overlay clicks do **not** dismiss) |
+| The irreversible click    | `Button variant="destructive-solid"` — solid red, only here               |
 
 Rules:
 
@@ -182,7 +187,7 @@ Rules:
   never appears as an entry point.
 - The confirm button suppresses Radix's auto-close, so the pending state stays visible until the
   mutation settles. The caller closes the dialog.
-- Name the thing in the description: "Delete *IELTS Practice 1*?", not "Delete this test?".
+- Name the thing in the description: "Delete _IELTS Practice 1_?", not "Delete this test?".
 - When rejecting someone's request, use `MessagePromptDialog` — a rejection without a reason is a
   worse product than one extra field.
 - Say what will not come back. "This also deletes 40 questions and 12 attempts" belongs in the
@@ -210,7 +215,7 @@ Two environments autosave, and both follow the same three rules:
    reports `blocked` and waits silently. The teacher is mid-edit and knows the row is unfinished.
    Explicit save still reports the error properly.
 3. **It always says what it did.** `SaveState` (studio) and `SaveIndicator` (exam) are the only
-   evidence the user has, and *autosave that does not say so is indistinguishable from data loss*.
+   evidence the user has, and _autosave that does not say so is indistinguishable from data loss_.
 
 Both indicators pair an **icon with its own wording**, never a coloured dot — "unsaved" has to
 survive a greyscale screenshot and a colour-blind reader. The exam's failed state is the loud one
@@ -237,26 +242,26 @@ Tokens and philosophy: design-system §5. Values in code: `src/lib/motion/index.
 `globals.css` because motion components can't read a CSS custom property as a number — keep the two
 in step).
 
-| Duration | Token / `DUR` | Use |
-|---|---|---|
-| 120ms | `--dur-1` / `DUR.colour` | Colour and state |
-| 180ms | `--dur-2` / `DUR.press` | Hover, press, exits |
-| 260ms | `--dur-3` / `DUR.reveal` | Enter, exit, accordion, page entrance |
-| 360ms | `--dur-4` / `DUR.layout` | Genuine layout moves (a row travelling through a list) |
+| Duration | Token / `DUR`            | Use                                                    |
+| -------- | ------------------------ | ------------------------------------------------------ |
+| 120ms    | `--dur-1` / `DUR.colour` | Colour and state                                       |
+| 180ms    | `--dur-2` / `DUR.press`  | Hover, press, exits                                    |
+| 260ms    | `--dur-3` / `DUR.reveal` | Enter, exit, accordion, page entrance                  |
+| 360ms    | `--dur-4` / `DUR.layout` | Genuine layout moves (a row travelling through a list) |
 
-`--dur-1` and `ease-out-quint` are Tailwind's *defaults* in this project, so a bare `transition` or
+`--dur-1` and `ease-out-quint` are Tailwind's _defaults_ in this project, so a bare `transition` or
 `transition-colors` is already on-system. Only say `duration-[var(--dur-3)]` when you genuinely need
 something else.
 
 Shared variants — use these rather than inventing a transition:
 
-| Export | For |
-|---|---|
-| `listRowVariants` | A row entering/leaving a list. Animates `height` so the list visibly heals where the row was |
-| `disclosureVariants` | A panel opening in place |
-| `staggerContainer` / `staggerItem` | A list arriving |
-| `paperTurnVariants` | Moving between exam questions. Directional — `custom` is `1` forward, `-1` back, because direction *is* the information |
-| `revealTransition` / `listMoveTransition` | One-off inline transitions |
+| Export                                    | For                                                                                                                     |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `listRowVariants`                         | A row entering/leaving a list. Animates `height` so the list visibly heals where the row was                            |
+| `disclosureVariants`                      | A panel opening in place                                                                                                |
+| `staggerContainer` / `staggerItem`        | A list arriving                                                                                                         |
+| `paperTurnVariants`                       | Moving between exam questions. Directional — `custom` is `1` forward, `-1` back, because direction _is_ the information |
+| `revealTransition` / `listMoveTransition` | One-off inline transitions                                                                                              |
 
 Rules:
 
@@ -271,9 +276,8 @@ Rules:
 - A `layoutId` must be unique per mounted control, or two `TabBar`s / `Segmented`s share one sliding
   indicator.
 - Reveal-on-scroll must animate **from an already-visible default**, not from `opacity: 0`. If the
-  IntersectionObserver never fires — a crawler, a print stylesheet, a headless renderer — an
-  `opacity: 0` default ships a blank section. `FeatureBullets` documents the right pattern; the
-  landing section wrappers currently do not, and that is a known open item.
+  IntersectionObserver never fires — a print stylesheet or a headless renderer — an `opacity: 0`
+  default ships blank content.
 
 ---
 
