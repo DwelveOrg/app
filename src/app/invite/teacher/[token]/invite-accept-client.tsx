@@ -9,6 +9,7 @@ import { GraduationCap } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
+import { marketingHref } from "@/lib/hosts";
 import { useAcceptTeacherInviteMutation } from "@/app/(authentication)/_hooks/useAuthMutations";
 
 type InviteAcceptClientProps = {
@@ -110,7 +111,7 @@ export default function InviteAcceptClient({
 
         <p className="mt-8 text-center">
           <Link
-            href="/"
+            href={marketingHref("/")}
             className="text-xs text-muted-foreground transition hover:text-foreground"
           >
             &larr; {t("auth.invite.backToLanding")}

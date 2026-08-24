@@ -7,6 +7,7 @@ import { LayoutGroup, motion, useReducedMotion } from "motion/react";
 
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import Button from "@/components/ui/Button";
+import { appHref } from "@/lib/hosts";
 import { cn } from "@/lib/utils";
 
 /** In-page anchors the nav scrolls to, in document order. `target` matches the `id` on each landing section. */
@@ -141,12 +142,12 @@ export default function Navbar() {
           {/* Actions */}
           <div className="flex items-center justify-self-end gap-2 sm:gap-3">
             <Button asChild variant="outline" size="lg">
-            <Link href="/login">
+            <Link href={appHref("/login")}>
               {t("landing.nav.login")}
             </Link>
           </Button>
             <Button asChild variant="brand" size="lg">
-            <Link href="/signup">
+            <Link href={appHref("/signup")}>
               {t("landing.nav.signup")}
             </Link>
           </Button>

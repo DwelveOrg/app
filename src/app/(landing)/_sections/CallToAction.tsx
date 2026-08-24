@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Check } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import { appHref } from "@/lib/hosts";
 
 /**
  * The page's closing band.
@@ -58,7 +59,7 @@ export default function CallToAction() {
 
             <div className="mt-9 flex flex-wrap items-center gap-3">
               <Button asChild variant="inverse" size="xl">
-                <Link href="/signup">{t("landing.cta.primary")}</Link>
+                <Link href={appHref("/signup")}>{t("landing.cta.primary")}</Link>
               </Button>
               <Button asChild variant="inverse-ghost" size="xl">
                 <Link href="#how-it-works">
