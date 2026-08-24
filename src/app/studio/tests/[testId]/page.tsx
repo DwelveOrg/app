@@ -23,7 +23,13 @@ type PageProps = {
  */
 export default async function Page({ params }: PageProps) {
   const { testId } = await params;
-  const user = await getUser();
+  // One wave, not two: the test and format catalog are authorised by the same
+  // session the role gate reads, so a forbidden viewer merely discards them.
+  const [user, result, catalog] = await Promise.all([
+    getUser(),
+    getTest(testId),
+    getTestFormats(),
+  ]);
   const viewerRole = user?.schoolRole ?? null;
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
@@ -36,7 +42,6 @@ export default async function Page({ params }: PageProps) {
     );
   }
 
-  const [result, catalog] = await Promise.all([getTest(testId), getTestFormats()]);
 
   if (!result.ok) {
     return (

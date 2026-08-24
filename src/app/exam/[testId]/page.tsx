@@ -16,8 +16,9 @@ type PageProps = { params: Promise<{ testId: string }> };
  */
 export default async function Page({ params }: PageProps) {
   const { testId } = await params;
-  const user = await getUser();
-  const result = await getTakerOverview(testId);
+  // Independent reads — the overview is keyed by the session cookie, not by
+  // the user object — so they share one round trip's wall time.
+  const [user, result] = await Promise.all([getUser(), getTakerOverview(testId)]);
 
   if (!result.ok) {
     return (

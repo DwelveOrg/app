@@ -10,27 +10,27 @@ import NoMembershipState from "./_components/NoMembershipState";
 import DashboardComposer from "./_components/composer/DashboardComposer";
 
 export default async function Dashboard() {
-  const user = await getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
   // Onboarding state is server-owned, so the decision happens before any HTML
   // is sent. The previous client-side gate had to render the whole dashboard
   // behind a skeleton on *every* visit just to read localStorage, which threw
   // away the server render for established users and silently skipped the flow
   // on a second device.
   //
-  // Fetched together with the school detail: the two depend only on the
-  // session, and against a remote database each awaited round trip is paid in
-  // full. When onboarding redirects, the school response is simply discarded.
-  const [onboarding, detail] = await Promise.all([
-    getOnboarding(),
-    // Fails soft: if the school fetch errors we still render the dashboard
-    // using the role carried in the session, rather than blanking the page.
-    user.schoolId ? getSchool(user.schoolId) : Promise.resolve(null),
-  ]);
+  // Fetched together with the user: both depend only on the session cookie,
+  // and against a remote backend each *sequential* round trip is paid in full
+  // — this page used to spend one whole round trip learning the user before
+  // asking about onboarding. When onboarding redirects, the rest is discarded.
+  const [user, onboarding] = await Promise.all([getUser(), getOnboarding()]);
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  // Free: getUser() already hydrated this school and getSchool is
+  // request-cached, so this await resolves from the per-request cache.
+  // Fails soft: if the school fetch errored we still render the dashboard
+  // using the role carried in the session, rather than blanking the page.
+  const detail = user.schoolId ? await getSchool(user.schoolId) : null;
   if (onboarding.status === "in_progress") {
     redirect("/onboarding");
   }

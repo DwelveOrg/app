@@ -20,13 +20,16 @@ type PageProps = {
 export default async function Page({ params, searchParams }: PageProps) {
   const { classId } = await params;
   const { tab } = await searchParams;
-  const user = await getUser();
+  // Fetched together: getClass is authorised on the backend by the same
+  // session, so starting it before the role gate leaks nothing — a non-admin
+  // merely discards the response it paid for, and the common (admin) path
+  // saves a full sequential round trip.
+  const [user, result] = await Promise.all([getUser(), getClass(classId)]);
 
   if (user?.schoolRole !== "ADMIN") {
     redirect("/groups");
   }
 
-  const result = await getClass(classId);
   if (!result.ok) {
     return (
       <ResourceStateView

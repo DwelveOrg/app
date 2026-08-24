@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { decrypt } from "@/app/(authentication)/_lib/session";
 import { SESSION_COOKIE_NAME } from "@/app/(authentication)/_constants/session";
@@ -7,7 +8,12 @@ import { getSchool } from "./getSchool";
 
 export type SessionUser = AuthUser;
 
-export async function getUser(): Promise<SessionUser | null> {
+/**
+ * Request-cached: the layout and the page both call this on every navigation,
+ * and only the first pays for the cookie decrypt (the backend hydration below
+ * was already deduped through the request-cached getSchool).
+ */
+export const getUser = cache(async (): Promise<SessionUser | null> => {
   try {
     const cookie = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
     const session = await decrypt(cookie);
@@ -49,4 +55,4 @@ export async function getUser(): Promise<SessionUser | null> {
 
     return null;
   }
-}
+});
