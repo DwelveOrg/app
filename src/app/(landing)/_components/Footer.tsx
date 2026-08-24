@@ -7,6 +7,7 @@ import { Mail } from "lucide-react";
 
 import DwelveLogo from "@/components/Custom/DwelveLogo";
 import { BRAND_NAME } from "@/constants/brand";
+import { appHref } from "@/lib/hosts";
 
 const SUPPORT_EMAIL = "support@dwelve.app";
 
@@ -50,8 +51,8 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     links: [
       { key: "landing.footer.home", href: "#home" },
       { key: "landing.nav.accordion", href: "#accordion" },
-      { key: "landing.nav.login", href: "/login" },
-      { key: "landing.nav.signup", href: "/signup" },
+      { key: "landing.nav.login", href: appHref("/login") },
+      { key: "landing.nav.signup", href: appHref("/signup") },
     ],
   },
   {

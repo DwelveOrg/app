@@ -22,6 +22,7 @@ is the step-by-step playbook, and it links out to everything below at the point 
 | Fetching data or fixing stale UI | [`architecture/RENDERING_AND_STATE.md`](./architecture/RENDERING_AND_STATE.md) |
 | Calling the backend, adding a schema, adding a library | [`architecture/ARCHITECTURE.md`](./architecture/ARCHITECTURE.md) |
 | Working on roles, permissions, or sessions | [`architecture/RBAC.md`](./architecture/RBAC.md), [`architecture/SECURITY.md`](./architecture/SECURITY.md) |
+| Touching hosts, redirects, robots, sitemap, or SEO | [`architecture/DOMAINS.md`](./architecture/DOMAINS.md) |
 | Working on a specific flow | [`features/`](./features/) |
 | Checking a request contract | [`api/API_ROUTES.md`](./api/API_ROUTES.md) |
 | Using the logo or brand assets | [`design/brand-assets.md`](./design/brand-assets.md) |

@@ -17,6 +17,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { regularSignupDefaults } from "../../_constants/signup";
 import AuthSplitLayout from "../../_components/AuthSplitLayout";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
+import { marketingHref } from "@/lib/hosts";
 import SignupPanel from "./_sections/SignupPanel";
 import { useSignupMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
@@ -160,7 +161,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
           </p>
 
           <p className="mt-6 text-center">
-            <Link href="/" className="text-xs text-muted-foreground transition hover:text-foreground">
+            <Link href={marketingHref("/")} className="text-xs text-muted-foreground transition hover:text-foreground">
               &larr; {t("auth.common.backToLanding")}
             </Link>
           </p>

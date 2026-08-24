@@ -8,6 +8,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { ArrowRight, Sparkle } from "lucide-react";
 
 import Button from "@/components/ui/Button";
+import { appHref } from "@/lib/hosts";
 
 // Lazy, client-only: the three.js scene is its own chunk and never blocks paint.
 // The CSS glow behind it stays visible while it loads and if WebGL is missing.
@@ -57,12 +58,12 @@ function MainPage() {
 
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button asChild variant="brand" size="xl">
-            <Link href="/signup">
+            <Link href={appHref("/signup")}>
               {t("landing.main.primaryCta")}
             </Link>
           </Button>
             <Button asChild variant="outline" size="xl">
-            <Link href="/login">
+            <Link href={appHref("/login")}>
               {t("landing.main.secondaryCta")}
             <ArrowRight className="transition-transform duration-[var(--dur-2)] group-hover/button:translate-x-0.5" />
             </Link>

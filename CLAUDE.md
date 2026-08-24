@@ -81,6 +81,15 @@ Use the `staging` branch for repository changes unless the maintainer explicitly
 
 Routes live in `src/app`.
 
+The site is split across two hosts (bridgemind.ai pattern): `dwelve.uz` serves
+only the marketing site, `app.dwelve.uz` serves auth and the product. Both are
+one deployment — `src/proxy.ts` routes by `Host` header, gated on the
+`NEXT_PUBLIC_APP_URL` env var (unset = combined single host, which is what
+localhost and previews use). Cross-host links go through `appHref()` /
+`marketingHref()` from `src/lib/hosts.ts`; everything else stays relative. See
+`docs/architecture/DOMAINS.md` before touching hosts, redirects, robots, or
+the sitemap.
+
 Known route groups:
 
 - `src/app/(landing)` — public marketing site

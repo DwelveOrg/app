@@ -14,6 +14,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import type { LoginPageClientProps } from "@/app/(authentication)/_types/ui";
 import AuthSplitLayout from "../../_components/AuthSplitLayout";
 import DwelveLogo from "@/components/Custom/DwelveLogo";
+import { marketingHref } from "@/lib/hosts";
 import LoginPanel from "./_sections/LoginPanel";
 import { useLoginMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
@@ -166,7 +167,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
           </p>
 
           <p className="mt-10 text-center">
-            <Link href="/" className="text-xs text-muted-foreground hover:text-foreground transition">
+            <Link href={marketingHref("/")} className="text-xs text-muted-foreground hover:text-foreground transition">
               ← {t("auth.common.backToLanding")}
             </Link>
           </p>
