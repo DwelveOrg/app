@@ -47,7 +47,7 @@ Required layers:
 
 Forbidden patterns:
 
-- direct `fetch("http://localhost:5000...")` in components, pages, or hooks
+- direct `fetch("http://localhost:5001...")` in components, pages, or hooks
 - browser-visible `NEXT_PUBLIC_API_URL` for private API calls
 - copying bearer-token logic into feature code
 - trusting TypeScript-only casts for backend JSON
@@ -58,18 +58,18 @@ Forbidden patterns:
 
 Use the libraries already installed in this project for their assigned jobs:
 
-| Purpose | Required library / location |
-|---|---|
-| Runtime request/response schemas | `zod` |
-| Form schemas and form validation | `zod` with `@hookform/resolvers/zod` |
-| Form state | `react-hook-form` |
-| Server-action boundaries | `next-safe-action` via `src/lib/safe-action.ts` |
-| Client cache, mutations, invalidation, pagination | `@tanstack/react-query` |
-| Encrypted httpOnly session cookie | `jose` in the authentication session code |
-| UI primitives | existing shadcn/Radix components in `src/components/ui` |
-| Icons | `lucide-react` |
-| Class composition | `cn` from `src/lib/utils.ts` |
-| Dates and relative display | native `Intl` or existing date helpers before new libraries |
+| Purpose                                           | Required library / location                                 |
+| ------------------------------------------------- | ----------------------------------------------------------- |
+| Runtime request/response schemas                  | `zod`                                                       |
+| Form schemas and form validation                  | `zod` with `@hookform/resolvers/zod`                        |
+| Form state                                        | `react-hook-form`                                           |
+| Server-action boundaries                          | `next-safe-action` via `src/lib/safe-action.ts`             |
+| Client cache, mutations, invalidation, pagination | `@tanstack/react-query`                                     |
+| Encrypted httpOnly session cookie                 | `jose` in the authentication session code                   |
+| UI primitives                                     | existing shadcn/Radix components in `src/components/ui`     |
+| Icons                                             | `lucide-react`                                              |
+| Class composition                                 | `cn` from `src/lib/utils.ts`                                |
+| Dates and relative display                        | native `Intl` or existing date helpers before new libraries |
 
 Do not install a new library for one of these jobs unless there is a concrete
 gap and this architecture document is updated in the same change.
@@ -150,7 +150,7 @@ fields the UI depends on.
 Use server-only environment variables for private API requests:
 
 ```env
-DWELVE_API_BASE_URL=http://localhost:5000/api/v1
+DWELVE_API_BASE_URL=http://localhost:5001/api/v1
 SESSION_SECRET=...
 ```
 
@@ -167,5 +167,5 @@ npm run build
 ```
 
 When a change depends on the NestJS backend contract, also smoke-test the
-relevant endpoint or verify the matching backend controller/service/DTO in
-`D:\IT\projects\Dwelve\backend_nestJS`.
+relevant endpoint or verify the matching backend controller/service/DTO in the
+sibling `../backend_nestJS` repository.

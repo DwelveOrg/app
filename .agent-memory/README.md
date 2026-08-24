@@ -1,0 +1,32 @@
+# Persistent Agent Memory
+
+This directory preserves decisions, discoveries, and gotchas whose rediscovery would cost meaningful
+time. Stable current behavior belongs in `/docs`; temporary progress and task status belong neither
+here nor there.
+
+## Index
+
+### Decisions
+
+- [[Marketing application split]] — why public and authenticated routes are separate deployments
+
+### Discoveries
+
+- [[Application residue after split]] — marketing-only tokens, catalogs, and comments still present
+- [[Request cached session and fetch waves]] — session reads and parallel server fetch behavior
+- [[UI consolidation gotchas]] — why shared-component drift survives compiler and build gates
+
+### Gotchas
+
+- [[Session refresh write boundary]] — why refresh cannot spend a token from an unwritable render
+- [[Vercel upload ceiling]] — the transport cap below backend upload limits
+
+## Maintenance
+
+Before a non-trivial task, search this directory for the domain, read linked notes, then inspect
+current code. After work, update an existing note when possible; create a focused note only for a
+non-obvious decision, limitation, recurring bug, or expensive discovery. Link related notes and
+never store secrets, personal data, command logs, speculation, or stale handoff status.
+
+Source priority: current code; current configuration/schema; `AGENTS.md`; `/docs`; this memory;
+historical plans and comments. Resolve conflicts rather than silently choosing a convenient source.

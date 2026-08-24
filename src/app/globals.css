@@ -84,7 +84,7 @@
      alias for the middle of the ramp, not the source the ramp derives from. */
   --radius: var(--r-3);
 
-  /* --- Brand === action. One hue, one token pair. ------------------------ */
+  /* --- Brand identity. Action is the separate neutral --primary below. --- */
   --brand: #5F40D5;
   --brand-ink: #14102E;
   --brand-violet: #7B5FF0;
@@ -156,9 +156,8 @@
      Each is dark enough to work BOTH as a fill under white text and as text on
      the canvas, so no separate `-text` variant is needed — the v2 aliases had
      zero consumers and are gone.
-     --info is CYAN, not blue: violet-as-action and blue-as-informational sit
-     ~24° apart in OKLCH, which is close enough to confuse a "Submit" with a
-     notice. Cyan opens that to ~75°. */
+     --info is CYAN, not blue: brand/focus remains violet and can appear beside
+     informational treatment. Cyan keeps those meanings visually separate. */
   --success: #25793A;
   --success-foreground: #FFFFFF;
   --warning: #B45309;

@@ -1,6 +1,6 @@
 # Dwelve — Design System
 
-Status: v2 · Last updated: 3 August 2026
+Status: v4 · Last verified: 24 August 2026
 
 This document is the design decision source of truth for Dwelve's frontend. Implementation values
 must be kept in sync with `src/app/globals.css`, `src/app/layout.tsx`, and the Tailwind v4 theme
@@ -8,7 +8,7 @@ setup. `globals.css` is the canonical implementation; this file is the contract.
 
 `AGENTS.md` and `CLAUDE.md` may summarize this file, but must not duplicate it.
 
-> **Changelog — 3 August 2026 (v2).** Full visual redesign. The single-violet palette became a
+> **Historical changelog — 3 August 2026 (v2).** The single-violet palette became a
 > **two-accent system** (violet = identity, teal = action). The deliberately flat shell became a
 > **soft-depth** one with a real elevation scale. Added the missing token categories — elevation,
 > motion, and type — and consolidated ~30 duplicated components into a shared primitive layer (§8).
@@ -16,12 +16,10 @@ setup. `globals.css` is the canonical implementation; this file is the contract.
 > logo asset path that never existed, and a §7.3 top-bar contract for a component that had already
 > been removed from the shell.
 >
-> **The consolidation in §8 is complete**, including a sixth primitive the original plan listed and
-> the first pass missed (`PersonRequestRow`). Every primitive named there has consumers, and the
-> duplicates it replaced are deleted. What is still open is *visual* verification of the last round
-> of migrations, plus the dark-mode hero — see
-> [redesign-remaining-work.md](./redesign-remaining-work.md), which also carries the grep checks
-> that catch the kind of drift lint and `tsc` cannot.
+> **The consolidation in §8 is complete**, including `PersonRequestRow`. Every primitive named
+> there has consumers, and the duplicates it replaced are deleted. The persistent lesson and cheap
+> drift checks are recorded in
+> [UI consolidation gotchas](../../.agent-memory/discoveries/ui-consolidation-gotchas.md).
 
 ---
 
@@ -48,12 +46,12 @@ Never use straight apostrophes for Uzbek `oʻ` / `gʻ`; use U+02BB `ʻ`.
 
 ### Font roles
 
-| Role | Font | Usage |
-|---|---|---|
-| UI / body | **IBM Plex Sans** (400/500/600/700; latin, latin-ext, cyrillic) | Every interface surface: headings, body, labels, buttons, tables, inputs, student names, user-generated content |
-| Figures / meta | **IBM Plex Mono** (400/500/600; latin, latin-ext, cyrillic) | Scores, marks, durations, counts, percentages, test codes, timestamps, and the `type-micro` label — via the `numeric` and `type-micro` utilities |
-| Marketing display | **IBM Plex Serif** (400/500) | Landing display headings and the auth panel headline only |
-| Wordmark | **Manrope** (700; latin) | The `DwelveLogo` lockup and nothing else |
+| Role              | Font                                                            | Usage                                                                                                                                            |
+| ----------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| UI / body         | **IBM Plex Sans** (400/500/600/700; latin, latin-ext, cyrillic) | Every interface surface: headings, body, labels, buttons, tables, inputs, student names, user-generated content                                  |
+| Figures / meta    | **IBM Plex Mono** (400/500/600; latin, latin-ext, cyrillic)     | Scores, marks, durations, counts, percentages, test codes, timestamps, and the `type-micro` label — via the `numeric` and `type-micro` utilities |
+| Marketing display | **IBM Plex Serif** (400/500)                                    | Landing display headings and the auth panel headline only                                                                                        |
+| Wordmark          | **Manrope** (700; latin)                                        | The `DwelveLogo` lockup and nothing else                                                                                                         |
 
 Rules:
 
@@ -83,16 +81,16 @@ Rules:
 Eight named styles, implemented as Tailwind v4 `@utility` classes in `globals.css`. **Every heading
 in the product is one of these.** Raw `text-[Npx]` in a component is a bug.
 
-| Utility | Size / line-height / weight | Use |
-|---|---|---|
-| `type-display` | `clamp(2.25rem, 5.2vw, 3.5rem)` · 1.04 · 700 | Landing hero only |
-| `type-title` | 1.75rem (28px) · 1.18 · 700 | Page titles |
-| `type-section` | 1.25rem (20px) · 1.28 · 700 | Entity headers (a school, a class, a test) |
-| `type-heading` | 1.0625rem (17px) · 1.35 · 600 | Panel and card headings |
-| `type-body` | 0.875rem (14px) · 1.6 · 400 | Body copy |
-| `type-label` | 0.8125rem (13px) · 1.4 · 500 | Form labels, list-row titles |
-| `type-caption` | 0.75rem (12px) · 1.35 · 400 | Secondary meta |
-| `type-micro` | 0.6875rem (11px) · 1 · 600 · uppercase · +0.06em | Badges, eyebrows, table headers |
+| Utility        | Size / line-height / weight                      | Use                                        |
+| -------------- | ------------------------------------------------ | ------------------------------------------ |
+| `type-display` | `clamp(2.25rem, 5.2vw, 3.5rem)` · 1.04 · 700     | Landing hero only                          |
+| `type-title`   | 1.75rem (28px) · 1.18 · 700                      | Page titles                                |
+| `type-section` | 1.25rem (20px) · 1.28 · 700                      | Entity headers (a school, a class, a test) |
+| `type-heading` | 1.0625rem (17px) · 1.35 · 600                    | Panel and card headings                    |
+| `type-body`    | 0.875rem (14px) · 1.6 · 400                      | Body copy                                  |
+| `type-label`   | 0.8125rem (13px) · 1.4 · 500                     | Form labels, list-row titles               |
+| `type-caption` | 0.75rem (12px) · 1.35 · 400                      | Secondary meta                             |
+| `type-micro`   | 0.6875rem (11px) · 1 · 600 · uppercase · +0.06em | Badges, eyebrows, table headers            |
 
 Plus four **size-only** steps in the Tailwind scale, for when a utility's weight and line-height
 would be wrong but the size is still needed: `text-3xs` (10px), `text-2xs` (11px), `text-13` (13px),
@@ -100,15 +98,15 @@ would be wrong but the size is still needed: `text-3xs` (10px), `text-2xs` (11px
 and `text-base` (16) — 13px for meta and dense labels, 15px for comfortable reading. Reach for a
 `type-*` utility first; these are the escape hatch, not the default.
 
-**`type-display` is the only fluid style, and only because the landing hero is marketing.** Product
-headings are a fixed rem scale: a clamped title that shrinks inside a narrow panel reads as broken,
-not responsive, and users sit at a steady DPI.
+**`type-display` is the only fluid style.** It is reserved for onboarding/auth identity moments;
+routine product headings use the fixed rem scale. A clamped title that shrinks inside a narrow panel
+reads as broken, not responsive, and users sit at a steady DPI.
 
 **The two documented exceptions to "no raw sizes".** Both are outside the product type system by
 intent, and there are no others:
 
-- **Marketing display** — the auth panel headline (`AuthVisualParts`) and the closing CTA
-  (`CallToAction`) set their own display size. These are one-off compositions, not a scale.
+- **Identity display** — the auth composition sets its own display size. It is a one-off
+  composition, not a product type scale.
 - **The wordmark** — 22px, set in `BRAND_WORDMARK_CLASSES` (`src/constants/brand.ts`), because it is
   a lockup measurement against the 36px mark rather than a typographic choice.
 
@@ -126,10 +124,10 @@ Cap body prose at 65–75ch. Tables and dense data may run wider.
 
 **Two jobs, split.** `--primary` is **ink** — what you press: buttons, selected rows, checked boxes,
 active tabs. `--brand` is **violet** — who this is: the mark, the auth panel, the closing band, the
-focus ring. Colour beyond that means *state* (success / warning / destructive) or *data* (the chart
+focus ring. Colour beyond that means _state_ (success / warning / destructive) or _data_ (the chart
 ramp), and nothing else.
 
-> **Changed (v4).** v3 made violet identity *and* action — "one hue does everything". What that
+> **Changed (v4).** v3 made violet identity _and_ action — "one hue does everything". What that
 > produced was a product where every affordance on every screen was the brand colour, and a screen
 > where everything is emphasised is a screen where nothing is. It also put the loudest hue in the
 > palette on the most repeated element in the interface.
@@ -140,11 +138,12 @@ ramp), and nothing else.
 > should stop being a hue at all**.
 >
 > Consequences that are load-bearing:
+>
 > - `--brand` and `--primary` are **now different and must stay different.** v3's note here said the
 >   opposite; code that assumes they are equal predates v4.
 > - A near-black primary is a position, not a retreat to greyscale. It makes the button read as the
 >   object you act on, and it frees the violet to mean something when it does appear.
-> - `--info` stays **cyan**. v3 moved it off blue because a violet *action* sat too close to a blue
+> - `--info` stays **cyan**. v3 moved it off blue because a violet _action_ sat too close to a blue
 >   notice. The action is neutral now, but `--brand` is still violet and still appears beside
 >   notices, so the gap is still wanted — the hue guards in `scripts/check-contrast.mjs` now measure
 >   it from `--brand` rather than `--primary`. (Measuring from `--primary` would have silently
@@ -164,52 +163,54 @@ the fill step did nothing. It is **1.071:1** here, close to dark's 1.093:1. The 
 v2's yellow axis (~100°) onto the same hue as the ink (~295°); a warm neutral beside a cool accent is
 what made the old near-whites read faintly dingy next to the violet.
 
-| Token | Hex | Role |
-|---|---|---|
-| `--background` | `#FAFAFB` | Canvas |
-| `--card` / `--popover` | `#FFFFFF` | Surfaces above the canvas |
-| `--sidebar` | `#F5F5F8` | Second neutral layer |
-| `--muted` | `#F1F1F5` | Fills, hover, inputs |
-| `--secondary` | `#EFEFF3` | Deeper fill |
-| `--foreground` | `#15151B` | Primary text (17.4:1 on canvas) |
-| `--muted-foreground` | `#61616A` | Secondary text (5.9:1 on canvas) |
-| `--border` / `--input` | `#E2E2E7` | Hairlines |
-| `--primary` / `--brand` | `#5F40D5` | Action **and** identity (6.6:1 with white) |
-| `--primary-hover` | `#4F32BE` | |
-| `--ring` | `#7B5FF0` | Focus only (4.3:1 on canvas) |
-| `--accent` | `#EDEEFF` | Selected / active tint |
-| `--accent-foreground` | `#4A34AD` | Text on accent |
+| Token                  | Hex       | Role                                 |
+| ---------------------- | --------- | ------------------------------------ |
+| `--background`         | `#FAFAFB` | Canvas                               |
+| `--card` / `--popover` | `#FFFFFF` | Surfaces above the canvas            |
+| `--sidebar`            | `#F5F5F8` | Second neutral layer                 |
+| `--muted`              | `#F1F1F5` | Fills, hover, inputs                 |
+| `--secondary`          | `#EFEFF3` | Deeper fill                          |
+| `--foreground`         | `#15151B` | Primary text (17.4:1 on canvas)      |
+| `--muted-foreground`   | `#61616A` | Secondary text (5.9:1 on canvas)     |
+| `--border` / `--input` | `#E2E2E7` | Hairlines                            |
+| `--primary`            | `#16161A` | Action ink (white foreground, ~17:1) |
+| `--primary-hover`      | `#33333D` | Action hover                         |
+| `--primary-foreground` | `#FFFFFF` | Text on action                       |
+| `--brand` / `--ring`   | `#5F40D5` | Identity and focus                   |
+| `--accent`             | `#EDEBFB` | Selected / active tint               |
+| `--accent-foreground`  | `#4A34AD` | Text on accent                       |
 
 ### 3.2 Dark — violet-leaning near-black
 
-| Token | Hex | Role |
-|---|---|---|
-| `--background` | `#0B0B0E` | Canvas |
-| `--sidebar` | `#0F0F13` | Second neutral layer |
-| `--card` | `#15151A` | Surfaces |
-| `--popover` | `#1C1C23` | Floating elevation |
-| `--muted` / `--secondary` | `#212129` | Fills, hover, inputs |
-| `--border` / `--input` | `#2D2C35` | Hairlines |
-| `--foreground` | `#EEEDF2` | Primary text (16.9:1) |
-| `--muted-foreground` | `#9D9BA8` | Secondary text (7.2:1) |
-| `--primary` / `--brand` | `#A191FF` | Action **and** identity (7.5:1 on canvas) |
-| `--primary-foreground` | `#15102F` | Deep ink on a luminous fill (7.0:1) |
-| `--accent` | `#2D2948` | Selected / active tint |
-| `--accent-foreground` | `#C3B8FF` | |
+| Token                     | Hex       | Role                           |
+| ------------------------- | --------- | ------------------------------ |
+| `--background`            | `#0B0B0E` | Canvas                         |
+| `--sidebar`               | `#0F0F13` | Second neutral layer           |
+| `--card`                  | `#15151A` | Surfaces                       |
+| `--popover`               | `#1C1C23` | Floating elevation             |
+| `--muted` / `--secondary` | `#212129` | Fills, hover, inputs           |
+| `--border` / `--input`    | `#2D2C35` | Hairlines                      |
+| `--foreground`            | `#EEEDF2` | Primary text (16.9:1)          |
+| `--muted-foreground`      | `#9D9BA8` | Secondary text (7.2:1)         |
+| `--primary`               | `#EDECF2` | Action bone on the dark canvas |
+| `--primary-hover`         | `#FFFFFF` | Action hover                   |
+| `--primary-foreground`    | `#121217` | Deep ink on the action fill    |
+| `--brand` / `--ring`      | `#A191FF` | Identity and focus             |
+| `--accent`                | `#262238` | Selected / active tint         |
+| `--accent-foreground`     | `#C3B8FF` | Text on accent                 |
 
-The two themes are **different characters, not inversions**. Light is a cool near-white under
-near-black ink; dark is a violet-leaning near-black under a luminous accent. Note the primary inverts
-its treatment deliberately — light puts white on a mid violet, dark puts deep ink on a bright one.
-Do not "fix" one to match the other.
+The two themes are **different characters, not mechanical inversions**. Light uses near-black action
+ink with white text; dark uses a bone action fill with deep text. Brand/focus stays violet in both.
+Do not collapse `--primary` and `--brand` back into one token.
 
 ### 3.3 Semantic
 
-| Token | Light | Dark | Meaning |
-|---|---|---|---|
-| `--success` | `#25793A` | `#5FCB63` | Correct, passed, positive trend |
-| `--warning` | `#B45309` | `#F0B23C` | Caution, due soon, needs review |
-| `--destructive` | `#BE2E22` | `#FF7A70` | Incorrect, failed, destructive action |
-| `--info` | `#00728F` | `#4FC4E0` | Neutral information, integrity notices |
+| Token           | Light     | Dark      | Meaning                                |
+| --------------- | --------- | --------- | -------------------------------------- |
+| `--success`     | `#25793A` | `#5FCB63` | Correct, passed, positive trend        |
+| `--warning`     | `#B45309` | `#F0B23C` | Caution, due soon, needs review        |
+| `--destructive` | `#BE2E22` | `#FF7A70` | Incorrect, failed, destructive action  |
+| `--info`        | `#00728F` | `#4FC4E0` | Neutral information, integrity notices |
 
 Every light semantic is dark enough to work **both** as a fill under white text and as text on the
 canvas (all ≥5:1).
@@ -219,9 +220,8 @@ were plain aliases of the fills kept "so existing call sites keep resolving", an
 found zero such call sites — 12 lines of token plus 4 gate rows for something nothing referenced.
 Use the plain semantic token; it is AA as text.
 
-**Success sits ~150° off the action violet in hue.** That separation is deliberate: in a product that
-grades answers, "correct" must never be misread as "clickable". The contrast gate enforces it, and
-the violet primary widens the gap that the old teal made narrow (teal→green was ~39°).
+Action is deliberately neutral, so "correct" cannot be mistaken for "clickable" by sharing a hue.
+The contrast gate also preserves separation between brand violet, semantic success, and cyan info.
 
 Never signal correct/incorrect by colour alone. Pair success/danger with an icon or label — for
 colour-blind users and for printed reports.
@@ -234,13 +234,13 @@ being the action colour. The set passes a six-check palette gate (OKLCH lightnes
 floor, CVD ΔE, normal-vision ΔE, contrast vs card) per theme — retune the five together, never one
 in isolation.
 
-| | Light (mark & ink) | Dark mark | Dark ink |
-|---|---|---|---|
-| `--chart-1` | `#5F40D5` violet | `#8E7EEA` | `#A191FF` |
-| `--chart-2` | `#007E9D` teal | `#00A892` | `#3DD1B8` |
-| `--chart-3` | `#B45309` amber | `#BC850B` | `#F0B23C` |
-| `--chart-4` | `#C2317A` rose | `#DA638A` | `#F2789F` |
-| `--chart-5` | `#1D5FD1` blue | `#618FE3` | `#79A9FF` |
+|             | Light (mark & ink) | Dark mark | Dark ink  |
+| ----------- | ------------------ | --------- | --------- |
+| `--chart-1` | `#5F40D5` violet   | `#8E7EEA` | `#A191FF` |
+| `--chart-2` | `#007E9D` teal     | `#00A892` | `#3DD1B8` |
+| `--chart-3` | `#B45309` amber    | `#BC850B` | `#F0B23C` |
+| `--chart-4` | `#C2317A` rose     | `#DA638A` | `#F2789F` |
+| `--chart-5` | `#1D5FD1` blue     | `#618FE3` | `#79A9FF` |
 
 Teal sits at `#007E9D` because sRGB cannot reach the gate's chroma floor at the old hue angle —
 the hue leans ~20° toward cyan, the nearest in-gamut point where it stops greying out. In dark,
@@ -251,8 +251,8 @@ the brighter step that an 11px label on a dark tint needs.
 Never place chart-1 (violet) directly next to chart-5 (blue) in a legend or stacked series — this is
 the pairing to watch, not chart-2/chart-5 as in v2.
 
-**Charts read from this ramp, never from `--primary`.** The landing histogram used `bg-primary` and
-turned greyscale with one black bar the moment action became ink. A chart is not an affordance.
+**Charts read from this ramp, never from `--primary`.** Action color does not encode a data series;
+a chart is not an affordance.
 
 ### 3.5 Accessibility gate
 
@@ -270,13 +270,13 @@ Structure comes from two things: a **hairline** defines an edge, **elevation** s
 
 The ramp is split by **kind**, not by degree:
 
-| Token | Utility | Use |
-|---|---|---|
-| `--elev-1` | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
-| `--elev-2` | `shadow-elev-2` | Resting, slightly forward: sticky chrome, raised tiles |
-| `--elev-3` | `shadow-elev-3` | **Floating:** dropdowns, popovers, sticky action bars |
-| `--elev-4` | `shadow-elev-4` | **Floating:** dialogs, toasts, sheets |
-| `--elev-brand` | `shadow-elev-brand` | Alias of `--elev-2`. Kept so existing call sites resolve. |
+| Token          | Utility             | Use                                                                 |
+| -------------- | ------------------- | ------------------------------------------------------------------- |
+| `--elev-1`     | `shadow-elev-1`     | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
+| `--elev-2`     | `shadow-elev-2`     | Resting, slightly forward: sticky chrome, raised tiles              |
+| `--elev-3`     | `shadow-elev-3`     | **Floating:** dropdowns, popovers, sticky action bars               |
+| `--elev-4`     | `shadow-elev-4`     | **Floating:** dialogs, toasts, sheets                               |
+| `--elev-brand` | `shadow-elev-brand` | Alias of `--elev-2`. Kept so existing call sites resolve.           |
 
 Rules:
 
@@ -289,7 +289,7 @@ Rules:
   no source — it is what made the old CTA read as a sticker. It resolves to `--elev-2`.
 - **Light shadows are tinted with the violet-leaning ink (`20 18 30`), not a neutral slate.** A
   shadow that disagrees with its surface temperature reads as grime.
-- **Dark elevation is a shadow *plus* a top inner hairline.** Cast shadows barely register on a
+- **Dark elevation is a shadow _plus_ a top inner hairline.** Cast shadows barely register on a
   near-black canvas; the `inset 0 1px 0 rgb(255 255 255 / …)` highlight edge is what actually makes
   a dark panel look raised.
 - **Levels are earned.** Most of a page lives at elevation 1. Two adjacent panels at different
@@ -319,14 +319,14 @@ comes from rhythm instead of from three competing borders at three competing rad
 
 ## 5. Motion
 
-| Token | Value | Use |
-|---|---|---|
-| `--dur-1` | 120ms | Colour and state |
-| `--dur-2` | 180ms | Hover, press |
-| `--dur-3` | 260ms | Enter, exit, accordion, page entrance |
-| `--dur-4` | 360ms | Genuine layout moves |
-| `--ease-out-quint` | `cubic-bezier(.22, 1, .36, 1)` | Default (`ease-out-quint`) |
-| `--ease-out-expo` | `cubic-bezier(.16, 1, .3, 1)` | Longer reveals (`ease-out-expo`) |
+| Token              | Value                          | Use                                   |
+| ------------------ | ------------------------------ | ------------------------------------- |
+| `--dur-1`          | 120ms                          | Colour and state                      |
+| `--dur-2`          | 180ms                          | Hover, press                          |
+| `--dur-3`          | 260ms                          | Enter, exit, accordion, page entrance |
+| `--dur-4`          | 360ms                          | Genuine layout moves                  |
+| `--ease-out-quint` | `cubic-bezier(.22, 1, .36, 1)` | Default (`ease-out-quint`)            |
+| `--ease-out-expo`  | `cubic-bezier(.16, 1, .3, 1)`  | Longer reveals (`ease-out-expo`)      |
 
 - Motion conveys **state**, not personality. State change, feedback, loading, reveal — nothing else.
 - No page-load choreography. The app loads into a task.
@@ -380,11 +380,11 @@ Minimum clear space around the mark = the height of the cap.
 Two columns, no top bar. `src/app/(root)/layout.tsx` is a flex row of `<SideBar>` plus a scrolling
 content column; each page owns its own header.
 
-| Region | Surface | Separator |
-|---|---|---|
-| Canvas | `--background` | — |
-| Sidebar (flush-left, full height, 264px) | `--sidebar` | `border-r` hairline |
-| Content | transparent over the canvas; panels are `--card` at `shadow-elev-1` | — |
+| Region                                   | Surface                                                             | Separator           |
+| ---------------------------------------- | ------------------------------------------------------------------- | ------------------- |
+| Canvas                                   | `--background`                                                      | —                   |
+| Sidebar (flush-left, full height, 264px) | `--sidebar`                                                         | `border-r` hairline |
+| Content                                  | transparent over the canvas; panels are `--card` at `shadow-elev-1` | —                   |
 
 - Content is centred in `max-w-[1180px]` with `px-4 py-6 md:px-8 md:py-8`.
 - Below `md` the sidebar collapses to a fixed bottom navigation bar; the content column reserves
@@ -410,29 +410,29 @@ the route-local `_components` — and prefer extending a primitive over restylin
 > environments, page anatomy, widths, responsive — is in
 > [layout-and-composition.md](./layout-and-composition.md).
 
-| Primitive | Owns |
-|---|---|
-| `Surface` | Every card, panel, and bordered container. Padding, variant, elevation, interactive, divided. |
-| `Button` | Every button and button-shaped link. Includes `loading`. |
-| `Field` | Every form label + hint + error triplet. |
-| `Input` / `Textarea` | Every text entry, including the password reveal toggle. |
-| `Badge` | Every status pill, count chip, and category tag. |
-| `Avatar` | Every initial/photo avatar. |
-| `TabBar` | Every tab row, underline or pill. |
-| `Segmented` | Small mutually-exclusive choices (theme, language). |
-| `ConfirmDialog` | Every destructive confirmation. |
-| `MessagePromptDialog` | Every "give a reason" prompt. |
-| `PageHeader` | Every page title + subtitle + actions row. |
-| `BackLink` | Every "up one level" link above a detail page's header. |
-| `SectionHeader` | Every icon-chip + title + description block inside a panel. |
-| `FactGrid` / `Fact` | Every labelled facts row under an entity header. |
-| `ListRow` | Every icon + title + description + trailing-control row. |
-| `PersonRequestRow` | Every pending request from a person, with approve and reject. |
-| `RowActionsMenu` | Every trailing overflow menu on a row or card. |
-| `EntityHeader` | Every school / class / test header. |
-| `CopyButton` | Every copy-to-clipboard control. |
-| `Skeleton` / `SkeletonList` / `SkeletonPage` | Every loading state. Never a bare spinner. |
-| `EmptyState` / `ResourceStateView` | Every empty, error, and not-found state. |
+| Primitive                                    | Owns                                                                                          |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `Surface`                                    | Every card, panel, and bordered container. Padding, variant, elevation, interactive, divided. |
+| `Button`                                     | Every button and button-shaped link. Includes `loading`.                                      |
+| `Field`                                      | Every form label + hint + error triplet.                                                      |
+| `Input` / `Textarea`                         | Every text entry, including the password reveal toggle.                                       |
+| `Badge`                                      | Every status pill, count chip, and category tag.                                              |
+| `Avatar`                                     | Every initial/photo avatar.                                                                   |
+| `TabBar`                                     | Every tab row, underline or pill.                                                             |
+| `Segmented`                                  | Small mutually-exclusive choices (theme, language).                                           |
+| `ConfirmDialog`                              | Every destructive confirmation.                                                               |
+| `MessagePromptDialog`                        | Every "give a reason" prompt.                                                                 |
+| `PageHeader`                                 | Every page title + subtitle + actions row.                                                    |
+| `BackLink`                                   | Every "up one level" link above a detail page's header.                                       |
+| `SectionHeader`                              | Every icon-chip + title + description block inside a panel.                                   |
+| `FactGrid` / `Fact`                          | Every labelled facts row under an entity header.                                              |
+| `ListRow`                                    | Every icon + title + description + trailing-control row.                                      |
+| `PersonRequestRow`                           | Every pending request from a person, with approve and reject.                                 |
+| `RowActionsMenu`                             | Every trailing overflow menu on a row or card.                                                |
+| `EntityHeader`                               | Every school / class / test header.                                                           |
+| `CopyButton`                                 | Every copy-to-clipboard control.                                                              |
+| `Skeleton` / `SkeletonList` / `SkeletonPage` | Every loading state. Never a bare spinner.                                                    |
+| `EmptyState` / `ResourceStateView`           | Every empty, error, and not-found state.                                                      |
 
 If the same visual element appears in more than one place, it belongs in one of these. Two call
 sites that hard-code different values for "the same" thing is the bug this rule prevents.

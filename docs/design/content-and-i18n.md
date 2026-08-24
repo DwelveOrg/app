@@ -16,20 +16,20 @@ rules for dates, numbers, and names.
 
 ## 1. Setup
 
-| Thing | Where |
-|---|---|
-| i18next init | `src/i18n/index.ts` (client-only, guarded by `isInitialized`) |
-| Language list, default, resource map | `src/i18n/resources.ts` |
-| Catalogs | `src/i18n/messages/{en,ru,uz}.ts` |
-| Language persistence | `localStorage["gf-language"]`, synced in `src/app/providers.tsx` |
-| `<html lang>` sync | `providers.tsx`, on every `languageChanged` |
-| Switcher | `LanguageSegment` in the profile preferences tab |
+| Thing                                | Where                                                            |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| i18next init                         | `src/i18n/index.ts` (client-only, guarded by `isInitialized`)    |
+| Language list, default, resource map | `src/i18n/resources.ts`                                          |
+| Catalogs                             | `src/i18n/messages/{en,ru,uz}.ts`                                |
+| Language persistence                 | `localStorage["gf-language"]`, synced in `src/app/providers.tsx` |
+| `<html lang>` sync                   | `providers.tsx`, on every `languageChanged`                      |
+| Switcher                             | `LanguageSegment` in the profile preferences tab                 |
 
 Supported: `en` (default) · `ru` · `uz`. Fallback is `en`. Interpolation escaping is **off**
 (`escapeValue: false`) because React already escapes.
 
 i18n is **client-side**. Server components have no `t` in scope. That is why `ResourceStateView`
-takes translation *keys* and `ConfirmDialog` takes rendered *strings* — the seam is different for
+takes translation _keys_ and `ConfirmDialog` takes rendered _strings_ — the seam is different for
 each, and both choices are deliberate.
 
 ---
@@ -52,15 +52,15 @@ The catalogs are ~2,800 lines each and structurally identical. Keep them that wa
 
 Keys are dotted paths mirroring where the copy appears. The top-level namespaces:
 
-| Namespace | Covers |
-|---|---|
-| `language` | The language names themselves |
-| `root` | Everything in the authenticated shell, keyed by page: `root.dashboard`, `root.classes`, `root.classDetail`, `root.school`, `root.notifications`, `root.profile`, `root.tests` … |
-| `tests` | Shared test vocabulary |
-| `exam` | The exam room |
-| `sidebar` | Nav labels |
-| `landing` | Marketing site |
-| `auth` | Login, signup, reset |
+| Namespace  | Covers                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `language` | The language names themselves                                                                                                                                                   |
+| `root`     | Everything in the authenticated shell, keyed by page: `root.dashboard`, `root.classes`, `root.classDetail`, `root.school`, `root.notifications`, `root.profile`, `root.tests` … |
+| `tests`    | Shared test vocabulary                                                                                                                                                          |
+| `exam`     | The exam room                                                                                                                                                                   |
+| `sidebar`  | Nav labels                                                                                                                                                                      |
+| `landing`  | Legacy catalog namespace retained after the marketing split; do not add new app copy here                                                                                       |
+| `auth`     | Login, signup, reset                                                                                                                                                            |
 
 Within a page namespace, the recurring shapes:
 
@@ -106,7 +106,7 @@ progress: "{{done}} of {{total}} done",
 ```
 
 ```tsx
-t("root.dashboard.welcome", { name: user.fullName })
+t("root.dashboard.welcome", { name: user.fullName });
 ```
 
 Rules:
@@ -115,7 +115,7 @@ Rules:
   Russian, which does not follow English's.
 - Never put markup in a value. If a sentence needs a link inside it, split the layout, not the
   sentence — or use a `<Trans>` component if one is introduced (none is today).
-- Name the placeholder for what it *is* (`{{school}}`, `{{count}}`), not where it goes.
+- Name the placeholder for what it _is_ (`{{school}}`, `{{count}}`), not where it goes.
 
 ### Plurals
 
@@ -134,7 +134,7 @@ questionCount_other: "{{count}} вопросов",
 ```
 
 ```tsx
-t("root.tests.questionCount", { count: questions.length })
+t("root.tests.questionCount", { count: questions.length });
 ```
 
 **Russian needs `_one` / `_few` / `_many` / `_other`.** Supplying only `_one` / `_other` is the most
@@ -150,13 +150,13 @@ Anything that renders a number followed by a noun is a plural key. "3 students",
 
 Never hand-translate a formatted value. Every one of these has a locale-aware path:
 
-| Value | Use |
-|---|---|
-| "2 hours ago" | `<RelativeTime date={…} />` (or `formatRelativeTime` from `@/lib/datetime`) |
-| An absolute date/time | `Intl.DateTimeFormat(language, …)`, or `formatDateTime` in `studio/_lib/datetime.ts` |
-| A datetime-local input value | `toLocalInputValue` / `toIsoOrNull` in `studio/_lib/datetime.ts` |
-| Numbers in a fixed-width slot | `tabular-nums` (what `Badge shape="count"` does) |
-| Initials | `getInitials` in `@/lib/utils` — takes whole code points, so surrogate pairs and combining marks don't get sliced into broken glyphs |
+| Value                         | Use                                                                                                                                  |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| "2 hours ago"                 | `<RelativeTime date={…} />` (or `formatRelativeTime` from `@/lib/datetime`)                                                          |
+| An absolute date/time         | `Intl.DateTimeFormat(language, …)`, or `formatDateTime` in `studio/_lib/datetime.ts`                                                 |
+| A datetime-local input value  | `toLocalInputValue` / `toIsoOrNull` in `studio/_lib/datetime.ts`                                                                     |
+| Numbers in a fixed-width slot | `tabular-nums` (what `Badge shape="count"` does)                                                                                     |
+| Initials                      | `getInitials` in `@/lib/utils` — takes whole code points, so surrogate pairs and combining marks don't get sliced into broken glyphs |
 
 `formatRelativeTime` maps the i18n language onto a `date-fns` locale (`enUS` / `ru` / `uz`). It
 replaced frozen hand-translated timestamp strings that used to sit in the catalogs — don't
@@ -180,7 +180,7 @@ From design-system §1 and §2, restated because they are content rules as much 
 - **IBM Plex Mono carries figures**, via the `numeric` and `type-micro` utilities — scores, marks,
   durations, counts, test codes, timestamps. It also carries cyrillic, so a mono label is safe in
   Russian and Uzbek.
-- **IBM Plex Serif is display only** — landing headings and the auth panel headline. Unlike the
+- **IBM Plex Serif is display only** — auth and onboarding identity headlines. Unlike the
   DM Serif Display it replaced, it carries cyrillic, so the old "never render Russian in the serif"
   hazard no longer exists. It is still a display face: keep it off dashboard UI, table data, badges,
   inputs, and report-card student names, for hierarchy reasons rather than coverage ones.
@@ -209,7 +209,7 @@ Dwelve talks to teachers and students mid-task, not to a marketing audience.
 
 - **Say what happened and what to do.** "This page didn't load. Trying again often fixes it — if it
   keeps happening, the problem is on our side."
-- **Plain, short, specific.** Prefer "Delete *IELTS Practice 1*?" over "Are you sure you want to
+- **Plain, short, specific.** Prefer "Delete _IELTS Practice 1_?" over "Are you sure you want to
   proceed?".
 - **No blame.** "That link does not lead anywhere," not "You entered an invalid URL."
 - **No exclamation marks**, no jokes in error states, no "Oops".
@@ -226,7 +226,7 @@ language, not as literal English.
 
 ---
 
-## 8. What is *not* translated
+## 8. What is _not_ translated
 
 - **Product name.** `BRAND_NAME` in `src/constants/brand.ts` — import it, don't type "Dwelve".
 - **User-generated content**: names, class titles, question text, answers.

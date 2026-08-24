@@ -28,7 +28,8 @@ as it stands; everything from Part B on is a request.
 
 ## Part A — what already exists and is load-bearing
 
-Verified by reading `backend_nestJS/src/tests` and `prisma/schema.prisma`.
+Verified by reading `../backend_nestJS/src/tests` and
+`../backend_nestJS/prisma/schema.prisma`.
 
 1. `Test`, `TestSection`, `TestQuestionGroup`, `TestQuestion`,
    `TestQuestionOption`, `TestDelivery` — the whole authoring tree, with
@@ -208,10 +209,14 @@ function publicConfig(answerKind: TestAnswerKind, config: unknown) {
   const c = (config ?? {}) as Record<string, unknown>;
   switch (answerKind) {
     // The pool to match against. Keys only, no pairing — the pairing is the key.
-    case 'MATCHING': return { rightItems: c.rightItems ?? [] };
-    case 'TEXT':     return { maxWords: c.maxWords ?? null };
-    case 'MANUAL':   return { minWords: c.minWords ?? null, maxWords: c.maxWords ?? null };
-    default:         return null;
+    case "MATCHING":
+      return { rightItems: c.rightItems ?? [] };
+    case "TEXT":
+      return { maxWords: c.maxWords ?? null };
+    case "MANUAL":
+      return { minWords: c.minWords ?? null, maxWords: c.maxWords ?? null };
+    default:
+      return null;
   }
 }
 ```
@@ -233,16 +238,16 @@ verify the caller is **enrolled in `test.classId`** and that
 `test.status === 'PUBLISHED'`; answer `404` otherwise, never `403`, so a
 student cannot probe test ids.
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/me/tests` | the student's test list |
-| `GET` | `/tests/:testId/taker` | cover-screen payload; no questions |
-| `POST` | `/tests/:testId/attempts` | start or resume; **idempotent** |
-| `GET` | `/attempts/:attemptId` | the paper + answers so far |
-| `PATCH` | `/attempts/:attemptId/answers` | batch autosave |
-| `POST` | `/attempts/:attemptId/violations` | report an integrity event |
-| `POST` | `/attempts/:attemptId/submit` | grade and close; **idempotent** |
-| `GET` | `/attempts/:attemptId/result` | the student's own result |
+| Method  | Path                              | Purpose                            |
+| ------- | --------------------------------- | ---------------------------------- |
+| `GET`   | `/me/tests`                       | the student's test list            |
+| `GET`   | `/tests/:testId/taker`            | cover-screen payload; no questions |
+| `POST`  | `/tests/:testId/attempts`         | start or resume; **idempotent**    |
+| `GET`   | `/attempts/:attemptId`            | the paper + answers so far         |
+| `PATCH` | `/attempts/:attemptId/answers`    | batch autosave                     |
+| `POST`  | `/attempts/:attemptId/violations` | report an integrity event          |
+| `POST`  | `/attempts/:attemptId/submit`     | grade and close; **idempotent**    |
+| `GET`   | `/attempts/:attemptId/result`     | the student's own result           |
 
 #### `GET /me/tests?status=available|in_progress|completed&page&limit`
 
@@ -250,20 +255,34 @@ Drives `/assignments`. One row per test, not per attempt.
 
 ```jsonc
 {
-  "tests": [{
-    "id": "uuid", "classId": "uuid", "className": "IELTS Evening A",
-    "title": "Reading Practice 3", "format": "IELTS",
-    "durationMinutes": 60, "totalPoints": 40, "questionCount": 40,
-    "availableFrom": "2026-08-11T09:00:00.000Z",
-    "availableUntil": "2026-08-18T21:00:00.000Z",
-    "attemptsAllowed": 1, "attemptsUsed": 0,
-    // The row's state, resolved server-side. The client must not re-derive it
-    // from dates: only the server knows what time it is.
-    "state": "AVAILABLE",   // NOT_YET_OPEN | AVAILABLE | IN_PROGRESS | SUBMITTED | GRADED | CLOSED | NO_ATTEMPTS_LEFT
-    "activeAttemptId": null,
-    "lastAttempt": null      // or { id, status, score, maxScore, submittedAt, resultAvailable }
-  }],
-  "meta": { "page": 1, "limit": 20, "total": 3, "totalPages": 1, "hasMore": false }
+  "tests": [
+    {
+      "id": "uuid",
+      "classId": "uuid",
+      "className": "IELTS Evening A",
+      "title": "Reading Practice 3",
+      "format": "IELTS",
+      "durationMinutes": 60,
+      "totalPoints": 40,
+      "questionCount": 40,
+      "availableFrom": "2026-08-11T09:00:00.000Z",
+      "availableUntil": "2026-08-18T21:00:00.000Z",
+      "attemptsAllowed": 1,
+      "attemptsUsed": 0,
+      // The row's state, resolved server-side. The client must not re-derive it
+      // from dates: only the server knows what time it is.
+      "state": "AVAILABLE", // NOT_YET_OPEN | AVAILABLE | IN_PROGRESS | SUBMITTED | GRADED | CLOSED | NO_ATTEMPTS_LEFT
+      "activeAttemptId": null,
+      "lastAttempt": null, // or { id, status, score, maxScore, submittedAt, resultAvailable }
+    },
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 20,
+    "total": 3,
+    "totalPages": 1,
+    "hasMore": false,
+  },
 }
 ```
 
@@ -279,16 +298,33 @@ no sections, no questions.
 ```jsonc
 {
   "test": {
-    "id": "uuid", "title": "…", "description": "…", "instructions": "…",
-    "format": "IELTS", "className": "IELTS Evening A",
-    "durationMinutes": 60, "totalPoints": 40, "questionCount": 40,
-    "sectionSummaries": [{ "id": "uuid", "title": "Reading", "kind": "READING", "questionCount": 40, "durationMinutes": null }],
-    "availableFrom": "…", "availableUntil": "…",
-    "delivery": { /* the sixteen taker fields from sanitizeTestDeliveryForTaker */ }
+    "id": "uuid",
+    "title": "…",
+    "description": "…",
+    "instructions": "…",
+    "format": "IELTS",
+    "className": "IELTS Evening A",
+    "durationMinutes": 60,
+    "totalPoints": 40,
+    "questionCount": 40,
+    "sectionSummaries": [
+      {
+        "id": "uuid",
+        "title": "Reading",
+        "kind": "READING",
+        "questionCount": 40,
+        "durationMinutes": null,
+      },
+    ],
+    "availableFrom": "…",
+    "availableUntil": "…",
+    "delivery": {
+      /* the sixteen taker fields from sanitizeTestDeliveryForTaker */
+    },
   },
   "state": "AVAILABLE",
   "attemptsUsed": 0,
-  "activeAttempt": null      // or { id, startedAt, expiresAt, answeredCount }
+  "activeAttempt": null, // or { id, startedAt, expiresAt, answeredCount }
 }
 ```
 
@@ -327,17 +363,26 @@ result.
 ```jsonc
 {
   "attempt": {
-    "id": "uuid", "testId": "uuid", "status": "IN_PROGRESS",
-    "attemptNumber": 1, "startedAt": "…", "expiresAt": "…",
+    "id": "uuid",
+    "testId": "uuid",
+    "status": "IN_PROGRESS",
+    "attemptNumber": 1,
+    "startedAt": "…",
+    "expiresAt": "…",
     // Authoritative clock. The client computes its countdown as
     // expiresAt - serverTime, corrected by local elapsed time, so a wrong
     // device clock cannot buy or lose a student time.
     "serverTime": "2026-08-11T09:03:12.412Z",
-    "violationCount": 0, "violationLimit": 3,
-    "honorCodeAcceptedAt": "…"
+    "violationCount": 0,
+    "violationLimit": 3,
+    "honorCodeAcceptedAt": "…",
   },
-  "test": { /* sanitizeTestForTaker, questions included, shuffle already applied */ },
-  "answers": [{ "questionId": "uuid", "value": { "optionId": "uuid" }, "updatedAt": "…" }]
+  "test": {
+    /* sanitizeTestForTaker, questions included, shuffle already applied */
+  },
+  "answers": [
+    { "questionId": "uuid", "value": { "optionId": "uuid" }, "updatedAt": "…" },
+  ],
 }
 ```
 
@@ -355,10 +400,16 @@ The autosave. Batched by the client roughly every 2.5 s of idle, on question
 change, and on blur.
 
 ```jsonc
-{ "answers": [
-  { "questionId": "uuid", "value": { "optionId": "uuid" }, "timeSpentSeconds": 12 },
-  { "questionId": "uuid", "value": null }
-]}
+{
+  "answers": [
+    {
+      "questionId": "uuid",
+      "value": { "optionId": "uuid" },
+      "timeSpentSeconds": 12,
+    },
+    { "questionId": "uuid", "value": null },
+  ],
+}
 ```
 
 - Upsert on `(attemptId, questionId)`. `value: null` clears an answer.
@@ -385,7 +436,12 @@ writes the row, increments `violationCount` when the action is `COUNT`, and
 replies:
 
 ```jsonc
-{ "action": "COUNT", "violationCount": 2, "violationLimit": 3, "attemptEnded": false }
+{
+  "action": "COUNT",
+  "violationCount": 2,
+  "violationLimit": 3,
+  "attemptEnded": false,
+}
 ```
 
 When the action is `SUBMIT`, or `COUNT` pushes the count to the limit, run the
@@ -429,21 +485,44 @@ When released, the payload is governed field by field by delivery:
 ```jsonc
 {
   "released": true,
-  "attempt": { "id": "…", "status": "GRADED", "submittedAt": "…", "timeSpentSeconds": 2841,
-               "score": 31, "maxScore": 40, "passed": true, "isLate": false,
-               "attemptNumber": 1, "attemptsAllowed": 1 },
+  "attempt": {
+    "id": "…",
+    "status": "GRADED",
+    "submittedAt": "…",
+    "timeSpentSeconds": 2841,
+    "score": 31,
+    "maxScore": 40,
+    "passed": true,
+    "isLate": false,
+    "attemptNumber": 1,
+    "attemptsAllowed": 1,
+  },
   // Only when delivery.showScore. Omit the whole object otherwise.
-  "breakdown": { "correct": 28, "incorrect": 9, "unanswered": 3, "pendingManual": 0,
-                 "sections": [{ "id": "…", "title": "Reading", "score": 31, "maxScore": 40 }] },
+  "breakdown": {
+    "correct": 28,
+    "incorrect": 9,
+    "unanswered": 3,
+    "pendingManual": 0,
+    "sections": [
+      { "id": "…", "title": "Reading", "score": 31, "maxScore": 40 },
+    ],
+  },
   // Only when delivery.showCorrectAnswers. This is the answer key: it must be
   // absent, not null, when the switch is off.
-  "questions": [{
-    "id": "uuid", "questionNumber": 7, "prompt": "…", "answerKind": "SINGLE_CHOICE",
-    "points": 1, "pointsAwarded": 0, "isCorrect": false,
-    "yourAnswer": { "optionId": "uuid-b" },
-    "correctAnswer": { "optionId": "uuid-c" },
-    "feedback": "…"        // only when delivery.showFeedback
-  }]
+  "questions": [
+    {
+      "id": "uuid",
+      "questionNumber": 7,
+      "prompt": "…",
+      "answerKind": "SINGLE_CHOICE",
+      "points": 1,
+      "pointsAwarded": 0,
+      "isCorrect": false,
+      "yourAnswer": { "optionId": "uuid-b" },
+      "correctAnswer": { "optionId": "uuid-c" },
+      "feedback": "…", // only when delivery.showFeedback
+    },
+  ],
 }
 ```
 
@@ -452,14 +531,14 @@ When released, the payload is governed field by field by delivery:
 `@Roles('ADMIN','TEACHER')`, scoped to a test the caller can author — reuse
 `loadAuthorableTest()`, which already answers 404 rather than 403.
 
-| Method | Path | Purpose |
-|---|---|---|
-| `GET` | `/tests/:testId/results` | the roster table |
-| `GET` | `/tests/:testId/statistics` | cohort + per-question analysis |
-| `GET` | `/attempts/:attemptId/review` | one student's paper, with the key |
-| `PATCH` | `/attempts/:attemptId/grade` | mark the MANUAL answers |
-| `POST` | `/tests/:testId/results/release` | release when `resultsRelease` is `MANUAL` |
-| `POST` | `/attempts/:attemptId/reopen` | void or reopen an attempt |
+| Method  | Path                             | Purpose                                   |
+| ------- | -------------------------------- | ----------------------------------------- |
+| `GET`   | `/tests/:testId/results`         | the roster table                          |
+| `GET`   | `/tests/:testId/statistics`      | cohort + per-question analysis            |
+| `GET`   | `/attempts/:attemptId/review`    | one student's paper, with the key         |
+| `PATCH` | `/attempts/:attemptId/grade`     | mark the MANUAL answers                   |
+| `POST`  | `/tests/:testId/results/release` | release when `resultsRelease` is `MANUAL` |
+| `POST`  | `/attempts/:attemptId/reopen`    | void or reopen an attempt                 |
 
 #### `GET /tests/:testId/results?status&search&sort&page&limit`
 
@@ -469,19 +548,42 @@ cannot show them.
 
 ```jsonc
 {
-  "rows": [{
-    "studentId": "uuid", "userId": "uuid", "fullName": "Ольга Смирнова",
-    "email": "…", "avatarUrl": null,
-    "state": "GRADED",             // NOT_STARTED | IN_PROGRESS | SUBMITTED | GRADED | EXPIRED
-    "attemptId": "uuid",           // the attempt being shown: the best if graded, else the latest
-    "attemptCount": 1,
-    "score": 31, "maxScore": 40, "percentage": 77.5, "passed": true,
-    "submittedAt": "…", "timeSpentSeconds": 2841,
-    "isLate": false, "violationCount": 0,
-    "pendingManual": 0             // unmarked MANUAL answers; drives the "needs grading" filter
-  }],
-  "meta": { "page": 1, "limit": 25, "total": 24, "totalPages": 1, "hasMore": false },
-  "summary": { "enrolled": 24, "notStarted": 3, "inProgress": 1, "submitted": 4, "graded": 16, "pendingManual": 4 }
+  "rows": [
+    {
+      "studentId": "uuid",
+      "userId": "uuid",
+      "fullName": "Ольга Смирнова",
+      "email": "…",
+      "avatarUrl": null,
+      "state": "GRADED", // NOT_STARTED | IN_PROGRESS | SUBMITTED | GRADED | EXPIRED
+      "attemptId": "uuid", // the attempt being shown: the best if graded, else the latest
+      "attemptCount": 1,
+      "score": 31,
+      "maxScore": 40,
+      "percentage": 77.5,
+      "passed": true,
+      "submittedAt": "…",
+      "timeSpentSeconds": 2841,
+      "isLate": false,
+      "violationCount": 0,
+      "pendingManual": 0, // unmarked MANUAL answers; drives the "needs grading" filter
+    },
+  ],
+  "meta": {
+    "page": 1,
+    "limit": 25,
+    "total": 24,
+    "totalPages": 1,
+    "hasMore": false,
+  },
+  "summary": {
+    "enrolled": 24,
+    "notStarted": 3,
+    "inProgress": 1,
+    "submitted": 4,
+    "graded": 16,
+    "pendingManual": 4,
+  },
 }
 ```
 
@@ -497,34 +599,70 @@ in-progress ones, or the mean moves every time somebody scrolls.
 ```jsonc
 {
   "cohort": {
-    "attemptsCounted": 20, "enrolled": 24,
-    "mean": 28.4, "median": 29, "stdDev": 5.2, "min": 14, "max": 39,
-    "maxScore": 40, "passRate": 0.8, "passingScore": 24,
+    "attemptsCounted": 20,
+    "enrolled": 24,
+    "mean": 28.4,
+    "median": 29,
+    "stdDev": 5.2,
+    "min": 14,
+    "max": 39,
+    "maxScore": 40,
+    "passRate": 0.8,
+    "passingScore": 24,
     "medianTimeSeconds": 2790,
     // Fixed-width buckets over percentage, ten of them, so the histogram is
     // comparable between tests. Server-side because the client must not have
     // to hold every score to draw it.
-    "distribution": [{ "from": 0, "to": 10, "count": 0 }, { "from": 10, "to": 20, "count": 1 }]
+    "distribution": [
+      { "from": 0, "to": 10, "count": 0 },
+      { "from": 10, "to": 20, "count": 1 },
+    ],
   },
-  "sections": [{ "id": "…", "title": "Reading", "maxScore": 40, "mean": 28.4, "meanPercentage": 71.0 }],
-  "questions": [{
-    "id": "uuid", "questionNumber": 7, "prompt": "…", "type": "IELTS_MCQ_SINGLE",
-    "answerKind": "SINGLE_CHOICE", "points": 1, "sectionId": "…",
-    "answered": 19, "unanswered": 1,
-    "correct": 6, "partial": 0, "incorrect": 13,
-    // correct / attemptsCounted, 0..1. The frontend labels the bands.
-    "difficulty": 0.3,
-    // Correct-rate in the top third minus the bottom third by total score,
-    // -1..1. Near zero or negative means the question does not separate the
-    // class — the single most useful number on the page. null under 6 attempts.
-    "discrimination": 0.42,
-    "averageTimeSeconds": 71,
-    // Choice questions only: how the class spread across the options, so a
-    // teacher can see *which* wrong answer they chose. Omit for other kinds.
-    "options": [{ "id": "uuid", "label": "A", "text": "…", "isCorrect": false, "chosen": 11 }],
-    // TEXT/NUMERIC only: the commonest wrong responses, capped at five.
-    "topWrongAnswers": [{ "value": "photosynthesys", "count": 4 }]
-  }]
+  "sections": [
+    {
+      "id": "…",
+      "title": "Reading",
+      "maxScore": 40,
+      "mean": 28.4,
+      "meanPercentage": 71.0,
+    },
+  ],
+  "questions": [
+    {
+      "id": "uuid",
+      "questionNumber": 7,
+      "prompt": "…",
+      "type": "IELTS_MCQ_SINGLE",
+      "answerKind": "SINGLE_CHOICE",
+      "points": 1,
+      "sectionId": "…",
+      "answered": 19,
+      "unanswered": 1,
+      "correct": 6,
+      "partial": 0,
+      "incorrect": 13,
+      // correct / attemptsCounted, 0..1. The frontend labels the bands.
+      "difficulty": 0.3,
+      // Correct-rate in the top third minus the bottom third by total score,
+      // -1..1. Near zero or negative means the question does not separate the
+      // class — the single most useful number on the page. null under 6 attempts.
+      "discrimination": 0.42,
+      "averageTimeSeconds": 71,
+      // Choice questions only: how the class spread across the options, so a
+      // teacher can see *which* wrong answer they chose. Omit for other kinds.
+      "options": [
+        {
+          "id": "uuid",
+          "label": "A",
+          "text": "…",
+          "isCorrect": false,
+          "chosen": 11,
+        },
+      ],
+      // TEXT/NUMERIC only: the commonest wrong responses, capped at five.
+      "topWrongAnswers": [{ "value": "photosynthesys", "count": 4 }],
+    },
+  ],
 }
 ```
 
@@ -537,7 +675,7 @@ and bottom 27% (minimum 3 each, else `null`), and report
 
 The teacher's view of one paper: the full taker tree **plus** the answer key,
 the student's answer, and the mark — everything `GET /result` withholds,
-because delivery switches govern the *student's* view, never the teacher's.
+because delivery switches govern the _student's_ view, never the teacher's.
 
 ```jsonc
 {
@@ -559,7 +697,15 @@ because delivery switches govern the *student's* view, never the teacher's.
 #### `PATCH /attempts/:attemptId/grade`
 
 ```jsonc
-{ "marks": [{ "questionId": "uuid", "pointsAwarded": 7, "feedback": "Good structure, thin evidence." }] }
+{
+  "marks": [
+    {
+      "questionId": "uuid",
+      "pointsAwarded": 7,
+      "feedback": "Good structure, thin evidence.",
+    },
+  ],
+}
 ```
 
 Clamp `pointsAwarded` to `0..question.points` and reject anything outside with
@@ -605,15 +751,15 @@ The three rules the whole runtime rests on:
 `value` shapes by `answerKind`, and how each is marked. All-or-nothing unless
 stated. These shapes are what the frontend sends; validate them strictly.
 
-| `answerKind` | `value` | Marking |
-|---|---|---|
-| `SINGLE_CHOICE` | `{ "optionId": "uuid" }` | Full points when the option `isCorrect`. |
-| `MULTI_CHOICE` | `{ "optionIds": ["uuid", …] }` | **Partial credit**: `points × max(0, (correctChosen − incorrectChosen) / totalCorrect)`, rounded down, floor 0. A student who ticks everything scores 0. |
-| `TEXT` | `{ "text": "photosynthesis" }` | Match against `config.acceptedAnswers` after trimming, collapsing internal whitespace, and lower-casing unless `config.caseSensitive`. Unicode-normalise (NFC) first, so Uzbek `oʻ` typed with U+2018 matches U+02BB. Over `config.maxWords` scores 0. |
-| `NUMERIC` | `{ "number": 4.2 }` | Correct when `abs(v − config.answer) <= (config.tolerance ?? 0)`, or when `config.acceptedRange` is set and `min <= v <= max`. |
-| `MATCHING` | `{ "pairs": [{ "optionId": "uuid", "key": "B" }] }` | **Partial credit** per pair: `round(points × correctPairs / totalPairs)`. The key is `TestQuestionOption.matchKey`. |
-| `ORDERING` | `{ "optionIds": ["uuid", …] }` | Correct when the sequence equals the options ordered by `orderIndex`. All-or-nothing: a partially reordered list has no defensible partial mark. |
-| `MANUAL` | `{ "text": "…" }` | Not graded. `isCorrect` stays `null`, `pointsAwarded` 0, until `PATCH /grade`. |
+| `answerKind`    | `value`                                             | Marking                                                                                                                                                                                                                                                |
+| --------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SINGLE_CHOICE` | `{ "optionId": "uuid" }`                            | Full points when the option `isCorrect`.                                                                                                                                                                                                               |
+| `MULTI_CHOICE`  | `{ "optionIds": ["uuid", …] }`                      | **Partial credit**: `points × max(0, (correctChosen − incorrectChosen) / totalCorrect)`, rounded down, floor 0. A student who ticks everything scores 0.                                                                                               |
+| `TEXT`          | `{ "text": "photosynthesis" }`                      | Match against `config.acceptedAnswers` after trimming, collapsing internal whitespace, and lower-casing unless `config.caseSensitive`. Unicode-normalise (NFC) first, so Uzbek `oʻ` typed with U+2018 matches U+02BB. Over `config.maxWords` scores 0. |
+| `NUMERIC`       | `{ "number": 4.2 }`                                 | Correct when `abs(v − config.answer) <= (config.tolerance ?? 0)`, or when `config.acceptedRange` is set and `min <= v <= max`.                                                                                                                         |
+| `MATCHING`      | `{ "pairs": [{ "optionId": "uuid", "key": "B" }] }` | **Partial credit** per pair: `round(points × correctPairs / totalPairs)`. The key is `TestQuestionOption.matchKey`.                                                                                                                                    |
+| `ORDERING`      | `{ "optionIds": ["uuid", …] }`                      | Correct when the sequence equals the options ordered by `orderIndex`. All-or-nothing: a partially reordered list has no defensible partial mark.                                                                                                       |
+| `MANUAL`        | `{ "text": "…" }`                                   | Not graded. `isCorrect` stays `null`, `pointsAwarded` 0, until `PATCH /grade`.                                                                                                                                                                         |
 
 An unanswered question (no row, or `value: null`) scores 0 and counts as
 `unanswered`, distinct from `incorrect`, everywhere it is reported.
@@ -629,23 +775,23 @@ way to change a published test.
 
 Reuse `NotificationsService` and the existing `NotificationCategory`:
 
-| Event | Recipient |
-|---|---|
-| student submits | every teacher on the class |
-| teacher grades a manual answer | that student, if released |
-| teacher releases results | every student in the release |
-| attempt auto-submitted on expiry | that student |
+| Event                            | Recipient                    |
+| -------------------------------- | ---------------------------- |
+| student submits                  | every teacher on the class   |
+| teacher grades a manual answer   | that student, if released    |
+| teacher releases results         | every student in the release |
+| attempt auto-submitted on expiry | that student                 |
 
 ### B.8 Authorization summary
 
-| Route | STUDENT | TEACHER / ADMIN |
-|---|---|---|
-| `/me/tests` | own only | — |
-| `/tests/:id/taker` | enrolled + PUBLISHED | own class, preview |
-| `POST /tests/:id/attempts` | enrolled + PUBLISHED | **403** |
-| `GET/PATCH /attempts/:id*` | owner only | **403** on the student routes |
-| `/attempts/:id/review`, `/grade` | **403** | own class |
-| `/tests/:id/results`, `/statistics` | **403** | own class |
+| Route                               | STUDENT              | TEACHER / ADMIN               |
+| ----------------------------------- | -------------------- | ----------------------------- |
+| `/me/tests`                         | own only             | —                             |
+| `/tests/:id/taker`                  | enrolled + PUBLISHED | own class, preview            |
+| `POST /tests/:id/attempts`          | enrolled + PUBLISHED | **403**                       |
+| `GET/PATCH /attempts/:id*`          | owner only           | **403** on the student routes |
+| `/attempts/:id/review`, `/grade`    | **403**              | own class                     |
+| `/tests/:id/results`, `/statistics` | **403**              | own class                     |
 
 A student must never receive `isCorrect`, `matchKey`, `config.acceptedAnswers`,
 `config.answer`, `config.tolerance`, `config.acceptedRange`,
@@ -707,15 +853,15 @@ would be tidier fixed at source.
 
 ### E.1 The answer key is not shaped like an answer
 
-`correctValue()` returns a *key*, and for three engines that is a different
+`correctValue()` returns a _key_, and for three engines that is a different
 shape from the answer it grades:
 
-| Engine | Answer | Key |
-|---|---|---|
-| `TEXT` | `{ text }` | `{ acceptedAnswers: string[] }` |
-| `NUMERIC` | `{ number }` | `{ number, tolerance }` or `{ acceptedRange }` |
-| `SINGLE_CHOICE` | `{ optionId: string }` | `{ optionId: string \| null }` |
-| `MANUAL` | `{ text }` | `null` |
+| Engine          | Answer                 | Key                                            |
+| --------------- | ---------------------- | ---------------------------------------------- |
+| `TEXT`          | `{ text }`             | `{ acceptedAnswers: string[] }`                |
+| `NUMERIC`       | `{ number }`           | `{ number, tolerance }` or `{ acceptedRange }` |
+| `SINGLE_CHOICE` | `{ optionId: string }` | `{ optionId: string \| null }`                 |
+| `MANUAL`        | `{ text }`             | `null`                                         |
 
 This is right — a short answer has one response and several accepted spellings —
 but it means `correctAnswer` / `correctValue` cannot be validated with the answer

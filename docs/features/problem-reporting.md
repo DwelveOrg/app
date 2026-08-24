@@ -21,11 +21,11 @@ built a `mailto:` URL. Two problems, both fatal:
 `src/components/Custom/ReportProblem` — a floating button, mounted in every
 authenticated shell:
 
-| Shell | File |
-|---|---|
-| Dashboard | `src/app/(root)/layout.tsx` |
-| Studio | `src/app/studio/layout.tsx` |
-| Exam room | `src/app/exam/layout.tsx` |
+| Shell      | File                            |
+| ---------- | ------------------------------- |
+| Dashboard  | `src/app/(root)/layout.tsx`     |
+| Studio     | `src/app/studio/layout.tsx`     |
+| Exam room  | `src/app/exam/layout.tsx`       |
 | Onboarding | `src/app/onboarding/layout.tsx` |
 
 **It hides itself on `/exam/[testId]/attempt`.** The exam room's rule is that
@@ -35,7 +35,7 @@ invitation to end the attempt. The hide is inside the component (`HIDDEN_PATHS`)
 rather than at the mount site, so a shell added later cannot forget it.
 
 The open state lives one component below the route check, so walking into the
-exam room *destroys* it rather than parking it — otherwise a dialog left open on
+exam room _destroys_ it rather than parking it — otherwise a dialog left open on
 the cover screen would reappear by itself on the submitted screen afterwards.
 
 ## The dialog
@@ -61,10 +61,13 @@ rather than a `next-safe-action` one, because the payload carries a file. The
 action rebuilds the `FormData` rather than forwarding it, so a field the dialog
 never sends cannot be injected into the backend request.
 
-Next's Server Action body limit is set to 9 MB in `next.config.ts`: the feature
-accepts an 8 MB image, and the remaining space covers the multipart envelope and
-context fields. Without that setting Next rejects larger screenshots before the
-action or backend validation runs.
+The picker accepts a source image up to 8 MB, then `compressImage` re-encodes it
+to at most 4,000,000 bytes and limits its longest edge to 2560px. That distinction
+is load-bearing: deployed Server Actions run behind Vercel's 4.5 MB request-body
+ceiling, including the multipart envelope and context fields. `next.config.ts`
+sets Next's own body limit to the same 4.5 MB so local development does not hide
+the production transport constraint. The shared constants and rationale live in
+`src/lib/uploads/limits.ts`.
 
 Identity on the report is the **session's**, read on the backend. Nothing the
 client sends is trusted to say who is reporting.
@@ -75,7 +78,8 @@ properties it guarantees —
 - JWT only, **no selected-school context**: a user can hit a bug before picking
   a school, or because picking one is what is broken.
 - 10 reports per account per 10 minutes.
-- 8 MB screenshot cap, JPEG/PNG/WebP.
+- 8 MB backend screenshot cap, JPEG/PNG/WebP. Browser-originated application
+  uploads are still compressed to the stricter 4 MB transport budget above.
 - A failed insert deletes the object it had already uploaded.
 - Reads are platform-operator only. A report carries another user's words, page
   URL, and screenshot, so a school `ADMIN` is not an audience for it.

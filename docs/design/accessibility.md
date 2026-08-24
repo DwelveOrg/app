@@ -18,14 +18,14 @@ to finish a test.
 
 **WCAG 2.1 AA.** Concretely:
 
-| Requirement | Threshold |
-|---|---|
-| Body text contrast | ≥ 4.5:1 |
-| Large text (≥24px, or ≥18.66px bold) | ≥ 3:1 |
-| UI boundaries, icons, focus indicators | ≥ 3:1 |
-| Everything operable by keyboard | no exceptions |
-| Reduced-motion equivalent | every animation |
-| Colour never the only signal | every status |
+| Requirement                            | Threshold       |
+| -------------------------------------- | --------------- |
+| Body text contrast                     | ≥ 4.5:1         |
+| Large text (≥24px, or ≥18.66px bold)   | ≥ 3:1           |
+| UI boundaries, icons, focus indicators | ≥ 3:1           |
+| Everything operable by keyboard        | no exceptions   |
+| Reduced-motion equivalent              | every animation |
+| Colour never the only signal           | every status    |
 
 A 14px semibold button label is **normal** text under WCAG, not large. This is why `--primary` is as
 deep as it is, and why a lighter "nicer" violet fails.
@@ -44,18 +44,15 @@ hue-separation floors between action / success / info.
 depends on, add a row to `CHECKS` in `scripts/check-contrast.mjs`. A pair the gate doesn't know about
 is a pair nothing is checking.
 
-The hue guards are not cosmetic:
-
-- **Success sits ~150° off the action violet.** In a product that grades answers, "correct" must
-  never be misread as "clickable".
-- **`--info` is cyan, not blue.** Violet-as-action and blue-as-informational sit ~24° apart in OKLCH
-  — close enough to confuse a "Submit" with a notice. Cyan opens that to ~75°.
+The hue guards are not cosmetic. Action is neutral ink/bone so "correct" cannot look clickable;
+brand/focus remains violet. `--info` stays cyan so it remains distinguishable when a notice appears
+beside violet identity or focus treatment.
 
 ### Colour is never the only signal
 
 Every status pairs colour with an icon or a word:
 
-- `SaveState` and `SaveIndicator` give each state its own icon *and* wording, so "unsaved" survives
+- `SaveState` and `SaveIndicator` give each state its own icon _and_ wording, so "unsaved" survives
   a greyscale screenshot and a colour-blind reader.
 - Correct/incorrect marks in the paper renderer carry a symbol, not just a fill — this also matters
   for printed report cards.
@@ -112,23 +109,23 @@ The rule is **use the element, then add ARIA only for what the element can't say
 
 What the primitives already do — match this when you build:
 
-| Component | Semantics |
-|---|---|
-| `PageHeader` | `<header>` + `<h1 class="type-title">` |
-| `SectionHeader` | `<h2 class="type-heading">` |
-| `EntityHeader` | `<section aria-labelledby>` + `<h1 class="type-section">` |
-| `FactGrid` / `Fact` | `<dl>` / `<dt>` / `<dd>` — these are definitions, not a generic grid |
-| `Field` | `<label for>`, `role="alert"` on the error, `aria-describedby` wired to hint or error |
-| `Button` | `aria-busy` while loading; `disabled` set for you |
-| `Badge` | decorative counts inside another control are `aria-hidden` |
-| `Avatar` | `aria-hidden` when it renders initials (the name is already in the row); `alt` when it renders an image |
-| `TabBar` | `<nav aria-label>`; `role="tab"` + `aria-selected` for state tabs, `aria-current="page"` for link tabs |
-| `Segmented` | `role="radiogroup"` / `role="radio"` / `aria-checked` |
-| `Sidebar` | `aria-current="page"`, `aria-disabled` on locked rows |
-| `Skeleton` | `aria-hidden` blocks inside an `aria-busy` region |
-| `Dialog` | Radix `Title` / `Description` wired to the content |
-| `RowActionsMenu` | trigger label includes the subject — "Actions for Aziza", not "Actions" |
-| `Input` password toggle | `aria-label` + `aria-pressed` |
+| Component               | Semantics                                                                                               |
+| ----------------------- | ------------------------------------------------------------------------------------------------------- |
+| `PageHeader`            | `<header>` + `<h1 class="type-title">`                                                                  |
+| `SectionHeader`         | `<h2 class="type-heading">`                                                                             |
+| `EntityHeader`          | `<section aria-labelledby>` + `<h1 class="type-section">`                                               |
+| `FactGrid` / `Fact`     | `<dl>` / `<dt>` / `<dd>` — these are definitions, not a generic grid                                    |
+| `Field`                 | `<label for>`, `role="alert"` on the error, `aria-describedby` wired to hint or error                   |
+| `Button`                | `aria-busy` while loading; `disabled` set for you                                                       |
+| `Badge`                 | decorative counts inside another control are `aria-hidden`                                              |
+| `Avatar`                | `aria-hidden` when it renders initials (the name is already in the row); `alt` when it renders an image |
+| `TabBar`                | `<nav aria-label>`; `role="tab"` + `aria-selected` for state tabs, `aria-current="page"` for link tabs  |
+| `Segmented`             | `role="radiogroup"` / `role="radio"` / `aria-checked`                                                   |
+| `Sidebar`               | `aria-current="page"`, `aria-disabled` on locked rows                                                   |
+| `Skeleton`              | `aria-hidden` blocks inside an `aria-busy` region                                                       |
+| `Dialog`                | Radix `Title` / `Description` wired to the content                                                      |
+| `RowActionsMenu`        | trigger label includes the subject — "Actions for Aziza", not "Actions"                                 |
+| `Input` password toggle | `aria-label` + `aria-pressed`                                                                           |
 
 Heading order: one `<h1>` per page (`PageHeader` or `EntityHeader`), `<h2>` for panels
 (`SectionHeader`), and don't skip levels to get a size — the size comes from a `type-*` utility, not
@@ -149,8 +146,8 @@ region tells a screen reader absolutely nothing.
 vestibular sensitivity should not have the exam paper slide sideways every time they answer a
 question.
 
-- `globals.css` neutralises `layout-enter`, both accordion animations, `mock-shimmer`, the landing
-  marquee, and the `interactive` / `interactive-flat` press transforms. **A press transform is a
+- `globals.css` neutralises `layout-enter`, both accordion animations, `mock-shimmer`, legacy
+  marquee utilities, and the `interactive` / `interactive-flat` press transforms. **A press transform is a
   transform like any other.** There is less to neutralise than there was — `--lift` is `0`, so hover
   no longer travels for anyone, and the ambient orbs that used to drift behind every authenticated
   page are gone rather than merely paused.
@@ -172,7 +169,7 @@ a content one.
   pronunciation.
 - **Titles wrap, they don't truncate.** `PageHeader` and `EntityHeader` deliberately omit `truncate`:
   Russian and Uzbek run considerably longer than English and a clipped school name loses meaning.
-  `Fact` values *do* truncate, because they are short values in fixed-width tiles.
+  `Fact` values _do_ truncate, because they are short values in fixed-width tiles.
 - Text must survive 200% zoom and reflow without horizontal scrolling.
 - The whole IBM Plex family in use here — Sans, Mono and Serif — carries latin, latin-ext, and
   cyrillic, so no face in the product has a coverage hazard. (The previous pairing did: DM Serif

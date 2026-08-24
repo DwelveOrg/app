@@ -36,6 +36,7 @@ src/lib/                    Session, backend, upload, SEO, and shared helpers
 src/i18n/                   i18next setup and three locale catalogs
 docs/                       Stable product and engineering knowledge
 .agent-memory/              Decisions, discoveries, and gotchas worth retaining
+.claude/                    Optional vendor-specific workflows; not project truth
 scripts/                    Repository quality checks
 ```
 
@@ -64,6 +65,8 @@ Keep route-specific implementation beside its route in underscored folders such 
 - Respect the 4.5 MB Vercel request ceiling. Read `docs/features/problem-reporting.md` and the
   relevant upload limits before changing uploads.
 - Do not add a dependency or duplicate a utility without first checking the existing stack.
+- Treat `.claude/skills` as optional execution aids. They never override this file, current code,
+  `/docs`, or explicit task requirements.
 - Do not change the database contract in this repository alone; coordinate schema/API changes with
   `backend_nestJS` and update both repositories' documentation.
 

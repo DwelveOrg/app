@@ -18,12 +18,12 @@ This file owns **page anatomy** — the level between "here is a token" and "her
 Dwelve is not one shell. It is four, and a route belongs to exactly one of them. Picking the wrong
 one is the largest layout mistake available, because it is invisible until the feature is built.
 
-| Environment | Route group | Chrome | Canvas | Purpose |
-|---|---|---|---|---|
-| **App shell** | `src/app/(root)` | Sidebar (264px) or bottom bar | `--background` | Everything you do between tasks |
-| **Studio** | `src/app/studio` | Top bar only | `--sidebar` | Authoring one test, full width |
-| **Exam** | `src/app/exam` | Top bar only | `--sidebar` | Sitting one test, nothing else clickable |
-| **Public** | `src/app/(landing)`, `src/app/(authentication)` | Landing navbar / none | `landing-shell-bg` / plain | Marketing and sign-in |
+| Environment        | Route group                | Chrome                        | Canvas                         | Purpose                                  |
+| ------------------ | -------------------------- | ----------------------------- | ------------------------------ | ---------------------------------------- |
+| **App shell**      | `src/app/(root)`           | Sidebar (264px) or bottom bar | `--background`                 | Everything you do between tasks          |
+| **Studio**         | `src/app/studio`           | Top bar only                  | `--sidebar`                    | Authoring one test, full width           |
+| **Exam**           | `src/app/exam`             | Top bar only                  | `--sidebar`                    | Sitting one test, nothing else clickable |
+| **Authentication** | `src/app/(authentication)` | No application navigation     | Plain / split auth composition | Sign-in and account recovery             |
 
 ### App shell — `(root)/layout.tsx`
 
@@ -73,19 +73,12 @@ set to `SUBMIT` that invitation ends the attempt.
 `force-dynamic` here is a correctness requirement, not a performance choice — a cached exam page is
 a cached deadline.
 
-### Public
+### Authentication
 
-Landing uses `landing-shell-bg` with its own `Navbar` and `Footer`. Auth is a plain full-height
-wrapper; the split panel lives in `AuthSplitLayout`.
-
-The landing page is the **only** place `type-display` and `variant="brand"` buttons appear, and —
-with the auth panel headline — the only place the serif renders.
-
-> **Changed (v4).** `landing-shell-bg` used to carry two large radial washes of brand light bleeding
-> in from the corners. They are gone and nothing replaces them: a soft corner glow is atmosphere
-> applied to a page that has not earned any, and it is the first thing every generated landing page
-> reaches for. The page has a hero, nine sections and a deep violet closing band to carry its
-> identity. The class is kept as a named seam.
+Authentication uses a plain full-height wrapper; the split panel lives in `AuthSplitLayout`.
+Brand treatment is allowed here because account entry is an identity moment, but it must not leak
+into routine dashboard actions. Legacy landing utilities remain in `globals.css` after the host
+split; they are not an invitation to create marketing UI in this repository.
 
 ---
 
@@ -119,8 +112,8 @@ Vertical rhythm between those blocks is `gap-6` (`flex flex-col gap-6 py-6`). In
 
 `PageHeader` vs `EntityHeader`:
 
-- **`PageHeader`** — this page is a *place* ("Classes", "Notifications"). `<h1 class="type-title">`.
-- **`EntityHeader`** — this page is *about a thing* (a school, a class, a test).
+- **`PageHeader`** — this page is a _place_ ("Classes", "Notifications"). `<h1 class="type-title">`.
+- **`EntityHeader`** — this page is _about a thing_ (a school, a class, a test).
   `<h1 class="type-section">` inside a `Surface`, with a tile, status, facts, and actions.
 
 A page has one or the other, not both. A detail page under a list page gets `BackLink` +
@@ -169,16 +162,16 @@ For a recessed tile inside a panel, use `bg-background` (what `Fact` does), not 
 
 ## 3. Widths and containers
 
-| Context | Width |
-|---|---|
-| App shell content column | `max-w-[1180px]` |
-| Account area | `md:max-w-[600px]` |
-| A standalone form page | `max-w-xl` centred |
-| Dialog content | `max-w-md`, `w-[calc(100vw-2rem)]` |
-| `Empty` | `max-w-lg` |
-| Body prose | 65–75ch (`max-w-[68ch]` in headers, `max-w-prose` in descriptions) |
-| Tables and dense data | may run wider than prose |
-| Studio / exam | full width |
+| Context                  | Width                                                              |
+| ------------------------ | ------------------------------------------------------------------ |
+| App shell content column | `max-w-[1180px]`                                                   |
+| Account area             | `md:max-w-[600px]`                                                 |
+| A standalone form page   | `max-w-xl` centred                                                 |
+| Dialog content           | `max-w-md`, `w-[calc(100vw-2rem)]`                                 |
+| `Empty`                  | `max-w-lg`                                                         |
+| Body prose               | 65–75ch (`max-w-[68ch]` in headers, `max-w-prose` in descriptions) |
+| Tables and dense data    | may run wider than prose                                           |
+| Studio / exam            | full width                                                         |
 
 Prose caps are not decoration. A subtitle that runs the full 1180px is unreadable, which is why
 `PageHeader`, `SectionHeader`, and `error.tsx` all cap at `68ch`.
@@ -190,12 +183,12 @@ Prose caps are not decoration. A subtitle that runs the full 1180px is unreadabl
 Three breakpoints carry the product. `xl` appears three times in `src`; `2xl` never. Do not add
 tiers without a reason you can name.
 
-| Prefix | Min width | What changes |
-|---|---|---|
-| *(base)* | 0 | Single column. Bottom nav. Stacked headers. `px-4 py-6` |
-| `sm:` | 640px | Two-column field grids; header actions move beside the title; footer rows go horizontal |
-| `md:` | 768px | **Sidebar appears**, bottom bar disappears, `px-8 py-8`, narrow-container cap applies |
-| `lg:` | 1024px | Four-column fact grids; landing goes two-column |
+| Prefix   | Min width | What changes                                                                            |
+| -------- | --------- | --------------------------------------------------------------------------------------- |
+| _(base)_ | 0         | Single column. Bottom nav. Stacked headers. `px-4 py-6`                                 |
+| `sm:`    | 640px     | Two-column field grids; header actions move beside the title; footer rows go horizontal |
+| `md:`    | 768px     | **Sidebar appears**, bottom bar disappears, `px-8 py-8`, narrow-container cap applies   |
+| `lg:`    | 1024px    | Four-column fact grids and wide two-column product compositions                         |
 
 Rules:
 
@@ -203,8 +196,8 @@ Rules:
   is a smell.
 - **`md` is the shell boundary.** Anything that assumes a sidebar must be `md:`-gated.
 - **Grid children need `min-w-0`.** CSS Grid defaults children to `min-width: auto`, so a long
-  unbreakable string blows the track out. This caused a real 17px horizontal overflow on the landing
-  page at 375px. Any `flex-1` or grid child holding user text gets `min-w-0`.
+  unbreakable string blows the track out. Any `flex-1` or grid child holding user text gets
+  `min-w-0`.
 - **Test at 375 / 834 / 1440**, in both themes, in all three languages. Russian and Uzbek run
   longer than English; a row that fits at 375px in English may not.
 - **The page body must never scroll horizontally.** Wide content (tables, charts, tab rows) scrolls
@@ -220,15 +213,15 @@ action sits on top and under the thumb; on desktop it sits right.
 
 Spacing comes from the Tailwind scale. The recurring values, so a new panel matches an old one:
 
-| Distance | Value |
-|---|---|
-| Page blocks | `gap-6` |
-| Panel internals | `gap-4` / `space-y-4` |
-| Form fields | `space-y-5` |
-| Header title → subtitle | `mt-1.5` |
-| Row icon → text | `gap-3.5` |
-| Button groups | `gap-2` (tight) / `gap-3` (page actions) |
-| Badge / pill rows | `gap-2` |
+| Distance                | Value                                    |
+| ----------------------- | ---------------------------------------- |
+| Page blocks             | `gap-6`                                  |
+| Panel internals         | `gap-4` / `space-y-4`                    |
+| Form fields             | `space-y-5`                              |
+| Header title → subtitle | `mt-1.5`                                 |
+| Row icon → text         | `gap-3.5`                                |
+| Button groups           | `gap-2` (tight) / `gap-3` (page actions) |
+| Badge / pill rows       | `gap-2`                                  |
 
 Radius is **seven explicit steps** declared in `globals.css` as `--r-1` … `--r-7` and mapped onto
 the Tailwind names in `@theme inline`: `rounded-sm`(2) · `rounded-md`(3) · `rounded-lg`(4) ·
@@ -245,13 +238,13 @@ Never mix radii inside one component. A `rounded-xl` input inside a `rounded-2xl
 a `rounded-lg` input beside a `rounded-xl` one is not.
 
 > **Changed (v4).** The ladder was six offsets hung off a single `--radius: 0.75rem` base, so a
-> retune could only *shift* the curve and never change its shape — and it broke outright below a 5px
+> retune could only _shift_ the curve and never change its shape — and it broke outright below a 5px
 > base, where `calc(--radius - 4px)` went negative. The steps are literals now and the ramp is the
 > knob.
 >
 > `--radius-pill` is separate on purpose. 104 hand-written `rounded-full` call sites were the single
 > loudest tell in the old UI: a product where every chip, tag and badge is a half-circle reads as
-> generated, because a person choosing a pill chooses it *somewhere*, not everywhere. Chips route
+> generated, because a person choosing a pill chooses it _somewhere_, not everywhere. Chips route
 > through the token; things that are actually round keep `rounded-full`. **`rounded-full` on
 > something containing a number or a word is now a bug** — see `Badge`, or the question-number chips
 > in `QuestionView` / `QuestionNavigator`.
@@ -262,13 +255,13 @@ a `rounded-lg` input beside a `rounded-xl` one is not.
 
 Depth model (design-system §4): **a hairline defines an edge, elevation separates a layer.**
 
-| Level | Utility | Use |
-|---|---|---|
-| 1 | `shadow-elev-1` | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
-| 2 | `shadow-elev-2` | Resting, slightly forward: sticky chrome, raised tiles |
-| 3 | `shadow-elev-3` | **Floating:** dropdowns, popovers, sticky action bars |
-| 4 | `shadow-elev-4` | **Floating:** dialogs, toasts, sheets |
-| — | `shadow-elev-brand` | Alias of `--elev-2`; no longer a coloured glow |
+| Level | Utility             | Use                                                                 |
+| ----- | ------------------- | ------------------------------------------------------------------- |
+| 1     | `shadow-elev-1`     | Resting cards, panels, list surfaces — most of a page. Nearly flat. |
+| 2     | `shadow-elev-2`     | Resting, slightly forward: sticky chrome, raised tiles              |
+| 3     | `shadow-elev-3`     | **Floating:** dropdowns, popovers, sticky action bars               |
+| 4     | `shadow-elev-4`     | **Floating:** dialogs, toasts, sheets                               |
+| —     | `shadow-elev-brand` | Alias of `--elev-2`; no longer a coloured glow                      |
 
 **Levels are earned.** Most of a page lives at 1. Two adjacent panels at different levels means one
 of them is wrong. A raw `shadow-[…]` is a bug.
@@ -279,11 +272,11 @@ design-system §4.
 
 Z-index has exactly four rungs in use — do not invent a fifth:
 
-| Layer | Value |
-|---|---|
+| Layer                                                     | Value           |
+| --------------------------------------------------------- | --------------- |
 | In-page stacking (sticky headers, overlapping decoration) | `z-10` – `z-30` |
-| Fixed shell chrome (mobile bottom bar) | `z-40` |
-| Overlays: dialog scrim, dialog content, dropdowns | `z-50` |
+| Fixed shell chrome (mobile bottom bar)                    | `z-40`          |
+| Overlays: dialog scrim, dialog content, dropdowns         | `z-50`          |
 
 Every scrim is `bg-overlay` (`--overlay`), never `bg-black/20 dark:bg-black/50`.
 
@@ -318,7 +311,7 @@ src/app/(root)/(pages)/groups/[classId]/
 The split is a layout concern as much as a data one, because it decides where a page can call `t()`.
 
 - **`page.tsx` is a server component.** It awaits `params`, fetches, and picks between a state view
-  and the real view. It has no `t` in scope — which is why `ResourceStateView` takes i18n *keys*.
+  and the real view. It has no `t` in scope — which is why `ResourceStateView` takes i18n _keys_.
 - **The view is a client component.** It owns tabs, dialogs, mutations, and every `useTranslation`.
 - Push the `"use client"` boundary **down**, not up. A page that marks itself client to use one hook
   drags its whole subtree into the bundle.

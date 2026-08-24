@@ -59,14 +59,13 @@ Rules:
 
 Every route receives a Content Security Policy that limits scripts to this
 origin plus Google Identity Services, blocks plugins and framing, restricts
-forms/base URLs, and limits workers/media/connect targets. The static landing
-page requires Next's documented non-nonce policy; inline scripts/styles remain
-allowed, so React escaping and the rule against raw backend HTML remain
-mandatory.
+forms/base URLs, and limits workers/media/connect targets. The policy currently
+allows inline scripts/styles, so React escaping and the rule against raw backend
+HTML remain mandatory.
 
 Authenticated, authentication, and teacher-invite responses are marked
-`private, no-store` in `src/proxy.ts`. Public marketing pages remain cacheable
-at the CDN. Baseline HSTS, MIME-sniffing, referrer, opener, frame, and browser
+`private, no-store` in `src/proxy.ts`; the repository has no public marketing
+surface. Baseline HSTS, MIME-sniffing, referrer, opener, frame, and browser
 feature policies live in `next.config.ts`.
 
 Server-side backend requests carry a generated `X-Request-Id`. The API validates

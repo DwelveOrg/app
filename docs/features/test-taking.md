@@ -18,14 +18,14 @@ docs/design/design-system.md                   surfaces, motion, colour
 
 ## Three surfaces, one renderer
 
-| Surface | Route | Who |
-|---|---|---|
-| The exam room | `/exam/[testId]`, `/exam/[testId]/attempt` | student |
-| A student's own result | `/exam/[testId]/result/[attemptId]` | student |
-| Class results and analysis | `/groups/[classId]/tests/[testId]/results` | teacher |
-| One student's paper, marked | `…/results/[attemptId]` | teacher |
+| Surface                     | Route                                      | Who     |
+| --------------------------- | ------------------------------------------ | ------- |
+| The exam room               | `/exam/[testId]`, `/exam/[testId]/attempt` | student |
+| A student's own result      | `/exam/[testId]/result/[attemptId]`        | student |
+| Class results and analysis  | `/groups/[classId]/tests/[testId]/results` | teacher |
+| One student's paper, marked | `…/results/[attemptId]`                    | teacher |
 
-All four render questions through **`src/components/tests/paper/QuestionView`**,
+All four render questions through **`src/components/tests/paper/QuestionView.tsx`**,
 in one of three modes — `answer`, `review`, `preview`. This is the single most
 load-bearing decision in the feature. A teacher disputing a mark is looking at
 the same option order, wording and layout the student saw, because it is the
@@ -111,14 +111,14 @@ The paper's **format decides the environment**. `AttemptRuntime` owns the
 attempt — answers, autosave, clock, integrity guard, submit — and passes all of
 it to an environment component that owns only the layout
 (`_components/environments/`, contract in `types.ts`). That line exists because
-a second implementation of *when an answer reaches the server* is the one
+a second implementation of _when an answer reaches the server_ is the one
 duplication this feature cannot survive.
 
-| Format | Room | Shape |
-|---|---|---|
-| `SAT` | `SatEnvironment` | Bluebook: module header left, centred countdown with a Hide control, split stimulus \| question, "Mark for Review", ABC cross-out, bottom bar with "Question X of Y" opening the grid upward |
-| `IELTS` | `IeltsEnvironment` | Computer-delivered IELTS: a **part** at a time, split passage \| all that part's questions, numbered strip along the bottom grouped by part, per-question "Review" |
-| everything else | `QuizEnvironment` | The product's own layout, honouring both `navigationMode` values |
+| Format          | Room               | Shape                                                                                                                                                                                        |
+| --------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SAT`           | `SatEnvironment`   | Bluebook: module header left, centred countdown with a Hide control, split stimulus \| question, "Mark for Review", ABC cross-out, bottom bar with "Question X of Y" opening the grid upward |
+| `IELTS`         | `IeltsEnvironment` | Computer-delivered IELTS: a **part** at a time, split passage \| all that part's questions, numbered strip along the bottom grouped by part, per-question "Review"                           |
+| everything else | `QuizEnvironment`  | The product's own layout, honouring both `navigationMode` values                                                                                                                             |
 
 `environmentForFormat` falls back to `quiz` for an unknown format, so a new
 backend format renders correctly rather than failing to compile somewhere far
@@ -132,7 +132,7 @@ to a question put it behind the bar.
 **The navigator is at the bottom in all three**, because that is where both real
 applications put it and because a right-hand column spends width a passage needs
 on something consulted a few times an hour. When `allowBackNavigation` is off it
-is *locked* to earlier questions as well — a grid that jumps to question 3 would
+is _locked_ to earlier questions as well — a grid that jumps to question 3 would
 otherwise walk around the rule Back is enforcing. Back is removed rather than
 disabled, for the same reason it always was: a permanently disabled control is a
 promise the exam is not going to keep.
@@ -170,7 +170,7 @@ actionable column on the page.
 
 ### The charts
 
-Per `dataviz`: the histogram is one hue because ordered bins are a *magnitude*
+Per `dataviz`: the histogram is one hue because ordered bins are a _magnitude_
 job, not an identity one; the pass mark is a solid hairline, never dashed; and
 no bar carries a permanent number — the value appears on hover and the roster
 below carries every figure exactly.
@@ -178,7 +178,7 @@ below carries every figure exactly.
 The per-question analysis is a **table with inline bars**, not a bar chart.
 Twenty-six questions is past the point where a chart is readable, and the
 teacher's task is "find the questions that went badly", not "compare question 7
-with question 22". It also *is* the accessible table view a chart would have to
+with question 22". It also _is_ the accessible table view a chart would have to
 provide separately.
 
 `discrimination` is the number worth reading and the one usually missing: a hard
@@ -195,8 +195,8 @@ half-graded attempt behind the moment the connection drops.
 
 **Compare with class** is the toggle that answers "with or without other
 students combined". It is a switch rather than a second screen because the two
-readings answer different questions about the same answer: *did they get it
-right*, and *was it a question anyone got right*. The comparison arrives with
+readings answer different questions about the same answer: _did they get it
+right_, and _was it a question anyone got right_. The comparison arrives with
 the payload, so the toggle costs no request.
 
 ## Students' own list

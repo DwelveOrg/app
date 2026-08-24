@@ -15,7 +15,7 @@ backend infrastructure only; the frontend must not connect to Redis directly.
 
 ## Frontend Changes (implemented)
 
-- `DWELVE_API_BASE_URL=http://localhost:5000/api/v1` is unchanged. No Redis env
+- `DWELVE_API_BASE_URL=http://localhost:5001/api/v1` is unchanged. No Redis env
   vars were added to the frontend.
 - `refreshTokensRequest` and `authedBackendJson` already match the rotated
   refresh-token contract: `refreshAccessToken` in
@@ -53,7 +53,7 @@ Run Redis with the backend before testing auth flows:
 docker run --name dwelve-redis -p 6379:6379 redis:7-alpine
 ```
 
-Then run the backend from `D:\IT\projects\Dwelve\backend_nestJS` and the
+Then run the backend from the sibling `../backend_nestJS` repository and the
 frontend from this repo:
 
 ```powershell

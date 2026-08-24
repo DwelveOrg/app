@@ -3,7 +3,7 @@
 Status: v1 · Last updated: 11 August 2026
 
 Where data is fetched, where it is cached, and where the `"use client"` boundary goes. `ARCHITECTURE.md`
-owns the request *plumbing* (which client, which schema, which helper); this file owns the
+owns the request _plumbing_ (which client, which schema, which helper); this file owns the
 **ownership decision** — which layer is responsible for a piece of state at all.
 
 Most freshness bugs in this product are ownership bugs: a panel fed by RSC props that a
@@ -88,7 +88,10 @@ export type ClassFetchResult =
 
 export async function getClass(classId: string): Promise<ClassFetchResult> {
   try {
-    const { class: classItem } = await getClassRequest(classId, authedBackendJson);
+    const { class: classItem } = await getClassRequest(
+      classId,
+      authedBackendJson,
+    );
     return { ok: true, class: classItem };
   } catch (error) {
     if (error instanceof BackendApiError) {
@@ -104,7 +107,7 @@ export async function getClass(classId: string): Promise<ClassFetchResult> {
 Every such helper carries `import "server-only"`. Keeping 403 and 404 apart is the difference
 between "you don't have access yet" and "this doesn't exist" — two genuinely different screens.
 
-An uncaught throw here is not a bug in itself; it hits `(root)/error.tsx`. But a *predictable*
+An uncaught throw here is not a bug in itself; it hits `(root)/error.tsx`. But a _predictable_
 failure (403/404) reaching the error boundary is a bug, because the boundary can only offer "retry"
 and "go home".
 
@@ -112,17 +115,17 @@ and "go home".
 
 ## 3. Who owns which state
 
-| State | Owner |
-|---|---|
-| Initial page data | Server component + `_utils/get*` |
-| Data fetched on demand (a picker's search, a paginated list, a dialog's contents) | React Query |
-| Data that changes as a result of a mutation | The mutation hook, through `useServerDataRefresh` |
-| Server-rendered data that a mutation changed | The same call — see §5, the two halves travel together |
-| Session / current user | `getUser()` on the server; the proxy handles refresh |
-| Theme | `next-themes` (`dwelve-theme`, class strategy) |
-| Language | i18next + `localStorage["gf-language"]` |
-| Form state | `react-hook-form` |
-| UI state (open tab, open dialog, filter) | local `useState` |
+| State                                                                             | Owner                                                  |
+| --------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Initial page data                                                                 | Server component + `_utils/get*`                       |
+| Data fetched on demand (a picker's search, a paginated list, a dialog's contents) | React Query                                            |
+| Data that changes as a result of a mutation                                       | The mutation hook, through `useServerDataRefresh`      |
+| Server-rendered data that a mutation changed                                      | The same call — see §5, the two halves travel together |
+| Session / current user                                                            | `getUser()` on the server; the proxy handles refresh   |
+| Theme                                                                             | `next-themes` (`dwelve-theme`, class strategy)         |
+| Language                                                                          | i18next + `localStorage["gf-language"]`                |
+| Form state                                                                        | `react-hook-form`                                      |
+| UI state (open tab, open dialog, filter)                                          | local `useState`                                       |
 
 Rules of thumb:
 
@@ -179,8 +182,8 @@ invalidating, use the specific key when querying.
 
 After a mutation, ask: **what on screen is now wrong?**
 
-Almost always: both halves. Approving a join request clears a row from a React Query list *and*
-adds a student to the server-rendered roster three inches above it, *and* shifts the counts in the
+Almost always: both halves. Approving a join request clears a row from a React Query list _and_
+adds a student to the server-rendered roster three inches above it, _and_ shifts the counts in the
 page header above that. Fixing one and not the other reads as a failed approval.
 
 So the two are not separate calls. **Mutation hooks call `useServerDataRefresh` in `onSettled`,
@@ -189,7 +192,11 @@ which invalidates the query keys and re-runs the server render together:**
 ```ts
 function useInvalidateClassRequests(classId: string) {
   const refresh = useServerDataRefresh();
-  return () => refresh(queryKeys.enrollment.classRequestsAll(classId), queryKeys.classes.all);
+  return () =>
+    refresh(
+      queryKeys.enrollment.classRequestsAll(classId),
+      queryKeys.classes.all,
+    );
 }
 ```
 
@@ -212,14 +219,14 @@ which pairs the interval with `refetchOnWindowFocus`; the two are one mechanism,
 pauses interval timers on a blurred tab and without the focus refetch a returning user would sit on
 whatever was true when they left.
 
-| Surface | Rate | Why |
-|---|---|---|
-| Class join requests, teacher requests | `POLL_ACTIVE_MS` (30s) | A queue the viewer is actively working |
-| Notification unread badge | `POLL_AMBIENT_MS` (60s) | Mounted on every page; wrong by 30s costs nothing |
-| A student's own pending requests | `POLL_AMBIENT_MS` (60s) | Waiting on a human decision |
+| Surface                               | Rate                    | Why                                               |
+| ------------------------------------- | ----------------------- | ------------------------------------------------- |
+| Class join requests, teacher requests | `POLL_ACTIVE_MS` (30s)  | A queue the viewer is actively working            |
+| Notification unread badge             | `POLL_AMBIENT_MS` (60s) | Mounted on every page; wrong by 30s costs nothing |
+| A student's own pending requests      | `POLL_AMBIENT_MS` (60s) | Waiting on a human decision                       |
 
 **A poll tick does not `router.refresh()`.** Re-running the server render every 30s for every open
-tab would cost far more than the poll it accompanies, and it is not needed: a *pending* request
+tab would cost far more than the poll it accompanies, and it is not needed: a _pending_ request
 changes only query-backed surfaces. The roster and counts that come from the server change on
 **approval**, which is the acting user's own click and already goes through `useServerDataRefresh`.
 
@@ -254,7 +261,7 @@ over a loaded list, a static picker.
 
 Invalidation handles both mounting orders: a query with a mounted observer (tab counts) refetches
 immediately; one without is marked stale and fetches when its panel mounts. Link tabs invalidate
-*before* navigating, so the destination's queries are already stale when its panels mount and it
+_before_ navigating, so the destination's queries are already stale when its panels mount and it
 never paints the previous visit's data.
 
 Opening a tab refreshes it **even when it is already active** — a click on the current tab is the
@@ -266,11 +273,11 @@ user asking for exactly that.
 
 `export const dynamic = "force-dynamic"` is set on three layouts and nowhere else:
 
-| Layout | Why |
-|---|---|
-| `(root)/layout.tsx` | Reads the session |
-| `studio/layout.tsx` | Every render depends on live test state |
-| `exam/layout.tsx` | Every render depends on a live attempt and a server clock — **a cached exam page is a cached deadline** |
+| Layout              | Why                                                                                                     |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| `(root)/layout.tsx` | Reads the session                                                                                       |
+| `studio/layout.tsx` | Every render depends on live test state                                                                 |
+| `exam/layout.tsx`   | Every render depends on a live attempt and a server clock — **a cached exam page is a cached deadline** |
 
 Don't add caching directives to individual pages without a reason you can state. Backend reads go
 through `backendJson`, which sets `cache: "no-store"` by default.
@@ -278,9 +285,10 @@ through `backendJson`, which sets `cache: "no-store"` by default.
 `loading.tsx` gives you streaming for free — add one to any route whose server fetch is slow enough
 to notice.
 
-The proxy marks protected, authentication, and invite-link responses
-`private, no-store`; do not override that with page-level public caching. Public
-landing responses remain eligible for CDN caching.
+The proxy marks application responses `private, no-store` where session or token
+state is involved and stamps every response with the repository-wide no-index
+policy. There are no public marketing pages in this deployment; those live in
+the sibling `frontend` repository.
 
 ---
 
