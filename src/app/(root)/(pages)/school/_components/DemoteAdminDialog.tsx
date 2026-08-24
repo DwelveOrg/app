@@ -1,13 +1,13 @@
 "use client";
 
 import { useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { ShieldOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { updateMemberRoleAction } from "@/app/(root)/_lib/school-actions";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 /** Owner-only: return an admin to the teacher role, restoring their teacher profile. */
 export default function DemoteAdminDialog({
@@ -22,7 +22,7 @@ export default function DemoteAdminDialog({
   adminName: string;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
 
   const demote = () => {
@@ -38,7 +38,7 @@ export default function DemoteAdminDialog({
       }
       toast.success(t("root.schoolPage.access.demote.success", { name: adminName }));
       onOpenChange(false);
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 import Badge from "@/components/ui/badge";
-import { type TabRefresh, useTabRefresh } from "@/lib/query/useTabRefresh";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,10 +17,11 @@ import { cn } from "@/lib/utils";
  *
  * The active indicator is a shared `layoutId`, so switching tabs slides rather than cuts.
  *
- * Opening a tab also re-reads that tab's data, declared per item as `refresh`. That lives here
- * rather than in each `onSelect` handler because the failure it prevents is silent: a panel that
- * never refetches looks exactly like a panel with nothing new in it, so a call site that forgets
- * shows stale state without any symptom to notice.
+ * Tab selection itself is intentionally network-free. Query-backed panels use
+ * their key and stale-time policy when they mount, live queues poll while
+ * visible, and mutations invalidate the data they changed. Coupling a visual
+ * tab click to unconditional invalidation made fast local filters pay for a
+ * backend round trip even when their data was already fresh.
  */
 export type TabItem = {
   /** Stable key, and the value reported by `onSelect` for controlled tab bars. */
@@ -39,13 +39,6 @@ export type TabItem = {
   disabled?: boolean;
   /** Trailing pill for locked features ("Soon"). */
   note?: string;
-  /**
-   * What to re-read when this tab is opened. Omit only for tabs whose content is
-   * already in the browser (a filter over a loaded list, a static picker); any
-   * tab showing server state should declare it, because a tab switch is the one
-   * moment we know the user is asking to look at that data.
-   */
-  refresh?: TabRefresh;
 };
 
 export type TabBarProps = {
@@ -69,16 +62,6 @@ export default function TabBar({
   className,
 }: TabBarProps) {
   const reduce = useReducedMotion();
-  const refreshTab = useTabRefresh();
-
-  /**
-   * Opening a tab always re-reads its data — including when it is already the
-   * active tab, where a click is the user asking for exactly that.
-   */
-  const openTab = (item: TabItem) => {
-    refreshTab(item.refresh);
-    onSelect?.(item.value);
-  };
 
   return (
     <nav
@@ -156,10 +139,6 @@ export default function TabBar({
               key={item.value}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              // Invalidating before the navigation means the destination's
-              // queries are already stale by the time its panels mount, so they
-              // fetch on mount rather than painting the previous visit's data.
-              onClick={() => refreshTab(item.refresh)}
               className={classes}
             >
               {content}
@@ -173,7 +152,7 @@ export default function TabBar({
             type="button"
             role="tab"
             aria-selected={active}
-            onClick={() => openTab(item)}
+            onClick={() => onSelect?.(item.value)}
             className={classes}
           >
             {content}

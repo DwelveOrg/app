@@ -230,42 +230,35 @@ tab would cost far more than the poll it accompanies, and it is not needed: a _p
 changes only query-backed surfaces. The roster and counts that come from the server change on
 **approval**, which is the acting user's own click and already goes through `useServerDataRefresh`.
 
-Not SSE, deliberately. The browser has no direct line to the backend — the session is an httpOnly
-cookie read on the Next server — so a stream would need either a new token surface or a serverless
-function pinned open per tab, for a queue measured in requests per hour.
+These human queues deliberately do not use SSE. A same-origin stream would pin a serverless function
+open per tab for events measured in requests per hour. The AI import progress screen is the narrow
+exception: it changes every few seconds for a bounded period, so
+`/api/test-imports/:jobId/events` bridges backend SSE while keeping the bearer token server-side.
+WebSocket is not used because no current feature needs bidirectional, low-latency messaging.
 
 ---
 
-## 6. Tab refresh
+## 6. Tab selection and intent loading
 
-Tabs in this product switch on **local state**: the query keys don't change and nothing remounts. So
-without an explicit refresh, a tab switch fires no request at all and the panel shows whatever was
-fetched when the page first loaded.
+`TabBar` changes navigation or local selection only. It must not invalidate queries or call
+`router.refresh()` just because the user switched tabs. The former `useTabRefresh` behavior made
+filter clicks and already-fresh panels issue unconditional backend/RSC work, which amplified the
+latency users experienced while moving around the app.
 
-The failure is silent. A panel that never refetches looks exactly like a panel with nothing new in
-it — which is how a pending join request stayed invisible until a full reload.
+Freshness belongs to the data owner:
 
-`useTabRefresh` closes it, declared per tab:
+- A query-backed panel fetches when it first mounts and follows its query key, `staleTime`, focus,
+  polling, and mutation invalidation policy.
+- A local filter over already-loaded data performs no request.
+- Human queues use the explicit polling policy above, so tab selection is not their refresh timer.
+- A mutation invalidates the data it changed; it may combine query invalidation with an RSC refresh
+  through `useServerDataRefresh` when both ownership layers changed.
 
-```ts
-{ value: "requests", label: t("…"),
-  refresh: { queryKeys: [queryKeys.enrollment.classRequestsAll(classId)], router: true } }
-```
-
-- `queryKeys` — invalidated as prefixes. Covers panels backed by React Query.
-- `router: true` — re-runs the server render. Covers panels fed by RSC props.
-
-Both fields exist because tabs are fed two different ways, and a tab showing server state must
-declare whichever applies. Omit `refresh` only when the content is already in the browser — a filter
-over a loaded list, a static picker.
-
-Invalidation handles both mounting orders: a query with a mounted observer (tab counts) refetches
-immediately; one without is marked stale and fetches when its panel mounts. Link tabs invalidate
-_before_ navigating, so the destination's queries are already stale when its panels mount and it
-never paints the previous visit's data.
-
-Opening a tab refreshes it **even when it is already active** — a click on the current tab is the
-user asking for exactly that.
+The school directory demonstrates intent loading. `/school` bootstraps school identity, permission,
+and counts only. Admin roster data loads when Teachers or Students is opened; access-dialog members
+load when the dialog opens; invitations and blocklist load only when their respective access subtab
+is selected. Query keys under `queryKeys.schools.directoryAll()` keep those reads coherent after
+mutations.
 
 ---
 
@@ -324,7 +317,7 @@ in those files record failures that are not obvious from the types.
 - [ ] Mutation hooks refresh through `useServerDataRefresh`, using `*All` keys where variants exist
 - [ ] No `router.refresh()` at a mutation call site — the hook owns it
 - [ ] Queues and ambient counts poll through `pollingOptions`, never a bare `refetchInterval`
-- [ ] Every tab showing server state declares `refresh`
+- [ ] Tab selection itself performs no refresh; the owning query/mutation declares freshness
 - [ ] No server data mirrored into `useState`
 - [ ] `loading.tsx` present for slow routes
 - [ ] New routes registered in `protectedRoutes` / `publicRoutes`

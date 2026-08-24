@@ -41,6 +41,17 @@ mapping, and controlled refresh behavior.
 Detailed test-authoring shapes live in [`test-creation.md`](./test-creation.md). Other feature
 contracts live under [`../features/`](../features/), next to the UI rules that depend on them.
 
+## Same-origin route handlers
+
+| App route                                | Purpose                                                                 |
+| ---------------------------------------- | ----------------------------------------------------------------------- |
+| `GET /api/test-imports/:jobId/events`    | Authenticated SSE bridge to backend import progress; never exposes JWT. |
+
+The import bridge is implemented at
+`src/app/api/test-imports/[jobId]/events/route.ts`. It is dynamic, uncached, and forwards the
+encrypted-session access token only on the server. React Query's ordinary status read is the
+connection/reconnection fallback.
+
 ## Auth and session behavior
 
 Login, signup, Google auth, password reset, refresh, logout, and school selection may return fresh

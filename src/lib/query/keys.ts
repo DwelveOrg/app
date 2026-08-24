@@ -8,6 +8,15 @@ export const queryKeys = {
   },
   schools: {
     all: ["schools"] as const,
+    directoryAll: () => [...queryKeys.schools.all, "directory"] as const,
+    members: (schoolId: string) =>
+      [...queryKeys.schools.directoryAll(), schoolId, "members"] as const,
+    students: (schoolId: string) =>
+      [...queryKeys.schools.directoryAll(), schoolId, "students"] as const,
+    teacherInvites: (schoolId: string) =>
+      [...queryKeys.schools.directoryAll(), schoolId, "teacher-invites"] as const,
+    blocklist: (schoolId: string) =>
+      [...queryKeys.schools.directoryAll(), schoolId, "blocklist"] as const,
   },
   classes: {
     all: ["classes"] as const,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Link2, MailX, RefreshCw } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -18,6 +17,7 @@ import {
   revokeTeacherInviteAction,
 } from "@/app/(root)/_lib/school-actions";
 import Empty from "../../_components/ui/Empty";
+import { useInvalidateSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 /**
  * Teacher invitations that have been sent and not yet accepted.
@@ -38,12 +38,14 @@ import Empty from "../../_components/ui/Empty";
 export default function TeacherInvitesList({
   invites,
   hasError,
+  onRetry,
 }: {
   invites: TeacherInviteSummary[];
   hasError: boolean;
+  onRetry: () => void;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const invalidateDirectory = useInvalidateSchoolDirectory();
   const [reissued, setReissued] = useState<{ id: string; url: string } | null>(null);
   const [revokeTarget, setRevokeTarget] = useState<TeacherInviteSummary | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -64,7 +66,7 @@ export default function TeacherInvitesList({
         return;
       }
       setReissued({ id: invite.id, url });
-      router.refresh();
+      void invalidateDirectory();
     });
   };
 
@@ -74,7 +76,7 @@ export default function TeacherInvitesList({
         title={t("root.schoolPage.access.invites.errorTitle")}
         description={t("root.schoolPage.access.invites.errorDescription")}
         action={
-          <Button type="button" className="w-full" onClick={() => router.refresh()}>
+          <Button type="button" className="w-full" onClick={onRetry}>
             <RefreshCw className="size-4" />
             {t("root.schoolPage.teachers.retry")}
           </Button>
@@ -192,7 +194,7 @@ export default function TeacherInvitesList({
               t("root.schoolPage.access.invites.revoked", { email: target.invitedEmail }),
             );
             setRevokeTarget(null);
-            router.refresh();
+            void invalidateDirectory();
           });
         }}
       />

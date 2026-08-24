@@ -44,7 +44,7 @@ There is no sitemap in this repository; the sitemap belongs to marketing.
 ## Deployment expectations
 
 - Vercel project with domain `app.dwelve.uz`.
-- Env: `DWELVE_API_BASE_URL`, `SESSION_SECRET`, optional
+- Env: `DWELVE_API_BASE_URL`, `SESSION_SECRET`, and production
   `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (its OAuth client must list
   `https://app.dwelve.uz` in authorized JavaScript origins), optional
   support contact vars.

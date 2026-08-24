@@ -27,8 +27,6 @@ import { NotificationTabs } from "./_components/NotificationTabs";
 import { NotificationsHeader } from "./_components/NotificationsHeader";
 import { groupNotificationsByDate, resolveNotificationHref } from "./_lib/notifications";
 import Surface from "@/components/ui/Surface";
-import { queryKeys } from "@/lib/query/keys";
-import { useTabRefresh } from "@/lib/query/useTabRefresh";
 
 const PAGE_SIZE = 10;
 const CATEGORY_FILTERS: NotificationCategory[] = [
@@ -154,27 +152,11 @@ const Page = () => {
     if (unreadCount > 0) markAllReadMutation.mutate();
   }, [markAllReadMutation, unreadCount]);
 
-  // These pills predate `TabBar` and still carry their own markup, so the
-  // re-read that `TabBar` gives every other tab row is wired by hand here. Each
-  // filter is its own cache entry, so returning to one would otherwise replay
-  // the previous visit, with whatever arrived in between missing.
-  //
-  // Only the filter being opened is invalidated: the broad `lists()` key also
-  // matches the filter being left, which is still mounted at this point and
-  // would refetch a list the user is on their way out of.
-  const refreshTab = useTabRefresh();
   const handleFilterChange = useCallback(
     (filter: NotificationFilter) => {
-      const next = filterParams(filter);
-      refreshTab({
-        queryKeys: [
-          queryKeys.notifications.list(next.tab, PAGE_SIZE, next.category),
-          queryKeys.notifications.status(),
-        ],
-      });
       setActiveFilter(filter);
     },
-    [refreshTab],
+    [],
   );
 
   const hasItems = visibleItems.length > 0;

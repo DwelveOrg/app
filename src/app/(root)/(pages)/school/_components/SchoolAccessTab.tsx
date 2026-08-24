@@ -1,15 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Ban, Crown, RefreshCw, ShieldCheck, ShieldOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
-import type {
-  SchoolBlocklistEntry,
-  SchoolRosterMember,
-  TeacherInviteSummary,
-} from "@/app/(authentication)/_lib/api.schemas";
+import type { SchoolRosterMember } from "@/app/(authentication)/_lib/api.schemas";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/badge";
 import RowActionsMenu, { type RowAction } from "@/components/ui/RowActionsMenu";
@@ -22,6 +17,12 @@ import DemoteAdminDialog from "./DemoteAdminDialog";
 import PromoteTeacherDialog from "./PromoteTeacherDialog";
 import SchoolBlocklistTab from "./SchoolBlocklistTab";
 import TeacherInvitesList from "./TeacherInvitesList";
+import { SkeletonList } from "@/components/ui/Skeleton";
+import {
+  useSchoolBlocklistQuery,
+  useSchoolMembersQuery,
+  useTeacherInvitesQuery,
+} from "../_hooks/useSchoolDirectory";
 
 type AccessTab = "admins" | "invites" | "blocklist";
 
@@ -45,35 +46,30 @@ type AccessTab = "admins" | "invites" | "blocklist";
  * only two facts that change what a row's menu offers.
  */
 export default function SchoolAccessTab({
-  admins,
-  teachers,
-  invites,
-  blocklist,
-  invitesError,
-  blocklistError,
-  membersError,
+  schoolId,
   /** The viewer's own membership id, so their row cannot offer self-actions. */
   viewerMemberId,
   viewerIsOwner,
   viewerCanManageAdmins,
 }: {
-  admins: SchoolRosterMember[];
-  teachers: SchoolRosterMember[];
-  invites: TeacherInviteSummary[];
-  blocklist: SchoolBlocklistEntry[];
-  invitesError: boolean;
-  blocklistError: boolean;
-  membersError: boolean;
+  schoolId: string | undefined;
   viewerMemberId: string | undefined;
   viewerIsOwner: boolean;
   viewerCanManageAdmins: boolean;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
   const [tab, setTab] = useState<AccessTab>("admins");
   const [promoteTarget, setPromoteTarget] = useState<SchoolRosterMember | null>(null);
   const [demoteTarget, setDemoteTarget] = useState<SchoolRosterMember | null>(null);
   const [blockTarget, setBlockTarget] = useState<SchoolRosterMember | null>(null);
+  const membersQuery = useSchoolMembersQuery(schoolId);
+  const invitesQuery = useTeacherInvitesQuery(schoolId, tab === "invites");
+  const blocklistQuery = useSchoolBlocklistQuery(schoolId, tab === "blocklist");
+  const members = membersQuery.data?.members ?? [];
+  const admins = members.filter((member) => member.role === "ADMIN");
+  const teachers = members.filter((member) => member.role === "TEACHER");
+  const invites = invitesQuery.data?.invites ?? [];
+  const blocklist = blocklistQuery.data?.entries ?? [];
 
   const canPromote = viewerIsOwner || viewerCanManageAdmins;
 
@@ -129,23 +125,29 @@ export default function SchoolAccessTab({
           {
             value: "invites",
             label: t("root.schoolPage.access.tabs.invites"),
-            count: invites.length,
+            count: invitesQuery.data ? invites.length : undefined,
           },
           {
             value: "blocklist",
             label: t("root.schoolPage.access.tabs.blocklist"),
-            count: blocklist.length,
+            count: blocklistQuery.data ? blocklist.length : undefined,
           },
         ]}
       />
 
       {tab === "admins" ? (
-        membersError ? (
+        membersQuery.isPending ? (
+          <SkeletonList count={5} itemClassName="h-14" />
+        ) : membersQuery.isError ? (
           <Empty
             title={t("root.schoolPage.teachers.errorTitle")}
             description={t("root.schoolPage.teachers.errorDescription")}
             action={
-              <Button type="button" className="w-full" onClick={() => router.refresh()}>
+              <Button
+                type="button"
+                className="w-full"
+                onClick={() => void membersQuery.refetch()}
+              >
                 <RefreshCw className="size-4" />
                 {t("root.schoolPage.teachers.retry")}
               </Button>
@@ -174,9 +176,23 @@ export default function SchoolAccessTab({
           </div>
         )
       ) : tab === "invites" ? (
-        <TeacherInvitesList invites={invites} hasError={invitesError} />
+        invitesQuery.isPending ? (
+          <SkeletonList count={3} itemClassName="h-16" />
+        ) : (
+          <TeacherInvitesList
+            invites={invites}
+            hasError={invitesQuery.isError}
+            onRetry={() => void invitesQuery.refetch()}
+          />
+        )
+      ) : blocklistQuery.isPending ? (
+        <SkeletonList count={3} itemClassName="h-16" />
       ) : (
-        <SchoolBlocklistTab entries={blocklist} hasError={blocklistError} />
+        <SchoolBlocklistTab
+          entries={blocklist}
+          hasError={blocklistQuery.isError}
+          onRetry={() => void blocklistQuery.refetch()}
+        />
       )}
 
       {promoteTarget ? (

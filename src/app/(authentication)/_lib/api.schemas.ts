@@ -29,6 +29,8 @@ export const backendMemberSchema = z
     userId: z.string(),
     schoolId: z.string(),
     role: schoolRoleSchema,
+    isOwner: z.boolean().optional(),
+    canManageAdmins: z.boolean().optional(),
   })
   .passthrough();
 

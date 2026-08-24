@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Ban, RotateCcw, UserPlus } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -20,6 +19,7 @@ import {
   unblockFromSchoolAction,
 } from "@/app/(root)/_lib/school-actions";
 import Empty from "../../_components/ui/Empty";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 /**
  * Who is barred from this school, and the one control that adds to the list.
@@ -36,12 +36,14 @@ import Empty from "../../_components/ui/Empty";
 export default function SchoolBlocklistTab({
   entries,
   hasError,
+  onRetry,
 }: {
   entries: SchoolBlocklistEntry[];
   hasError: boolean;
+  onRetry: () => void;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [email, setEmail] = useState("");
   const [reason, setReason] = useState("");
   const [adding, startAdding] = useTransition();
@@ -67,7 +69,7 @@ export default function SchoolBlocklistTab({
       toast.success(t("root.schoolPage.access.blocklist.added", { email: trimmed }));
       setEmail("");
       setReason("");
-      router.refresh();
+      void refreshDirectory();
     });
   };
 
@@ -126,7 +128,7 @@ export default function SchoolBlocklistTab({
           title={t("root.schoolPage.access.blocklist.errorTitle")}
           description={t("root.schoolPage.access.blocklist.errorDescription")}
           action={
-            <Button type="button" className="w-full" onClick={() => router.refresh()}>
+            <Button type="button" className="w-full" onClick={onRetry}>
               <RotateCcw className="size-4" />
               {t("root.schoolPage.teachers.retry")}
             </Button>
@@ -191,7 +193,7 @@ function LiftBlockDialog({
   onDone: () => void;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
 
   const lift = () => {
@@ -204,7 +206,7 @@ function LiftBlockDialog({
       }
       toast.success(t("root.schoolPage.access.blocklist.lifted", { email: entry.email }));
       onDone();
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

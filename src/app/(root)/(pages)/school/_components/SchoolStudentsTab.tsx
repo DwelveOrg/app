@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { GraduationCap, UserMinus } from "lucide-react";
+import { GraduationCap, RefreshCw, UserMinus } from "lucide-react";
 
 import Avatar from "@/components/ui/Avatar";
 import { RelativeTime } from "@/components/Custom/RelativeTime";
@@ -11,9 +11,12 @@ import RowActionsMenu from "@/components/ui/RowActionsMenu";
 import Empty from "../../_components/ui/Empty";
 import RemoveStudentDialog from "./RemoveStudentDialog";
 import Surface from "@/components/ui/Surface";
+import { Button } from "@/components/ui/Button";
+import { SkeletonList } from "@/components/ui/Skeleton";
+import { useSchoolStudentsQuery } from "../_hooks/useSchoolDirectory";
 
 type SchoolStudentsTabProps = {
-  students: StudentItem[];
+  schoolId: string | undefined;
 };
 
 /**
@@ -21,9 +24,30 @@ type SchoolStudentsTabProps = {
  * (see `docs/features/students-page-contract.md`). Rendered only for admins;
  * teacher/student sessions never see this tab so the endpoint isn't called.
  */
-export default function SchoolStudentsTab({ students }: SchoolStudentsTabProps) {
+export default function SchoolStudentsTab({ schoolId }: SchoolStudentsTabProps) {
   const { t } = useTranslation();
   const [removeTarget, setRemoveTarget] = useState<StudentItem | null>(null);
+  const query = useSchoolStudentsQuery(schoolId);
+  const students = query.data?.students ?? [];
+
+  if (query.isPending) {
+    return <SkeletonList count={5} itemClassName="h-14" />;
+  }
+
+  if (query.isError) {
+    return (
+      <Empty
+        title={t("root.schoolPage.students.errorTitle")}
+        description={t("root.schoolPage.students.errorDescription")}
+        action={
+          <Button type="button" className="w-full" onClick={() => void query.refetch()}>
+            <RefreshCw className="size-4" />
+            {t("root.schoolPage.teachers.retry")}
+          </Button>
+        }
+      />
+    );
+  }
 
   if (students.length === 0) {
     return (

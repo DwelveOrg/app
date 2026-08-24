@@ -20,7 +20,6 @@ import {
 } from "@/app/(authentication)/_lib/api";
 import { createSession, getSession } from "@/app/(authentication)/_lib/session";
 import { getProfileRequest } from "./profile.api";
-import { getUser } from "../_utils/getUser";
 import {
   blockFromSchoolSchema,
   deleteSchoolSchema,
@@ -54,19 +53,30 @@ function getActionError(error: unknown, fallback: string) {
   return fallback;
 }
 
+/**
+ * The selected school id is already inside the encrypted, httpOnly session.
+ * Reading it locally avoids a preliminary school-detail request before every
+ * mutation; the backend still revalidates active membership and role on the
+ * actual write.
+ */
+async function getSelectedSchoolId() {
+  const session = await getSession();
+  if (!session?.schoolId) {
+    throw new ActionError(NO_SCHOOL_ERROR);
+  }
+  return session.schoolId;
+}
+
 export const inviteTeacherAction = actionClient
   .inputSchema(inviteTeacherSchema)
   .action(async ({ parsedInput }) => {
     // schoolId comes from the trusted session, never the client, so a member can
     // only invite into their own active school.
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       const { invite } = await createTeacherInviteRequest(
-        user.schoolId,
+        schoolId,
         { email: parsedInput.email },
         authedBackendJson,
       );
@@ -91,10 +101,7 @@ function appendText(form: FormData, key: string, value: string | undefined | nul
 export const updateSchoolAction = actionClient
   .inputSchema(updateSchoolSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       const form = new FormData();
@@ -110,7 +117,7 @@ export const updateSchoolAction = actionClient
       }
 
       const { school } = await updateSchoolRequest(
-        user.schoolId,
+        schoolId,
         form,
         authedBackendJson,
       );
@@ -161,13 +168,10 @@ export const deleteSchoolAction = actionClient
   .action(async () => {
     // schoolId comes from the trusted session, never the client, so an admin can
     // only delete their own selected school. The backend re-checks ADMIN.
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
-      await deleteSchoolRequest(user.schoolId, authedBackendJson);
+      await deleteSchoolRequest(schoolId, authedBackendJson);
     } catch (error) {
       throw new ActionError(getActionError(error, DELETE_SCHOOL_ERROR));
     }
@@ -185,14 +189,11 @@ export const deleteSchoolAction = actionClient
 export const removeSchoolMemberAction = actionClient
   .inputSchema(removeSchoolMemberSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       await removeSchoolMemberRequest(
-        user.schoolId,
+        schoolId,
         parsedInput.memberId,
         authedBackendJson,
       );
@@ -249,14 +250,11 @@ export const leaveSchoolAction = actionClient
 export const updateMemberRoleAction = actionClient
   .inputSchema(updateMemberRoleSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       await updateMemberRoleRequest(
-        user.schoolId,
+        schoolId,
         parsedInput.memberId,
         { role: parsedInput.role, canManageAdmins: parsedInput.canManageAdmins },
         authedBackendJson,
@@ -273,14 +271,11 @@ export const updateMemberRoleAction = actionClient
 export const blockFromSchoolAction = actionClient
   .inputSchema(blockFromSchoolSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       await addSchoolBlocklistEntryRequest(
-        user.schoolId,
+        schoolId,
         {
           memberId: parsedInput.memberId,
           email: parsedInput.email,
@@ -299,14 +294,11 @@ export const blockFromSchoolAction = actionClient
 export const unblockFromSchoolAction = actionClient
   .inputSchema(unblockFromSchoolSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       await removeSchoolBlocklistEntryRequest(
-        user.schoolId,
+        schoolId,
         parsedInput.entryId,
         authedBackendJson,
       );
@@ -328,14 +320,11 @@ export const unblockFromSchoolAction = actionClient
 export const reissueTeacherInviteAction = actionClient
   .inputSchema(teacherInviteIdSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       const { invite } = await reissueTeacherInviteRequest(
-        user.schoolId,
+        schoolId,
         parsedInput.inviteId,
         authedBackendJson,
       );
@@ -352,14 +341,11 @@ export const reissueTeacherInviteAction = actionClient
 export const revokeTeacherInviteAction = actionClient
   .inputSchema(teacherInviteIdSchema)
   .action(async ({ parsedInput }) => {
-    const user = await getUser();
-    if (!user?.schoolId) {
-      throw new ActionError(NO_SCHOOL_ERROR);
-    }
+    const schoolId = await getSelectedSchoolId();
 
     try {
       await revokeTeacherInviteRequest(
-        user.schoolId,
+        schoolId,
         parsedInput.inviteId,
         authedBackendJson,
       );

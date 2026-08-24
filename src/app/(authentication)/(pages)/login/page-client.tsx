@@ -104,6 +104,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
               onCredential={handleGoogleCredential}
               disabled={isBusy || googleMutation.isPending}
               text={t("auth.login.google")}
+              unavailableText={t("auth.login.googleUnavailable")}
             />
 
             <div className="flex items-center gap-3">

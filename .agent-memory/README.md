@@ -9,6 +9,7 @@ here nor there.
 ### Decisions
 
 - [[Marketing application split]] — why public and authenticated routes are separate deployments
+- [[Realtime transport boundaries]] — where polling, SSE, and WebSocket do and do not fit
 
 ### Discoveries
 
@@ -20,6 +21,7 @@ here nor there.
 
 - [[Session refresh write boundary]] — why refresh cannot spend a token from an unwritable render
 - [[Vercel upload ceiling]] — the transport cap below backend upload limits
+- [[Google OAuth configuration parity]] — browser, backend audience, origin, and rebuild must agree
 
 ## Maintenance
 

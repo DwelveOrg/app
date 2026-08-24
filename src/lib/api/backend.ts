@@ -63,6 +63,11 @@ function getApiBaseUrl() {
   );
 }
 
+/** Builds a server-only backend URL for response types that are not JSON. */
+export function backendUrl(path: string, query?: QueryParams) {
+  return `${getApiBaseUrl()}${withQuery(path, query)}`;
+}
+
 function withQuery(path: string, query?: QueryParams) {
   if (!query) {
     return path;
@@ -153,7 +158,7 @@ export async function backendJson(
   init: BackendRequestInit<z.ZodTypeAny | undefined> = {},
 ): Promise<unknown> {
   const { body, query, responseSchema, timeoutMs = DEFAULT_TIMEOUT_MS, ...requestInit } = init;
-  const url = `${getApiBaseUrl()}${withQuery(path, query)}`;
+  const url = backendUrl(path, query);
   const headers = new Headers(requestInit.headers);
 
   if (!headers.has("Accept")) {

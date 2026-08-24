@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { ShieldCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
@@ -9,6 +8,7 @@ import { toast } from "react-toastify";
 import ConfirmDialog from "@/app/(root)/_components/ConfirmDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { updateMemberRoleAction } from "@/app/(root)/_lib/school-actions";
+import { useRefreshSchoolDirectory } from "../_hooks/useSchoolDirectory";
 
 /**
  * Promote a teacher to admin.
@@ -35,7 +35,7 @@ export default function PromoteTeacherDialog({
   canDelegate: boolean;
 }) {
   const { t } = useTranslation();
-  const router = useRouter();
+  const refreshDirectory = useRefreshSchoolDirectory();
   const [isPending, startTransition] = useTransition();
   const [delegate, setDelegate] = useState(false);
 
@@ -57,7 +57,7 @@ export default function PromoteTeacherDialog({
       toast.success(t("root.schoolPage.access.promote.success", { name: teacherName }));
       setDelegate(false);
       onOpenChange(false);
-      router.refresh();
+      void refreshDirectory();
     });
   };
 

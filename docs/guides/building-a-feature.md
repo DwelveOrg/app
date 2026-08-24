@@ -105,7 +105,8 @@ Rules: [ARCHITECTURE.md](../architecture/ARCHITECTURE.md) ·
    [interaction-and-states.md](../design/interaction-and-states.md) §2.
 5. **All six control states** on anything interactive. §1 of the same.
 6. **Forms** follow [FORMS.md](../architecture/FORMS.md) exactly.
-7. **Tabs declare `refresh`.** Every tab that shows server state.
+7. **Tabs are network-free controls.** Put fetch/freshness rules in the panel query and mutation
+   hooks, not `TabBar`.
 8. **Destructive actions** go through `ConfirmDialog`, with the subject named.
 
 ---
