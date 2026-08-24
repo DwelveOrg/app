@@ -9,65 +9,37 @@ import {
     rotatedSessionProfile,
 } from './app/(authentication)/_lib/token-refresh';
 import type { SessionPayload } from './app/(authentication)/_types/auth';
-import { APP_URL, getRequestDomain, type RequestDomain } from './lib/hosts';
 
 function isRouteMatch(path: string, routes: readonly string[]) {
     return routes.some((route) => path === route || path.startsWith(`${route}/`));
 }
 
-/**
- * Every URL family that belongs to the application host once the domain split
- * is active: the signed-in product, the auth screens, and the invite-token
- * workflow (public, but part of the application, and never indexable).
- * `/api` is deliberately absent — no route handlers exist, and Server Actions
- * POST to page URLs from pages already on the right host.
- */
-const APP_HOST_ROUTES = [...protectedRoutes, ...publicRoutes, '/invite'] as const;
-
 export default async function proxy(req: NextRequest){
-    const domain = getRequestDomain(req.headers.get('host'));
-    const response = await route(req, domain);
+    const response = await route(req);
 
-    // robots.txt on the app host disallows crawling, but that alone leaves
-    // link-discovered URLs indexed as bare stubs. This header is what keeps
-    // the application out of search results entirely.
-    if (domain === 'app') {
-        response.headers.set('X-Robots-Tag', 'noindex, nofollow');
-    }
+    // This whole deployment is the application host (app.dwelve.uz) and is
+    // never indexable, on any hostname. robots.txt refuses crawling, but that
+    // alone leaves link-discovered URLs indexed as bare stubs — this header is
+    // what keeps the application out of search results entirely. The
+    // indexable face of the product is the marketing repo (dwelve.uz).
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
 
     return response;
 }
 
-async function route(req: NextRequest, domain: RequestDomain){
+async function route(req: NextRequest){
     const path = req.nextUrl.pathname;
-
-    // The marketing host serves only the public site. Application and auth
-    // URLs moved to the app origin for good — 308 keeps method and body, and
-    // keeps old bookmarks and emailed links (invites, password resets) alive.
-    // Nothing behind this host reads auth, so session work is skipped whole:
-    // rotating tokens for a marketing pageview would burn single-use refresh
-    // tokens that the app host can no longer store.
-    if (domain === 'marketing' && APP_URL) {
-        if (isRouteMatch(path, APP_HOST_ROUTES)) {
-            return NextResponse.redirect(
-                new URL(`${path}${req.nextUrl.search}`, APP_URL),
-                308,
-            );
-        }
-
-        return NextResponse.next();
-    }
-
     const isProtectedRoute = isRouteMatch(path, protectedRoutes)
     const isPublicRoute = isRouteMatch(path, publicRoutes)
 
     const cookie = req.cookies.get(SESSION_COOKIE_NAME)?.value
     const session = await decryptSession(cookie)
 
-    // The app host has no landing page: its root belongs to the product, so it
-    // resolves by session the way bookmarking "the app" should. 307, because
-    // where it lands depends on auth state and must never be cached.
-    if (domain === 'app' && path === '/') {
+    // There is no landing page in this repository: the root belongs to the
+    // product, so it resolves by session the way bookmarking "the app"
+    // should. 307, because where it lands depends on auth state and must
+    // never be cached.
+    if (path === '/') {
         return withSensitiveResponseHeaders(
             NextResponse.redirect(new URL(session?.userId ? '/dashboard' : '/login', req.url)),
         )

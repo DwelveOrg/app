@@ -1,6 +1,5 @@
 import type { NextConfig } from "next";
 
-import { SITE_URL } from "./src/lib/seo";
 
 const isDevelopment = process.env.NODE_ENV === "development";
 
@@ -45,7 +44,6 @@ const securityHeaders = [
   },
 ];
 
-const canonicalRedirectHosts = ["www.dwelve.uz", "dwelve.vercel.app"] as const;
 
 /**
  * Compatibility redirects for the retired Settings routes. Profile and Settings
@@ -97,15 +95,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [],
   },
   async redirects() {
-    return [
-      ...canonicalRedirectHosts.map((host) => ({
-        source: "/:path*",
-        has: [{ type: "host" as const, value: host }],
-        destination: `${SITE_URL}/:path*`,
-        permanent: true,
-      })),
-      ...settingsRedirects.map((redirect) => ({ ...redirect, permanent: false })),
-    ];
+    return settingsRedirects.map((redirect) => ({ ...redirect, permanent: false }));
   },
   async headers() {
     return [

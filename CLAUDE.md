@@ -27,7 +27,7 @@ This file is intentionally root-level because Claude Code uses root project guid
 
 ## Project
 
-Dwelve, package name `gf-frontend`, is a Next.js App Router frontend for a digital academic testing and performance-management platform for schools and private learning centers.
+Dwelve, package name `dwelve-app`, is a Next.js App Router frontend for a digital academic testing and performance-management platform for schools and private learning centers.
 
 Primary product areas:
 
@@ -40,7 +40,7 @@ Primary product areas:
 
 Stack noted in the existing project documentation:
 
-**Dwelve** (package name `gf-frontend`) is a Next.js App Router frontend for a digital academic testing and performance-management platform for schools and learning centers — test creation, submission, automated grading, and analytics.
+**Dwelve** (package name `dwelve-app`) is a Next.js App Router frontend for a digital academic testing and performance-management platform for schools and learning centers — test creation, submission, automated grading, and analytics.
 
 - Next.js App Router
 - React
@@ -81,27 +81,18 @@ Use the `staging` branch for repository changes unless the maintainer explicitly
 
 Routes live in `src/app`.
 
-The site is split across two hosts (bridgemind.ai pattern): `dwelve.uz` serves
-only the marketing site, `app.dwelve.uz` serves auth and the product. Both are
-one deployment — `src/proxy.ts` routes by `Host` header, gated on the
-`NEXT_PUBLIC_APP_URL` env var (unset = combined single host, which is what
-localhost and previews use). Cross-host links go through `appHref()` /
-`marketingHref()` from `src/lib/hosts.ts`; everything else stays relative. See
-`docs/architecture/DOMAINS.md` before touching hosts, redirects, robots, or
-the sitemap.
-
-**Binding rule — marketing repo split.** Before adding or changing anything on
-the marketing surface (`src/app/(landing)`, `PUBLIC_INDEXABLE_ROUTES`, new
-marketing routes), check the split triggers in `docs/architecture/DOMAINS.md`
-§“When the marketing site earns its own repository”. If a trigger fires, stop,
-tell the maintainer which one, and ask permission to plan a separate marketing
-repo — never create a repo or restructure without an explicit yes, and never
-propose it when no trigger has fired. Declined proposals are recorded in that
-document's decision log; don't re-raise until a different trigger fires.
+**This repository is the application host** (`app.dwelve.uz`) of a two-repo
+split, bridgemind.ai-style. The marketing site — the landing page, robots
+allow-rules, and the sitemap — lives in the separate `DwelveOrg/frontend`
+repository and owns `dwelve.uz`. Nothing here is ever indexable:
+`src/proxy.ts` stamps `X-Robots-Tag: noindex` on every response, `robots.txt`
+disallows everything, and `/` resolves by session to `/dashboard` or
+`/login`. Links back to the marketing site go through `marketingHref()` from
+`src/lib/hosts.ts`; everything else stays relative. Marketing pages must not
+be added to this repository. See `docs/architecture/DOMAINS.md`.
 
 Known route groups:
 
-- `src/app/(landing)` — public marketing site
 - `src/app/(authentication)` — login, signup, password reset
 - `src/app/(root)` — authenticated dashboard
 - `src/app/(root)/(pages)` — dashboard pages

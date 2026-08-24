@@ -6,7 +6,7 @@ import "@/components/ui/toast.css";
 import Providers from "./providers";
 import Toaster from "@/components/ui/toaster";
 import { BRAND_NAME } from "@/constants/brand";
-import { HOME_DESCRIPTION, HOME_TITLE, SITE_URL } from "@/lib/seo";
+import { APP_SITE_URL, HOME_DESCRIPTION, HOME_TITLE } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
 /*
@@ -73,7 +73,7 @@ const dwelveWordmark = Manrope({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
+  metadataBase: new URL(APP_SITE_URL),
   applicationName: BRAND_NAME,
   title: {
     default: HOME_TITLE,
