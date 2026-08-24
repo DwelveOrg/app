@@ -15,7 +15,9 @@ export default async function Page({ searchParams }: PageProps) {
 
   if (!classId) redirect("/groups");
 
-  const user = await getUser();
+  // One wave, not two — the class read is session-authorised, so a forbidden
+  // viewer merely discards it.
+  const [user, classResult] = await Promise.all([getUser(), getClass(classId)]);
   const viewerRole = user?.schoolRole ?? null;
   const exitHref = studioRoutes.classTests(classId);
 
@@ -29,7 +31,6 @@ export default async function Page({ searchParams }: PageProps) {
     );
   }
 
-  const classResult = await getClass(classId);
 
   if (!classResult.ok) {
     return (

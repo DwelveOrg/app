@@ -20,7 +20,9 @@ type PageProps = {
  */
 export default async function Page({ params }: PageProps) {
   const { testId } = await params;
-  const user = await getUser();
+  // One wave, not two — same reasoning as the editor page: the test read is
+  // session-authorised, so a forbidden viewer merely discards it.
+  const [user, result] = await Promise.all([getUser(), getTest(testId)]);
   const viewerRole = user?.schoolRole ?? null;
 
   if (viewerRole !== "ADMIN" && viewerRole !== "TEACHER") {
@@ -33,7 +35,6 @@ export default async function Page({ params }: PageProps) {
     );
   }
 
-  const result = await getTest(testId);
 
   if (!result.ok) {
     return (
