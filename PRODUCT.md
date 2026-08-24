@@ -1,71 +1,53 @@
-# Product
+# Dwelve Product Application
 
-## Register
+## Purpose and users
 
-product
+Dwelve is a digital academic testing and performance-management product for schools and private
+learning centers, initially shaped for Uzbekistan and the wider CIS region. Administrators organize
+schools, members, and classes; teachers author and publish tests and review performance; students
+join learning contexts and take assigned tests. The interface supports English, Russian, and Uzbek
+Latin.
 
-## Users
+The application aims to reduce manual assessment work and give educators trustworthy class and
+student performance information.
 
-Schools and private learning centers in Uzbekistan and the wider CIS region — administrators, teachers, and students. Admins set up an organization and its classes; teachers author tests and review results; students take tests and track their performance. Users are in a task-focused workflow (creating, grading, or reviewing academic work), often on modest hardware and in one of three languages (English, Russian, Uzbek Latin).
+## Implemented product areas
 
-## Product Purpose
+- Email/password and Google authentication, password recovery, sessions, and profiles
+- Post-signup school creation, invite acceptance, school/class join requests, and membership context
+- School, member, class, teacher, and student management surfaces
+- Test authoring, PDF-assisted import, publication, assignments, exam attempts, grading, and results
+- Dashboards, notifications, support reports, localization, themes, and responsive product shells
 
-Dwelve (`gf-frontend`) is a digital academic testing and performance-management platform: test creation, submission, automated grading, and student/class analytics. Success is teachers spending less time grading and more time teaching, and administrators getting trustworthy performance data. The interface should disappear into the task.
+Detailed behavior and known gaps live in [`docs/features/`](./docs/features/) and the route map in
+[`docs/architecture/SYSTEM_DESIGN.md`](./docs/architecture/SYSTEM_DESIGN.md).
 
-## Brand Personality
+## Roles and business rules
 
-Structured, academic, modern, quietly premium. The split that carries the system:
-**violet is identity** (the logo, the wordmark, the auth panel, the landing bloom, chart slot 1)
-and **ink is action** (`--primary` is near-black; what you press is quiet because it is
-everywhere). Colour is reserved for state (success / warning / destructive) and for data (the
-five-hue chart ramp, where teal lives on as pure data at slot 2). Surfaces are calm and tactile —
-warm paper under cool ink in light, a cool near-black under warmer accents in dark. Confident and
-legible, never flashy.
+- Accounts are global identities; roles exist only on a membership in a school or learning center.
+- Signup does not let a user choose a role.
+- A school creator receives an administrator membership for that school.
+- Teacher access is granted through an administrator-controlled invite or approved request.
+- Student access is granted through an invite, join credential, or approved request.
+- One account can have multiple memberships; the selected school determines application context.
+- Backend authorization is authoritative even when the UI hides unavailable actions.
 
-## Standing design direction
+## Product boundaries
 
-Committed 2026-08-23, by the owner's explicit choice from a direction round: **the category
-standard, played straight** — the clean modern SaaS product surface (panels, stat tiles, honest
-charts, dense tables), executed at the craft level of Linear- and Stripe-grade dashboards, inside
-the incumbent token system above. Not a themed visual world; distinctiveness comes from discipline:
-every fact appears once, charts follow the data-viz rules (solid hairline grids, single-hue forms
-unless series identity is the point, status colours only for state), and nothing may read as
-generated or templated. Future surfaces and the admin console follow this same direction.
+- This repository is the authenticated, non-indexable application at `app.dwelve.uz`.
+- The sibling `frontend` repository owns public marketing and search-indexable pages.
+- Platform-operator workflows live in the separate `admin` console.
+- The sibling `backend_nestJS` repository owns records, authorization, storage, and API behavior.
 
-## Anti-references
+## Interface direction
 
-- Generic SaaS "bright blue + rainbow gradient" dashboards. No multi-hue decorative palettes; the
-  only blue in the system is semantic Info, and category tints come from the chart ramp, not from
-  raw Tailwind hues.
-- Violet used as an action colour. Violet says *this is Dwelve*, never *click this*. If a violet
-  thing is clickable, it is wrong.
-- Glassmorphism as a default surface. Blur is for genuinely floating chrome (a sticky action bar,
-  a scrolled nav) — never for ordinary panels.
-- Ad-hoc hex colours, one-off `shadow-[…]` values, and arbitrary `text-[Npx]` sizes in components.
-  Colour comes from the tokens in `globals.css`, elevation from `shadow-elev-*`, type from the
-  `type-*` utilities.
-- Nested cards. A bordered box inside a bordered box inside a bordered box is a hierarchy failure,
-  not depth.
+The product follows a restrained academic SaaS system: ink is the action color, violet is brand
+identity, and chart colors are reserved for data. Shared tokens and components—not one-off Tailwind
+values—define typography, color, elevation, motion, and states. The canonical UI rules live in
+[`docs/design/`](./docs/design/).
 
-## Design Principles
+## Known product limitations
 
-- **One palette, everywhere.** Logo, marketing, and product UI share the token system. No component
-  invents its own hex.
-- **Depth is real, and it is cheap.** Surfaces sit above the canvas and carry `shadow-elev-1/2`.
-  Elevation separates layers; hairline borders define edges. Neither is decoration, and levels are
-  earned — most of a page lives at elevation 1.
-- **Accent means action.** Teal `--primary` marks primary actions, current selection, and state.
-  Inactive things are never fully saturated.
-- **Everything you can touch responds.** Every interactive surface has default, hover, focus,
-  active, disabled, and loading. The `interactive` / `interactive-flat` utilities are the single
-  tactile recipe — lift on hover, settle on press — so the whole product presses the same way.
-- **Motion conveys state, not personality.** 120–260ms. No page-load choreography: the app loads
-  into a task.
-- **Consistency over surprise.** The same button, card, and row vocabulary screen to screen. Delight
-  is reserved for moments (empty-state artwork, the landing hero), not every surface.
-- **Trilingual by default.** Every text surface must hold English, Russian, and Uzbek Latin
-  (including U+02BB `ʻ`).
-
-## Accessibility & Inclusion
-
-WCAG AA for text contrast. Body text ≥ 4.5:1, large/bold text ≥ 3:1. Never signal correct/incorrect by color alone — pair success/danger with an icon or label. Respect `prefers-reduced-motion`. Dark mode is a first-class theme via the `.dark` class strategy.
+The repository has no automated UI or integration tests. Some roadmap and gap notes under
+`docs/planning/` describe incomplete or unverified behavior; those notes are not a substitute for
+checking current code and backend contracts.

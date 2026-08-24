@@ -1,46 +1,40 @@
-# Dwelve Docs
+# Dwelve Application
 
-This repository contains the Dwelve frontend and its stable project guidance.
+The authenticated Dwelve product for school administrators, teachers, and students. It contains
+authentication, onboarding, school and class management, test authoring, exam delivery, reporting,
+and account workflows. Public marketing pages live in the sibling `frontend` repository.
 
-## Files
+Start with:
 
-- `docs/README.md` - canonical documentation structure and reading order.
-- `docs/product/PRD.md` - product scope, target users, priorities, roadmap, risks.
-- `docs/architecture/ARCHITECTURE.md` - mandatory frontend architecture, backend request, schema, form, and data-fetching rules.
-- `docs/design/design-system.md` - typography, color, layout, component, script, and accessibility rules.
-- `AGENTS.md` - root-level coding-agent guidance.
-- `CLAUDE.md` - root-level Claude Code guidance.
+- [`AGENTS.md`](./AGENTS.md) — repository operating rules and verification loop
+- [`docs/README.md`](./docs/README.md) — task-oriented documentation map
+- [`PRODUCT.md`](./PRODUCT.md) — concise product identity and current boundaries
+- [`.agent-memory/README.md`](./.agent-memory/README.md) — durable discoveries and decisions
 
-## Run locally
+## Local development
 
-The frontend's production values may live in `.env`, but local development must
-use the Git-ignored `.env.local` file so it never sends local sessions or API
-requests to production. A local configuration is included in the working tree;
-to recreate it, copy `.env.example` to `.env.local`.
-
-Start the local NestJS API on port 5001 first, following
-`../backend_nestJS/RUN_BACKEND.md`. Then run:
+Requires Node.js 22.13 or newer and the sibling NestJS backend. Configure the backend first using
+`../backend_nestJS/RUN_BACKEND.md`, then:
 
 ```bash
-cd frontend
+npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Open `http://localhost:3000`. The local frontend calls
-`http://localhost:5001/api/v1` and uses a development-only session key.
+Open `http://localhost:3000`. The example configuration expects the local backend at
+`http://localhost:5001/api/v1`. Replace the example session secret before using the environment
+beyond local development. Google sign-in remains disabled unless a matching client ID is configured
+in both frontend and backend.
 
-Google sign-in is intentionally disabled in the supplied local configuration.
-To test it, create or use a Google OAuth web-client ID that authorizes
-`http://localhost:3000`, then set `NEXT_PUBLIC_GOOGLE_CLIENT_ID` in
-`.env.local`; its matching client ID must also be configured in the local
-backend.
+## Quality gates
 
-## What Does Not Belong Here
+```bash
+npm run lint
+npx tsc --noEmit
+npm run check:contrast
+npm run build
+```
 
-- Generated build output.
-- Local environment files.
-- Temporary notes that are not maintained.
-
-## Maintenance Rule
-
-When code and docs disagree, update both in the same pull request.
+There is currently no first-party automated test suite. Exercise affected user flows manually in
+addition to the static and build gates.

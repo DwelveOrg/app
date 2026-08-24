@@ -1,21 +1,23 @@
 # Security Policy
 
-## Supported Versions
+## Scope
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+This repository handles authentication sessions, school membership context, exam workflows, user
+uploads, and server-side calls to the Dwelve API. Security invariants and implementation locations
+are documented in [`docs/architecture/SECURITY.md`](./docs/architecture/SECURITY.md).
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+## Reporting a vulnerability
 
-## Reporting a Vulnerability
+Do not open a public issue containing exploit details, credentials, personal data, or screenshots of
+private school content. Use the maintainers' private security-reporting channel. The repository does
+not currently publish a dedicated address; if you only have public contact, request a private channel
+without disclosing details.
 
-Use this section to tell people how to report a vulnerability.
+## Maintainer expectations
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+- Never commit credentials, tokens, session secrets, or production environment values.
+- Validate authentication and authorization on the server; hidden client controls are not a guard.
+- Treat backend responses and uploads as untrusted input.
+- Preserve encrypted, `httpOnly` session cookies and the application-wide no-index policy.
+- Review dependency advisories and do not lower the patched `postcss` override documented in
+  `package.json`.
