@@ -91,7 +91,11 @@ This is a Next.js App Router frontend.
 
 Application routes live in `src/app`, with route groups such as:
 
-- `src/app/(landing)` — public marketing routes
+- `src/app/(landing)` — public marketing routes. Served only on `dwelve.uz`
+  once the host split is active; the platform lives on `app.dwelve.uz`. Before
+  growing this surface, check the repo-split triggers in
+  `docs/architecture/DOMAINS.md` — if one fires, ask the maintainer before
+  restructuring anything.
 - `src/app/(authentication)` — login, signup, password reset
 - `src/app/(root)` — authenticated dashboard routes
 

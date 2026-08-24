@@ -105,3 +105,72 @@ Rollback at any point: unset `NEXT_PUBLIC_APP_URL` and redeploy. The site
 reverts to combined single-host behaviour on `dwelve.uz`; remove the
 `app.dwelve.uz` domain from the project afterwards if abandoning the split
 (sessions created on the app host are lost with it, same one-time re-login).
+
+## When the marketing site earns its own repository
+
+One repo is the right shape **while marketing is a landing page**. The moment
+it stops being one, a separate marketing repo/project stops being overhead and
+starts being the correct structure. The triggers below are the definition of
+"stops being one" — they were agreed with the maintainer when the domain split
+shipped, so nobody has to re-litigate the question from scratch.
+
+### Hard triggers — any single one is enough to raise the split
+
+1. **Editorial content**: a blog, news, changelog, or any CMS-driven content
+   is requested — content that publishes on its own cadence and needs an
+   editing workflow does not belong inside the product deployment.
+2. **A different stack**: the maintainer wants marketing built with another
+   tool (Astro, Framer, Webflow, a static-site generator, anything not this
+   Next.js app).
+3. **A non-developer editor**: a marketer, designer, or content person needs
+   to change marketing pages on their own schedule without touching product
+   code.
+
+### Soft triggers — two or more together raise the split
+
+4. **Scale**: `PUBLIC_INDEXABLE_ROUTES` in `src/lib/seo-routes.ts` grows past
+   **8 indexable marketing pages** (landing + pricing + about + a few product
+   pages is the natural ceiling for the in-repo setup).
+5. **Design divergence**: marketing wants to break from the product design
+   system — its own fonts, campaign branding, seasonal looks. Shared tokens
+   are the main benefit of one repo; when they stop being shared, the benefit
+   is gone.
+6. **Build weight**: marketing assets (video, heavy imagery, many pages)
+   measurably slow `next build` or bloat the repo.
+7. **Deploy cadence**: marketing edits start shipping clearly more often than
+   product changes, so most production deploys carry zero product value but
+   full product risk.
+
+### Agent rule — binding
+
+Any agent working in this repository that adds to or changes the marketing
+surface — `src/app/(landing)`, `PUBLIC_INDEXABLE_ROUTES`, or new
+marketing-facing routes — must check the triggers above **before**
+implementing:
+
+- If a trigger fires, **stop and tell the maintainer** which trigger fired,
+  in plain language, and ask permission to plan the repo split. Do **not**
+  create a repository, move code, or restructure on your own initiative —
+  the split happens only on an explicit yes.
+- If the maintainer declines, record the decision in the log below (date,
+  trigger, verdict) and continue in-repo. Do not raise it again until a
+  *different* trigger fires — a recorded "no" is an answer, not a nag timer.
+- If no trigger has fired, do not propose the split at all; preemptive
+  splitting is exactly the overhead this document exists to prevent.
+
+### Decision log
+
+*(empty — no trigger has fired yet)*
+
+### What the split will look like when it happens
+
+Roughly an afternoon, in this order: create the marketing project; move
+`src/app/(landing)` plus the small pieces it leans on (logo lockup, Button,
+fonts/tokens, the `landing.*` i18n strings); point `dwelve.uz` at the new
+project; then in this repo delete the marketing-host branch from
+`src/proxy.ts` and the `(landing)` group. The app host and its sealed
+robots/`X-Robots-Tag` behaviour stay exactly as they are; the new repo takes
+over `robots.txt` and `sitemap.xml` for `dwelve.uz`. Auth stays here — only
+marketing moves. The `appHref()`/`marketingHref()` helpers already isolate
+every cross-host link, which is what keeps this an afternoon and not a
+rewrite.

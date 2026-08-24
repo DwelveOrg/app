@@ -90,6 +90,15 @@ localhost and previews use). Cross-host links go through `appHref()` /
 `docs/architecture/DOMAINS.md` before touching hosts, redirects, robots, or
 the sitemap.
 
+**Binding rule — marketing repo split.** Before adding or changing anything on
+the marketing surface (`src/app/(landing)`, `PUBLIC_INDEXABLE_ROUTES`, new
+marketing routes), check the split triggers in `docs/architecture/DOMAINS.md`
+§“When the marketing site earns its own repository”. If a trigger fires, stop,
+tell the maintainer which one, and ask permission to plan a separate marketing
+repo — never create a repo or restructure without an explicit yes, and never
+propose it when no trigger has fired. Declined proposals are recorded in that
+document's decision log; don't re-raise until a different trigger fires.
+
 Known route groups:
 
 - `src/app/(landing)` — public marketing site
