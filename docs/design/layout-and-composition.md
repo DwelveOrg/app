@@ -49,9 +49,16 @@ one is the largest layout mistake available, because it is invisible until the f
   click.
 - `export const dynamic = "force-dynamic"` — the layout reads the session.
 
-**Narrow variant.** `(root)/(pages)/(small-container)/layout.tsx` caps the column at
-`md:max-w-[600px]` for the account area. One cap, applied from `md` up. Do not add percentage widths
-inside an already-padded shell — the old version mixed `container`, `max-w-[80%]`, and two identical
+**Narrow variant — retired.** There was a `(root)/(pages)/(small-container)` route group whose
+layout capped the account area at `md:max-w-[600px]`. It is gone, and `profile` now sits directly
+under `(root)/(pages)/`: a 600px cap inside a shell already capped at 1180 stranded ~290px of dead
+canvas on either side of a desktop window and made the account area read as unfinished next to
+Dashboard and Groups. The page now caps itself at `max-w-[1040px]` — one measure short of the
+shell's — and splits each panel into two columns from `lg` up.
+
+That is the general rule for a page that would otherwise look empty on a wide screen: **fill it by
+splitting into columns, not by removing the gutter.** Still do not add percentage widths inside an
+already-padded shell — an earlier version mixed `container`, `max-w-[80%]`, and two identical
 breakpoint caps, and produced a double inset that read as a bug.
 
 ### Studio — `studio/layout.tsx`
