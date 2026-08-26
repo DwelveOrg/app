@@ -11,6 +11,18 @@ import { useEffect, useRef, useState } from "react";
  * mutation per frame and no React render — `useState` appears here exactly once,
  * to decide whether to mount at all.
  *
+ * ## The numbers are fractions of the backdrop, not of the viewport
+ *
+ * The backdrop is not the window. In the authenticated shell it is the content
+ * column, inset by a 264px sidebar; elsewhere (`anchor="viewport"`) it happens
+ * to fill the screen. The light is placed at a percentage *of that box*, so the
+ * fraction has to be measured against that box too — dividing by
+ * `window.innerWidth` puts the light up to 200px to the right of the cursor and
+ * only lines the two up at the far right edge.
+ *
+ * The box is measured lazily and cached: the cursor moves constantly, the
+ * column only when the window resizes or the sidebar appears.
+ *
  * ## What it deliberately does not do
  *
  * It does not mount on a device without a real cursor. On a phone there is no
@@ -49,23 +61,36 @@ export default function ShellBackdropMotion() {
 
     // The variables go on the backdrop *root*, not on this span: custom
     // properties inherit downward only, and the ruling — a sibling — has to
-    // read the same two numbers to compute its parallax.
+    // read the same two numbers to compute its parallax. It is also the box the
+    // light's `%` position resolves against, which is why it is what we measure.
     const element = ref.current?.closest<HTMLElement>(".shell-backdrop");
     if (!element) return;
 
     let frame = 0;
     let pending: { x: number; y: number } | null = null;
+    let box: DOMRect | null = null;
 
     const paint = () => {
       frame = 0;
       if (!pending) return;
 
-      // Fractions of the viewport rather than pixels, so the same two numbers
-      // drive a light positioned in `%` and a parallax scaled in `px` without
-      // either needing to know the window size.
-      element.style.setProperty("--pointer-x", pending.x.toFixed(4));
-      element.style.setProperty("--pointer-y", pending.y.toFixed(4));
-      element.dataset.tracking = "true";
+      // Measured here rather than per event: reading layout inside the frame
+      // callback costs one read at most per frame, and only while the cursor is
+      // actually moving.
+      box ??= element.getBoundingClientRect();
+
+      if (box.width > 0 && box.height > 0) {
+        // Fractions of the backdrop rather than pixels, so the same two numbers
+        // drive a light positioned in `%` and a parallax scaled in `px` without
+        // either needing to know the box size. Left unclamped on purpose: with
+        // the cursor over the sidebar the fraction goes negative, the light's
+        // centre sits off the canvas, and only its falloff spills onto the left
+        // edge — which is exactly where the light is.
+        element.style.setProperty("--pointer-x", ((pending.x - box.left) / box.width).toFixed(4));
+        element.style.setProperty("--pointer-y", ((pending.y - box.top) / box.height).toFixed(4));
+        element.dataset.tracking = "true";
+      }
+
       pending = null;
     };
 
@@ -74,10 +99,7 @@ export default function ShellBackdropMotion() {
       // laptop) should not yank the light to wherever a finger landed.
       if (event.pointerType === "touch") return;
 
-      pending = {
-        x: event.clientX / window.innerWidth,
-        y: event.clientY / window.innerHeight,
-      };
+      pending = { x: event.clientX, y: event.clientY };
 
       // Coalesce to one write per frame. `pointermove` can fire far faster than
       // the display refreshes, and every extra write is a style recalculation
@@ -86,20 +108,46 @@ export default function ShellBackdropMotion() {
     };
 
     // Losing the cursor fades the light out rather than freezing it mid-canvas,
-    // which would read as a stain on the page instead of as a reflection.
-    const onPointerLeave = () => {
+    // which would read as a stain on the page instead of as a reflection. The
+    // queued frame goes with it: a move that arrived just before the cursor left
+    // would otherwise paint the light straight back on at a stale position.
+    const stopTracking = () => {
+      if (frame) cancelAnimationFrame(frame);
+      frame = 0;
+      pending = null;
       element.dataset.tracking = "false";
     };
 
+    // `pointerleave` does not bubble, so a listener on `document` is never run
+    // for the one the UA fires at `<html>` when the cursor leaves the window —
+    // which is why the light used to freeze instead of fading. `pointerout`
+    // does bubble, and a null `relatedTarget` is precisely "went nowhere in this
+    // document", i.e. out of the window.
+    const onPointerOut = (event: PointerEvent) => {
+      if (!event.relatedTarget) stopTracking();
+    };
+
+    // Both of these move the column the light is measured against: the window
+    // resizing, and the sidebar arriving or leaving at the md breakpoint.
+    const remeasure = () => {
+      box = null;
+    };
+
+    const observer = new ResizeObserver(remeasure);
+    observer.observe(element);
+
     window.addEventListener("pointermove", onPointerMove, { passive: true });
-    document.addEventListener("pointerleave", onPointerLeave);
-    window.addEventListener("blur", onPointerLeave);
+    window.addEventListener("pointerout", onPointerOut, { passive: true });
+    window.addEventListener("resize", remeasure, { passive: true });
+    window.addEventListener("blur", stopTracking);
 
     return () => {
       if (frame) cancelAnimationFrame(frame);
+      observer.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
-      document.removeEventListener("pointerleave", onPointerLeave);
-      window.removeEventListener("blur", onPointerLeave);
+      window.removeEventListener("pointerout", onPointerOut);
+      window.removeEventListener("resize", remeasure);
+      window.removeEventListener("blur", stopTracking);
     };
   }, [enabled]);
 

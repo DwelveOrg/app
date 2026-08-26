@@ -1109,10 +1109,15 @@
 /* The counter-parallax the ruling reads. Signed so the field leans *away* from
    the cursor: the light appears to sit above the paper rather than to drag it.
    Scoped to the tracking state so the ruling settles back to centre when the
-   cursor leaves, instead of holding the last lean. */
+   cursor leaves, instead of holding the last lean.
+
+   Clamped because the fractions are not clamped: with the cursor over the
+   sidebar `--pointer-x` is negative — correct for the light, whose centre
+   belongs off the canvas there — but the lean has one designed amplitude and
+   must not exceed it just because the cursor wandered off the box. */
 .shell-backdrop[data-tracking="true"] {
-  --shell-shift-x: calc((var(--pointer-x, 0.5) - 0.5) * -14px);
-  --shell-shift-y: calc((var(--pointer-y, 0.5) - 0.5) * -14px);
+  --shell-shift-x: clamp(-7px, calc((var(--pointer-x, 0.5) - 0.5) * -14px), 7px);
+  --shell-shift-y: clamp(-7px, calc((var(--pointer-y, 0.5) - 0.5) * -14px), 7px);
 }
 
 .dark .shell-backdrop-pointer {
