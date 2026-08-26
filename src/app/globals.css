@@ -1517,6 +1517,48 @@
   animation: working-bar-sheen 1.9s var(--ease-out-quint) infinite;
 }
 
+/* ============================================================================
+   Auth handoff
+   ========================================================================= */
+
+/* The ring around the mark on the sign-in handoff overlay.
+
+   One slow, even rotation. The arc's *length* is what carries the phase (see
+   AuthHandoff.tsx) — the spin only says "still working" — so it is deliberately
+   calmer than a control spinner, which would read as a thing to wait out rather
+   than as the app opening. */
+@keyframes auth-handoff-ring {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The violet bloom behind it, breathing at twice the ring's period so the two
+   never land on the same beat and read as one mechanical unit. */
+@keyframes auth-handoff-halo {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+.auth-handoff-ring {
+  transform-origin: 50% 50%;
+  animation: auth-handoff-ring 1.6s linear infinite;
+}
+
+.auth-handoff-halo {
+  animation: auth-handoff-halo 3.2s var(--ease-out-quint) infinite;
+}
+
 /* Continuous use-case ribbon on the landing hero. The track holds two identical
    groups; translateX(-50%) lands the second exactly where the first began, so the
    loop is seamless. Transform-only, so it stays on the compositor. The reduced-
@@ -1605,7 +1647,9 @@
   .mock-shimmer,
   .landing-marquee-track,
   .working-bar-fill,
-  .working-bar-sheen {
+  .working-bar-sheen,
+  .auth-handoff-ring,
+  .auth-handoff-halo {
     animation: none;
   }
 

@@ -28,15 +28,27 @@ type SecurityTabProps = {
  * nothing per navigation — the password panel reads `hasPassword` from the one
  * bootstrap this route already made, and the sessions list fetches on mount,
  * which only happens once this tab is opened.
+ *
+ * The two panels sit side by side from `lg` up, but the account actions stay
+ * full width *below* them rather than becoming a third column. Deleting an
+ * account is the most destructive control in the product, and "last thing on
+ * the page" is only a meaningful position while the page still has a last
+ * thing — in a three-column row it would sit level with a password field.
+ *
+ * `items-start` on purpose: the sessions list grows with the number of signed-in
+ * devices, and stretching the password panel to match would leave a tall empty
+ * card next to it.
  */
 export function SecurityTab({ hasPassword }: Readonly<SecurityTabProps>) {
   const { t } = useTranslation();
 
   return (
-    <div className="space-y-7">
-      <ChangePasswordForm hasPassword={hasPassword} />
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <ChangePasswordForm hasPassword={hasPassword} />
 
-      <SessionsPanel />
+        <SessionsPanel />
+      </div>
 
       <AccountGroup label={t("root.profile.groups.accountActions")}>
         {/* No 2FA model on the backend yet — stays a signposted placeholder. */}

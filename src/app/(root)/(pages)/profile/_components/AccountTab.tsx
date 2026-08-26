@@ -14,22 +14,32 @@ import { SelectedSchoolCard } from "./SelectedSchoolCard";
  * Role fields come only from `selectedSchool.roleProfile` and only for
  * teachers and students — an admin membership has no editable role profile, so
  * the form is not rendered at all rather than rendered empty.
+ *
+ * The two columns are the two halves of the bootstrap: `account` on the left,
+ * `selectedSchool` and `memberships` on the right. Splitting it that way rather
+ * than "cards left, forms right" means each column is one subject — you, and
+ * where you belong — so the panel stays balanced whether or not the school
+ * half is present, and a stacked phone layout reads in the same order.
  */
 export function AccountTab({ profile }: Readonly<{ profile: ProfileResponse }>) {
   const { account, selectedSchool, memberships } = profile;
   const showSchoolProfile = selectedSchool && selectedSchool.roleProfile.type !== "ADMIN";
 
   return (
-    <div className="space-y-6">
-      <ProfileSummaryCard account={account} />
+    <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+      <div className="min-w-0 space-y-6">
+        <ProfileSummaryCard account={account} />
 
-      <SelectedSchoolCard selectedSchool={selectedSchool} />
+        <AccountDetailsForm account={account} />
+      </div>
 
-      <AccountDetailsForm account={account} />
+      <div className="min-w-0 space-y-6">
+        <SelectedSchoolCard selectedSchool={selectedSchool} />
 
-      {showSchoolProfile ? <SchoolProfileForm selectedSchool={selectedSchool} /> : null}
+        {showSchoolProfile ? <SchoolProfileForm selectedSchool={selectedSchool} /> : null}
 
-      <MembershipsPanel memberships={memberships} selectedSchool={selectedSchool} />
+        <MembershipsPanel memberships={memberships} selectedSchool={selectedSchool} />
+      </div>
     </div>
   );
 }

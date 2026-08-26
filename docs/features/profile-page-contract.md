@@ -316,6 +316,15 @@ a feature" rows open the same dialog as the floating report control and post to
 screenshot that makes a report actionable. "Contact support" stays an email
 link — it starts a conversation, which belongs in the user's own inbox.
 
+The documentation half of that tab is a fixed list of help topics held entirely
+in the locale catalogs under `root.settings.documentation.topics`, rendered as a
+disclosure list by `DocumentationPanel`. It answers questions about joining a
+school, class rosters, authoring, attempt timing, result release, preferences
+and reporting — so its copy has to keep matching the product, and it is not a
+place for marketing text about what Dwelve is. It links only to routes every
+role has (`/groups`, `/profile`); `/tests` and `/assignments` split by role and
+would dead-end half the audience.
+
 Former `/settings` routes redirect to the matching `/profile` tab for backward
 compatibility.
 

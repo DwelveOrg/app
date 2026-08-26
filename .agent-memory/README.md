@@ -14,6 +14,7 @@ here nor there.
 ### Discoveries
 
 - [[Application residue after split]] — marketing-only tokens, catalogs, and comments still present
+- [[Post auth navigation dead zone]] — the invisible wait between a successful sign-in and the shell
 - [[Request cached session and fetch waves]] — session reads and parallel server fetch behavior
 - [[UI consolidation gotchas]] — why shared-component drift survives compiler and build gates
 

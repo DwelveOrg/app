@@ -24,6 +24,14 @@ import type { AccountTab as AccountTabKey, ProfileClientProps } from "./_types";
  *
  * The tab is local state, seeded from `?tab=` so the retired Settings URLs land
  * on the panel their content moved to.
+ *
+ * Width: this used to sit in a `(small-container)` route group that capped it at
+ * 600px inside a shell already capped at 1180, which left roughly 290px of dead
+ * canvas on either side of a desktop window and made the account area read as
+ * unfinished next to Dashboard and Groups. The cap is now one measure short of
+ * the shell's, so the page keeps a deliberate inset without stranding half the
+ * screen — and each panel splits into two columns from `lg` up rather than
+ * stretching a single stacked column across it.
  */
 export default function ProfileClient({
   profile,
@@ -42,7 +50,7 @@ export default function ProfileClient({
       initial={reduce ? false : { opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-      className="space-y-6"
+      className="mx-auto w-full max-w-[1040px] space-y-6"
     >
       <PageHeader title={t("root.pages.profile")} subtitle={t("root.profile.subtitle")} />
 
