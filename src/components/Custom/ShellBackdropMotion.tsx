@@ -80,14 +80,30 @@ export default function ShellBackdropMotion() {
       box ??= element.getBoundingClientRect();
 
       if (box.width > 0 && box.height > 0) {
-        // Fractions of the backdrop rather than pixels, so the same two numbers
-        // drive a light positioned in `%` and a parallax scaled in `px` without
-        // either needing to know the box size. Left unclamped on purpose: with
-        // the cursor over the sidebar the fraction goes negative, the light's
-        // centre sits off the canvas, and only its falloff spills onto the left
-        // edge — which is exactly where the light is.
-        element.style.setProperty("--pointer-x", ((pending.x - box.left) / box.width).toFixed(4));
-        element.style.setProperty("--pointer-y", ((pending.y - box.top) / box.height).toFixed(4));
+        const offsetX = pending.x - box.left;
+        const offsetY = pending.y - box.top;
+
+        // Two representations of the same point, because the two things that
+        // read it need different units.
+        //
+        // Fractions drive the parallax, which scales a fixed pixel amplitude by
+        // how far across the box the cursor is. Left unclamped on purpose: with
+        // the cursor over the sidebar the fraction goes negative, which is the
+        // correct lean for a cursor that is off the canvas to the left.
+        element.style.setProperty("--pointer-x", (offsetX / box.width).toFixed(4));
+        element.style.setProperty("--pointer-y", (offsetY / box.height).toFixed(4));
+
+        // Pixels drive the light itself, and they exist so that moving it is a
+        // *transform* rather than a repaint. The light used to be a gradient
+        // positioned by percentage inside a full-bleed box, which meant every
+        // frame re-rasterised a viewport-sized radial gradient — around three
+        // million device pixels of gradient maths per frame on a Retina display.
+        // It trailed the cursor badly. The gradient is now drawn once into a
+        // fixed 44rem square that the compositor slides, so the light lands
+        // exactly where the cursor is.
+        element.style.setProperty("--pointer-px", `${offsetX.toFixed(1)}px`);
+        element.style.setProperty("--pointer-py", `${offsetY.toFixed(1)}px`);
+
         element.dataset.tracking = "true";
       }
 

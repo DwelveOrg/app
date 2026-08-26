@@ -28,8 +28,15 @@ import ShellBackdropMotion from "./ShellBackdropMotion";
  * Everything is transform and opacity on GPU-composited layers, painted once.
  * There is no `filter: blur()` on anything that moves: the soft edges come from
  * gradients that reach zero inside their own box, which is free. The pointer
- * layer is the only client JavaScript, it listens passively, and it writes two
+ * layer is the only client JavaScript, it listens passively, and it writes four
  * CSS variables inside a rAF — it never triggers React work.
+ *
+ * "Painted once" is load-bearing, not decorative. The light was originally a
+ * full-bleed box whose gradient carried the cursor's position, so every frame
+ * re-rasterised a viewport-sized gradient and the light trailed the cursor. It
+ * is now a fixed-size square that the compositor slides. Keep it that way: a
+ * cursor light that lags is worse than no cursor light, because the one thing
+ * justifying it is that the user can see they are causing it.
  *
  * Under `prefers-reduced-motion` every drift stops and the pointer light is not
  * mounted at all: a still ruled canvas is the fallback, which is exactly the

@@ -1088,13 +1088,34 @@
 /* The cursor's own light. Positioned in viewport fractions written by
    `ShellBackdropMotion`, defaulting to dead centre so the first paint before any
    pointer event is not a corner. */
+/* A fixed 44rem square carrying a *static* gradient, slid to the cursor.
+
+   It used to be `inset: 0` with the cursor's position interpolated into the
+   gradient itself. That is a repaint: changing the position of a background
+   image re-rasterises it, and at full-bleed on a Retina display that is roughly
+   three million device pixels of gradient maths every frame. The light trailed
+   the cursor, which is the one thing it cannot do — its whole justification is
+   that it has a source the user can see themselves controlling.
+
+   Now the gradient is rasterised once at a size that never changes, and the
+   only per-frame work is a `translate` the compositor applies to an already
+   painted layer. `closest-side` against a 44rem box reproduces the original
+   22rem radius exactly. Half the box is subtracted so the *centre* lands on the
+   cursor rather than the top-left corner. */
 .shell-backdrop-pointer {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 44rem;
+  height: 44rem;
   opacity: 0;
+  /* Opacity only. The light must not ease toward the cursor — a transition here
+     is exactly the lag this rewrite removed. */
   transition: opacity 700ms ease-out;
+  translate: calc(var(--pointer-px, 0px) - 22rem) calc(var(--pointer-py, 0px) - 22rem);
+  will-change: transform;
   background-image: radial-gradient(
-    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    closest-side,
     color-mix(in srgb, var(--brand) 7%, transparent) 0%,
     color-mix(in srgb, var(--brand) 4%, transparent) 34%,
     color-mix(in srgb, var(--brand) 1.5%, transparent) 62%,
@@ -1122,7 +1143,7 @@
 
 .dark .shell-backdrop-pointer {
   background-image: radial-gradient(
-    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    closest-side,
     color-mix(in srgb, var(--brand) 12%, transparent) 0%,
     color-mix(in srgb, var(--brand) 7%, transparent) 34%,
     color-mix(in srgb, var(--brand) 2.5%, transparent) 62%,
