@@ -20,6 +20,10 @@ import {
 import AuthSplitLayout from "../../_components/AuthSplitLayout";
 import LoginPanel from "../login/_sections/LoginPanel";
 import { useResetPasswordMutation } from "../../_hooks/useAuthMutations";
+import AuthHandoffOverlay, {
+  handoffDestination,
+  type AuthHandoffDestination,
+} from "../../_components/AuthHandoff";
 
 type ResetPasswordPageClientProps = {
   token: string;
@@ -29,6 +33,9 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
   const { t } = useTranslation();
   const router = useRouter();
   const resetMutation = useResetPasswordMutation();
+  // A completed reset signs the user straight in, so it lands in the same navigation dead zone as
+  // login and gets the same overlay. See AuthHandoff.tsx.
+  const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
 
   const {
     register,
@@ -46,6 +53,7 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
 
     try {
       const result = await resetMutation.mutateAsync({ token, password: data.password });
+      setHandoff(handoffDestination(result.redirectTo));
       toast.success(t("auth.resetPassword.success"));
       router.push(result.redirectTo);
     } catch (error) {
@@ -56,7 +64,7 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
     }
   };
 
-  const isBusy = isSubmitting || resetMutation.isPending;
+  const isBusy = isSubmitting || resetMutation.isPending || handoff !== null;
 
   return (
     <AuthSplitLayout variant="login" panelContent={<LoginPanel />}>
@@ -151,6 +159,8 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
           )}
         </div>
       </div>
+
+      <AuthHandoffOverlay destination={handoff} />
     </AuthSplitLayout>
   );
 }

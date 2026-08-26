@@ -18,6 +18,10 @@ import { marketingHref } from "@/lib/hosts";
 import LoginPanel from "./_sections/LoginPanel";
 import { useLoginMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
+import AuthHandoffOverlay, {
+  handoffDestination,
+  type AuthHandoffDestination,
+} from "../../_components/AuthHandoff";
 import { safeNextPath } from "../../_utils/next-path";
 
 export default function LoginPageClient({ deleted, logout, next }: Readonly<LoginPageClientProps>) {
@@ -25,6 +29,9 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
   const router = useRouter();
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
   const statusToastShownRef = React.useRef(false);
+  // Raised once the server has accepted the credential, and never lowered: the overlay stays up
+  // through `router.push` and is unmounted by the route it hands over to. See AuthHandoff.tsx.
+  const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
   const loginMutation = useLoginMutation();
   const googleMutation = useGoogleAuthMutation();
   const {
@@ -55,9 +62,11 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
 
     try {
       const result = await loginMutation.mutateAsync(data);
+      const target = safeNextPath(next, result.redirectTo);
       clearErrors("root");
+      setHandoff(handoffDestination(target));
       toast.success(t("auth.login.success"));
-      router.push(safeNextPath(next, result.redirectTo));
+      router.push(target);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Invalid email or password.";
       setError("root", { message });
@@ -65,13 +74,18 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
     }
   };
 
-  const isBusy = isSubmitting || loginMutation.isPending;
+  // `handoff` is part of busy so the submit button keeps its spinner while the overlay is up —
+  // it stays faintly visible through the blur, and a button that snaps back to rest under it
+  // would read as the attempt having been dropped.
+  const isBusy = isSubmitting || loginMutation.isPending || handoff !== null;
 
   const handleGoogleCredential = React.useCallback(async (idToken: string) => {
     try {
       const result = await googleMutation.mutateAsync(idToken);
+      const target = safeNextPath(next, result.redirectTo);
+      setHandoff(handoffDestination(target));
       toast.success(t("auth.login.success"));
-      router.push(safeNextPath(next, result.redirectTo));
+      router.push(target);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google sign-in failed.";
       toast.error(message);
@@ -103,7 +117,10 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
             <GoogleAuthButton
               onCredential={handleGoogleCredential}
               disabled={isBusy || googleMutation.isPending}
+              verifying={googleMutation.isPending}
               text={t("auth.login.google")}
+              waitingText={t("auth.login.googleWaiting")}
+              verifyingText={t("auth.login.googleVerifying")}
               unavailableText={t("auth.login.googleUnavailable")}
             />
 
@@ -174,6 +191,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
           </p>
         </div>
       </div>
+      <AuthHandoffOverlay destination={handoff} />
     </AuthSplitLayout>
   );
 }

@@ -694,15 +694,45 @@ translation: {
             },
           },
           documentation: {
-            page: {
-              title: "Hujjatlar",
-              description: "Dwelve haqida qisqa maʼlumot va uning foydasi.",
-              paragraphs: [
-                "Dwelve — maktab baholashlarini yaratish, o‘tkazish va tekshirish uchun yagona platforma. O‘qituvchilar test va imtihonlarni tez tuzadi, ularni o‘quvchilarga yuboradi va natijalarni real vaqtda ko‘radi.",
-                "Boshqaruv paneli sinflar, uy vazifalari va imtihonlarni aniq statuslar, muddatlar va tezkor amallar bilan tartiblaydi. O‘quvchilar testlarga tez kiradi, topshiriqlarni onlayn topshiradi va baholar e’lon qilingach darhol fikr-mulohaza oladi.",
-                "Asosiy imkoniyatlar: vaqt bilan boshqariladigan imtihonlar, tezkor baholash, qayta ishlatiladigan savollar banki, natijalar tahlili va muhim xabarlarni ajratib ko‘rsatadigan bildirishnomalar markazi.",
-                "Dwelve tezlik, aniqlik va qulaylik uchun yaratilgan. Yorug‘ va qorong‘i mavzular, moslashuvchan dizayn va aniq ish jarayonlari qo‘lda tekshirish ishini kamaytiradi va o‘qituvchi hamda o‘quvchini bir yo‘nalishda ushlab turadi.",
-              ],
+            title: "Hujjatlar",
+            topics: {
+              schools: {
+                question: "Maktabga qanday qoʻshilaman?",
+                answer:
+                  "Hisobning oʻzi maktabga bogʻlanmaydi. Taklifni qabul qilib, qoʻshilish kodini kiritib yoki administrator tasdiqlaydigan soʻrov yuborib qoʻshilasiz. Bir nechta maktabda boʻlsangiz, tanlangan maktab ilovaning qolgan qismida nima koʻrinishini belgilaydi.",
+              },
+              classes: {
+                question: "Maktabdaman, lekin sinfim koʻrinmayapti",
+                answer:
+                  "Maktabga qoʻshilish sizni sinf roʻyxatiga kiritmaydi. Sizni oʻqituvchi yoki administrator qoʻshadi, yoki siz sinfga soʻrov yuborib tasdiqlashni kutasiz. Siz aʼzo boʻlgan sinflar «Sinflar» boʻlimida turadi.",
+                link: "Sinflarni ochish",
+              },
+              authoring: {
+                question: "Test qanday tuziladi?",
+                answer:
+                  "Oʻqituvchi uni studiyada savol-savol tuzadi yoki PDF yuklab, tanlangan sahifalar asosida qoralama oladi. Ikkalasi ham bir xil qoralama beradi va u sinfga eʼlon qilinmaguncha yopiq qoladi.",
+              },
+              attempts: {
+                question: "Vaqt tugaganda nima boʻladi?",
+                answer:
+                  "Muddat urinish boshlanganda serverda belgilanadi, shuning uchun sahifani yangilash vaqt qoʻshmaydi. Javoblar ish davomida saqlanadi, nolga yetganda esa urinish yoʻqolmaydi — topshiriladi.",
+              },
+              results: {
+                question: "Natijalar qachon koʻrinadi?",
+                answer:
+                  "Bitta toʻgʻri javobi bor savollar urinish topshirilishi bilan tekshiriladi. Oʻquvchilar baholarni oʻqituvchi shu test natijalarini ochgach koʻradi.",
+              },
+              preferences: {
+                question: "Til yoki mavzuni oʻzgartirsa boʻladimi?",
+                answer:
+                  "Ikkalasi ham «Sozlamalar» boʻlimida. Interfeys ingliz, rus va oʻzbek tillarida ishlaydi, tanlov esa hisobda emas, shu brauzerda saqlanadi.",
+                link: "Sozlamalarni ochish",
+              },
+              problems: {
+                question: "Sahifada nimadir notoʻgʻri ishlayapti",
+                answer:
+                  "Shu boʻlimdan yoki istalgan sahifaning pastki burchagidagi yordam tugmasidan xabar bering. Xabarga siz turgan sahifa qoʻshiladi va skrinshot ham biriktirsa boʻladi — odatda muammoni tuzatishga aynan shu yordam beradi.",
+              },
             },
           },
         },
@@ -3219,6 +3249,29 @@ translation: {
           backToLanding: "Landing sahifaga qaytish",
           backToLogin: "Kirishga qaytish",
         },
+        handoff: {
+          app: {
+            signingIn: {
+              title: "Hisobingizga kiryapmiz",
+              body: "Bir lahza — Dwelve ochilmoqda.",
+            },
+            preparing: {
+              title: "Ish maydoningiz tayyorlanmoqda",
+              body: "Maktabingiz, sinflar va testlar yuklanmoqda.",
+            },
+          },
+          onboarding: {
+            signingIn: {
+              title: "Hisobingiz sozlanmoqda",
+              body: "Bir lahza — Dwelve ochilmoqda.",
+            },
+            preparing: {
+              title: "Deyarli tayyor",
+              body: "Bir nechta qisqa savol — va siz ichkaridasiz.",
+            },
+          },
+          slow: "Hali ham ishlayapmiz — sekin internetda bu biroz uzoqroq davom etadi.",
+        },
         visual: {
           login: {
             badge: "Hozir erta foydalanishda",
@@ -3303,6 +3356,8 @@ translation: {
           subtitle: "Onlayn test yaratish yoki topshirish uchun Dwelve’ga qoʻshiling.",
           google: "Google bilan davom etish",
           googleUnavailable: "Bu muhitda Google orqali kirish sozlanmagan.",
+          googleWaiting: "Google kutilmoqda…",
+          googleVerifying: "Hisobingiz tekshirilmoqda…",
           or: "yoki",
           loginLabel: "Login",
           loginPlaceholder: "Foydalanuvchi nomi yoki email kiriting",
@@ -3325,6 +3380,8 @@ translation: {
           subtitle: "Bir necha soniyada roʻyxatdan oʻting va mashq qilishni boshlang.",
           google: "Google bilan davom etish",
           googleUnavailable: "Bu muhitda Google orqali kirish sozlanmagan.",
+          googleWaiting: "Google kutilmoqda…",
+          googleVerifying: "Hisobingiz tekshirilmoqda…",
           or: "yoki",
           fullName: "Toʻliq ism",
           fullNamePlaceholder: "Toʻliq ismingizni kiriting",

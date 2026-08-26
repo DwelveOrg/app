@@ -70,6 +70,46 @@ them as a blank page.
 - Prefer skeletons or preserved content for region loading. Non-button spinners require a specific
   reason, such as waiting for a third-party script; do not make them the default screen state.
 
+#### The sign-in handoff — the one full-screen wait
+
+`(authentication)/_components/AuthHandoff.tsx` is the named exception, and the shape of its
+argument is the test any future one has to pass: **there was no screen to put the state on.**
+
+A successful sign-in leaves a gap no button can reach. The action resolves and the button stops
+spinning; `router.push` then starts an RSC fetch, and `(root)/layout.tsx` is `force-dynamic` and
+awaits `getUser()`, which decrypts the session *and* calls the backend through `getSchool()`. Only
+after that round trip does the dashboard's `loading.tsx` get to render. Through all of it the App
+Router keeps the **old** page mounted — so the user sat looking at a login form that no longer did
+anything, for the length of a backend request, with nothing saying it was mid-navigation.
+
+The overlay lives in the auth page's tree for exactly that reason: that tree is what stays alive
+across the transition, and the route it hands over to unmounts it when it paints.
+
+Rules it follows, and that a second one would have to:
+
+- **It never covers a step that can fail.** It is raised only after the server has accepted the
+  credential, so it can never flash up and be torn down again over a rejected password. The
+  credential check itself stays on the button (§5).
+- **It claims nothing it was not told.** There is no percentage, because `router.push` reports no
+  progress. Copy changes on a timer only between two sentences that are both true for the whole
+  wait, and the ring's arc *steps* on that change rather than creeping, so it reads as a phase, not
+  as measured progress. It knows the destination, so a new account is told it is being set up and
+  an existing one is told its workspace is loading.
+- **It says so when it is slow.** After 7s a line appears admitting the wait is unusual. Silence
+  past that point is indistinguishable from a hang.
+- **It fails visible.** The sheet carries no entrance animation. It swallows clicks, so an
+  animated fade-in that never ran would leave an invisible layer over a form that still looks
+  usable — the same trap as an `opacity: 0` reveal-on-scroll default (§6). Only the composition
+  inside it animates, with `layout-enter`.
+- **Focus goes to it.** The form behind is covered, still focusable, and about to be unmounted.
+
+Google sign-in has its own gap in front of this one, and it belongs to the button, not the overlay:
+`GoogleAuthButton` reports "waiting for Google" from the moment the chooser takes over until a
+credential comes back, then "verifying your account" while that credential is exchanged. Nothing in
+the GIS API announces its chooser, so that state is inferred from the window blurring while
+`document.activeElement` is inside the button — true whether Google rendered an iframe or plain DOM,
+and false for an unrelated alt-tab.
+
 ### Empty
 
 An empty state should **teach the interface**. `Empty`'s `action` prop is where the way forward
@@ -201,6 +241,9 @@ Rules:
 
 The button owns the pending state (`Button loading`), the mutation owns the cache invalidation, the
 toast owns the announcement. Do not disable the whole form; disable the submit.
+
+The one mutation that outgrows the button is a sign-in, because it is followed by a navigation the
+button cannot stay mounted for. See §2, "The sign-in handoff".
 
 Also disable the **cancel** control while busy (`DialogFooterActions` does this) so a dialog can't be
 dismissed mid-write.

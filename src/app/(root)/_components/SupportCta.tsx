@@ -14,7 +14,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import ReportProblemDialog from "@/components/Custom/ReportProblem/ReportProblemDialog";
-import { supportEmail } from "@/app/(root)/(pages)/(small-container)/profile/_constants";
+import { supportEmail } from "@/app/(root)/(pages)/profile/_constants";
 import type { ReportKind } from "@/lib/reports/reports.schemas";
 import { cn } from "@/lib/utils";
 

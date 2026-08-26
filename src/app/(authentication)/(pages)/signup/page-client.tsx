@@ -21,6 +21,10 @@ import { marketingHref } from "@/lib/hosts";
 import SignupPanel from "./_sections/SignupPanel";
 import { useSignupMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
+import AuthHandoffOverlay, {
+  handoffDestination,
+  type AuthHandoffDestination,
+} from "../../_components/AuthHandoff";
 import { safeNextPath } from "../../_utils/next-path";
 
 type SignupPageClientProps = {
@@ -33,6 +37,8 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
   const router = useRouter();
   const signupMutation = useSignupMutation();
   const googleMutation = useGoogleAuthMutation();
+  // Raised once the server has accepted the account, and never lowered — see AuthHandoff.tsx.
+  const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   const {
@@ -51,9 +57,11 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
 
     try {
       const result = await signupMutation.mutateAsync(data);
+      const target = safeNextPath(next, result.redirectTo);
       clearErrors("root");
+      setHandoff(handoffDestination(target));
       toast.success(t("auth.signup.success"));
-      router.push(safeNextPath(next, result.redirectTo));
+      router.push(target);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Please check the form and try again.";
       setError("root", { message });
@@ -61,13 +69,17 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
     }
   };
 
-  const isBusy = isSubmitting || signupMutation.isPending;
+  // Includes `handoff` so the submit button keeps its spinner under the overlay rather than
+  // snapping back to rest behind the blur.
+  const isBusy = isSubmitting || signupMutation.isPending || handoff !== null;
 
   const handleGoogleCredential = React.useCallback(async (idToken: string) => {
     try {
       const result = await googleMutation.mutateAsync(idToken);
+      const target = safeNextPath(next, result.redirectTo);
+      setHandoff(handoffDestination(target));
       toast.success(t("auth.signup.success"));
-      router.push(safeNextPath(next, result.redirectTo));
+      router.push(target);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Google sign-in failed.";
       toast.error(message);
@@ -98,7 +110,10 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
             <GoogleAuthButton
               onCredential={handleGoogleCredential}
               disabled={isBusy || googleMutation.isPending}
+              verifying={googleMutation.isPending}
               text={t("auth.signup.google")}
+              waitingText={t("auth.signup.googleWaiting")}
+              verifyingText={t("auth.signup.googleVerifying")}
               unavailableText={t("auth.signup.googleUnavailable")}
             />
 
@@ -168,6 +183,7 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
           </p>
         </div>
       </div>
+      <AuthHandoffOverlay destination={handoff} />
     </AuthSplitLayout>
   );
 }

@@ -8,8 +8,8 @@ export type DwelveLogoVariant = "panel" | "form";
  * New Dwelve brand mark — graduation cap over an open book (added in the latest logo set).
  * Navy version reads on light surfaces; white version reads on dark surfaces.
  */
-const ICON_ON_LIGHT = "/logo/png/dwelve-logo-icon-512.png";
-const ICON_ON_DARK = "/logo/png/dwelve-logo-icon-dark-512.png";
+export const DWELVE_ICON_ON_LIGHT = "/logo/png/dwelve-logo-icon-512.png";
+export const DWELVE_ICON_ON_DARK = "/logo/png/dwelve-logo-icon-dark-512.png";
 
 type DwelveLogoProps = {
   /**
@@ -29,7 +29,7 @@ export default function DwelveLogo({ variant = "panel", className = "" }: Dwelve
       {/* Brand mark */}
       {variant === "panel" ? (
         <Image
-          src={ICON_ON_DARK}
+          src={DWELVE_ICON_ON_DARK}
           alt=""
           aria-hidden
           width={36}
@@ -41,7 +41,7 @@ export default function DwelveLogo({ variant = "panel", className = "" }: Dwelve
         <>
           {/* Light mode → navy mark; dark mode → white mark. Pure CSS swap avoids hydration flicker. */}
           <Image
-            src={ICON_ON_LIGHT}
+            src={DWELVE_ICON_ON_LIGHT}
             alt=""
             aria-hidden
             width={36}
@@ -49,7 +49,7 @@ export default function DwelveLogo({ variant = "panel", className = "" }: Dwelve
             className="h-9 w-9 shrink-0 dark:hidden"
           />
           <Image
-            src={ICON_ON_DARK}
+            src={DWELVE_ICON_ON_DARK}
             alt=""
             aria-hidden
             width={36}

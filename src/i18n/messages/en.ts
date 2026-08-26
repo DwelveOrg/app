@@ -738,15 +738,45 @@ translation: {
             },
           },
           documentation: {
-            page: {
-              title: "Documentation",
-              description: "A brief overview of Dwelve and how it helps teachers and students.",
-              paragraphs: [
-                "Dwelve is a web platform for creating, delivering, and grading school assessments in one place. Teachers can build quizzes and exams quickly, publish them to students, and review results in real time from any device.",
-                "The dashboard keeps classes, homework, and exams organized with clear status tabs, deadlines, and quick actions. Students can access tests in seconds, submit work online, and receive feedback as soon as grades are released.",
-                "Core features include time-controlled exams, instant grading, reusable question banks, performance insights, and a focused notification center that highlights what needs attention first.",
-                "Dwelve is designed for speed, clarity, and accessibility. Light and dark themes, responsive layouts, and focused workflows help reduce manual grading effort while keeping both teachers and students aligned.",
-              ],
+            title: "Documentation",
+            topics: {
+              schools: {
+                question: "How do I join a school?",
+                answer:
+                  "An account is not tied to a school on its own. You join one by accepting an invite, entering a join code, or sending a request for an administrator to approve. If you belong to more than one school, the one you have selected decides what the rest of the app shows you.",
+              },
+              classes: {
+                question: "I joined a school but my class is missing",
+                answer:
+                  "Joining a school does not put you on a class roster. A teacher or an administrator adds you, or you ask for the class and wait for approval. The classes you already belong to are listed under Classes.",
+                link: "Open classes",
+              },
+              authoring: {
+                question: "How is a test created?",
+                answer:
+                  "A teacher builds it in the studio question by question, or uploads a PDF and gets a draft written from the pages they choose. Both produce the same kind of draft, and it stays private until it is published to a class.",
+              },
+              attempts: {
+                question: "What happens when the time runs out?",
+                answer:
+                  "The deadline is fixed by the server when the attempt starts, so reloading the page does not add time. Answers are saved while the student works, and at zero the attempt is handed in rather than lost.",
+              },
+              results: {
+                question: "When do results appear?",
+                answer:
+                  "Questions with a fixed correct answer are marked as soon as the attempt is submitted. Students see their marks once the teacher releases the results for that test.",
+              },
+              preferences: {
+                question: "Can I change the language or the theme?",
+                answer:
+                  "Both are on the Preferences tab. The interface is available in English, Russian and Uzbek, and the choice is kept in this browser rather than on your account.",
+                link: "Open preferences",
+              },
+              problems: {
+                question: "Something on a page is broken",
+                answer:
+                  "Report it from this tab, or from the help button in the bottom corner of any page. A report carries the page you were on and can take a screenshot with it, which is usually the part that makes the problem fixable.",
+              },
             },
           },
         },
@@ -3283,6 +3313,33 @@ translation: {
           backToLanding: "Back to landing",
           backToLogin: "Back to login",
         },
+        /**
+         * The sign-in handoff overlay. Two stories, because the destination is known: an existing
+         * member is going to their workspace, a new one is going to onboarding.
+         */
+        handoff: {
+          app: {
+            signingIn: {
+              title: "Signing you in",
+              body: "One moment while Dwelve opens.",
+            },
+            preparing: {
+              title: "Preparing your workspace",
+              body: "Loading your school, classes and tests.",
+            },
+          },
+          onboarding: {
+            signingIn: {
+              title: "Setting up your account",
+              body: "One moment while Dwelve opens.",
+            },
+            preparing: {
+              title: "Almost there",
+              body: "A couple of quick questions and you are in.",
+            },
+          },
+          slow: "Still working — a slow connection can make this take longer.",
+        },
         visual: {
           login: {
             badge: "Now in early access",
@@ -3367,6 +3424,8 @@ translation: {
           subtitle: "Join Dwelve to create or take tests online.",
           google: "Continue with Google",
           googleUnavailable: "Google sign-in is not configured for this deployment.",
+          googleWaiting: "Waiting for Google…",
+          googleVerifying: "Verifying your account…",
           or: "or",
           loginLabel: "Login",
           loginPlaceholder: "Enter username or email address",
@@ -3389,6 +3448,8 @@ translation: {
           subtitle: "Sign up in seconds and start practicing.",
           google: "Continue with Google",
           googleUnavailable: "Google sign-in is not configured for this deployment.",
+          googleWaiting: "Waiting for Google…",
+          googleVerifying: "Verifying your account…",
           or: "or",
           fullName: "Full name",
           fullNamePlaceholder: "Enter your full name",

@@ -1088,13 +1088,34 @@
 /* The cursor's own light. Positioned in viewport fractions written by
    `ShellBackdropMotion`, defaulting to dead centre so the first paint before any
    pointer event is not a corner. */
+/* A fixed 44rem square carrying a *static* gradient, slid to the cursor.
+
+   It used to be `inset: 0` with the cursor's position interpolated into the
+   gradient itself. That is a repaint: changing the position of a background
+   image re-rasterises it, and at full-bleed on a Retina display that is roughly
+   three million device pixels of gradient maths every frame. The light trailed
+   the cursor, which is the one thing it cannot do — its whole justification is
+   that it has a source the user can see themselves controlling.
+
+   Now the gradient is rasterised once at a size that never changes, and the
+   only per-frame work is a `translate` the compositor applies to an already
+   painted layer. `closest-side` against a 44rem box reproduces the original
+   22rem radius exactly. Half the box is subtracted so the *centre* lands on the
+   cursor rather than the top-left corner. */
 .shell-backdrop-pointer {
   position: absolute;
-  inset: 0;
+  left: 0;
+  top: 0;
+  width: 44rem;
+  height: 44rem;
   opacity: 0;
+  /* Opacity only. The light must not ease toward the cursor — a transition here
+     is exactly the lag this rewrite removed. */
   transition: opacity 700ms ease-out;
+  translate: calc(var(--pointer-px, 0px) - 22rem) calc(var(--pointer-py, 0px) - 22rem);
+  will-change: transform;
   background-image: radial-gradient(
-    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    closest-side,
     color-mix(in srgb, var(--brand) 7%, transparent) 0%,
     color-mix(in srgb, var(--brand) 4%, transparent) 34%,
     color-mix(in srgb, var(--brand) 1.5%, transparent) 62%,
@@ -1109,15 +1130,20 @@
 /* The counter-parallax the ruling reads. Signed so the field leans *away* from
    the cursor: the light appears to sit above the paper rather than to drag it.
    Scoped to the tracking state so the ruling settles back to centre when the
-   cursor leaves, instead of holding the last lean. */
+   cursor leaves, instead of holding the last lean.
+
+   Clamped because the fractions are not clamped: with the cursor over the
+   sidebar `--pointer-x` is negative — correct for the light, whose centre
+   belongs off the canvas there — but the lean has one designed amplitude and
+   must not exceed it just because the cursor wandered off the box. */
 .shell-backdrop[data-tracking="true"] {
-  --shell-shift-x: calc((var(--pointer-x, 0.5) - 0.5) * -14px);
-  --shell-shift-y: calc((var(--pointer-y, 0.5) - 0.5) * -14px);
+  --shell-shift-x: clamp(-7px, calc((var(--pointer-x, 0.5) - 0.5) * -14px), 7px);
+  --shell-shift-y: clamp(-7px, calc((var(--pointer-y, 0.5) - 0.5) * -14px), 7px);
 }
 
 .dark .shell-backdrop-pointer {
   background-image: radial-gradient(
-    22rem 22rem at calc(var(--pointer-x, 0.5) * 100%) calc(var(--pointer-y, 0.5) * 100%),
+    closest-side,
     color-mix(in srgb, var(--brand) 12%, transparent) 0%,
     color-mix(in srgb, var(--brand) 7%, transparent) 34%,
     color-mix(in srgb, var(--brand) 2.5%, transparent) 62%,
@@ -1512,6 +1538,48 @@
   animation: working-bar-sheen 1.9s var(--ease-out-quint) infinite;
 }
 
+/* ============================================================================
+   Auth handoff
+   ========================================================================= */
+
+/* The ring around the mark on the sign-in handoff overlay.
+
+   One slow, even rotation. The arc's *length* is what carries the phase (see
+   AuthHandoff.tsx) — the spin only says "still working" — so it is deliberately
+   calmer than a control spinner, which would read as a thing to wait out rather
+   than as the app opening. */
+@keyframes auth-handoff-ring {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* The violet bloom behind it, breathing at twice the ring's period so the two
+   never land on the same beat and read as one mechanical unit. */
+@keyframes auth-handoff-halo {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.9;
+    transform: scale(1.06);
+  }
+}
+
+.auth-handoff-ring {
+  transform-origin: 50% 50%;
+  animation: auth-handoff-ring 1.6s linear infinite;
+}
+
+.auth-handoff-halo {
+  animation: auth-handoff-halo 3.2s var(--ease-out-quint) infinite;
+}
+
 /* Continuous use-case ribbon on the landing hero. The track holds two identical
    groups; translateX(-50%) lands the second exactly where the first began, so the
    loop is seamless. Transform-only, so it stays on the compositor. The reduced-
@@ -1600,7 +1668,9 @@
   .mock-shimmer,
   .landing-marquee-track,
   .working-bar-fill,
-  .working-bar-sheen {
+  .working-bar-sheen,
+  .auth-handoff-ring,
+  .auth-handoff-halo {
     animation: none;
   }
 
