@@ -182,8 +182,8 @@ is unset.
 
 **Report a problem** stays inside the product with three entry points (bug,
 idea, question) that open the existing `ReportProblemDialog` with the kind
-preselected — the dialog is what carries the screenshot and page context that
-makes a report actionable, and a `mailto:` cannot.
+preselected — the dialog sends the text and page context directly instead of
+depending on a configured mail client.
 
 - `frontend/src/app/(root)/_components/SupportCta.tsx` (new)
 - `frontend/src/app/(root)/(pages)/dashboard/_components/composer/DashboardComposer.tsx` — `GettingHelp` module, priority 10

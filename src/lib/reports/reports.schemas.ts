@@ -12,21 +12,6 @@ export type ReportKind = z.infer<typeof reportKindSchema>;
 export const REPORT_MESSAGE_MIN = 10;
 export const REPORT_MESSAGE_MAX = 4000;
 
-/** JPEG, PNG and WebP, matching the backend's image filter. */
-export const REPORT_SCREENSHOT_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
-
-/**
- * The largest screenshot a reporter may *choose*.
- *
- * Deliberately larger than what is uploaded. A full-page capture on a Retina
- * display is routinely 6–8 MB, and refusing it at the picker would put the
- * burden of resizing on the person who is already annoyed. The dialog accepts
- * it and re-encodes it to fit `UPLOAD_MAX_BYTES` before it is sent, so this
- * bound is about what a browser should be asked to decode, not about what the
- * network can carry.
- */
-export const REPORT_SCREENSHOT_MAX_BYTES = 8 * 1024 * 1024;
-
 /** `POST /reports` — the row the backend wrote back. */
 export const reportResponseSchema = z.object({
   report: z

@@ -3,11 +3,11 @@
  *
  * ## The bug this file exists to prevent
  *
- * Every file the product uploads — a report screenshot, a class picture, a
- * school logo, an imported PDF — travels as `FormData` through a Next Server
- * Action before a server-side `fetch` hands it to the backend. On Vercel a
- * Server Action is a serverless function, and the platform refuses any request
- * whose body exceeds **4.5 MB** with a plain-text `413
+ * Every file the product uploads — such as a class picture, school logo, or
+ * imported PDF — travels as `FormData` through a Next Server Action before a
+ * server-side `fetch` hands it to the backend. On Vercel a Server Action is a
+ * serverless function, and the platform refuses any request whose body exceeds
+ * **4.5 MB** with a plain-text `413
  * FUNCTION_PAYLOAD_TOO_LARGE` produced at the edge, *before* Next runs.
  *
  * `experimental.serverActions.bodySizeLimit` does not move that ceiling. It
@@ -38,8 +38,8 @@ export const PLATFORM_REQUEST_MAX_BYTES = 4_500_000;
  *
  * Below the platform ceiling because the file is not the whole request: the
  * multipart envelope, the boundary markers, the Server Action's own encoding,
- * and the accompanying text fields (a report carries its message, page URL and
- * user agent; an import carries its page range and title) all share the body.
+ * and accompanying text fields (an import carries its page range and title)
+ * all share the body.
  * 500 KB of headroom covers those comfortably and costs nothing — no source
  * image needs the last 10% of the budget to stay legible.
  */
@@ -48,10 +48,9 @@ export const UPLOAD_MAX_BYTES = 4_000_000;
 /**
  * The longest edge a stored image needs.
  *
- * 2560px is a full-width screenshot on a 5K display with room to spare, and it
- * is far past what any of these images is ever rendered at — a class picture
- * sits in a 64px tile, a report screenshot is read on a triage screen. Anything
- * larger is bytes spent on pixels nobody displays.
+ * 2560px is enough for the product's remaining image workflows and far past
+ * what a class picture or school logo is rendered at. Anything larger is bytes
+ * spent on pixels nobody displays.
  */
 export const IMAGE_MAX_EDGE = 2560;
 

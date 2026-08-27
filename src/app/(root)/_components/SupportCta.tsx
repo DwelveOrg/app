@@ -37,10 +37,10 @@ import { cn } from "@/lib/utils";
  * - Reaching us is a *conversation*, so it leaves for the user's own inbox or
  *   chat app. Those are chips in the header — content-sized, so one or two of
  *   them wrap without ever leaving a gap.
- * - Reporting stays inside the product, because what makes a report useful is
- *   the screenshot and page context the dialog collects, and neither survives a
- *   `mailto:`. Those are always exactly three, so a three-column grid fills
- *   perfectly at every width. Nothing here can render a ragged row.
+ * - Reporting stays inside the product, because the dialog sends the message
+ *   and page context directly instead of depending on a configured mail client.
+ *   The three report entry points fill a three-column grid at every width, so
+ *   nothing here can render a ragged row.
  *
  * The panel keeps the PDF-importer's treatment — tinted surface, gradient-free
  * icon tile — for the same reason it has one: this is an offer, not navigation,

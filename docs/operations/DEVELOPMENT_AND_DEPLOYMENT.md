@@ -94,8 +94,8 @@ workers, Redis, object storage, and API rollout are backend responsibilities.
 - Deployment triggers, environment promotion policy, DNS ownership, preview-data policy, and rollback
   procedure are **Unknown** from the repository.
 - There is no checked-in end-to-end smoke test, analytics client, or browser error-monitoring client.
-- Vercel rejects request bodies above 4.5 MB before application code. See
-  [`../features/problem-reporting.md`](../features/problem-reporting.md).
+- Vercel rejects request bodies above 4.5 MB before application code. Remaining
+  image/PDF uploads must stay within the limits in `src/lib/uploads/limits.ts`.
 
 ## Troubleshooting
 

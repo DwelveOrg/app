@@ -312,9 +312,10 @@ backend endpoint.
 
 Feedback is no longer among them. The Support tab's "Report a bug" and "Suggest
 a feature" rows open the same dialog as the floating report control and post to
-`POST /reports`; they used to compose a `mailto:`, which could not carry the
-screenshot that makes a report actionable. "Contact support" stays an email
-link — it starts a conversation, which belongs in the user's own inbox.
+`POST /reports` as text with the current page and browser context; they used to
+compose a `mailto:` and depend on a configured mail client. "Contact support"
+stays an email link — it starts a conversation, which belongs in the user's own
+inbox.
 
 The documentation half of that tab is a fixed list of help topics held entirely
 in the locale catalogs under `root.settings.documentation.topics`, rendered as a

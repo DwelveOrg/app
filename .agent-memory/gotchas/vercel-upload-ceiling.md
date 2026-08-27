@@ -17,10 +17,9 @@ higher backend Multer limit does not make a larger browser-to-Server-Action uplo
 - `next.config.ts`
 - `src/lib/uploads/limits.ts`
 - `src/lib/uploads/compressImage.ts`
-- `src/components/Custom/ReportProblem/ReportProblemDialog.tsx`
 
 ## Implications
 
 Keep local and deployed behavior aligned. New browser uploads must fit the transport envelope or use
 a different architecture such as a direct signed upload; simply raising Next/backend limits is not a
-fix.
+fix. Product problem reports are now text-only and no longer pass through this upload path.

@@ -10,7 +10,7 @@ translation: {
       report: {
         launcher: "Report a problem",
         title: "Report a problem",
-        description: "Tell us what went wrong. A screenshot helps more than anything else.",
+        description: "Tell us what went wrong and include the details that will help us reproduce it.",
         kindLabel: "What is this?",
         kinds: { BUG: "Something is broken", FEEDBACK: "Feedback", QUESTION: "A question" },
         messageLabel: "What happened?",
@@ -20,14 +20,6 @@ translation: {
           FEEDBACK: "It would help if…",
           QUESTION: "I am not sure how…",
         },
-        screenshotLabel: "Screenshot",
-        screenshotCta: "Attach or paste a screenshot",
-        screenshotHint: "PNG, JPEG or WebP, up to 8 MB. Paste works too.",
-        screenshotPreparing: "Preparing your screenshot…",
-        screenshotOptimised: "{{to}} — resized from {{from}} so it uploads",
-        screenshotPreviewAlt: "The screenshot you attached",
-        pastedImage: "Pasted screenshot",
-        removeScreenshot: "Remove screenshot",
         contextNotice: "We also send the page you are on ({{page}}), your browser and your screen size.",
         submit: "Send report",
         sending: "Sending…",
@@ -35,10 +27,7 @@ translation: {
         sent: "Thanks — your report is with us.",
         errors: {
           tooShort: "Please describe the problem in at least {{count}} characters.",
-          tooLarge: "That screenshot is too large. The limit is 8 MB.",
-          wrongType: "Screenshots must be a PNG, JPEG or WebP image.",
-          unreadable: "That image could not be read. Please try another one.",
-          transport: "Your report could not be sent. Please try again, or remove the screenshot and send the message on its own.",
+          transport: "Your report could not be sent. Please try again.",
         },
       },
       onboarding: {
@@ -317,7 +306,7 @@ translation: {
           support: {
             title: "Need a hand?",
             description:
-              "Ask us about your school, billing, or something you cannot do — or report something broken, and your screenshot and the page you were on come along automatically.",
+              "Ask us about your school, billing, or something you cannot do — or report something broken, and the page you were on comes along automatically.",
             contact: {
               email: "Email us",
               telegram: "Telegram",
@@ -725,17 +714,6 @@ translation: {
               title: "Contact support",
               description: "Reach the team directly for account, billing, or technical help.",
             },
-            feedbackModal: {
-              description: "Share the details below so we can follow up quickly.",
-              messageLabel: "Message",
-              attachmentHint:
-                "Your account details are attached automatically. Add screenshots in your mail app before sending.",
-              tooShort: "Please add at least {{count}} characters so we can act on it.",
-              opened: "Draft opened in your mail app — send it to reach us.",
-              placeholder: "Describe the issue or idea…",
-              close: "Close modal",
-              submit: "Submit",
-            },
           },
           documentation: {
             title: "Documentation",
@@ -775,7 +753,7 @@ translation: {
               problems: {
                 question: "Something on a page is broken",
                 answer:
-                  "Report it from this tab, or from the help button in the bottom corner of any page. A report carries the page you were on and can take a screenshot with it, which is usually the part that makes the problem fixable.",
+                  "Report it from this tab, or from the help button in the bottom corner of any page. Describe what you did, what you expected, and what happened; the page you were on is included automatically.",
               },
             },
           },

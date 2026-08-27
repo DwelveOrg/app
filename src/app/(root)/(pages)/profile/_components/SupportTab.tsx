@@ -17,8 +17,8 @@ import { supportEmail } from "../_constants";
  * The two feedback rows used to open a composer that built a `mailto:` URL,
  * because there was no backend feedback endpoint. There is one now, so they
  * open the same dialog the floating report control does — one report path, one
- * place the messages land, and a screenshot can ride along, which a `mailto:`
- * could never carry.
+ * place the text and browser context land, without depending on a configured
+ * mail client.
  *
  * "Contact support" stays an email link. It is not a report; it is a
  * conversation, and it should start in the user's own inbox where they can

@@ -10,7 +10,7 @@ translation: {
       report: {
         launcher: "Muammo haqida xabar berish",
         title: "Muammo haqida xabar berish",
-        description: "Nima notoʻgʻri ketganini yozing. Skrinshot eng koʻp yordam beradi.",
+        description: "Nima notoʻgʻri ketganini va muammoni takrorlashga yordam beradigan tafsilotlarni yozing.",
         kindLabel: "Bu nima haqida?",
         kinds: { BUG: "Nimadir ishlamayapti", FEEDBACK: "Taklif", QUESTION: "Savol" },
         messageLabel: "Nima yuz berdi?",
@@ -20,14 +20,6 @@ translation: {
           FEEDBACK: "Agar shunday boʻlsa qulayroq boʻlardi…",
           QUESTION: "Qanday qilishni tushunmadim…",
         },
-        screenshotLabel: "Skrinshot",
-        screenshotCta: "Skrinshot biriktiring yoki joylashtiring",
-        screenshotHint: "PNG, JPEG yoki WebP, 8 MB gacha. Nusxadan joylash ham ishlaydi.",
-        screenshotPreparing: "Skrinshot tayyorlanmoqda…",
-        screenshotOptimised: "{{to}} — yuborish uchun {{from}} dan kichraytirildi",
-        screenshotPreviewAlt: "Biriktirilgan skrinshot",
-        pastedImage: "Joylashtirilgan skrinshot",
-        removeScreenshot: "Skrinshotni olib tashlash",
         contextNotice: "Shuningdek, siz turgan sahifa ({{page}}), brauzeringiz va ekran oʻlchamini yuboramiz.",
         submit: "Yuborish",
         sending: "Yuborilmoqda…",
@@ -35,10 +27,7 @@ translation: {
         sent: "Rahmat — xabaringiz bizga yetib keldi.",
         errors: {
           tooShort: "Muammoni kamida {{count}} ta belgida tasvirlab bering.",
-          tooLarge: "Skrinshot juda katta. Chegara 8 MB.",
-          wrongType: "Skrinshot PNG, JPEG yoki WebP formatida boʻlishi kerak.",
-          unreadable: "Bu rasmni oʻqib boʻlmadi. Boshqasini tanlang.",
-          transport: "Hisobotni yuborib boʻlmadi. Qayta urinib koʻring yoki skrinshotni olib tashlab, faqat xabarni yuboring.",
+          transport: "Hisobotni yuborib boʻlmadi. Qayta urinib koʻring.",
         },
       },
       onboarding: {
@@ -292,7 +281,7 @@ translation: {
           support: {
             title: "Yordam kerakmi?",
             description:
-              "Maktab, toʻlov yoki bajarib boʻlmayotgan narsa haqida soʻrang — yoki nosozlik haqida xabar bering: skrinshot va siz boʻlgan sahifa oʻzi biriktiriladi.",
+              "Maktab, toʻlov yoki bajarib boʻlmayotgan narsa haqida soʻrang — yoki nosozlik haqida xabar bering: siz boʻlgan sahifa avtomatik qoʻshiladi.",
             contact: {
               email: "Pochta orqali yozish",
               telegram: "Telegram",
@@ -681,17 +670,6 @@ translation: {
               title: "Yordam bilan bogʻlanish",
               description: "Hisob, toʻlov yoki texnik yordam boʻyicha jamoa bilan toʻgʻridan-toʻgʻri bogʻlaning.",
             },
-            feedbackModal: {
-              description: "Tezda javob berishimiz uchun tafsilotlarni quyida yozing.",
-              messageLabel: "Xabar",
-              attachmentHint:
-                "Hisob maʼlumotlaringiz avtomatik biriktiriladi. Skrinshotlarni yuborishdan oldin pochta ilovasida qoʻshing.",
-              tooShort: "Kamida {{count}} ta belgi yozing, shunda yordam bera olamiz.",
-              opened: "Xat qoralamasi pochta ilovangizda ochildi — bizga yuboring.",
-              placeholder: "Muammo yoki gʻoyani tasvirlab bering…",
-              close: "Oynani yopish",
-              submit: "Yuborish",
-            },
           },
           documentation: {
             title: "Hujjatlar",
@@ -731,7 +709,7 @@ translation: {
               problems: {
                 question: "Sahifada nimadir notoʻgʻri ishlayapti",
                 answer:
-                  "Shu boʻlimdan yoki istalgan sahifaning pastki burchagidagi yordam tugmasidan xabar bering. Xabarga siz turgan sahifa qoʻshiladi va skrinshot ham biriktirsa boʻladi — odatda muammoni tuzatishga aynan shu yordam beradi.",
+                  "Shu boʻlimdan yoki istalgan sahifaning pastki burchagidagi yordam tugmasidan xabar bering. Nima qilganingizni, nimani kutganingizni va nima boʻlganini yozing; sahifa avtomatik qoʻshiladi.",
               },
             },
           },

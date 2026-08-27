@@ -29,7 +29,7 @@ export default function StudioLayout({ children }: { children: React.ReactNode }
     <div className="flex h-dvh min-h-0 flex-col overflow-hidden bg-sidebar text-foreground">
       {children}
       {/* The studio drops the dashboard chrome, but a broken editor is exactly
-          what a maintainer needs a screenshot of. */}
+          where a user still needs the in-product reporting path. */}
       <ReportProblem />
     </div>
   );
