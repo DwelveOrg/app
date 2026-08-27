@@ -34,16 +34,32 @@
 export const PLATFORM_REQUEST_MAX_BYTES = 4_500_000;
 
 /**
+ * The measured pass point, kept separate from the ceiling above.
+ *
+ * `PLATFORM_REQUEST_MAX_BYTES` is the documented limit; this is the largest
+ * body that was actually observed getting through. Budgets below are derived
+ * from the measurement rather than the round number, because the difference is
+ * 100 KB a teacher would otherwise never get to use.
+ */
+const PLATFORM_REQUEST_MEASURED_PASS_BYTES = 4_404_019;
+
+/**
  * The budget a single uploaded file may occupy.
  *
  * Below the platform ceiling because the file is not the whole request: the
  * multipart envelope, the boundary markers, the Server Action's own encoding,
  * and accompanying text fields (an import carries its page range and title)
  * all share the body.
- * 500 KB of headroom covers those comfortably and costs nothing — no source
- * image needs the last 10% of the budget to stay legible.
+ * 200 KB of headroom under the measured pass point covers those with room to
+ * spare — the envelope for one file plus three short text fields is under a
+ * kilobyte, and Next's own Server Action framing is a few hundred bytes more.
+ *
+ * The importer is the reason this is derived from the measurement rather than
+ * a round 4,000,000: it uploads a slice of exactly the pages a teacher picked,
+ * and every byte of budget is one more scanned page that fits before the slice
+ * has to be downsampled.
  */
-export const UPLOAD_MAX_BYTES = 4_000_000;
+export const UPLOAD_MAX_BYTES = PLATFORM_REQUEST_MEASURED_PASS_BYTES - 200_000;
 
 /**
  * The longest edge a stored image needs.
@@ -54,9 +70,20 @@ export const UPLOAD_MAX_BYTES = 4_000_000;
  */
 export const IMAGE_MAX_EDGE = 2560;
 
-/** Human-readable bytes, for a hint or an error that has to name the limit. */
+/**
+ * Human-readable bytes, for a hint or an error that has to name the limit.
+ *
+ * Use this rather than dividing at the call site. `Math.floor(bytes / 1_048_576)`
+ * is the obvious thing to write and it under-reports every limit that is not a
+ * whole number of mebibytes: the importer's cap was advertised as "3 MB" for
+ * months while the code accepted 3.8, and teachers sized their files to the
+ * number they were shown.
+ *
+ * A trailing `.0` is dropped, so a round limit reads as "50 MB" rather than
+ * "50.0 MB".
+ */
 export function formatBytes(bytes: number) {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1).replace(/\.0$/, "")} MB`;
 }

@@ -41,6 +41,17 @@ const FALLBACKS = {
 /** Polling fallback while the SSE bridge is unavailable or reconnecting. */
 const POLL_INTERVAL_MS = 2_000;
 
+/**
+ * How many stream failures to tolerate before giving up on it for this job.
+ *
+ * `EventSource` reconnects on its own and never stops, so a stream that cannot
+ * succeed — an expired session is the usual reason — reopened every few seconds
+ * for as long as the dialog stayed mounted. Polling already covers exactly this
+ * case, so after a few honest attempts the stream is closed for good and the
+ * 2-second read takes over.
+ */
+const STREAM_MAX_FAILURES = 3;
+
 /* -------------------------------------------------------------------------- */
 /* Reads                                                                       */
 /* -------------------------------------------------------------------------- */
@@ -84,6 +95,11 @@ export function useTestImportLimitsQuery() {
       // backend's number sent teachers to a 413 that surfaced as nothing at
       // all. Clamp it here, once, so the picker's copy, its refusal, and its
       // error messages all quote a limit that is actually reachable.
+      //
+      // This caps the *slice*, not the document. The import screen extracts the
+      // selected pages in the browser and uploads only those, so the file a
+      // teacher drops is bounded by `maxDocumentBytes` — which is 25× larger,
+      // and is the number the dropzone quotes.
       maxBytes: Math.min(data.maxBytes, UPLOAD_MAX_BYTES),
     },
   };
@@ -131,10 +147,19 @@ export function useTestImportJobQuery(jobId: string | null) {
     const source = new EventSource(
       `/api/test-imports/${encodeURIComponent(jobId)}/events`,
     );
+    let failures = 0;
 
-    source.onopen = () => setConnectedJobId(jobId);
-    source.onerror = () =>
+    source.onopen = () => {
+      failures = 0;
+      setConnectedJobId(jobId);
+    };
+    source.onerror = () => {
       setConnectedJobId((current) => (current === jobId ? null : current));
+      failures += 1;
+      if (failures >= STREAM_MAX_FAILURES) {
+        source.close();
+      }
+    };
     source.onmessage = (event) => {
       let payload: unknown;
 

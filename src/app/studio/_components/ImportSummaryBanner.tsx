@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useTestImportJobQuery } from "@/app/(root)/_hooks/useTestImport";
 import {
   countMissingAnswers,
+  hadDroppedQuestions,
   wasIncomplete,
   wasTruncated,
 } from "@/app/(root)/_lib/test-import.schemas";
@@ -34,6 +35,7 @@ export default function ImportSummaryBanner({ jobId }: { jobId: string }) {
   if (dismissed || !job || job.status !== "READY") return null;
 
   const missing = countMissingAnswers(job);
+  const dropped = hadDroppedQuestions(job);
   const truncated = wasTruncated(job);
   const incomplete = wasIncomplete(job);
 
@@ -76,6 +78,10 @@ export default function ImportSummaryBanner({ jobId }: { jobId: string }) {
                 total: job.questionsFound ?? 0,
               })}
             </li>
+          ) : null}
+
+          {dropped ? (
+            <li>{t("root.tests.import.banner.dropped")}</li>
           ) : null}
 
           <li>{t("root.tests.import.banner.review")}</li>

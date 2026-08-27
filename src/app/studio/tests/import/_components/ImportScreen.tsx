@@ -1,14 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, FileText, Sparkles, Upload } from "lucide-react";
+import { ArrowRight, FileText, Loader2, Sparkles, Upload } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 
 import { TEST_LIMITS } from "@/app/(root)/_lib/tests.actions.schemas";
-import { formatPageRange } from "@/app/(root)/_lib/test-import.actions.schemas";
 import { testImportErrorCodeSchema } from "@/app/(root)/_lib/test-import.schemas";
 import { studioRoutes } from "@/app/(root)/_constants/tests";
 import {
@@ -24,8 +23,14 @@ import Input from "@/components/ui/Input";
 import Surface from "@/components/ui/Surface";
 import FormatMark from "@/components/tests/FormatMark";
 import { cn } from "@/lib/utils";
+import { formatBytes } from "@/lib/uploads/limits";
 import StudioTopBar from "../../../_components/StudioTopBar";
-import { loadPdf, PdfLoadError } from "../_lib/pdf";
+import {
+  loadPdf,
+  PdfLoadError,
+  preparePagesForUpload,
+  type PrepareProgress,
+} from "../_lib/pdf";
 import ImportProgress from "./ImportProgress";
 import PagePicker from "./PagePicker";
 
@@ -47,19 +52,32 @@ export default function ImportScreen({
   const cancelImport = useCancelTestImportMutation();
   const invalidateTests = useInvalidateTestsAfterImport();
 
+  /**
+   * The values every import message interpolates.
+   *
+   * `size` is the *document* ceiling, because that is the number a teacher is
+   * choosing a file against; the upload budget applies to the slice this screen
+   * builds and is never quoted at them. Both go through `formatBytes` — writing
+   * the division inline is what turned a 3.8 MB cap into "3 MB" in the copy.
+   */
+  const errorValues = useMemo(
+    () => ({
+      max: limits.maxDocumentPages,
+      size: formatBytes(limits.maxDocumentBytes),
+      pages: limits.maxSelectedPages,
+    }),
+    [limits],
+  );
+
   const importErrorMessage = useCallback(
     (error: unknown) => {
       const message = error instanceof Error ? error.message : "";
       const code = testImportErrorCodeSchema.safeParse(message);
       return code.success
-        ? t(`root.tests.import.errors.${code.data}`, {
-            max: limits.maxDocumentPages,
-            size: Math.floor(limits.maxBytes / (1024 * 1024)),
-            pages: limits.maxSelectedPages,
-          })
+        ? t(`root.tests.import.errors.${code.data}`, errorValues)
         : message || t("root.tests.errorGeneric");
     },
-    [limits, t],
+    [errorValues, t],
   );
 
   const [stage, setStage] = useState<Stage>("choose");
@@ -77,6 +95,14 @@ export default function ImportScreen({
   const [maxQuestions, setMaxQuestions] = useState<string>("");
   const [jobId, setJobId] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
+  /**
+   * Where the browser is in building the upload.
+   *
+   * Extracting a few text pages is instantaneous, but re-rendering forty
+   * scanned ones is tens of seconds of work with nothing else moving on screen.
+   * A button that only spins would read as a hang.
+   */
+  const [preparing, setPreparing] = useState<PrepareProgress | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const {
@@ -124,17 +150,12 @@ export default function ImportScreen({
       } catch (error) {
         if (requestId !== openRequestRef.current) return;
         const code = error instanceof PdfLoadError ? error.code : "UNREADABLE";
-        toast.error(
-          t(`root.tests.import.errors.${code}`, {
-            max: limits.maxDocumentPages,
-            size: Math.floor(limits.maxBytes / (1024 * 1024)),
-          }),
-        );
+        toast.error(t(`root.tests.import.errors.${code}`, errorValues));
       } finally {
         if (requestId === openRequestRef.current) setOpening(false);
       }
     },
-    [limits, t],
+    [errorValues, limits, t],
   );
 
   /** Release the pdf.js worker's copy of the document when the screen unmounts. */
@@ -163,15 +184,60 @@ export default function ImportScreen({
     );
   }, [invalidateTests, job?.id, job?.status, job?.testId, router]);
 
-  const submit = () => {
-    if (!file || selectedPages.length === 0) return;
+  /**
+   * Builds the upload, then starts the job.
+   *
+   * The source document never leaves the browser. What is uploaded is a PDF of
+   * exactly the selected pages, so `pages` becomes `1-N` — the slice's own
+   * numbering, which is also what the model is told to treat as ordinal 1. The
+   * backend re-slices that range and gets the same pages back, so nothing about
+   * the API contract changes; it simply receives a document that fits.
+   */
+  const submit = async () => {
+    if (!file || !document || selectedPages.length === 0) return;
+    if (preparing || createImport.isPending) return;
+
+    let prepared;
+    try {
+      prepared = await preparePagesForUpload({
+        source: file,
+        document,
+        pages: selectedPages,
+        maxBytes: limits.maxBytes,
+        onProgress: setPreparing,
+      });
+    } catch (error) {
+      const failure =
+        error instanceof PdfLoadError
+          ? error
+          : new PdfLoadError("SELECTION_TOO_LARGE");
+      toast.error(
+        t(`root.tests.import.errors.${failure.code}`, {
+          ...errorValues,
+          // Only `SELECTION_TOO_LARGE` reads this, and only when the pages were
+          // actually weighed. Falling back to the current selection keeps the
+          // sentence grammatical rather than printing "about undefined pages".
+          count: failure.fittingPages ?? selectedPages.length,
+        }),
+      );
+      return;
+    } finally {
+      setPreparing(null);
+    }
+
+    if (prepared.downsampled) {
+      // Worth saying out loud: the pages were photographs, they were re-rendered
+      // smaller to fit, and that is a reason to read the draft more carefully
+      // than usual.
+      toast.info(t("root.tests.import.downsampled"));
+    }
 
     const parsed = Number.parseInt(maxQuestions, 10);
     createImport.mutate(
       {
         classId,
-        file,
-        pages: formatPageRange(selectedPages),
+        file: prepared.file,
+        pages: prepared.pages,
         maxQuestions: Number.isInteger(parsed) ? parsed : undefined,
         title: title.trim() || undefined,
       },
@@ -204,6 +270,7 @@ export default function ImportScreen({
   /* ---------------------------------------------------------------------- */
 
   const canSubmit = Boolean(file) && selectedPages.length > 0;
+  const busy = preparing !== null || createImport.isPending;
   const failed = job?.status === "FAILED";
 
   return (
@@ -231,11 +298,11 @@ export default function ImportScreen({
             <Button
               type="button"
               size="sm"
-              onClick={submit}
-              disabled={!canSubmit}
-              loading={createImport.isPending}
+              onClick={() => void submit()}
+              disabled={!canSubmit || busy}
+              loading={busy}
               className={cn(
-                canSubmit && !createImport.isPending && "ai-glow ai-sheen",
+                canSubmit && !busy && "ai-glow ai-sheen",
                 "bg-[image:var(--brand-gradient)] shadow-elev-brand hover:brightness-105",
               )}
             >
@@ -260,7 +327,7 @@ export default function ImportScreen({
             <ChooseFile
               opening={opening}
               inputRef={fileInputRef}
-              maxMb={Math.floor(limits.maxBytes / (1024 * 1024))}
+              maxSize={formatBytes(limits.maxDocumentBytes)}
               maxPages={limits.maxDocumentPages}
               onPick={openFile}
             />
@@ -354,11 +421,34 @@ export default function ImportScreen({
                   </div>
                 </Surface>
 
+                {preparing ? (
+                  <Surface
+                    variant="muted"
+                    padding="sm"
+                    elevation={0}
+                    className="flex items-center gap-2.5"
+                  >
+                    <Loader2
+                      className="size-3.5 shrink-0 animate-spin text-primary motion-reduce:animate-none"
+                      aria-hidden="true"
+                    />
+                    <p aria-live="polite" className="text-2xs text-muted-foreground">
+                      {preparing.step === "downsampling"
+                        ? t("root.tests.import.preparing.downsampling", {
+                            done: preparing.done,
+                            total: preparing.total,
+                          })
+                        : t("root.tests.import.preparing.extracting")}
+                    </p>
+                  </Surface>
+                ) : null}
+
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
                   className="w-full"
+                  disabled={busy}
                   onClick={() => {
                     void destroyRef.current?.();
                     destroyRef.current = null;
@@ -404,11 +494,10 @@ export default function ImportScreen({
         {failed ? (
           <div className="space-y-3 border-t border-border pt-4">
             <p className="text-sm text-foreground">
-              {t(`root.tests.import.errors.${job?.errorCode ?? "EXTRACTION_FAILED"}`, {
-                max: limits.maxDocumentPages,
-                size: Math.floor(limits.maxBytes / (1024 * 1024)),
-                pages: limits.maxSelectedPages,
-              })}
+              {t(
+                `root.tests.import.errors.${job?.errorCode ?? "EXTRACTION_FAILED"}`,
+                errorValues,
+              )}
             </p>
             <Button
               type="button"
@@ -435,13 +524,14 @@ export default function ImportScreen({
 function ChooseFile({
   opening,
   inputRef,
-  maxMb,
+  maxSize,
   maxPages,
   onPick,
 }: {
   opening: boolean;
   inputRef: React.RefObject<HTMLInputElement | null>;
-  maxMb: number;
+  /** Already formatted — the caller owns the units so the copy cannot drift. */
+  maxSize: string;
   maxPages: number;
   onPick: (file: File) => void;
 }) {
@@ -488,7 +578,10 @@ function ChooseFile({
             {t("root.tests.import.choose.dropzone")}
           </p>
           <p className="text-xs text-muted-foreground">
-            {t("root.tests.import.choose.constraints", { size: maxMb, pages: maxPages })}
+            {t("root.tests.import.choose.constraints", {
+              size: maxSize,
+              pages: maxPages,
+            })}
           </p>
         </div>
 

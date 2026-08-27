@@ -52,10 +52,12 @@ export function createTestImportRequest(
   return requestJson(`/classes/${classId}/tests/imports`, {
     method: "POST",
     body,
-    // A 20 MB browser upload can legitimately take longer than the shared
-    // JSON-request timeout on a school connection. Extraction itself starts
-    // only after this request returns and is polled separately.
-    timeoutMs: 60_000,
+    // The body is a slice of the chosen pages rather than the whole document,
+    // but it is still up to the platform's ~4 MB ceiling, and a school
+    // connection moves that slowly enough to outlast the shared JSON-request
+    // timeout. Extraction itself starts only after this request returns and is
+    // polled separately, so a generous window here costs nothing.
+    timeoutMs: 120_000,
     responseSchema: createTestImportResponseSchema,
   });
 }
