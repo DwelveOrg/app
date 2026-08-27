@@ -22,6 +22,7 @@ here nor there.
 
 - [[Session refresh write boundary]] — why refresh cannot spend a token from an unwritable render
 - [[Vercel upload ceiling]] — the transport cap below backend upload limits
+- [[pdf.js viewport scale is points]] — why a "never upscale" clamp silently caps render resolution
 - [[Google OAuth configuration parity]] — browser, backend audience, origin, and rebuild must agree
 - [[Pointer tracking coordinate space]] — why the backdrop light missed the cursor and never faded out
 

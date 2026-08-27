@@ -204,8 +204,14 @@ Feature failures from the backend use stable codes, and each is translated in
 all three catalogues under `root.tests.import.errors`:
 
 `TOO_MANY_PAGES` · `TOO_MANY_SELECTED_PAGES` · `INVALID_PAGES` · `INVALID_PDF` ·
-`QUOTA_EXCEEDED` · `EXTRACTION_FAILED` · `NO_QUESTIONS_FOUND` · `INTERRUPTED` ·
-`DISABLED`
+`TOO_LARGE` · `QUOTA_EXCEEDED` · `TEACHER_QUOTA_EXCEEDED` · `EXTRACTION_FAILED` ·
+`NO_QUESTIONS_FOUND` · `TIMED_OUT` · `INTERRUPTED` · `DISABLED`
+
+The screen also raises its own codes before anything is uploaded, translated
+alongside them: `UNREADABLE`, `DOCUMENT_TOO_LARGE`, `SELECTION_TOO_LARGE`.
+`DOCUMENT_TOO_LARGE` is deliberately not the backend's `TOO_LARGE` — one is the
+file a teacher opened, the other is the slice that was sent, and they quote
+different limits.
 
 Adding a code to the backend without adding its key here leaves a teacher
 looking at a raw identifier.
@@ -220,3 +226,39 @@ looking at a raw identifier.
 
 The metric that matters is not "did it produce a test" but **how many questions
 the teacher had to retype**.
+
+## Known gaps and deferred work
+
+### The upload ceiling is raised, not removed
+
+The browser extracts the selected pages and uploads only those, so the hosting
+platform's ~4.4 MB request-body ceiling now applies to the slice rather than to
+the teacher's document — `maxDocumentBytes` (50 MB) is the number the dropzone
+quotes. A slice too heavy even at the floor render resolution is refused with
+the number of pages that *would* fit, so the teacher imports in batches.
+
+Removing the ceiling outright means chunking the upload across several Server
+Action calls and reassembling server-side. Worth building only if teachers are
+seen hitting that refusal; the auth path and backend limit already allow it.
+
+### Scans are downsampled, and colour is preserved deliberately
+
+An over-budget slice is re-rendered as JPEG at a resolution solved from one
+probe page. Rendering greyscale would buy roughly a quarter more pages per
+import, and it is not done: a scanned biology diagram or a colour-coded chart
+would be silently degraded to save bytes. Revisit only with evidence that
+teachers are hitting the page refusal on documents where colour carries nothing.
+
+### Progress rests during the analysing step
+
+The bar moves steadily through extraction now that the backend reports once per
+page window, but `ANALYZING` is a single model call and sits still for its
+duration. Animating through it would be inventing progress the server does not
+have.
+
+### The document ceiling is bounded by browser memory, not policy
+
+50 MB is not a product decision, it is what a modest laptop survives: the tab
+holds the file, pdf.js's worker copy, and — when the slice is small enough to
+extract without re-rendering — a `pdf-lib` parse of the same bytes. Raising it
+needs a memory measurement on real hardware, not a bigger constant.
