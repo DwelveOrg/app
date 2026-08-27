@@ -921,9 +921,9 @@ translation: {
                 "Ishni yuklang, savollar joylashgan sahifalarni tanlang — test oʻzi yigʻiladi.",
               dropzone: "PDFʼni shu yerga tashlang",
               browse: "Fayl tanlash",
-              constraints: "PDF, {{size}} MB va {{pages}} sahifagacha.",
+              constraints: "PDF, {{size}} va {{pages}} sahifagacha.",
               explainer:
-                "Fayl avval shu brauzerda oʻqiladi, shuning uchun sahifalarni yuklashdan oldin koʻrasiz.",
+                "Fayl avval shu brauzerda oʻqiladi, shuning uchun sahifalarni yuklashdan oldin koʻrasiz — va faqat siz tanlagan sahifalar joʻnatiladi.",
             },
             pages: {
               heading: "Test qaysi sahifalarda?",
@@ -943,6 +943,12 @@ translation: {
             maxQuestions: {
               label: "Nechta savol yaratilsin",
               hint: "Bir importda {{max}} tagacha. Topilganini olish uchun boʻsh qoldiring.",
+            },
+            downsampled:
+              "Bu sahifalar skan qilingan, shuning uchun joʻnatishdan oldin kichraytirildi. Qoralamani diqqat bilan tekshiring — mayda yozuvlar notoʻgʻri oʻqilgan boʻlishi mumkin.",
+            preparing: {
+              extracting: "Tanlangan sahifalar tayyorlanmoqda…",
+              downsampling: "Sahifalar joʻnatish uchun kichraytirilmoqda — {{total}} tadan {{done}} tasi.",
             },
             progress: {
               title: "Testingiz yigʻilmoqda",
@@ -975,17 +981,28 @@ translation: {
                 "{{total}} savol topildi, birinchi {{count}} tasi import qilindi — bu bitta import chegarasi.",
               incomplete:
                 "Taxminan {{total}} savol sanaldi, ammo faqat {{count}} tasi yigʻildi. Nimadir yetishmasa, PDFʼni tekshirib qayta import qiling.",
+              dropped:
+                "Baʼzi savollar topildi, lekin ularni yigʻib boʻlmadi — qoralamani ish bilan solishtiring.",
               review: "Chop etishdan oldin savol matni va javoblarni ish bilan solishtiring.",
               dismiss: "Yopish",
             },
             errors: {
               UNREADABLE: "Faylni ochib boʻlmadi. U shikastlangan yoki parol bilan himoyalangan boʻlishi mumkin.",
-              TOO_LARGE: "Bu PDF {{size}} MB dan katta.",
+              DOCUMENT_TOO_LARGE: "Bu PDF {{size}} dan katta.",
+              TOO_LARGE: "Yuklama juda katta boʻldi. Kamroq sahifa tanlab qayta urinib koʻring.",
+              SELECTION_TOO_LARGE_one:
+                "Bu sahifalar kichraytirilgandan keyin ham joʻnatish uchun juda ogʻir. Bunday sahifalar bir martada taxminan {{count}} tadan oʻtadi — qismlarga boʻlib import qiling.",
+              SELECTION_TOO_LARGE_other:
+                "Bu sahifalar kichraytirilgandan keyin ham joʻnatish uchun juda ogʻir. Bunday sahifalar bir martada taxminan {{count}} tadan oʻtadi — qismlarga boʻlib import qiling.",
               TOO_MANY_PAGES: "Bu hujjatda {{max}} tadan koʻp sahifa bor.",
               TOO_MANY_SELECTED_PAGES: "Bir martada {{pages}} tagacha sahifa import qilinadi.",
               INVALID_PAGES: "Sahifa raqamlari oʻqilmadi. 1-4, 7 koʻrinishida yozing.",
               INVALID_PDF: "Bu oʻqiladigan PDF fayl emas.",
               QUOTA_EXCEEDED: "Maktabingiz bugungi import chegarasiga yetdi. Ertaga urinib koʻring.",
+              TEACHER_QUOTA_EXCEEDED:
+                "Bugungi importlaringizni sarfladingiz. Hamkasblaringiz hali import qila oladi, sizniki ertaga yangilanadi.",
+              TIMED_OUT:
+                "Import juda uzoq davom etdi va toʻxtatildi. Kamroq sahifa bilan urinib koʻring.",
               EXTRACTION_FAILED: "Bu sahifalardan testni oʻqib boʻlmadi. Boshqa sahifalarni tanlang.",
               NO_QUESTIONS_FOUND: "Bu sahifalarda savol topilmadi. Sahifa tanlovini tekshiring.",
               INTERRUPTED: "Import uzilib qoldi. Qaytadan boshlang.",

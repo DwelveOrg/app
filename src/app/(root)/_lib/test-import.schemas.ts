@@ -29,8 +29,19 @@ export const testImportLimitsSchema = z
     maxSelectedPages: z.number().int().positive(),
     /** Pages we will open and let the teacher browse, before any selection. */
     maxDocumentPages: z.number().int().positive(),
+    /** The largest PDF the API accepts — measured against the uploaded *slice*. */
     maxBytes: z.number().int().positive(),
+    /**
+     * The largest source document the browser will open.
+     *
+     * Much larger than `maxBytes` and not a contradiction: the selected pages
+     * are extracted in the browser and only that slice is uploaded, so the file
+     * a teacher drops is never the file that travels.
+     */
+    maxDocumentBytes: z.number().int().positive(),
     dailyQuotaPerSchool: z.number().int().positive(),
+    /** One teacher's share of the school's day. */
+    dailyQuotaPerTeacher: z.number().int().positive(),
     /** Added by the server action when the deployment has import switched off. */
     enabled: z.boolean().default(true),
   })
@@ -50,7 +61,9 @@ export const FALLBACK_IMPORT_LIMITS: TestImportLimits = {
   maxSelectedPages: 40,
   maxDocumentPages: 300,
   maxBytes: 20 * 1024 * 1024,
+  maxDocumentBytes: 50 * 1024 * 1024,
   dailyQuotaPerSchool: 50,
+  dailyQuotaPerTeacher: 20,
   enabled: true,
 };
 
@@ -89,12 +102,19 @@ export function isTerminalImportStatus(status: TestImportStatus): boolean {
  * `NO_ANSWER` is the common one and is not a failure: it is the expected
  * outcome for a PDF that never contained an answer key, or whose key page the
  * teacher did not select. See the answer rule in `AI_PDF_TO_TEST_PLAN.md`.
+ *
+ * `TRUNCATED` and `DROPPED` are deliberately separate. The first means the
+ * import stopped at the question cap and the rest of the paper is still there;
+ * the second means individual questions were read and then thrown away — no
+ * prompt, too many options, a section limit. They used to share a name, and
+ * only the cap was ever shown, so every dropped question went unmentioned.
  */
 export const testImportWarningReasonSchema = z.enum([
   "NO_ANSWER",
   "LOW_CONFIDENCE",
   "UNSUPPORTED_TYPE",
   "TRUNCATED",
+  "DROPPED",
 ]);
 export type TestImportWarningReason = z.infer<typeof testImportWarningReasonSchema>;
 
@@ -115,9 +135,12 @@ export const testImportErrorCodeSchema = z.enum([
   "TOO_MANY_SELECTED_PAGES",
   "INVALID_PAGES",
   "INVALID_PDF",
+  "TOO_LARGE",
   "QUOTA_EXCEEDED",
+  "TEACHER_QUOTA_EXCEEDED",
   "EXTRACTION_FAILED",
   "NO_QUESTIONS_FOUND",
+  "TIMED_OUT",
   "INTERRUPTED",
   "DISABLED",
 ]);
@@ -182,4 +205,18 @@ export function wasIncomplete(
 /** How many questions still need a correct answer chosen. */
 export function countMissingAnswers(job: Pick<TestImportJob, "warnings">) {
   return (job.warnings ?? []).filter((warning) => warning.reason === "NO_ANSWER").length;
+}
+
+/**
+ * Whether anything was read off the page and then discarded.
+ *
+ * Distinct from truncation: nothing the teacher can raise a cap to recover.
+ * Deliberately a boolean rather than a count — a `DROPPED` warning can stand
+ * for one question the normalizer refused *or* for a whole page whose
+ * extraction overran, so any number put in front of a teacher would be a number
+ * of events, not of questions. The useful instruction is the same either way:
+ * compare the draft against the paper.
+ */
+export function hadDroppedQuestions(job: Pick<TestImportJob, "warnings">) {
+  return (job.warnings ?? []).some((warning) => warning.reason === "DROPPED");
 }

@@ -965,9 +965,9 @@ translation: {
                 "Upload the paper, choose the pages that hold the questions, and the test is built for you.",
               dropzone: "Drop a PDF here",
               browse: "Choose a file",
-              constraints: "PDF, up to {{size}} MB and {{pages}} pages.",
+              constraints: "PDF, up to {{size}} and {{pages}} pages.",
               explainer:
-                "Your file is read in this browser first, so you can see the pages before anything is uploaded.",
+                "Your file is read in this browser first, so you can see the pages before anything is uploaded — and only the pages you pick are sent.",
             },
             pages: {
               heading: "Which pages hold the test?",
@@ -987,6 +987,12 @@ translation: {
             maxQuestions: {
               label: "Questions to create",
               hint: "Up to {{max}} per import. Leave empty for as many as we find.",
+            },
+            downsampled:
+              "Those pages are scans, so they were shrunk to send. Read the draft closely — small print may have been misread.",
+            preparing: {
+              extracting: "Preparing the pages you chose…",
+              downsampling: "Shrinking your pages to send — {{done}} of {{total}}.",
             },
             progress: {
               title: "Building your test",
@@ -1019,17 +1025,28 @@ translation: {
                 "We found {{total}} questions and imported the first {{count}} — that is the limit for one import.",
               incomplete:
                 "We counted about {{total}} questions but could build only {{count}}. Check the PDF and retry if anything is missing.",
+              dropped:
+                "Some questions were found but could not be built — compare the draft against your paper.",
               review: "Check the wording and answers against your paper before you publish.",
               dismiss: "Dismiss",
             },
             errors: {
               UNREADABLE: "That file could not be opened. It may be damaged or password-protected.",
-              TOO_LARGE: "That PDF is larger than {{size}} MB.",
+              DOCUMENT_TOO_LARGE: "That PDF is larger than {{size}}.",
+              TOO_LARGE: "That upload was too large to accept. Choose fewer pages and try again.",
+              SELECTION_TOO_LARGE_one:
+                "Those pages are too heavy to send, even shrunk. Pages this detailed go about {{count}} at a time — import them in batches.",
+              SELECTION_TOO_LARGE_other:
+                "Those pages are too heavy to send, even shrunk. Pages this detailed go about {{count}} at a time — import them in batches.",
               TOO_MANY_PAGES: "That document has more than {{max}} pages.",
               TOO_MANY_SELECTED_PAGES: "You can import up to {{pages}} pages at once.",
               INVALID_PAGES: "Those page numbers could not be read. Try a range like 1-4, 7.",
               INVALID_PDF: "That file is not a readable PDF.",
               QUOTA_EXCEEDED: "Your school has reached today's import limit. Try again tomorrow.",
+              TEACHER_QUOTA_EXCEEDED:
+                "You have used all your imports for today. Your colleagues can still import, and yours reset tomorrow.",
+              TIMED_OUT:
+                "The import ran too long and was stopped. Try again with fewer pages.",
               EXTRACTION_FAILED: "The test could not be read from those pages. Try selecting a different range.",
               NO_QUESTIONS_FOUND: "No questions were found on those pages. Check the page selection.",
               INTERRUPTED: "The import was interrupted. Please start it again.",
