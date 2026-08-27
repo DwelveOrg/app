@@ -95,10 +95,7 @@ export default function ResetPasswordPageClient({ token }: Readonly<ResetPasswor
           ) : (
             <>
               <div className="mb-8">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-                  {t("auth.resetPassword.access")}
-                </p>
-                <h1 className="mt-2 type-title text-foreground">
+                <h1 className="type-title text-foreground">
                   {t("auth.resetPassword.title")}
                 </h1>
                 <p className="mt-2 text-sm text-muted-foreground">
