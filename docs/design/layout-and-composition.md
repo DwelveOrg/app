@@ -231,8 +231,8 @@ Spacing comes from the Tailwind scale. The recurring values, so a new panel matc
 | Badge / pill rows       | `gap-2`                                  |
 
 Radius is **seven explicit steps** declared in `globals.css` as `--r-1` … `--r-7` and mapped onto
-the Tailwind names in `@theme inline`: `rounded-sm`(2) · `rounded-md`(3) · `rounded-lg`(4) ·
-`rounded-xl`(5) · `rounded-2xl`(6) · `rounded-3xl`(8) · `rounded-4xl`(10). Practically:
+the Tailwind names in `@theme inline`: `rounded-sm`(5) · `rounded-md`(7) · `rounded-lg`(10) ·
+`rounded-xl`(12) · `rounded-2xl`(16) · `rounded-3xl`(20) · `rounded-4xl`(24). Practically:
 
 - `rounded-2xl` — cards and panels (`Surface radius="lg"`)
 - `rounded-xl` — inputs, icon chips, inner tiles, nav rows
@@ -249,12 +249,16 @@ a `rounded-lg` input beside a `rounded-xl` one is not.
 > base, where `calc(--radius - 4px)` went negative. The steps are literals now and the ramp is the
 > knob.
 >
-> `--radius-pill` is separate on purpose. 104 hand-written `rounded-full` call sites were the single
-> loudest tell in the old UI: a product where every chip, tag and badge is a half-circle reads as
-> generated, because a person choosing a pill chooses it _somewhere_, not everywhere. Chips route
+> **Changed (v5).** The ramp roughly doubled (soft-modern retune, maintainer-approved from rendered
+> candidates): buttons went 4px → 10px, cards 6px → 16px, dialogs and feature panels 16px → 20–24px,
+> and `--radius-pill` is a true pill, so chips, badges and the `Segmented` control read as pills.
+> Resting surfaces cast a gentle diffuse shadow again and `interactive` rises 1px on hover. Colour
+> tokens did not move. The `frontend` repository carries the identical retune.
+>
+> `--radius-pill` is separate on purpose: "are chips pills" stays a one-line decision. Chips route
 > through the token; things that are actually round keep `rounded-full`. **`rounded-full` on
-> something containing a number or a word is now a bug** — see `Badge`, or the question-number chips
-> in `QuestionView` / `QuestionNavigator`.
+> something containing a number or a word is still a bug** — see `Badge`, or the question-number
+> chips in `QuestionView` / `QuestionNavigator`.
 
 ---
 
