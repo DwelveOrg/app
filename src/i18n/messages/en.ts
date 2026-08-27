@@ -147,7 +147,7 @@ translation: {
           teacher: {
             ready: { nav: "Access ready", title: "Your teacher access is ready", description: "You are connected to {{school}}. Detailed data stays limited to classes assigned to you." },
             classes: { nav: "Your classes", title: "Work from your assigned classes", description: "Each class contains its roster, tests and results. Your administrator controls which classes you can access.", assigned: "Assigned classes", waiting: "No classes are assigned yet. Your dashboard will show a waiting state until an administrator adds you." },
-            tests: { nav: "Tests and results", title: "Create, publish and review tests", description: "Open a class to create a test, publish delivery settings and review submissions without exposing another teacher’s classes." },
+            tests: { nav: "Tests and results", title: "Create, publish and review tests", description: "Open a class to create a test, publish delivery settings and review submissions without exposing another teacher's classes." },
             analytics: { nav: "Analytics", title: "Spot where students need help", description: "Your dashboard combines trends, grade distribution, class comparisons and pending grading for your assigned students." },
           },
           student: {
@@ -160,7 +160,7 @@ translation: {
         destinations: { open: "Open",
           school: { title: "School", description: "Manage the school profile, people, join code and class setup." },
           classes: { title: "Classes", description: "Open rosters, tests, requests and class-level results." },
-          tests: { title: "Test Studio", description: "Create and publish assessments in a focused authoring workspace." },
+          tests: { title: "Test studio", description: "Create and publish assessments in a focused authoring workspace." },
           assignments: { title: "Assignments", description: "See available, in-progress and completed tests." },
           results: { title: "Results", description: "Review scores, feedback and detailed performance after release." },
           notifications: { title: "Notifications", description: "Follow invitations, requests and test updates." },
@@ -264,7 +264,7 @@ translation: {
             },
             teacher: {
               classes: { title: "Get assigned to a class", description: "An admin adds you to the classes you'll be teaching." },
-              students: { title: "Wait for students to enrol", description: "Students join with a code or are added by an admin." },
+              students: { title: "Wait for students to enroll", description: "Students join with a code or are added by an admin." },
               assessment: { title: "Publish an assessment", description: "Build a test in the studio and assign it to your class." },
               results: { title: "Collect your first results", description: "Grades and trends appear here once work is submitted." },
             },
@@ -556,7 +556,7 @@ translation: {
             },
           },
           activity: {
-            title: "Recent Activity",
+            title: "Recent activity",
             items: {
               quiz: { title: "Chemistry Quiz graded", meta: "Score: 92/100", ago: "2h ago" },
               material: {
@@ -622,7 +622,7 @@ translation: {
             themeLabel: "Theme",
             themeHelp: "Choose a fixed theme or follow the system preference.",
             fontLabel: "Font family",
-            fontHelp: "Switch between all font families currently loaded in this website.",
+            fontHelp: "Switch between the font families loaded on this site.",
             motionTitle: "Reduced motion",
             motionDescription: "Limit interface animation and transitions for a calmer, more accessible experience.",
             themes: {
@@ -679,10 +679,10 @@ translation: {
             },
             activeSessions: {
               title: "Active sessions",
-              description: "See which devices are signed in and sign out the ones you don't recognise.",
+              description: "See which devices are signed in and sign out the ones you don't recognize.",
             },
             logoutAllDevices: {
-              title: "Logout from all devices",
+              title: "Log out of all devices",
               description: "Immediately sign out from every other active session.",
               confirmTitle: "Log out of all devices?",
               confirmDescription:
@@ -709,8 +709,8 @@ translation: {
             },
           },
           support: {
-            title: "Support / Feedback",
-            description: "Helpful tools for early products and fast feedback loops.",
+            title: "Support and feedback",
+            description: "Report a problem, suggest an idea, or contact the team.",
             reportBug: {
               title: "Report a bug",
               modalTitle: "Report a bug",
@@ -732,7 +732,7 @@ translation: {
                 "Your account details are attached automatically. Add screenshots in your mail app before sending.",
               tooShort: "Please add at least {{count}} characters so we can act on it.",
               opened: "Draft opened in your mail app — send it to reach us.",
-              placeholder: "Describe the issue or idea...",
+              placeholder: "Describe the issue or idea…",
               close: "Close modal",
               submit: "Submit",
             },
@@ -891,8 +891,8 @@ translation: {
             assign: {
               title: "Assign \"{{title}}\" to another class",
               description:
-                "The class gets its own copy as a draft. Editing this test later will not change their copy.",
-              noClasses: "You do not teach another class to assign this test to yet.",
+                "The class gets its own copy as a draft. Editing this test later will not change its copy.",
+              noClasses: "You do not teach another class you could assign this test to yet.",
               classLabel: "Class",
               classPlaceholder: "Pick a class",
               hint: "The copy has no dates set, so nobody can open it until you publish it.",
@@ -969,7 +969,7 @@ translation: {
             tryAgain: "Try again",
             chooseAnother: "Choose a different file",
             formatDetected:
-              "The format — SAT, IELTS or a plain quiz — is recognised from the paper itself. You can change it later in the test's settings.",
+              "The format — SAT, IELTS or a plain quiz — is recognized from the paper itself. You can change it later in the test's settings.",
             cta: {
               title: "Turn a PDF into a test",
               description:
@@ -1148,7 +1148,7 @@ translation: {
               },
               supervision: {
                 label: "Supervision",
-                hint: "Monitoring bundles fullscreen, screen exits, clipboard blocking, and the honour code.",
+                hint: "Monitoring bundles fullscreen, screen exits, clipboard blocking, and the honor code.",
                 open: "None",
                 monitored: "Monitored",
               },
@@ -1207,12 +1207,12 @@ translation: {
             },
             integrity: {
               leaveScreen: "Detect leaving the screen",
-              leaveScreenHint: "Switching tabs, switching apps, or minimising the window.",
+              leaveScreenHint: "Switching tabs, switching apps, or minimizing the window.",
               leaveScreenAction: "When they leave the screen",
               fullscreen: "Require fullscreen",
               fullscreenHint: "The attempt cannot start until the browser is fullscreen.",
               fullscreenAction: "When they exit fullscreen",
-              fullscreenUnsupported: "This browser will not allow fullscreen. Students on it could not start the test.",
+              fullscreenUnsupported: "This browser will not allow fullscreen. Students on it would not be able to start the test.",
               demoHint: "See what students will get:",
               demoStart: "Try fullscreen",
               demoExit: "Exit fullscreen",
@@ -1519,7 +1519,7 @@ translation: {
               remove: "Remove answer",
               maxWords: "Maximum words",
               maxWordsHint: "Leave empty for no limit.",
-              caseSensitive: "Match capitalisation exactly",
+              caseSensitive: "Match capitalization exactly",
               hint: "Any one of these counts as correct.",
               empty: "Type an answer and press Enter",
               caseSensitiveHint: "“Paris” and “paris” differ.",
@@ -1631,7 +1631,7 @@ translation: {
               },
               gap: {
                 label: "Sentence with a gap",
-                placeholder: "The factory opened in ____ .",
+                placeholder: "The factory opened in ____.",
               },
               task: {
                 label: "Task brief",
@@ -1740,7 +1740,7 @@ translation: {
             },
             IELTS_MATCHING_HEADINGS: {
               label: "Matching headings",
-              description: "Match each labelled paragraph with its heading.",
+              description: "Match each labeled paragraph with its heading.",
             },
             IELTS_MATCHING_INFORMATION: {
               label: "Matching information",
@@ -1767,7 +1767,7 @@ translation: {
               description: "Fill gaps in notes, a table, or a flow chart.",
             },
             IELTS_DIAGRAM_LABEL: {
-              label: "Diagram labelling",
+              label: "Diagram labeling",
               description: "Label a diagram from the passage. Needs an image.",
             },
             IELTS_SHORT_ANSWER: {
@@ -1909,7 +1909,7 @@ translation: {
           },
           access: {
             title: "Access",
-            panelDescription: "Who can run this school, the invite links you have sent, and who is barred.",
+            panelDescription: "Who can run this school, the invite links you have sent, and who is blocked.",
             cancel: "Cancel",
             rowMenu: "Actions for {{name}}",
             tabs: { admins: "Roles", invites: "Invite links", blocklist: "Blocked" },
@@ -1958,7 +1958,7 @@ translation: {
               by: "by {{name}}",
               lift: "Unblock",
               liftTitle: "Unblock {{email}}?",
-              liftDescription: "They will be able to join again with the school code or an invite. It does not add them back.",
+              liftDescription: "They will be able to join again with the school code or an invite. Unblocking does not add them back.",
               lifted: "{{email}} is unblocked.",
               emptyTitle: "Nobody is blocked",
               emptyDescription: "Blocking someone removes them from the school and stops them rejoining.",
@@ -2060,8 +2060,8 @@ translation: {
         classes: {
           title: "Classes",
           subtitle: "Browse every class in your school.",
-          subtitleStudent_one: "{{count}} class enrolled this semester",
-          subtitleStudent_other: "{{count}} classes enrolled this semester",
+          subtitleStudent_one: "Enrolled in {{count}} class this semester",
+          subtitleStudent_other: "Enrolled in {{count}} classes this semester",
           subtitleTeacher_one: "{{count}} class you teach",
           subtitleTeacher_other: "{{count}} classes you teach",
           subtitleAdmin_one: "{{count}} class in your school",
@@ -2091,6 +2091,8 @@ translation: {
           },
           card: {
             students: "{{count}} students",
+          students_one: "{{count}} student",
+          students_other: "{{count}} students",
             teaching: "Teaching",
             enrolled: "Enrolled",
             noTeacher: "No teacher assigned",
@@ -2248,6 +2250,8 @@ translation: {
             searchPlaceholder: "Search classes",
             noTeacher: "No teacher assigned",
             studentCount: "{{count}} students",
+          studentCount_one: "{{count}} student",
+          studentCount_other: "{{count}} students",
             open: "Open class",
             requestToTeach: "Request to teach",
             requestPending: "Request pending",
@@ -2416,7 +2420,7 @@ translation: {
             confirm: "Leave class",
             cancel: "Cancel",
             success: "You left \"{{name}}\"",
-            alreadyLeft: "You were no longer in \"{{name}}\"",
+            alreadyLeft: "You are no longer in \"{{name}}\"",
             error: "Could not leave the class. Please try again.",
           },
         },
@@ -2544,6 +2548,8 @@ translation: {
           title: "Notifications",
           summary: {
             some: "{{count}} unread notifications",
+          some_one: "{{count}} unread notification",
+          some_other: "{{count}} unread notifications",
             none: "You're all caught up",
           },
           tabs: {
@@ -2569,7 +2575,7 @@ translation: {
           emptyDescription: "New updates about your classes, tests, and account will appear here.",
           errorTitle: "Could not load notifications",
           errorDescription: "Please try again in a moment.",
-          loading: "Loading...",
+          loading: "Loading…",
           loadMore: "Load more",
           delete: "Delete notification",
           unread: "Unread",
@@ -2855,7 +2861,7 @@ translation: {
         backToCover: "Back to the test",
         appearance: {
           title: "Display",
-          theme: "Colours",
+          theme: "Colors",
           textSize: "Text size",
           themes: {
             paper: "Black on white",
@@ -2914,7 +2920,7 @@ translation: {
           TEST_CLOSED: "This test has closed.",
           TEST_NOT_PUBLISHED: "This test is not available yet.",
           NO_ATTEMPTS_LEFT: "You have used all your attempts.",
-          HONOR_CODE_REQUIRED: "Accept the honour code to begin.",
+          HONOR_CODE_REQUIRED: "Accept the honor code to begin.",
           ATTEMPT_CLOSED: "This attempt has already been submitted.",
           ATTEMPT_EXPIRED: "Your time is up. Your answers have been submitted.",
         },
@@ -3201,7 +3207,7 @@ translation: {
           resultsDesc: "Automatic grading and real-time analytics.",
         },
         features: {
-          label: "Core Features",
+          label: "Core features",
           title: "Built for modern classrooms, designed for speed and clarity.",
           subtitle: "Powerful tools designed for modern education, wrapped in a simple interface.",
           instantGradingTitle: "Instant grading",
@@ -3246,7 +3252,7 @@ translation: {
           },
           item2: {
             question: "Can I set a timer for tests?",
-            answer: "Yes. You can configure exam duration and submissions will close automatically when time is over.",
+            answer: "Yes. You can set the exam duration, and submissions close automatically when time runs out.",
           },
           item3: {
             question: "How are results calculated?",
@@ -3292,17 +3298,17 @@ translation: {
           description: "Create, share, and grade school tests online in minutes with instant analytics.",
           about: "About",
           contact: "Contact",
-          quickLinks: "Quick Links",
+          quickLinks: "Quick links",
           home: "Home",
-          howItWorks: "How It Works",
+          howItWorks: "How it works",
           features: "Features",
           accordion: "FAQ",
           product: "Product",
-          teacherDashboard: "Teacher Dashboard",
-          studentAccess: "Student Access",
+          teacherDashboard: "Teacher dashboard",
+          studentAccess: "Student access",
           pricing: "Pricing",
           support: "Support",
-          helpCenter: "Help Center",
+          helpCenter: "Help center",
           rights: "All rights reserved.",
           privacy: "Privacy",
           terms: "Terms",
@@ -3310,7 +3316,7 @@ translation: {
       },
       auth: {
         common: {
-          backToLanding: "Back to landing",
+          backToLanding: "Back to home",
           backToLogin: "Back to login",
         },
         /**
@@ -3421,9 +3427,9 @@ translation: {
         login: {
           access: "Dwelve Access",
           title: "Welcome back",
-          subtitle: "Join Dwelve to create or take tests online.",
+          subtitle: "Log in to create or take tests online.",
           google: "Continue with Google",
-          googleUnavailable: "Google sign-in is not configured for this deployment.",
+          googleUnavailable: "Google sign-in is not available right now.",
           googleWaiting: "Waiting for Google…",
           googleVerifying: "Verifying your account…",
           or: "or",
@@ -3447,7 +3453,7 @@ translation: {
           title: "Create your account",
           subtitle: "Sign up in seconds and start practicing.",
           google: "Continue with Google",
-          googleUnavailable: "Google sign-in is not configured for this deployment.",
+          googleUnavailable: "Google sign-in is not available right now.",
           googleWaiting: "Waiting for Google…",
           googleVerifying: "Verifying your account…",
           or: "or",
@@ -3508,7 +3514,7 @@ translation: {
           createCenter: "Create center",
           success: "Center created",
           personalPrompt: "Just want a personal account?",
-          personalCta: "Regular sign up",
+          personalCta: "Regular sign-up",
         },
         passwordReset: {
           access: "Dwelve Access",

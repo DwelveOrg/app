@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  ArrowUpRight,
   Bell,
   CalendarClock,
   Check,
@@ -177,7 +178,79 @@ type Tile = {
   href?: string;
   delta?: number | null;
   spark?: number[];
+  /**
+   * Which form the tile takes. Four identical number-boxes made a grading
+   * backlog, a headcount, and a rate all read as the same object; each figure
+   * now wears the shape of what it measures (v5.1, maintainer request).
+   */
+  variant?: "action" | "population" | "trend" | "ring" | "tally" | "now";
+  /** population: one segment per class, proportional to its student count. */
+  segments?: { id: string; label: string; count: number }[];
+  /** ring: the rate as 0–1. */
+  rate?: number;
+  /** tally / action: the figure as a number, for drawing and emphasis. */
+  count?: number;
 };
+
+/** population strip: the headcount drawn as its classes, chart hues cycling. */
+function PopulationStrip({ segments }: { segments: { id: string; label: string; count: number }[] }) {
+  const total = segments.reduce((sum, s) => sum + s.count, 0);
+  if (!total) return null;
+  return (
+    <div className="mt-2 flex h-1.5 w-full gap-0.5" aria-hidden>
+      {segments.map((s, i) => (
+        <span
+          key={s.id}
+          title={`${s.label} · ${s.count}`}
+          className="h-full rounded-[var(--radius-pill)]"
+          style={{
+            width: `${(s.count / total) * 100}%`,
+            background: `var(--chart-${(i % 5) + 1})`,
+            opacity: 0.85,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/** ring: a rate drawn as how much of the circle is filled. */
+function CompletionRing({ rate }: { rate: number }) {
+  const r = 16;
+  const c = 2 * Math.PI * r;
+  const filled = Math.max(0, Math.min(1, rate));
+  return (
+    <svg width={40} height={40} viewBox="0 0 40 40" aria-hidden className="shrink-0 -rotate-90">
+      <circle cx={20} cy={20} r={r} fill="none" stroke="var(--muted)" strokeWidth={5} />
+      <circle
+        cx={20}
+        cy={20}
+        r={r}
+        fill="none"
+        stroke="var(--chart-1)"
+        strokeWidth={5}
+        strokeLinecap="round"
+        strokeDasharray={`${c * filled} ${c}`}
+      />
+    </svg>
+  );
+}
+
+/** tally: each completed test is a dot — a record of work, not just a figure. */
+function TallyDots({ count }: { count: number }) {
+  const shown = Math.min(count, 21);
+  if (!shown) return null;
+  return (
+    <div className="mt-2 flex max-w-[9.5rem] flex-wrap gap-1" aria-hidden>
+      {Array.from({ length: shown }, (_, i) => (
+        <span key={i} className="size-1.5 rounded-full bg-success/60" />
+      ))}
+      {count > shown ? (
+        <span className="type-caption -my-0.5 leading-none text-muted-foreground">+{count - shown}</span>
+      ) : null}
+    </div>
+  );
+}
 
 /**
  * Four figures, not six.
@@ -189,6 +262,13 @@ type Tile = {
  * the people, and the two measures of how it is going. Inventory the page
  * dropped (class and assessment counts) still lives one click away on the
  * pages that own it, and the classes table below carries its own row count.
+ *
+ * v5.1: the four no longer share one anonymous body. The work tile is the one
+ * pressable object and goes accent-hot while anything waits; the headcount is
+ * drawn as its classes (population strip); the average leads with its trend
+ * line; completion is a filled ring; a student's finished tests are a tally of
+ * dots and their in-progress work carries a live dot. Same data, but each
+ * figure now has the shape of what it measures instead of four equal boxes.
  */
 function StatTiles({ ctx }: ModuleProps) {
   const { t } = useTranslation();
@@ -208,16 +288,27 @@ function StatTiles({ ctx }: ModuleProps) {
   if (isStudentSummary(ctx.summary)) {
     const summary = ctx.summary;
     tiles = [
-      { key: "due", value: String(summary.dueThisWeek), available: true },
+      {
+        key: "due",
+        value: String(summary.dueThisWeek),
+        available: true,
+        href: "/assignments/exams",
+        variant: "action",
+        count: summary.dueThisWeek,
+      },
       {
         key: "inProgress",
         value: String(summary.inProgressAssessments ?? 0),
         available: true,
+        variant: "now",
+        count: summary.inProgressAssessments ?? 0,
       },
       {
         key: "completed",
         value: String(summary.completedAssessments ?? 0),
         available: true,
+        variant: "tally",
+        count: summary.completedAssessments ?? 0,
       },
       {
         key: "average",
@@ -227,10 +318,14 @@ function StatTiles({ ctx }: ModuleProps) {
         available: ctx.availability.hasResults,
         delta,
         spark,
+        variant: "trend",
       },
     ];
   } else {
     const summary = staffSummary(ctx);
+    const classSegments = (ctx.classPerformance?.classes ?? [])
+      .filter((row) => row.studentCount > 0)
+      .map((row) => ({ id: row.classId, label: row.className, count: row.studentCount }));
     tiles = [
       ctx.role === "TEACHER"
         ? {
@@ -238,10 +333,24 @@ function StatTiles({ ctx }: ModuleProps) {
             value: String(summary?.pendingGrading ?? 0),
             available: true,
             href: "/tests",
+            variant: "action",
+            count: summary?.pendingGrading ?? 0,
           }
-        : { key: "students", value: String(summary?.students ?? 0), available: true },
+        : {
+            key: "students",
+            value: String(summary?.students ?? 0),
+            available: true,
+            variant: "population",
+            segments: classSegments,
+          },
       ctx.role === "TEACHER"
-        ? { key: "students", value: String(summary?.students ?? 0), available: true }
+        ? {
+            key: "students",
+            value: String(summary?.students ?? 0),
+            available: true,
+            variant: "population",
+            segments: classSegments,
+          }
         : { key: "teachers", value: String(summary?.teachers ?? 0), available: true },
       {
         key: "average",
@@ -251,12 +360,15 @@ function StatTiles({ ctx }: ModuleProps) {
         available: ctx.availability.hasResults,
         delta,
         spark,
+        variant: "trend",
       },
       {
         key: "completion",
         value:
           summary?.completionRate != null ? `${Math.round(summary.completionRate)}%` : "—",
         available: summary?.completionRate != null,
+        variant: "ring",
+        rate: summary?.completionRate != null ? summary.completionRate / 100 : undefined,
       },
     ];
   }
@@ -265,11 +377,30 @@ function StatTiles({ ctx }: ModuleProps) {
   return (
     <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
       {tiles.map((tile) => {
+        // The one pressable tile: work waiting. Accent-tinted while there is
+        // any, back to a resting card when the desk is clear.
+        const hot = tile.variant === "action" && (tile.count ?? 0) > 0;
+        const label = t(`root.dashboard.kpi.${group}.${tile.key}`);
+
         const body = (
           <>
-            <p className="type-caption truncate font-medium text-muted-foreground">
-              {t(`root.dashboard.kpi.${group}.${tile.key}`)}
-            </p>
+            <div className="flex items-start justify-between gap-2">
+              <p
+                className={cn(
+                  "type-caption truncate font-medium",
+                  hot ? "text-accent-foreground/75" : "text-muted-foreground",
+                )}
+              >
+                {label}
+              </p>
+              {tile.variant === "action" ? (
+                hot ? (
+                  <ArrowUpRight className="size-4 shrink-0 text-accent-foreground" aria-hidden />
+                ) : (
+                  <Check className="size-4 shrink-0 text-success" aria-hidden />
+                )
+              ) : null}
+            </div>
             <div className="mt-1 flex items-end justify-between gap-2">
               {/* Proportional figures on purpose: tabular digits give every
                   numeral a `0`'s width, which reads loose at display size.
@@ -277,13 +408,32 @@ function StatTiles({ ctx }: ModuleProps) {
               <p
                 className={cn(
                   "text-2xl leading-tight font-bold tracking-tight",
-                  tile.available ? "text-foreground" : "text-muted-foreground",
+                  hot
+                    ? "text-accent-foreground"
+                    : tile.available
+                      ? "text-foreground"
+                      : "text-muted-foreground",
                 )}
               >
                 {tile.value}
+                {tile.variant === "now" && (tile.count ?? 0) > 0 ? (
+                  <span
+                    aria-hidden
+                    className="mb-0.5 ml-2 inline-block size-2 rounded-full bg-info ring-4 ring-info/15"
+                  />
+                ) : null}
               </p>
-              {tile.spark ? <Sparkline values={tile.spark} /> : null}
+              {tile.variant === "trend" && tile.spark ? (
+                <Sparkline values={tile.spark} width={104} height={30} />
+              ) : null}
+              {tile.variant === "ring" && tile.rate != null ? (
+                <CompletionRing rate={tile.rate} />
+              ) : null}
             </div>
+            {tile.variant === "population" && tile.segments?.length ? (
+              <PopulationStrip segments={tile.segments} />
+            ) : null}
+            {tile.variant === "tally" ? <TallyDots count={tile.count ?? 0} /> : null}
             {tile.delta != null && tile.delta !== 0 ? (
               <p className="mt-1 flex items-center gap-1 text-xs">
                 <span
@@ -315,7 +465,10 @@ function StatTiles({ ctx }: ModuleProps) {
             as={Link}
             href={tile.href}
             interactive
-            className="block px-4 py-3.5"
+            className={cn(
+              "block px-4 py-3.5",
+              hot && "border-accent-foreground/25 bg-accent hover:bg-accent",
+            )}
           >
             {body}
           </Surface>
