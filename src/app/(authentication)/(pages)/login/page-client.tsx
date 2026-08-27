@@ -102,10 +102,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
 
         <div className="w-full max-w-[400px]">
           <div className="mb-8">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
-              {t("auth.login.access")}
-            </p>
-            <h1 className="mt-2 type-title text-foreground">
+            <h1 className="type-title text-foreground">
               {t("auth.login.title")}
             </h1>
             <p className="mt-2 text-sm text-muted-foreground">

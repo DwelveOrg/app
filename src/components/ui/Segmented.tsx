@@ -33,7 +33,7 @@ export type SegmentedProps<T extends string> = {
   className?: string;
 };
 
-const SHELL = "grid auto-cols-fr grid-flow-col gap-1 rounded-xl border border-border bg-muted p-1";
+const SHELL = "grid auto-cols-fr grid-flow-col gap-1 rounded-[var(--radius-pill)] border border-border bg-muted p-1";
 
 export default function Segmented<T extends string>({
   value,
@@ -65,7 +65,7 @@ export default function Segmented<T extends string>({
             onClick={() => onChange(option.value)}
             className={cn(
               "interactive-flat relative flex cursor-pointer items-center justify-center gap-2",
-              "rounded-lg px-2.5 py-2 text-13 font-semibold",
+              "rounded-[var(--radius-pill)] px-2.5 py-2 text-13 font-semibold",
               "outline-none focus-visible:ring-2 focus-visible:ring-ring/40",
               active ? "text-foreground" : "text-muted-foreground hover:text-foreground",
             )}
@@ -74,7 +74,7 @@ export default function Segmented<T extends string>({
               <motion.span
                 layoutId={layoutId}
                 aria-hidden
-                className="absolute inset-0 -z-10 rounded-lg border border-primary/25 bg-card shadow-elev-1"
+                className="absolute inset-0 -z-10 rounded-[var(--radius-pill)] border border-primary/25 bg-card shadow-elev-1"
                 transition={{ duration: reduce ? 0 : 0.24, ease: [0.22, 1, 0.36, 1] }}
               />
             ) : null}

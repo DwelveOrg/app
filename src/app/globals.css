@@ -5,7 +5,24 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /* ============================================================================
-   Dwelve design tokens — v4 · ink action, violet identity
+   Dwelve design tokens — v5 · soft-modern geometry over v4's ink/violet split
+
+   v5 changes GEOMETRY AND DEPTH ONLY; v4's colour doctrine below is untouched
+   and still authoritative. What moved, and why:
+
+   - The radius ramp roughly doubled (4px buttons → 10px, 6px cards → 16px) and
+     --radius-pill is a true pill. The v4 print-sharp look photographed well in
+     isolation but read as severe next to the products teachers use daily; the
+     maintainer asked for the contemporary soft geometry (rounded corners,
+     gentler edges) explicitly, by reference. Roundness is now the identity's
+     warmth; restraint stays in colour, where v4 put it.
+   - Resting surfaces cast a *gentle* diffuse shadow again (elev-1/2). v4 flat
+     was a reaction to "everything floats"; v5 keeps the resting/floating cliff
+     (3–4 still tower over 1–2) but lets a card sit a breath off the canvas so
+     the rounder corners don't look printed on.
+   - Hover travels 1px again (--lift: -1px). v4's "nothing moves" stance was
+     about 2px twitchiness; 1px under the existing 180ms ease reads as response,
+     not instability, and :active still plants the control flat.
 
    TWO jobs, deliberately split, because they are different jobs:
 
@@ -42,9 +59,9 @@
      close to a blue notice; the action is neutral now, but --brand is still
      violet and still appears beside notices, so the gap is still wanted. The
      hue guards in scripts/check-contrast.mjs measure it from --brand.
-   - Depth is a hairline plus surface value, not shadow. See the elevation ramp:
-     resting levels are nearly flat and only genuinely floating chrome casts.
-   - Nothing moves on hover (--lift: 0).
+   - Depth: hairline first, but v5 gives resting levels a gentle cast again —
+     see the elevation ramp; floating chrome (3–4) still separates by a cliff.
+   - Hover rises 1px (--lift: -1px); :active plants flat.
 
    The two themes are different characters, not inversions. Light is a cool
    near-white under near-black ink; dark is a violet-leaning near-black. Surfaces
@@ -63,22 +80,24 @@
      A design language decides how a corner behaves at 4px *and* at 24px
      independently, so the steps are literals and the ramp is the knob.
 
-     `--radius-pill` is separate on purpose. 104 hand-written `rounded-full`
-     call sites were the single loudest tell in the old UI — a product where
-     every chip, tag, badge and button end is a half-circle reads as generated,
-     because a person choosing a pill chooses it *somewhere*, not everywhere.
-     Routing the shared primitives through this token means "are chips pills"
-     is one line, while genuine circles (avatars, status dots, spinners) keep
-     their own `rounded-full` and are unaffected.
-     ---------------------------------------------------------------------- */
-  --r-1: 2px;
-  --r-2: 3px;
-  --r-3: 4px;
-  --r-4: 5px;
-  --r-5: 6px;
-  --r-6: 8px;
-  --r-7: 10px;
-  --radius-pill: 4px;
+     `--radius-pill` is separate on purpose: "are chips pills" stays one line.
+     v4 set it to 4px to make the point that a pill is a choice, not a default;
+     v5 *makes* that choice — in the soft-modern language a chip, tag, badge or
+     segment thumb is a pill, and the token says so. Genuine circles (avatars,
+     status dots, spinners) keep their own `rounded-full` and are unaffected.
+
+     v5 ramp (nudged up once more at the maintainer's request): a control
+     (r-3, buttons/inputs) sits at 12px, a card (r-5) at 20px, and a feature
+     panel or dialog (r-6/r-7) at 24–28px. r-1/r-2 stay smaller for things
+     nested tight inside controls. */
+  --r-1: 6px;
+  --r-2: 8px;
+  --r-3: 12px;
+  --r-4: 14px;
+  --r-5: 20px;
+  --r-6: 24px;
+  --r-7: 28px;
+  --radius-pill: 9999px;
 
   /* Kept because shadcn primitives and a few call sites still read it. It is an
      alias for the middle of the ramp, not the source the ramp derives from. */
@@ -214,8 +233,9 @@
      The ramp is now split by *kind*, not by degree:
 
        1–2  resting surfaces — cards, panels, rows, inputs, buttons.
-            Nearly flat. A hairline draws the edge; a one-pixel contact shadow
-            keeps the panel from looking printed onto the canvas. That is all.
+            Gently lifted (v5). The hairline still draws the edge; a soft,
+            low-alpha diffuse cast keeps a 16px-cornered card from looking
+            printed onto the canvas. Soft, not floaty: alphas stay ≤ 0.06.
        3–4  genuinely floating chrome — menus, popovers, dialogs, sheets.
             Full depth, and *more* separation at 4 than before, because these
             are the only things that should ever look detached, and they need
@@ -226,10 +246,11 @@
      legible at a glance. */
   --shadow-tint: 20 18 30;
   --elev-1:
-    0 1px 1px rgb(var(--shadow-tint) / 0.035);
+    0 1px 2px rgb(var(--shadow-tint) / 0.04),
+    0 2px 8px -2px rgb(var(--shadow-tint) / 0.04);
   --elev-2:
-    0 1px 1px rgb(var(--shadow-tint) / 0.04),
-    0 2px 5px -2px rgb(var(--shadow-tint) / 0.05);
+    0 1px 2px rgb(var(--shadow-tint) / 0.04),
+    0 4px 12px -3px rgb(var(--shadow-tint) / 0.06);
   --elev-3:
     0 4px 8px -3px rgb(var(--shadow-tint) / 0.08),
     0 12px 26px -8px rgb(var(--shadow-tint) / 0.10);
@@ -250,17 +271,12 @@
   --dur-3: 260ms;
   --dur-4: 360ms;
 
-  /* Nothing rises to meet the cursor.
-
-     `interactive` translated every hoverable surface up 2px, so passing the
-     pointer across a dashboard made the whole page twitch card by card. A 2px
-     move is also below the threshold where it reads as intent — it reads as
-     instability. Hover is now carried by the hairline and the fill going one
-     step darker, which is a change you can see without anything moving.
-
-     The token is kept rather than the rule deleted, so re-enabling travel stays
-     a one-line change that every `interactive` call site follows. */
-  --lift: 0px;
+  /* A 1px rise on hover (v5). v4 parked this at 0 because the old 2px jump
+     made a dashboard twitch card by card; 1px under the 180ms quint ease is the
+     smallest travel that still reads as the surface answering the cursor —
+     "agility" without instability. Colour and hairline changes still carry the
+     main hover signal; :active plants the control back at 0. */
+  --lift: -1px;
 }
 
 /* ============================================================================
@@ -831,10 +847,10 @@
 /* ============================================================================
    Interaction
 
-   `interactive` is the one tactile recipe. It no longer travels: `--lift` is 0,
-   so hover is carried by the border and fill while the box holds still, and only
-   `:active` moves. Defined once so the whole product presses the same way, and
-   so tuning the feel is a one-line change.
+   `interactive` is the one tactile recipe. Hover rises by `--lift` (v5: -1px)
+   while border and fill still carry the visible state change, and `:active`
+   plants the control back at 0. Defined once so the whole product presses the
+   same way, and so tuning the feel is a one-line change.
    ========================================================================= */
 
 @utility interactive {
@@ -1038,7 +1054,7 @@
   display: block;
   width: 30px;
   height: 30px;
-  border-radius: 6px;
+  border-radius: var(--r-2);
   opacity: 0;
   background-image: linear-gradient(
     140deg,

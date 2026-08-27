@@ -44,7 +44,8 @@
   margin-bottom: 0.75rem;
   padding: 0.8125rem 0.875rem;
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  /* Floating chrome: one step above the control radius, like menus. */
+  border-radius: var(--r-4);
   background: var(--card);
   color: var(--foreground);
   font-family: var(--font-sans);
