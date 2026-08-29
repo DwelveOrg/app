@@ -31,6 +31,10 @@ for backend setup. Never point routine local sessions at production.
 or credential in a `NEXT_PUBLIC_*` variable. The backend separately requires its own Google client
 configuration when Google login is enabled. Both services must use the same Web OAuth client ID.
 
+Telegram's client secret is intentionally absent from the app. It exists only in the backend. The
+This app needs no Telegram environment variables. The bot username and the one-time ticket
+both come from the backend on each sign-in, so the bot token never reaches Vercel.
+
 ### Google sign-in configuration
 
 Google login and Google signup share one credential path. Configure all three boundaries:
@@ -49,6 +53,15 @@ screen is still in Testing, the account must also be an allowed test user.
 The app CSP must allow the GIS script, iframe/connect parent, and stylesheet endpoints. Those rules
 live in `next.config.ts`; keep `Cross-Origin-Opener-Policy: same-origin-allow-popups` so non-FedCM
 popup communication is not severed.
+
+### Telegram sign-in configuration
+
+Configure BotFather Login Widget allowed URLs for the exact local and production callbacks. The app
+starts Authorization Code + S256 PKCE; Nest owns the secret, token exchange, JWKS signature check,
+and Dwelve token issuance. Changing either app variable requires a Vercel redeploy. Changing backend
+values requires a backend restart/redeploy. Full setup and test steps live in
+[`../features/telegram-authentication.md`](../features/telegram-authentication.md).
+The production Vercel build fails early when either app variable is missing.
 
 ## Commands and quality gates
 

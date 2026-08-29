@@ -94,6 +94,15 @@ export const authResponseSchema = z
   })
   .passthrough();
 
+/** What `POST /auth/telegram/ticket` returns: the deep-link parts, no credentials. */
+export const telegramTicketResponseSchema = z
+  .object({
+    ticket: z.string().min(16),
+    botUsername: z.string().min(1),
+    expiresInSeconds: z.number().int().positive(),
+  })
+  .passthrough();
+
 export const createSchoolResponseSchema = z
   .object({
     school: backendSchoolSchema,
@@ -247,3 +256,4 @@ export type TeacherInviteListResponse = z.infer<typeof teacherInviteListResponse
 export type TeacherInviteSummary = TeacherInviteListResponse["invites"][number];
 export type SchoolBlocklistResponse = z.infer<typeof schoolBlocklistResponseSchema>;
 export type SchoolBlocklistEntry = SchoolBlocklistResponse["entries"][number];
+export type TelegramTicketResponse = z.infer<typeof telegramTicketResponseSchema>;

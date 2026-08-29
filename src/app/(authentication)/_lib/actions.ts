@@ -34,10 +34,10 @@ import {
   resetPasswordRequest,
   signupRequest,
   type AcceptTeacherInviteResponse,
-  type AuthResponse,
   type CreateSchoolResponse,
 } from "./api";
 import { authedBackendJson } from "./backend";
+import { createSessionFromAuthResponse } from "./auth-session";
 import { createSession, deleteSession, getSession } from "./session";
 
 const INVALID_LOGIN_ERROR = "Invalid email or password.";
@@ -92,20 +92,6 @@ function getActionError(error: unknown, fallback: string) {
 
   console.error("Auth action error:", error);
   return fallback;
-}
-
-async function createSessionFromAuthResponse(response: AuthResponse) {
-  await createSession({
-    userId: response.user.id,
-    email: response.user.email,
-    fullName: response.user.fullName,
-    accessToken: response.tokens.accessToken,
-    refreshToken: response.tokens.refreshToken,
-    schoolId: response.member?.schoolId ?? response.school?.id,
-    memberId: response.member?.id,
-    schoolRole: response.member?.role,
-    membershipCount: response.memberships?.length ?? (response.member ? 1 : 0),
-  });
 }
 
 async function createSessionFromSchoolResponse(response: CreateSchoolResponse) {

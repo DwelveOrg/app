@@ -18,13 +18,24 @@ import { marketingHref } from "@/lib/hosts";
 import LoginPanel from "./_sections/LoginPanel";
 import { useLoginMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
+import TelegramAuthButton from "../../_components/TelegramAuthButton";
+import TelegramAuthNotice from "../../_components/TelegramAuthNotice";
 import AuthHandoffOverlay, {
   handoffDestination,
   type AuthHandoffDestination,
 } from "../../_components/AuthHandoff";
 import { safeNextPath } from "../../_utils/next-path";
+import {
+  parseTelegramAuthStatus,
+  telegramStartHref,
+} from "../../_utils/telegram-start";
 
-export default function LoginPageClient({ deleted, logout, next }: Readonly<LoginPageClientProps>) {
+export default function LoginPageClient({
+  deleted,
+  logout,
+  next,
+  telegram,
+}: Readonly<LoginPageClientProps>) {
   const { t } = useTranslation();
   const router = useRouter();
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
@@ -34,6 +45,7 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
   const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
   const loginMutation = useLoginMutation();
   const googleMutation = useGoogleAuthMutation();
+  const telegramStatus = parseTelegramAuthStatus(telegram);
   const {
     register,
     handleSubmit,
@@ -77,7 +89,8 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
   // `handoff` is part of busy so the submit button keeps its spinner while the overlay is up —
   // it stays faintly visible through the blur, and a button that snaps back to rest under it
   // would read as the attempt having been dropped.
-  const isBusy = isSubmitting || loginMutation.isPending || handoff !== null;
+  const isBusy =
+    isSubmitting || loginMutation.isPending || googleMutation.isPending || handoff !== null;
 
   const handleGoogleCredential = React.useCallback(async (idToken: string) => {
     try {
@@ -119,6 +132,18 @@ export default function LoginPageClient({ deleted, logout, next }: Readonly<Logi
               waitingText={t("auth.login.googleWaiting")}
               verifyingText={t("auth.login.googleVerifying")}
               unavailableText={t("auth.login.googleUnavailable")}
+            />
+
+            <TelegramAuthButton
+              href={telegramStartHref("login", next)}
+              disabled={isBusy}
+              text={t("auth.telegram.continue")}
+              openingText={t("auth.telegram.opening")}
+            />
+
+            <TelegramAuthNotice
+              status={telegramStatus}
+              message={telegramStatus ? t(`auth.telegram.${telegramStatus}`) : undefined}
             />
 
             <div className="flex items-center gap-3">

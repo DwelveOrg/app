@@ -3314,6 +3314,14 @@ translation: {
           backToLanding: "Back to home",
           backToLogin: "Back to login",
         },
+        telegram: {
+          continue: "Continue with Telegram",
+          opening: "Opening Telegram…",
+          cancelled: "Telegram sign-in was cancelled.",
+          expired: "Telegram sign-in expired. Please try again.",
+          failed: "Telegram sign-in failed. Please try again.",
+          unavailable: "Telegram sign-in is not available right now.",
+        },
         /**
          * The sign-in handoff overlay. Two stories, because the destination is known: an existing
          * member is going to their workspace, a new one is going to onboarding.

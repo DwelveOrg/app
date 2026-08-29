@@ -15,6 +15,7 @@ import type {
 import {
   acceptTeacherInviteResponseSchema,
   authResponseSchema,
+  telegramTicketResponseSchema,
   authSuccessSchema,
   authTokensSchema,
   createSchoolResponseSchema,
@@ -104,6 +105,28 @@ export function googleAuthRequest(idToken: string, headers?: HeadersInit) {
   return backendJson("/auth/google", {
     method: "POST",
     body: { idToken },
+    headers,
+    responseSchema: authResponseSchema,
+  });
+}
+
+/** Opens bot sign-in: a one-time ticket plus the bot to send the user to. */
+export function telegramTicketRequest() {
+  return backendJson("/auth/telegram/ticket", {
+    method: "POST",
+    body: {},
+    responseSchema: telegramTicketResponseSchema,
+  });
+}
+
+/** Redeems the single-use link the bot delivered into the user's chat. */
+export function telegramCompleteRequest(
+  input: { token: string },
+  headers?: HeadersInit,
+) {
+  return backendJson("/auth/telegram/complete", {
+    method: "POST",
+    body: input,
     headers,
     responseSchema: authResponseSchema,
   });
