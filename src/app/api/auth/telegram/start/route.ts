@@ -24,7 +24,9 @@ export async function GET(request: NextRequest) {
   const next = safeNextPath(request.nextUrl.searchParams.get("next"), "").slice(0, 1024);
 
   try {
-    const { ticket, botUsername } = await telegramTicketRequest();
+    const { ticket, botUsername } = await telegramTicketRequest(
+      clientContextHeaders(request),
+    );
     const response = NextResponse.redirect(
       `https://t.me/${botUsername}?start=${encodeURIComponent(ticket)}`,
     );
@@ -46,4 +48,19 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.redirect(telegramReturnUrl(request, source, "unavailable", next));
   }
+}
+
+/**
+ * The ticket endpoint is rate limited per IP, and every request reaches it from
+ * this server — so without forwarding the browser's address, one Vercel egress
+ * IP would carry the limit for every user at once.
+ */
+function clientContextHeaders(request: NextRequest): HeadersInit | undefined {
+  const headers: Record<string, string> = {};
+  const userAgent = request.headers.get("user-agent");
+  const forwardedFor = request.headers.get("x-forwarded-for");
+
+  if (userAgent) headers["User-Agent"] = userAgent;
+  if (forwardedFor) headers["X-Forwarded-For"] = forwardedFor;
+  return Object.keys(headers).length > 0 ? headers : undefined;
 }

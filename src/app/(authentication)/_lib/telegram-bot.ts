@@ -1,10 +1,9 @@
 import "server-only";
 
-import type { NextResponse } from "next/server";
+import type { NextRequest, NextResponse } from "next/server";
 
 import type { TelegramAuthStatus } from "../_utils/telegram-start";
 import { safeNextPath } from "../_utils/next-path";
-import type { NextRequest } from "next/server";
 
 /**
  * The post-sign-in path, remembered across the trip through Telegram.

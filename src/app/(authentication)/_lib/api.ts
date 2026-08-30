@@ -111,10 +111,11 @@ export function googleAuthRequest(idToken: string, headers?: HeadersInit) {
 }
 
 /** Opens bot sign-in: a one-time ticket plus the bot to send the user to. */
-export function telegramTicketRequest() {
+export function telegramTicketRequest(headers?: HeadersInit) {
   return backendJson("/auth/telegram/ticket", {
     method: "POST",
     body: {},
+    headers,
     responseSchema: telegramTicketResponseSchema,
   });
 }
