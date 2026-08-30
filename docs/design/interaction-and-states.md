@@ -110,11 +110,7 @@ the GIS API announces its chooser, so that state is inferred from the window blu
 `document.activeElement` is inside the button — true whether Google rendered an iframe or plain DOM,
 and false for an unrelated alt-tab.
 
-Telegram uses a full-page redirect to the bot instead of a chooser overlay. Its button changes immediately
-to “Opening Telegram…” with `aria-busy`, then the browser owns the transition. A refused login,
-expired state, configuration problem, or failed verification returns to the original login/signup
-screen and stays visible in a compact inline status beneath the control. Success redirects from the callback
-only after the Dwelve session cookie has been created.
+The auth screens open on a three-way method chooser — Email, Google, Telegram — because the three behave nothing alike and a stacked column could not explain any of them. Telegram’s panel lists its steps before the button: open the bot, share or type a phone number, tap the link it sends. On a pointer device the button opens the bot in a new tab and the panel turns into “Check Telegram”, with “Open Telegram again” and a way back to the other methods; on touch the page hands itself to the Telegram app. A Telegram outcome in the URL reopens that panel so its notice is what greets the user.
 
 ### Empty
 

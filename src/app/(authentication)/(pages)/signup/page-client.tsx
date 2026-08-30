@@ -21,8 +21,12 @@ import { marketingHref } from "@/lib/hosts";
 import SignupPanel from "./_sections/SignupPanel";
 import { useSignupMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
-import TelegramAuthButton from "../../_components/TelegramAuthButton";
-import TelegramAuthNotice from "../../_components/TelegramAuthNotice";
+import TelegramAuthPanel from "../../_components/TelegramAuthPanel";
+import {
+  AuthMethodPanel,
+  AuthMethodTabs,
+  type AuthMethod,
+} from "../../_components/AuthMethodTabs";
 import AuthHandoffOverlay, {
   handoffDestination,
   type AuthHandoffDestination,
@@ -45,6 +49,8 @@ export default function SignupPageClient({ next, telegram }: Readonly<SignupPage
   const signupMutation = useSignupMutation();
   const googleMutation = useGoogleAuthMutation();
   const telegramStatus = parseTelegramAuthStatus(telegram);
+  // Open on the Telegram method when its outcome is in the URL, so its notice is what greets the user.
+  const [method, setMethod] = React.useState<AuthMethod>(telegramStatus ? "telegram" : "email");
   // Raised once the server has accepted the account, and never lowered — see AuthHandoff.tsx.
   const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
@@ -112,80 +118,88 @@ export default function SignupPageClient({ next, telegram }: Readonly<SignupPage
             </p>
           </div>
 
-          <div className="space-y-4">
-            <GoogleAuthButton
-              onCredential={handleGoogleCredential}
-              disabled={isBusy || googleMutation.isPending}
-              verifying={googleMutation.isPending}
-              text={t("auth.signup.google")}
-              waitingText={t("auth.signup.googleWaiting")}
-              verifyingText={t("auth.signup.googleVerifying")}
-              unavailableText={t("auth.signup.googleUnavailable")}
-            />
+          <AuthMethodTabs
+            value={method}
+            onChange={setMethod}
+            label={t("auth.signup.methodsLabel")}
+            labels={{
+              email: t("auth.methods.email"),
+              google: t("auth.methods.google"),
+              telegram: t("auth.methods.telegram"),
+            }}
+          >
+            <AuthMethodPanel value="email">
+              <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+                <Field label={t("auth.signup.fullName")} error={errors.fullName?.message}>
+                  <Input
+                    {...register("fullName")}
+                    type="text"
+                    placeholder={t("auth.signup.fullNamePlaceholder")}
+                    className={`w-full py-3 ${errors.fullName ? "border-destructive" : ""}`}
+                  />
+                </Field>
 
-            <TelegramAuthButton
-              href={telegramStartHref("signup", next)}
-              disabled={isBusy}
-              text={t("auth.telegram.continue")}
-              openingText={t("auth.telegram.opening")}
-            />
+                <Field label={t("auth.signup.email")} error={errors.email?.message}>
+                  <Input
+                    {...register("email")}
+                    type="email"
+                    placeholder={t("auth.signup.emailPlaceholder")}
+                    className={`w-full py-3 ${errors.email ? "border-destructive" : ""}`}
+                  />
+                </Field>
 
-            <TelegramAuthNotice
-              status={telegramStatus}
-              message={telegramStatus ? t(`auth.telegram.${telegramStatus}`) : undefined}
-            />
+                <Field label={t("auth.signup.password")} error={errors.password?.message}>
+                  <Input
+                    {...register("password")}
+                    type="password"
+                    placeholder={t("auth.signup.createPasswordPlaceholder")}
+                    revealLabel={t("auth.signup.showPassword")}
+                    hideLabel={t("auth.signup.hidePassword")}
+                    aria-invalid={Boolean(errors.password)}
+                  />
+                </Field>
 
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">{t("auth.signup.or")}</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-          </div>
+                {errors.root && (
+                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                    {errors.root.message}
+                  </div>
+                )}
 
-          <form className="mt-4 space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Field label={t("auth.signup.fullName")} error={errors.fullName?.message}>
-              <Input
-                {...register("fullName")}
-                type="text"
-                placeholder={t("auth.signup.fullNamePlaceholder")}
-                className={`w-full py-3 ${errors.fullName ? "border-destructive" : ""}`}
-              />
-            </Field>
+                <Button type="submit" size="xl" className="w-full" loading={isBusy}>
+                  {t("auth.signup.createAccount")}
+                </Button>
 
-            <Field label={t("auth.signup.email")} error={errors.email?.message}>
-              <Input
-                {...register("email")}
-                type="email"
-                placeholder={t("auth.signup.emailPlaceholder")}
-                className={`w-full py-3 ${errors.email ? "border-destructive" : ""}`}
-              />
-            </Field>
+                <p className="text-center text-xs text-muted-foreground">
+                  {t("auth.signup.terms")}
+                </p>
+              </form>
+            </AuthMethodPanel>
 
-            <Field label={t("auth.signup.password")} error={errors.password?.message}>
-              <Input
-                {...register("password")}
-                type="password"
-                placeholder={t("auth.signup.createPasswordPlaceholder")}
-                revealLabel={t("auth.signup.showPassword")}
-                hideLabel={t("auth.signup.hidePassword")}
-                aria-invalid={Boolean(errors.password)}
-              />
-            </Field>
-
-            {errors.root && (
-              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {errors.root.message}
+            <AuthMethodPanel value="google">
+              <p className="text-sm text-muted-foreground">{t("auth.google.description")}</p>
+              <div className="mt-4">
+                <GoogleAuthButton
+                  onCredential={handleGoogleCredential}
+                  disabled={isBusy || googleMutation.isPending}
+                  verifying={googleMutation.isPending}
+                  text={t("auth.signup.google")}
+                  waitingText={t("auth.signup.googleWaiting")}
+                  verifyingText={t("auth.signup.googleVerifying")}
+                  unavailableText={t("auth.signup.googleUnavailable")}
+                />
               </div>
-            )}
+            </AuthMethodPanel>
 
-            <Button type="submit" size="xl" className="w-full" loading={isBusy}>
-              {t("auth.signup.createAccount")}
-            </Button>
-
-            <p className="text-center text-xs text-muted-foreground">
-              {t("auth.signup.terms")}
-            </p>
-          </form>
+            <AuthMethodPanel value="telegram">
+              <TelegramAuthPanel
+                source="signup"
+                href={telegramStartHref("signup", next)}
+                disabled={isBusy}
+                status={telegramStatus}
+                onSwitchMethod={() => setMethod("email")}
+              />
+            </AuthMethodPanel>
+          </AuthMethodTabs>
 
           <p className="mt-6 text-center text-sm text-muted-foreground">
             {t("auth.signup.alreadyAccount")}{" "}

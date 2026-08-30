@@ -3314,6 +3314,14 @@ translation: {
           backToLanding: "Back to home",
           backToLogin: "Back to login",
         },
+        methods: {
+          email: "Email",
+          google: "Google",
+          telegram: "Telegram",
+        },
+        google: {
+          description: "Use your Google account — nothing to remember.",
+        },
         telegram: {
           continue: "Continue with Telegram",
           opening: "Opening Telegram…",
@@ -3321,6 +3329,16 @@ translation: {
           expired: "Telegram sign-in expired. Please try again.",
           failed: "Telegram sign-in failed. Please try again.",
           unavailable: "Telegram sign-in is not available right now.",
+          loginTitle: "Sign in with Telegram",
+          signupTitle: "Sign up with Telegram",
+          description: "Fast and password-free. The Dwelve bot confirms who you are inside Telegram.",
+          step1: "Open the Dwelve bot and press Start.",
+          step2: "Share the phone number linked to your Telegram account, or type it.",
+          step3: "Tap the sign-in link the bot sends. You’ll land straight in your dashboard.",
+          sentTitle: "Check Telegram",
+          sentBody: "We opened the Dwelve bot for you. Finish there — the link it sends brings you straight in.",
+          reopen: "Open Telegram again",
+          otherMethod: "Use another way to sign in",
         },
         /**
          * The sign-in handoff overlay. Two stories, because the destination is known: an existing
@@ -3428,6 +3446,7 @@ translation: {
           },
         },
         login: {
+          methodsLabel: "Sign in with",
           access: "Dwelve Access",
           title: "Welcome back",
           subtitle: "Log in to create or take tests online.",
@@ -3452,6 +3471,7 @@ translation: {
           signup: "Sign up",
         },
         signup: {
+          methodsLabel: "Sign up with",
           access: "Dwelve Access",
           title: "Create your account",
           subtitle: "Sign up in seconds and start practicing.",
