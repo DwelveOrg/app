@@ -18,8 +18,12 @@ import { marketingHref } from "@/lib/hosts";
 import LoginPanel from "./_sections/LoginPanel";
 import { useLoginMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
-import TelegramAuthButton from "../../_components/TelegramAuthButton";
-import TelegramAuthNotice from "../../_components/TelegramAuthNotice";
+import TelegramAuthPanel from "../../_components/TelegramAuthPanel";
+import {
+  AuthMethodPanel,
+  AuthMethodTabs,
+  type AuthMethod,
+} from "../../_components/AuthMethodTabs";
 import AuthHandoffOverlay, {
   handoffDestination,
   type AuthHandoffDestination,
@@ -46,6 +50,9 @@ export default function LoginPageClient({
   const loginMutation = useLoginMutation();
   const googleMutation = useGoogleAuthMutation();
   const telegramStatus = parseTelegramAuthStatus(telegram);
+  // A Telegram outcome in the URL means the user was mid-way through that method: open on it, so
+  // the notice explaining what happened is the first thing they see.
+  const [method, setMethod] = React.useState<AuthMethod>(telegramStatus ? "telegram" : "email");
   const {
     register,
     handleSubmit,
@@ -123,81 +130,89 @@ export default function LoginPageClient({
             </p>
           </div>
 
-          <div className="space-y-4">
-            <GoogleAuthButton
-              onCredential={handleGoogleCredential}
-              disabled={isBusy || googleMutation.isPending}
-              verifying={googleMutation.isPending}
-              text={t("auth.login.google")}
-              waitingText={t("auth.login.googleWaiting")}
-              verifyingText={t("auth.login.googleVerifying")}
-              unavailableText={t("auth.login.googleUnavailable")}
-            />
+          <AuthMethodTabs
+            value={method}
+            onChange={setMethod}
+            label={t("auth.login.methodsLabel")}
+            labels={{
+              email: t("auth.methods.email"),
+              google: t("auth.methods.google"),
+              telegram: t("auth.methods.telegram"),
+            }}
+          >
+            <AuthMethodPanel value="email">
+              <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
+                <Field label={t("auth.login.loginLabel")} error={errors.identifier?.message}>
+                  <Input
+                    {...register("identifier")}
+                    type="text"
+                    placeholder={t("auth.login.loginPlaceholder")}
+                    className={`w-full py-3 ${errors.identifier ? "border-destructive focus:border-destructive" : ""}`}
+                  />
+                </Field>
 
-            <TelegramAuthButton
-              href={telegramStartHref("login", next)}
-              disabled={isBusy}
-              text={t("auth.telegram.continue")}
-              openingText={t("auth.telegram.opening")}
-            />
+                {/*
+                  No `label` prop: the reset link sits on the label row, and Field renders its label
+                  inside a `<label>` element — a link nested there would steal the click that is
+                  supposed to focus the input. The header stays hand-built; the error does not.
+                */}
+                <Field error={errors.password?.message}>
+                  <div className="mb-1.5 flex items-center justify-between">
+                    <label htmlFor="login-password" className="text-sm font-medium text-foreground">
+                      {t("auth.login.passwordLabel")}
+                    </label>
+                    <Link href="/password-reset" className="text-xs font-medium text-primary hover:text-primary-hover">
+                      {t("auth.login.forgot")}
+                    </Link>
+                  </div>
+                  <Input
+                    id="login-password"
+                    {...register("password")}
+                    type="password"
+                    placeholder={t("auth.login.passwordPlaceholder")}
+                    revealLabel={t("auth.login.showPassword")}
+                    hideLabel={t("auth.login.hidePassword")}
+                    aria-invalid={Boolean(errors.password)}
+                  />
+                </Field>
 
-            <TelegramAuthNotice
-              status={telegramStatus}
-              message={telegramStatus ? t(`auth.telegram.${telegramStatus}`) : undefined}
-            />
+                {errors.root && (
+                  <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                    {errors.root.message}
+                  </div>
+                )}
 
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-border" />
-              <span className="text-xs text-muted-foreground">{t("auth.login.or")}</span>
-              <div className="h-px flex-1 bg-border" />
-            </div>
-          </div>
+                <Button type="submit" size="xl" className="w-full" loading={isBusy}>
+                  {t("auth.login.submit")}
+                </Button>
+              </form>
+            </AuthMethodPanel>
 
-          <form className="mt-4 space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
-            <Field label={t("auth.login.loginLabel")} error={errors.identifier?.message}>
-              <Input
-                {...register("identifier")}
-                type="text"
-                placeholder={t("auth.login.loginPlaceholder")}
-                className={`w-full py-3 ${errors.identifier ? "border-destructive focus:border-destructive" : ""}`}
-              />
-            </Field>
-
-            {/*
-              No `label` prop: the reset link sits on the label row, and Field renders its label
-              inside a `<label>` element — a link nested there would steal the click that is
-              supposed to focus the input. The header stays hand-built; the error does not.
-            */}
-            <Field error={errors.password?.message}>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label htmlFor="login-password" className="text-sm font-medium text-foreground">
-                  {t("auth.login.passwordLabel")}
-                </label>
-                <Link href="/password-reset" className="text-xs font-medium text-primary hover:text-primary-hover">
-                  {t("auth.login.forgot")}
-                </Link>
+            <AuthMethodPanel value="google">
+              <p className="text-sm text-muted-foreground">{t("auth.google.description")}</p>
+              <div className="mt-4">
+                <GoogleAuthButton
+                  onCredential={handleGoogleCredential}
+                  disabled={isBusy || googleMutation.isPending}
+                  verifying={googleMutation.isPending}
+                  text={t("auth.login.google")}
+                  waitingText={t("auth.login.googleWaiting")}
+                  verifyingText={t("auth.login.googleVerifying")}
+                  unavailableText={t("auth.login.googleUnavailable")}
+                />
               </div>
-              <Input
-                id="login-password"
-                {...register("password")}
-                type="password"
-                placeholder={t("auth.login.passwordPlaceholder")}
-                revealLabel={t("auth.login.showPassword")}
-                hideLabel={t("auth.login.hidePassword")}
-                aria-invalid={Boolean(errors.password)}
+            </AuthMethodPanel>
+
+            <AuthMethodPanel value="telegram">
+              <TelegramAuthPanel
+                source="login"
+                href={telegramStartHref("login", next)}
+                disabled={isBusy}
+                status={telegramStatus}
+                onSwitchMethod={() => setMethod("email")}
               />
-            </Field>
-
-            {errors.root && (
-              <div className="rounded-xl border border-destructive/25 bg-destructive/10 px-4 py-3 text-sm text-destructive">
-                {errors.root.message}
-              </div>
-            )}
-
-            <Button type="submit" size="xl" className="w-full" loading={isBusy}>
-              {t("auth.login.submit")}
-            </Button>
-          </form>
+            </AuthMethodPanel>
+          </AuthMethodTabs>
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             {t("auth.login.noAccount")}{" "}

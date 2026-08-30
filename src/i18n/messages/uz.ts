@@ -3244,6 +3244,14 @@ translation: {
           backToLanding: "Bosh sahifaga qaytish",
           backToLogin: "Kirishga qaytish",
         },
+        methods: {
+          email: "Elektron pochta",
+          google: "Google",
+          telegram: "Telegram",
+        },
+        google: {
+          description: "Google hisobingizdan foydalaning — hech narsani eslab qolish shart emas.",
+        },
         telegram: {
           continue: "Telegram bilan davom etish",
           opening: "Telegram ochilmoqda…",
@@ -3251,6 +3259,16 @@ translation: {
           expired: "Telegram orqali kirish vaqti tugadi. Qayta urinib koʻring.",
           failed: "Telegram orqali kirib boʻlmadi. Qayta urinib koʻring.",
           unavailable: "Telegram orqali kirish hozircha mavjud emas.",
+          loginTitle: "Telegram orqali kirish",
+          signupTitle: "Telegram orqali roʻyxatdan oʻtish",
+          description: "Tez va parolsiz. Dwelve boti kimligingizni Telegramning oʻzida tasdiqlaydi.",
+          step1: "Dwelve botini oching va “Boshlash” tugmasini bosing.",
+          step2: "Telegram hisobingizga bogʻlangan telefon raqamini ulashing yoki uni kiriting.",
+          step3: "Bot yuborgan kirish havolasini bosing — toʻgʻridan-toʻgʻri boshqaruv paneliga oʻtasiz.",
+          sentTitle: "Telegramni tekshiring",
+          sentBody: "Biz siz uchun Dwelve botini ochdik. Kirishni oʻsha yerda yakunlang — bot yuborgan havola sizni toʻgʻridan-toʻgʻri Dwelve’ga olib kiradi.",
+          reopen: "Telegramni qayta ochish",
+          otherMethod: "Boshqa usul bilan kirish",
         },
         handoff: {
           app: {
@@ -3354,6 +3372,7 @@ translation: {
           },
         },
         login: {
+          methodsLabel: "Kirish usuli",
           access: "Dwelve kirishi",
           title: "Xush kelibsiz",
           subtitle: "Onlayn test yaratish yoki topshirish uchun Dwelveʼga qoʻshiling.",
@@ -3378,6 +3397,7 @@ translation: {
           signup: "Boshlash",
         },
         signup: {
+          methodsLabel: "Roʻyxatdan oʻtish usuli",
           access: "Dwelve kirishi",
           title: "Hisob yarating",
           subtitle: "Bir necha soniyada roʻyxatdan oʻting va mashq qilishni boshlang.",

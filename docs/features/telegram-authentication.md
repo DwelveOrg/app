@@ -12,12 +12,28 @@ Telegram's OAuth consent page and no callback URL to register.
    username, remembers a safe `next` path in a ten-minute `httpOnly` cookie, and redirects to
    `https://t.me/<bot>?start=<ticket>`.
 2. The user presses Start. Telegram delivers `/start <ticket>` to the backend.
-3. Nest consumes the ticket, finds or creates the user from the numeric Telegram id, and has
-   the bot send a **login token** link back into that user's own chat.
-4. `GET /api/auth/telegram/complete?token=…` redeems it, writes the same encrypted Dwelve
+3. Nest consumes the ticket and finds or creates the user from the numeric Telegram id.
+4. An account with no phone number on file is asked for one. The bot offers a
+   `request_contact` button — Telegram shares the number the account is registered with, and
+   only the sender's *own* contact is accepted — or the user types a number with its country
+   code. Contact-shared numbers are stored as verified, typed ones as unverified. Accounts that
+   already have a number skip this step.
+5. The bot sends a **login token** link back into that user's own chat.
+6. `GET /api/auth/telegram/complete?token=…` redeems it, writes the same encrypted Dwelve
    session cookie used by password auth, and redirects to onboarding or the requested path.
 
+The bot speaks the user's own Telegram language (`language_code`: en, ru, uz), replies with a
+hint to anything that is not part of a sign-in, and ignores group chats entirely.
+
 The browser never receives the bot token, Dwelve JWTs, or an unverified identity payload.
+
+## Login and signup screens
+
+Both open on a three-way method chooser — Email, Google, Telegram — each with its own panel.
+The Telegram panel explains the three steps before the button. On a pointer device the button
+opens the bot in a new tab and the panel switches to "Check Telegram" with a way to reopen the
+bot or return to the other methods; on touch, the page hands itself to the Telegram app. A
+`?telegram=<status>` outcome reopens the Telegram panel so its notice is visible.
 
 ## Why the session is not returned to the starting tab
 
@@ -65,6 +81,10 @@ TELEGRAM_BOT_POLLING=true
 `User.telegramId` is nullable and unique, and holds the numeric Telegram user id — the same
 value the retired OIDC flow used as `sub`, so the identity model did not change.
 
+`User.phoneNumber` (E.164) and `User.phoneNumberVerifiedAt` hold the number the bot collected.
+It is contact data, not an identity key: it is not unique, and only a Telegram-shared contact
+sets the verified timestamp.
+
 Telegram does not provide email. A first-time Telegram account receives a stable, reserved,
 non-deliverable address under `identity.dwelve.invalid`. It must never be treated as verified
 contact data. A consequence worth knowing: pending invitations are matched by email, so an
@@ -83,9 +103,11 @@ npm run start:local
 npm run dev
 ```
 
-Open `/login`, press **Continue with Telegram**, press Start in the bot, then tap the link it
-sends. Test: first signup to onboarding; returning login to dashboard; a replayed deep link;
-a reused login link; logout and a protected route.
+Open `/login`, choose **Telegram**, press **Continue with Telegram**, press Start in the bot,
+share or type a phone number, then tap the link it sends. Test: first signup (phone asked) to
+onboarding; returning login (phone skipped) to dashboard; sharing someone else's contact
+(refused); a number without a country code (asked again); a replayed deep link; a reused login
+link; logout and a protected route.
 
 ## Known limitations
 

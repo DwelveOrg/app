@@ -3325,6 +3325,14 @@ translation: {
           backToLanding: "На главную",
           backToLogin: "Назад ко входу",
         },
+        methods: {
+          email: "Почта",
+          google: "Google",
+          telegram: "Telegram",
+        },
+        google: {
+          description: "Используйте аккаунт Google — ничего запоминать не нужно.",
+        },
         telegram: {
           continue: "Продолжить через Telegram",
           opening: "Открываем Telegram…",
@@ -3332,6 +3340,16 @@ translation: {
           expired: "Время входа через Telegram истекло. Попробуйте ещё раз.",
           failed: "Не удалось войти через Telegram. Попробуйте ещё раз.",
           unavailable: "Вход через Telegram сейчас недоступен.",
+          loginTitle: "Вход через Telegram",
+          signupTitle: "Регистрация через Telegram",
+          description: "Быстро и без пароля. Бот Dwelve подтвердит, кто вы, прямо в Telegram.",
+          step1: "Откройте бота Dwelve и нажмите «Запустить».",
+          step2: "Поделитесь номером телефона, привязанным к вашему Telegram, или введите его.",
+          step3: "Нажмите ссылку для входа, которую пришлёт бот. Вы сразу попадёте на панель управления.",
+          sentTitle: "Проверьте Telegram",
+          sentBody: "Мы открыли для вас бота Dwelve. Завершите вход там — ссылка от бота приведёт вас прямо в Dwelve.",
+          reopen: "Открыть Telegram снова",
+          otherMethod: "Войти другим способом",
         },
         handoff: {
           app: {
@@ -3435,6 +3453,7 @@ translation: {
           },
         },
         login: {
+          methodsLabel: "Войти через",
           access: "Доступ Dwelve",
           title: "С возвращением",
           subtitle: "Присоединяйтесь к Dwelve, чтобы создавать или проходить тесты онлайн.",
@@ -3459,6 +3478,7 @@ translation: {
           signup: "Регистрация",
         },
         signup: {
+          methodsLabel: "Зарегистрироваться через",
           access: "Доступ Dwelve",
           title: "Создайте аккаунт",
           subtitle: "Зарегистрируйтесь за секунды и начните заниматься.",
