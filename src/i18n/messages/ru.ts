@@ -3325,6 +3325,14 @@ translation: {
           backToLanding: "На главную",
           backToLogin: "Назад ко входу",
         },
+        telegram: {
+          continue: "Продолжить через Telegram",
+          opening: "Открываем Telegram…",
+          cancelled: "Вход через Telegram отменён.",
+          expired: "Время входа через Telegram истекло. Попробуйте ещё раз.",
+          failed: "Не удалось войти через Telegram. Попробуйте ещё раз.",
+          unavailable: "Вход через Telegram сейчас недоступен.",
+        },
         handoff: {
           app: {
             signingIn: {

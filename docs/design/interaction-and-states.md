@@ -110,6 +110,12 @@ the GIS API announces its chooser, so that state is inferred from the window blu
 `document.activeElement` is inside the button — true whether Google rendered an iframe or plain DOM,
 and false for an unrelated alt-tab.
 
+Telegram uses a full-page redirect to the bot instead of a chooser overlay. Its button changes immediately
+to “Opening Telegram…” with `aria-busy`, then the browser owns the transition. A refused login,
+expired state, configuration problem, or failed verification returns to the original login/signup
+screen and stays visible in a compact inline status beneath the control. Success redirects from the callback
+only after the Dwelve session cookie has been created.
+
 ### Empty
 
 An empty state should **teach the interface**. `Empty`'s `action` prop is where the way forward

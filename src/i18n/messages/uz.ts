@@ -3244,6 +3244,14 @@ translation: {
           backToLanding: "Bosh sahifaga qaytish",
           backToLogin: "Kirishga qaytish",
         },
+        telegram: {
+          continue: "Telegram bilan davom etish",
+          opening: "Telegram ochilmoqda…",
+          cancelled: "Telegram orqali kirish bekor qilindi.",
+          expired: "Telegram orqali kirish vaqti tugadi. Qayta urinib koʻring.",
+          failed: "Telegram orqali kirib boʻlmadi. Qayta urinib koʻring.",
+          unavailable: "Telegram orqali kirish hozircha mavjud emas.",
+        },
         handoff: {
           app: {
             signingIn: {

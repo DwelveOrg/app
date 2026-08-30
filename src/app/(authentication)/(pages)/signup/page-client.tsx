@@ -21,22 +21,30 @@ import { marketingHref } from "@/lib/hosts";
 import SignupPanel from "./_sections/SignupPanel";
 import { useSignupMutation, useGoogleAuthMutation } from "../../_hooks/useAuthMutations";
 import GoogleAuthButton from "../../_components/GoogleAuthButton";
+import TelegramAuthButton from "../../_components/TelegramAuthButton";
+import TelegramAuthNotice from "../../_components/TelegramAuthNotice";
 import AuthHandoffOverlay, {
   handoffDestination,
   type AuthHandoffDestination,
 } from "../../_components/AuthHandoff";
 import { safeNextPath } from "../../_utils/next-path";
+import {
+  parseTelegramAuthStatus,
+  telegramStartHref,
+} from "../../_utils/telegram-start";
 
 type SignupPageClientProps = {
   /** Root-relative path to return to after signup (e.g. an invite). */
   next?: string;
+  telegram?: string;
 };
 
-export default function SignupPageClient({ next }: Readonly<SignupPageClientProps>) {
+export default function SignupPageClient({ next, telegram }: Readonly<SignupPageClientProps>) {
   const { t } = useTranslation();
   const router = useRouter();
   const signupMutation = useSignupMutation();
   const googleMutation = useGoogleAuthMutation();
+  const telegramStatus = parseTelegramAuthStatus(telegram);
   // Raised once the server has accepted the account, and never lowered — see AuthHandoff.tsx.
   const [handoff, setHandoff] = React.useState<AuthHandoffDestination | null>(null);
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
@@ -71,7 +79,8 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
 
   // Includes `handoff` so the submit button keeps its spinner under the overlay rather than
   // snapping back to rest behind the blur.
-  const isBusy = isSubmitting || signupMutation.isPending || handoff !== null;
+  const isBusy =
+    isSubmitting || signupMutation.isPending || googleMutation.isPending || handoff !== null;
 
   const handleGoogleCredential = React.useCallback(async (idToken: string) => {
     try {
@@ -112,6 +121,18 @@ export default function SignupPageClient({ next }: Readonly<SignupPageClientProp
               waitingText={t("auth.signup.googleWaiting")}
               verifyingText={t("auth.signup.googleVerifying")}
               unavailableText={t("auth.signup.googleUnavailable")}
+            />
+
+            <TelegramAuthButton
+              href={telegramStartHref("signup", next)}
+              disabled={isBusy}
+              text={t("auth.telegram.continue")}
+              openingText={t("auth.telegram.opening")}
+            />
+
+            <TelegramAuthNotice
+              status={telegramStatus}
+              message={telegramStatus ? t(`auth.telegram.${telegramStatus}`) : undefined}
             />
 
             <div className="flex items-center gap-3">

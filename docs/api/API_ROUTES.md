@@ -45,6 +45,8 @@ contracts live under [`../features/`](../features/), next to the UI rules that d
 
 | App route                                | Purpose                                                                 |
 | ---------------------------------------- | ----------------------------------------------------------------------- |
+| `GET /api/auth/telegram/start`            | Get a one-time ticket from Nest and redirect to the bot's deep link.    |
+| `GET /api/auth/telegram/complete`         | Redeem the bot's one-time login token and create the app session.       |
 | `GET /api/test-imports/:jobId/events`    | Authenticated SSE bridge to backend import progress; never exposes JWT. |
 
 The import bridge is implemented at
@@ -54,7 +56,7 @@ connection/reconnection fallback.
 
 ## Auth and session behavior
 
-Login, signup, Google auth, password reset, refresh, logout, and school selection may return fresh
+Login, signup, Google auth, Telegram auth, password reset, refresh, logout, and school selection may return fresh
 tokens. Tokens are stored only in the encrypted `httpOnly` application session. Response handlers
 must never expose them to client components or browser storage.
 

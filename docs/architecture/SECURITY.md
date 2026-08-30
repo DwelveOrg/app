@@ -47,6 +47,9 @@ Rules:
 - Forms must use `react-hook-form` plus Zod schemas.
 - Manual login and signup forms must require password input before submit.
 - Google auth must remain passwordless from the frontend user's perspective.
+- Telegram auth must stay server-started. The browser holds no credential: the ticket only
+  opens the bot, and the token that creates the session is delivered through the user's own
+  Telegram chat, so a forwarded deep link cannot sign anyone into someone else's account.
 - Password setup/change forms must never log or persist password field values.
 - Use `GET /profile` `account.authMethods.password` to decide whether
   `currentPassword` is required.
@@ -62,6 +65,9 @@ origin plus Google Identity Services, blocks plugins and framing, restricts
 forms/base URLs, and limits workers/media/connect targets. The policy currently
 allows inline scripts/styles, so React escaping and the rule against raw backend
 HTML remain mandatory.
+
+Telegram auth uses a full-page redirect to the bot rather than a third-party browser script, so it does
+not add a script, frame, image, or connect origin to the app CSP.
 
 Authenticated, authentication, and teacher-invite responses are marked
 `private, no-store` in `src/proxy.ts`; the repository has no public marketing
